@@ -1,3 +1,4 @@
+class AquaHotkey_ComObject extends AquaHotkey {
 /**
  * AquaHotkey - ComObject.ahk
  * 
@@ -8,4 +9,5 @@
  */
 class ComObject {
     
-}
+} ; class ComObject
+} ; class AquaHotkey_ComObject extends AquaHotkey

@@ -1,3 +1,4 @@
+class AquaHotkey_ComValueRef extends AquaHotkey {
 /**
  * AquaHotkey - ComValueRef.ahk
  * 
@@ -15,4 +16,5 @@ class ComValueRef {
         this[] := Value
         return this
     }
-}
+} ; class ComValueRef
+} ; class AquaHotkey_ComValueRef extends AquaHotkey

@@ -1,3 +1,4 @@
+class AquaHotkey_File extends AquaHotkey {
 /**
  * AquaHotkey - File.ahk
  * 
@@ -89,7 +90,11 @@ class File {
             FileName := SubStr(StrGet(Buf), 5) ; remove "\\?\"-prefix
 
             ; memoize result, because it is immutable
-            return this.DefineConstant("FileName", FileName)
+            this.DefineProp("FileName", {
+                Get: (Instance) => FileName
+            })
+            return FileName
         }
     }
-}
+} ; class File
+} ; class AquaHotkey_File extends AquaHotkey

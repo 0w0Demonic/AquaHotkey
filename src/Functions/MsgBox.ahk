@@ -1,3 +1,4 @@
+class AquaHotkey_MsgBox extends AquaHotkey {
 /**
  * AquaHotkey - MsgBox.ahk
  * 
@@ -44,4 +45,5 @@ class MsgBox {
     static HelpButton     => 0x4000
     static RightJustified => 0x80000
     static RightToLeft    => 0x100000
-}
+} ; class MsgBox
+} ; class AquaHotkey_MsgBox extends AquaHotkey

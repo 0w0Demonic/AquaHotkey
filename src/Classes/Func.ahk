@@ -1,3 +1,4 @@
+class AquaHotkey_Func extends AquaHotkey {
 /**
  * AquaHotkey - Func.ahk
  * 
@@ -392,9 +393,10 @@ class Func {
      * @return  {String}
      */
     ToString() {
-        if (this.Name.IsEmpty) {
+        if (this.Name == "") {
             return Type(this) . " <...>"
         }
         return Type(this) . " " . this.Name
     }
-}
+} ; class Func
+} ; class AquaHotkey_Func extends AquaHotkey

@@ -1,3 +1,4 @@
+class AquaHotkey_ClipWait extends AquaHotkey {
 /**
  * AquaHotkey - ClipWait.ahk
  * 
@@ -11,4 +12,5 @@ class ClipWait {
     static ANY  => 1
     static TEXT(Timeout?) => this(Timeout?, 0)
     static ANY(Timeout?) => this(Timeout?, 1)
-}
+} ; class ClipWait
+} ; class AquaHotkey_ClipWait extends AquaHotkey

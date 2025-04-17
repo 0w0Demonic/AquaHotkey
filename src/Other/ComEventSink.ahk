@@ -100,8 +100,16 @@ class ComEventSink {
         }
         CoordMode("ToolTip", "Screen")
         Args.Pop()
-        DisplayedText := "{}({})".FormatWith(MethodName,
-                                             Args.Map(ToString).Join(", "))
+
+        ArgumentTypes := ""
+        for Arg in Args {
+            if (A_Index != 1) {
+                ArgumentTypes .= ", "
+            }
+            ArgumentTypes .= ToString(Arg)
+        }
+
+        DisplayedText := Format("{}({})", MethodName, ArgumentTypes)
         
         static ToString(Arg) {
             if (Arg is VarRef) {

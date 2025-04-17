@@ -1,3 +1,5 @@
+#Include %A_LineFile%/../Any.ahk
+class AquaHotkey_String extends AquaHotkey {
 /**
  * AquaHotkey - String.ahk
  * 
@@ -297,12 +299,13 @@ class String {
      * @return  {String}
      */
     Repeat(n) {
-        n.AssertInteger().AssertGreaterOrEqual(0)
+        if (n.AssertInteger() < 0) {
+            throw ValueError("n < 0",, n)
+        }
         n_Amount_Of_Spaces := Format("{: " . n . "}", " ")
         return StrReplace(n_Amount_Of_Spaces, A_Space, this)
     }
 
-    ; TODO load up msvcrt.dll and use entry point directly?
     /**
      * Returns this string with all characters in reverse order.
      * @example
@@ -653,11 +656,13 @@ class String {
      * @return  {String}
      */ 
     LPad(PaddingStr := " ", n := 1) {
-        n.AssertInteger().AssertGreaterOrEqual(0)
-        if (!n) {
-            return this
+        if (n.AssertInteger() < 0) {
+            throw ValueError("n < 0",, n)
         }
-        return (PaddingStr.AssertType(String).Repeat(n) . this)
+        if (n) {
+            return (PaddingStr.AssertType(String).Repeat(n) . this)
+        }
+        return this
     }
 
     /**
@@ -671,7 +676,9 @@ class String {
      * @return  {String}
      */
     RPad(PaddingStr := " ", n := 1) {
-        n.AssertInteger().AssertGreaterOrEqual(0)
+        if (n.AssertInteger() < 0) {
+            throw ValueError("n < 0",, n)
+        }
         PaddingStr.AssertType(String)
         if (!n) {
             return this
@@ -692,7 +699,9 @@ class String {
      * @return  {String}
      */ 
     WordWrap(n := 80) {
-        n.AssertInteger().AssertGreater(0)
+        if (n.AssertInteger() <= 0) {
+            throw ValueError("n <= 0",, n)
+        }
         Pos := 0
         VarSetStrCapacity(&Out, StrLen(this))
         Loop Parse this, "`n`s`t", "`r`n`s`t" {
@@ -914,4 +923,5 @@ class String {
      */
     StrCompare(Other, CaseSense := false) => StrCompare(this, Other, CaseSense)
     Compare(Other, CaseSense := false)    => StrCompare(this, Other, CaseSense)
-}
+} ; class String
+} ; class AquaHotkey_String extends AquaHotkey

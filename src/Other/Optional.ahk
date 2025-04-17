@@ -262,6 +262,19 @@ class Optional {
         if (this.Value is String) {
             return Type(this) . '{ "' . this.Value . '" }'
         }
-        return Type(this) . "{ " . this.Value.ToString() . " }"
+        return Type(this) . "{ " . String(this.Value) . " }"
     }
+}
+
+class AquaHotkey_Optional extends AquaHotkey {
+    /**
+     * Returns an `Optional` that wraps around this variable.
+     * @see `Optional`
+     * @example
+     * 
+     * "Hello world!".Optional().IfPresent(MsgBox)
+     * 
+     * @return  {Optional}
+     */
+    Optional() => Optional(this)
 }

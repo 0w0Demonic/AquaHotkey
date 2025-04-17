@@ -76,7 +76,8 @@ class IPv4Extension extends AquaHotkey {
             /**
              * Gets or sets the IPv4 address of the control.
              * 
-             * This property allows reading and modifying the IPv4 address as either:
+             * This property allows reading and modifying the IPv4 address
+             * as either:
              * - A full string (e.g., `"192.168.0.1"`)
              * - A segmented array of four octets (e.g., `[192, 168, 0, 1]`)
              * - A specific octet via indexed access (`Ctl.Address[1]` -> `192`)

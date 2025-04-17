@@ -1,3 +1,4 @@
+class AquaHotkey_Gui extends AquaHotkey {
 /**
  * AquaHotkey - Gui.ahk
  * 
@@ -32,5 +33,5 @@ class Gui {
     #Include %A_LineFile%/../Gui/Text.ahk
     #Include %A_LineFile%/../Gui/TreeView.ahk
     #Include %A_LineFile%/../Gui/UpDown.ahk
-}
-
+} ; class Gui
+} ; class AquaHotkey_Gui extends AquaHotkey

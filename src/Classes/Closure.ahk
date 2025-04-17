@@ -1,3 +1,4 @@
+class AquaHotkey_Closure extends AquaHotkey {
 /**
  * AquaHotkey - Closure.ahk
  * 
@@ -8,4 +9,5 @@
  */
 class Closure {
     
-}
+} ; class Closure
+} ; class AquaHotkey_Closure extends AquaHotkey

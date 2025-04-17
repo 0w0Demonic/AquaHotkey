@@ -1,3 +1,4 @@
+class AquaHotkey_Buffer extends AquaHotkey {
 /**
  * AquaHotkey - Buffer.ahk
  * 
@@ -74,18 +75,15 @@ class Buffer {
      * @return  {String}
      */
     HexDump(Delimiter := A_Space, LineLength := 16) {
-        Delimiter.AssertType(String)
-        LineLength := LineLength.AssertInteger().AssertGreaterOrEqual(0)
-
-        if (Delimiter == "" && !LineLength) {
-            if (DllCall("crypt32.dll\CryptBinaryToStringW",
-                    "Ptr", this,
-                    "UInt", this.Size,
-                    "UInt", 0x4,
-                    "Ptr", 0,
-                    "Ptr", &(Str := ""))) {
-                return Str
-            }
+        if (IsObject(Delimiter)) {
+            throw TypeError("Expected a String but received an Object",,
+                            "Delimiter")
+        }
+        if (!IsInteger(LineLength)) {
+            throw TypeError("LineLength is not an Integer",, Type(LineLength))
+        }
+        if (LineLength < 0) {
+            throw ValueError("LineLength < 0",, LineLength)
         }
 
         VarSetStrCapacity(&Out,
@@ -123,7 +121,11 @@ class Buffer {
      * @return  {Buffer}
      */
     static OfString(Str, Encoding?) {
-        Str.AssertType(Primitive)
+        if (IsObject(Str)) {
+            throw TypeError("Expected a String, but received an Object",,
+                            Type(Str))
+        }
+        ; note that using StrPut(Str, Encoding?) causes some weird issues.
         if (IsSet(Encoding)) {
             Buf := Buffer(StrPut(Str, Encoding))
             StrPut(Str, Buf, Encoding)
@@ -147,4 +149,5 @@ class Buffer {
         Ptr  := Format("{:p}", this.Ptr)
         return Type(this) . "{ Ptr: " . Ptr . ", Size: " . this.Size . " }"
     }
-}
+} ; class Buffer
+} ; class AquaHotkey_Buffer extends AquaHotkey

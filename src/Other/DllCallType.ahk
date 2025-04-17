@@ -130,7 +130,10 @@ class DllCallType extends UninstantiableClass {
             return Values
         }
         
-        WinType.AssertType(String)
+        if (IsObject(WinType)) {
+            throw TypeError("Expected a String, but received an Object",,
+                            Type(WinType))
+        }
         if (DataType := DataTypes.Get(WinType, false)) {
             return DataType
         }

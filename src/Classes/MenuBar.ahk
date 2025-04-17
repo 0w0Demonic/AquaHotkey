@@ -1,3 +1,4 @@
+class AquaHotkey_MenuBar extends AquaHotkey {
 /**
  * AquaHotkey - MenuBar.ahk
  * 
@@ -8,4 +9,5 @@
  */
 class MenuBar {
     
-}
+} ; class MenuBar
+} ; class AquaHotkey_MenuBar extends AquaHotkey

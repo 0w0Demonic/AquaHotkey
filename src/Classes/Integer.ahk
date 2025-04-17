@@ -1,3 +1,4 @@
+class AquaHotkey_Integer extends AquaHotkey {
 /**
  * AquaHotkey - Integer.ahk
  * 
@@ -46,4 +47,5 @@ class Integer {
      * @return  {Integer}
      */
     Signum() => (this >> 63) | (-this >>> 63)
-}
+} ; class Integer
+} ; class AquaHotkey_Integer extends AquaHotkey

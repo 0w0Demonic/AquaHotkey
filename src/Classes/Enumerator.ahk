@@ -1,3 +1,4 @@
+class AquaHotkey_Enumerator extends AquaHotkey {
 /**
  * AquaHotkey - Enumerator.ahk
  * 
@@ -7,11 +8,6 @@
  * - src/Classes/Enumerator.ahk
  */
 class Enumerator {
-    /**
-     * Override of `Func.Prototype.IsStream` that always returns `true`.
-     * @override `Func.Prototype.IsStream`
-     * 
-     * @return  {Boolean}
-     */
-    IsStream => true
-}
+
+} ; class Enumerator
+} ; class AquaHotkey_Enumerator extends AquaHotkey

@@ -1,3 +1,4 @@
+class AquaHotkey_ClipboardAll extends AquaHotkey {
 /**
  * AquaHotkey - ClipboardAll.ahk
  * 
@@ -8,4 +9,5 @@
  */
 class ClipboardAll {
     
-}
+} ; class ClipboardAll
+} ; class AquaHotkey_ClipboardAll extends AquaHotkey

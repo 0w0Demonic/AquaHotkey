@@ -1,3 +1,4 @@
+class AquaHotkey_TrayTip extends AquaHotkey {
 /**
  * AquaHotkey - TrayTip.ahk
  * 
@@ -14,4 +15,5 @@ class TrayTip {
     static TRAY_ICON  => 4
     static MUTE       => 16
     static LARGE_ICON => 32
-}
+} ; class TrayTip
+} ; class AquaHotkey_TrayTip extends AquaHotkey

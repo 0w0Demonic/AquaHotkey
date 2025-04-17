@@ -131,7 +131,15 @@ class Process {
      * @return  {Process}
      */
     Wait(Timeout?) {
-        (IsSet(Timeout) && Timeout.AssertNumber().AssertGreater(0))
+        if (!IsSet(Timeout)) {
+            return Process(ProcessWait(this.Id))
+        }
+        if (!IsNumber(Timeout)) {
+            throw TypeError("Expected a Number",, Type(Timeout))
+        }
+        if (Timeout < 0) {
+            throw ValueError("Timeout < 0",, Timeout)
+        }
         return Process(ProcessWait(this.Id, Timeout?))
     }
 
@@ -142,7 +150,15 @@ class Process {
      * @return  {Integer}
      */
     WaitClose(Timeout?) {
-        (IsSet(Timeout) && Timeout.AssertNumber().AssertGreater(0))
-        return ProcessWaitClose(this.Id, Timeout?)
+        if (!IsSet(Timeout)) {
+            return Process(ProcessWaitClose(this.Id))
+        }
+        if (!IsNumber(Timeout)) {
+            throw TypeError("Expected a Number",, Type(Timeout))
+        }
+        if (Timeout < 0) {
+            throw ValueError("Timeout < 0",, Timeout)
+        }
+        return Process(ProcessWaitClose(this.Id, Timeout?))
     }
 }

@@ -1,3 +1,8 @@
+#Include "%A_LineFile%/../../Classes/Any.ahk"
+#Include "%A_LineFile%/../../Classes/Object.ahk"
+#Include "%A_LineFile%/../../Classes/Number.ahk"
+#Include "%A_LineFile%/../../Other/DllCallType.ahk"
+
 /**
  * AquaHotkey - COM.ahk
  * 
@@ -251,7 +256,8 @@ class COM {
      * @return  {COM}
      */
     static FromObj(ComObj, Args*) {
-        Obj := Object().SetBase(this.Prototype)
+        Obj := Object()
+        ObjSetBase(Obj, this.Prototype)
         Obj.DefineConstant("_", ComObj)
         if (HasProp(this, "EventSink") && this.EventSink) {
             if (!(HasBase(this.EventSink, ComEventSink))) {

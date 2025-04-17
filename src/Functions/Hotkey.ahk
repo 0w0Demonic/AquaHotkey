@@ -1,3 +1,4 @@
+class AquaHotkey_Hotkey extends AquaHotkey {
 /**
  * AquaHotkey - Hotkey.ahk
  * 
@@ -20,5 +21,5 @@ class Hotkey {
             Callback(KeyPressed)
         }
         this(Key, Handler, Options?)
-    }
-}
+    } ; class Hotkey
+}} ; class AquaHotkey_Hotkey extends AquaHotkey

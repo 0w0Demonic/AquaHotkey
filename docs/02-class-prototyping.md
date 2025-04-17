@@ -1,12 +1,22 @@
 # 02 - Class Prototyping
 
-AutoHotkey’s built-in classes are powerful, but they cannot easily be extended
-dynamically. You cannot easily add a method to `Array` or `Gui`. Unless you want
-to deep-dive into the intrinsics of class prototyping, you're forced to write
-**wrapper functions** like this:
+**TL;DR.**:
+
+- AquaHotkey lets you extend native AutoHotkey classes like `Array`, `Gui` and
+  `String` with your own methods and properties.
+- It makes most wrapper functions *obsolete*.
+- You can write `Arr.Sum()` instead of `Array_Sum(Arr)`.
+- Just create a nested classes inside one that extends `AquaHotkey`,
+  and AquaHotkey handles the rest.
+
+## Why This Matters
+
+AutoHotkey’s built-in classes are powerful, but you can't easily modify them.
+
+Want to add `Sum()` to every array? You'll be stuck writing wrapper functions
+like this:
 
 ```ahk
-; traditional approach without AquaHotkey
 Array_Sum(Arr) {
     Result := 0
     for Value in Arr {
@@ -14,116 +24,110 @@ Array_Sum(Arr) {
     }
     return Result
 }
-
-Arr := [1, 2, 3, 4]
-MsgBox(Array_Sum(Arr)) ; 10
 ```
 
-This works, but it **doesn't feel natural**. Wouldn't it be better if you could
-call `Sum()` directly as an array method?
-That's exactly what AquaHotkey's class prototyping does for you:
+It works, but it's clunky. Especially because wrapper functions can accept
+any type of object, and there's no safeguard if you accidentally pass something
+unexpected (e.g., a `Map` instead of an `Array`) - the function might fail
+silently or misbahave badly. With AquaHotkey, there's *no type checking needed*,
+because methods are directly owned by the variables themselves (and because
+polymorphism is awesome).
+
+Wouldn't it be better to just write:
+
+```ahk
+Array(1, 2, 3, 4).Sum() ; 10
+```
+
+AquaHotkey lets you *inject methods directly into native classes*, so you can
+call them like any normal method. And it **works for all possible types** and
+even global functions like `MsgBox()`!
+
+**How it works**:
+>AquaHotkey scans your nested class definitions at runtime, injecting them into
+>the correct class or class prototype (e.g. `Array`, `Gui.Control.Prototype`,
+>etc.). You write methods exactly like you're subclassing, and AquaHotkey
+>performs a bunch of hidden class-prototyping wizardry to make everything work
+>smoothly.
+
+## Getting Started
+
+Setting up new methods and properties is pretty straightforward - you won't
+even truly notice that the library is even *there* at all.
+
+### Step 1 - Extend `AquaHotkey`
+
+```ahk
+class ArrayExtensions extends AquaHotkey {
+}
+```
+
+### Step 2 - Create a nested class matching your target
+
+The naming is important here: To extend `Array`, define a class called `Array`
+inside your outer class.
 
 ```ahk
 class ArrayExtensions extends AquaHotkey {
     class Array {
+    }
+}
+```
+
+### Step 3 - Add properties and methods
+
+Also very straightforward - define things like you normally would in a class:
+
+```ahk
+class ArrayExtensions extends AquaHotkey {
+    class Array {
+        IsEmpty => (!this.Length)
+
         Sum() {
-            Result := 0
-            for Value in this {
-                Result += Value
+            Total := 0
+            for Value in this { ; `this` - the array instance
+                Total += Value
             }
-            return Result
+            return Total
+        }
+
+        static OfCapacity(Cap, Values*) {
+            Arr := this(Values*) ; `this` - the `Array` class
+            Arr.Capacity := Cap
+            return Arr
         }
     }
 }
 ```
 
-## Basics
+### Step 4 - Use like native methods!
 
-Writing own extension properties and methods is extremely easy, just follow
-these three steps:
+```ahk
+Arr := Array.OfCapacity(20, 1, 2, 3, 4)
 
-1. Create a class which extends `AquaHotkey`:
+MsgBox( Arr.IsEmpty  ) ; false
+MsgBox( Arr.Sum()    ) ; 10
+MsgBox( Arr.Capacity ) ; 20
+```
 
-   ```ahk
-   class ArrayExtensions extends AquaHotkey {
+### Notes and Warnings
 
-   }
-   ```
+>Overriding methods is destructive, because AquaHotkey *replaces* existing
+>methods without asking. If you override a built-in method (like
+>`Gui.Prototype.__New`), the original is gone - unless you back it up manually
+>or use [`AquaHotkey_Backup`](#Preserving-Original-Behaviour).
 
-2. Create a nested class, named after the target class you want to modify:
+## Real-World Example - Extending `Gui.Control`
 
-   ```ahk
-   class ArrayExtensions extends AquaHotkey {
-       class Array {
-       
-       }
-   }
-   ```
-
-3. Create new properties, exactly as if you were working on the actual
-   built-in class.
-
-   ```ahk
-   class ArrayExtensions extends AquaHotkey {
-       class Array {
-           IsEmpty => (!this.Length)
-
-           Sum() {
-               Result := 0
-               for Value in this {
-                   Result += Value
-               }
-               return Result
-           }
-       }
-   }
-   ```
-
-4. During runtime, the `AquaHotkey` class transfers will process all of your
-   custom properties, adding them to the desired class or function accordingly.
-
-   ```ahk
-   Arr := [1, 2, 3, 4]
-   Arr.IsEmpty ; false
-   Arr.Sum() ; 15
-   ```
-
-**Remarks**:
-
-- Properties `__Class` and `Prototype` are intentionally ignored.
-- If your class overrides `static __New()` make sure to call `super.__New()`
-  to ensure that properties and methods are processed correctly by AquaHotkey.
-
-  ```ahk
-  class MyExtensions extends AquaHotkey {
-      static __New() {
-          ; Extra setup, e.g. forcing a backup or defining more properties
-          ; and methods dynamically
-
-          ; (see [## Preserving Original Methods When Overriding])
-          (ArrayBackup)
-
-          ; ... and then call `super.__New()`
-          super.__New()
-      }
-
-      ; etc.
-  }
-  ```
-
-## Extending `Gui` controls
-
-The same logic applies for targeting nested classes such as `Gui.Control`.
+You can modify nested classes like `Gui.Control`, too:
 
 **Example - Define a `Hidden` property for `Gui.Control`**:
 
 ```ahk
 class GuiControlExtensions extends AquaHotkey
 {
-    ; GuiControlExtensions.Gui -> Gui
     class Gui
     {
-        ; GuiControlExtensions.Gui.Control -> Gui.Control
         class Control {
             Hidden {
                 get => (!this.Visible)
@@ -132,160 +136,106 @@ class GuiControlExtensions extends AquaHotkey
         }
     }
 }
+
+Btn := MyGui.Add("Button", "vMyButton", "Click me")
+
+Btn.Hidden := true ; this hides the button
 ```
 
 ## Instance Variable Declarations
 
-AquaHotkey lets you add custom fields (a.k.a. instance variables) to
-built-in objects by writing them inside the `__Init()` method, which
-runs when the object is created.
-
-You don’t have to write `__Init()` yourself - just declare your
-variables like this:
+You can even define custom fields on built-in types by using simple
+declarations:
 
 ```ahk
 class ArrayExtensions1 extends AquaHotkey {
-    class Array {
-        ExampleValue := 23
-    }
-}
-
-class ArrayExtensions2 extends AquaHotkey {
     class Array {
         Foo := "bar"
     }
 }
 
-Arr := Array(1, 2, 3, 4)
-Arr.ExampleValue ; 23
-Arr.Foo          ; "bar"
-```
-
-Note that these declarations are ignored for primitive classes
-(`Integer`, `Float`, `String`) as they cannot have their own properties/methods.
-
-**Order of Execution**:
-
-Variable declarations are executed in the order in which they were defined in
-the script. A field declaration of `Array` could look like this:
-
-```ahk
-; 1. Array.Prototype.__Init            # ...
-; 2. ArrayExtensions1.Prototype.__Init # ExampleValue := 23
-; 3. ArrayExtensions2.Prototype.__Init # Foo := "bar"
-; 4. Array.Prototype.__New             # [1, 2, 3, 4]
-Arr := Array(1, 2, 3, 4)
-
-MsgBox(Arr.ExampleValue) ; 23
-MsgBox(Arr.Foo)          ; "bar"
-```
-
-***IMPORTANT***:
-
->When defining instance variable declarations for `Object` and `Any`, use
-an `__Init()`-method **with a function body**!
-
-Otherwise, the user-defined `__Init()` will infinitely recurse, causing the
-script to fail.
-
-```ahk
-class ObjectExtensions extends AquaHotkey {
-    class Object  {
-        Field := "foo" ; ERROR - This breaks the entirety of Object.Call()!
-        
-        ; use a function body:
-        __Init() {
-            this.Field := "foo"
-        }
+class ArrayExtensions2 extends AquaHotkey {
+    class Array {
+        Baz := "quux"
     }
-
-    ; The same problem applies to `Any.Prototype.__Init()`.
-    ; 
-    ; class Any {
-    ;     __Init() {
-    ;         ; (do something here)
-    ;     }
-    ; }
 }
 
-Obj := Object()
-MsgBox(Obj.Field) ; "foo"
+Arr := Array()
+MsgBox( Arr.Foo ) ; "bar"
+MsgBox( Arr.Baz ) ; "quux"
 ```
 
-## Preserving Original Methods When Overriding
+Note: These are ignored for primitive classes, namely `Number`, `Integer`,
+`Float` and `String` because they cannot possible own any instance variables.
+Static variable declarations, however, work perfectly as you would expect.
 
-When you define new properties or methods using AquaHotkey’s class prototyping,
-**any existing properties are completely overwritten** - no questions asked.
-This includes native built-in methods and user-defined extensions from earlier classes.
-AquaHotkey doesn't currently check for conflicts (except for a few special cases like
-`__Class` or `Prototype`, which are intentionally ignored).
+> [!CAUTION]
+>For `Object` and `Any`, you must use an `__Init()` method with a function body.
+>Otherwise, AutoHotkey will crash from infinite recursion.
 
-This means if you redefine something like the constructor of `Gui`, the original
-behavior is lost - unless you save it yourself beforehand.
+## Preserving Original Behaviour
 
-### Manually Preserving Properties
-
-Overwriting destroys the original behavior. When you override a built-in
-method, the original one is gone unless you manually save it:
+### Manual Backup
 
 ```ahk
-; manually save the old constructor as `OldGuiConstructor`
+; declaration must happen *above* the class
 Old_Gui_New := Gui.Prototype.__New
 
 class GuiExtensions extends AquaHotkey {
     class Gui {
         __New(Args*) {
-            ; call the old gui constructor
             Old_Gui_New(this, Args*)
-
-            MsgBox("Custom GUI behavior!")
+            MsgBox("Custom Gui behaviour!")
         }
     }
 }
 ```
 
-### With `AquaHotkey_Backup` - A Cleaner Approach
+### Automatic with `AquaHotkey_Backup`
 
-Instead of manually storing functions, `AquaHotkey_Backup` automates this process.
-
-To use it, extend `AquaHotkey_Backup` and set `static Class` to the target
-class whose properties should be preserved.
+Use the `AquaHotkey_Backup` class to save a snapshot of the original.
 
 ```ahk
 class OriginalGui extends AquaHotkey_Backup {
-    static Class => Gui ; this creates a snapshot of `class Gui`
+    static Class => Gui
 }
 
-class GuiExtensions extends AquaHotkey
-{
+class GuiExtensions extends AquaHotkey {
     static __New() {
-        ; force a backup into `OriginalGui` before modifying anything
-        (OriginalArray)
-        super.__New()
+        ; force backup
+        (OriginalGui)
+    }
+    
+    class Gui {
+        (OriginalGui.Prototype.__New)(this, Args*)
+        MsgBox("Overridden safely!")
     }
 
-    class Gui {
-        __New(Args*) {
-            (OriginalGui.Prototype.__New)(this, Args*)
-            MsgBox("Custom GUI behaviour!")
-        }
-    }
+    ; note: you can also define it here.
+    ; 
+    ;     class OriginalGui extends AquaHotkey_Backup { ... }
 }
 ```
 
-Now, `OriginalGui` automatically **preserves all methods and properties** -
-making modifications much safer and cleaner.
+### Ignoring Specific Nested Classes
 
-## Exclude Nested Classes with `AquaHotkey_Ignore`
-
-To indicate that a class should be excluded from AquaHotkey's class prototyping
-system, extend your nested class with the special marker class
-`AquaHotkey_Ignore`.
+Use the special `AquaHotkey_Ignore` marker class to exclude nested classes.
+This is useful for defining helper classes inside large projects:
 
 ```ahk
-class Tanuki extends AquaHotkey {
-    class Util extends AquaHotkey_Ignore {
-        ; this class will be ignored by AquaHotkey's prototyping
+class MyProject extends AquaHotkey {
+    class Gui {
+
+    }
+
+    class Utils extends AquaHotkey_Ignore {
+        ; Will be ignored during property injection
     }
 }
 ```
+
+## Quick Summary
+
+- Add methods by defining nested classes such as `class Array`.
+- `AquaHotkey_Backup` preserves existing methods before overriding.
+- `AquaHotkey_Ignore` skips certain nested classes during injection.

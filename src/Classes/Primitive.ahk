@@ -1,3 +1,4 @@
+class AquaHotkey_Primitive extends AquaHotkey {
 /**
  * AquaHotkey - Primitive.ahk
  * 
@@ -153,6 +154,16 @@ class Primitive {
      * @return  {String}
      */
     FormatTo(Pattern, Args*) {
-        return Format(Pattern, this, Args.Map(String)*)
+        StringReprs := Array()
+        StringReprs.Capacity := Args.Length
+        for Value in Args {
+            if (IsSet(Value)) {
+                StringReprs.Push(String(Value))
+            } else {
+                StringReprs.Length++
+            }
+        }
+        return Format(Pattern, this, StringReprs*)
     }
-}
+} ; class Primitive
+} ; class AquaHotkey_Primitive extends AquaHotkey

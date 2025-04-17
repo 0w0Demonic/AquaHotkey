@@ -1,3 +1,4 @@
+class AquaHotkey_ComValue extends AquaHotkey {
 /**
  * AquaHotkey - ComValue.ahk
  * 
@@ -9,7 +10,7 @@
 class ComValue {
     static __New() {
         static Define(Obj, PropertyName, PropertyDesc) {
-            Object.Prototype.DefineProp.Call(Obj, PropertyName, PropertyDesc)
+            (Object.Prototype.DefineProp)(Obj, PropertyName, PropertyDesc)
         }
 
         IndexLastDot     := InStr(this.Prototype.__Class, ".",,, -1)
@@ -102,4 +103,5 @@ class ComValue {
             }
         }
     }
-}
+} ; class ComValue
+} ; class AquaHotkey_ComValue extends AquaHotkey

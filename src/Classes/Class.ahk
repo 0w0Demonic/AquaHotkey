@@ -1,3 +1,4 @@
+class AquaHotkey_Class extends AquaHotkey {
 /**
  * AquaHotkey - Class.ahk
  * 
@@ -39,7 +40,10 @@ class Class {
         static Deref2(VarName) => %VarName%
         static Cache := (M := Map(), M.CaseSense := false, M)
 
-        ClassName.AssertType(String)
+        if (IsObject(ClassName)) {
+            throw TypeError("Expected a String, but received an Object",,
+                            Type(ClassName))
+        }
         if (ClassObj := Cache.Get(ClassName, false)) {
             return ClassObj
         }
@@ -51,7 +55,9 @@ class Class {
             } else {
                 ClassObj := Deref2(A_LoopField)
             }
-            ClassObj.AssertType(Class)
+            if (!(ClassObj is Class)) {
+                throw TypeError("Expected a Class object",, Type(ClassObj))
+            }
         }
         return (Cache[ClassName] := ClassObj)
     }
@@ -65,4 +71,5 @@ class Class {
      * @return  {String}
      */
     ToString() => "Class " . this.Prototype.__Class
-}
+} ; class Class
+} ; class AquaHotkey_Class extends AquaHotkey

@@ -505,7 +505,12 @@ class Stream {
      * @return  {Stream}
      */
     Limit(n) {
-        n.AssertInteger().AssertGreaterOrEqual(0)
+        if (!IsInteger(n)) {
+            throw TypeError("Expected an Integer",, Type(n))
+        }
+        if (n < 0) {
+            throw ValueError("n < 0",, n)
+        }
         f := this.Call
         Count := 0
         switch (this.MaxParams) {
@@ -542,7 +547,12 @@ class Stream {
      * @return  {Stream}
      */
     Skip(n) {
-        n.AssertInteger().AssertGreaterOrEqual(0)
+        if (!IsInteger(n)) {
+            throw TypeError("Expected an Integer",, Type(n))
+        }
+        if (n < 0) {
+            throw ValueError("n < 0",, n)
+        }
         f := this.Call
         Count := 0
         switch (this.MaxParams) {
@@ -794,7 +804,9 @@ class Stream {
             return false
         }
 
-        Hasher.AssertCallable()
+        if (!HasMethod(Hasher)) {
+            throw TypeError("Expected a Function object",, Type(Hasher))
+        }
 
         switch (this.MaxParams) {
             case 1: return Stream(Distinct1)
@@ -1115,7 +1127,9 @@ class Stream {
         if (!IsSet(Comp)) {
             Comp := (a, b) => (a > b) - (b - a)
         }
-        Comp.AssertCallable()
+        if (!HasMethod(Comp)) {
+            throw TypeError("Expected a Function object",, Type(Comp))
+        }
         f := this.Call
         while (f(&Result) && !IsSet(Result)) {
         } ; nop
@@ -1156,7 +1170,9 @@ class Stream {
         if (!IsSet(Comp)) {
             Comp := (a, b) => (a > b) - (b > a)
         }
-        Comp.AssertCallable()
+        if (!HasMethod(Comp)) {
+            throw TypeError("Expected a Function object",, Type(Comp))
+        }
         f := this.Call
         while (f(&Result) && !IsSet(Result)) {
         } ; nop
@@ -1200,8 +1216,11 @@ class Stream {
      * @return  {Array}
      */
     ToArray(n := 1) {
-        if (n.AssertInteger() <= 0) {
-            throw ValueError("negative integer",, n)
+        if (!IsInteger(n)) {
+            throw ValueError("Expected an Integer",, n)
+        }
+        if (n <= 0) {
+            throw ValueError("n <= 0",, n)
         }
         if (n == 1) {
             return Array(this*)
@@ -1260,10 +1279,14 @@ class Stream {
      * @return  {Any}
      */
     Collect(Supplier, Accumulator, Finisher?) {
-        Supplier.AssertCallable()
-        Accumulator.AssertCallable()
-        if (IsSet(Finisher)) {
-            Finisher.AssertCallable()
+        if (!HasMethod(Supplier)) {
+            throw TypeError("Expected a Function object",, Type(Supplier))
+        }
+        if (!HasMethod(Accumulator)) {
+            throw TypeError("Expected a Function object",, Type(Accumulator))
+        }
+        if (IsSet(Finisher) && !HasMethod(Finisher)) {
+            throw TypeError("Expected a Function object",, Type(Finisher))
         }
         
         Container := Supplier()
@@ -1395,7 +1418,10 @@ class Stream {
      * @return  {String}
      */
     Join(Delimiter := "", InitialCap := 0) {
-        Delimiter.AssertType(String)
+        if (IsObject(Delimiter)) {
+            throw TypeError("Expected a String",, Type(Delimiter))
+        }
+        InitialCap := Max(0, InitialCap)
         try VarSetStrCapacity(&Result, InitialCap)
 
         if (Delimiter == "") {
@@ -1427,5 +1453,46 @@ class Stream {
      */
     JoinLine(InitialCap := 0) {
         return this.Join("`n", InitialCap)
+    }
+}
+
+class AquaHotkey_Stream extends AquaHotkey {
+    class Any {
+        /**
+         * Returns a function stream with this variable as source.
+         * @see `Stream`
+         * @example
+         * 
+         * Arr    := [1, 2, 3, 4, 5]
+         * Stream := Arr.Stream(2) ; for Index, Value in Arr {...}
+         * 
+         * @param   {Integer?}  n  parameter length of the stream
+         * @return  {Stream}
+         */
+        Stream(n := 1) {
+            if (!IsInteger(n)) {
+                throw TypeError("Expected an Integer",, Type(n))
+            }
+            if (n < 1) {
+                throw ValueError("n < 1",, n)
+            }
+            if (HasProp(this, "__Enum")) {
+                return Stream(this.__Enum(n))
+            }
+            if (HasMethod(this)) {
+                return Stream(GetMethod(this))
+            }
+            throw UnsetError("this variable is not enumerable",, Type(this))
+        }
+    }
+
+    class Enumerator {
+        /**
+         * Override of `Func.Prototype.IsStream` that always returns `true`.
+         * @override `Func.Prototype.IsStream`
+         * 
+         * @return  {Boolean}
+         */
+        IsStream => true
     }
 }

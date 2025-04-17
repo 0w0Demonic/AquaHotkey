@@ -17,10 +17,12 @@ class DllFunc {
      * @return  {BoundFunc}
      */
     static Call(Function, Types) {
-        if (Types is String) {
+        if (!IsObject(Types)) {
             Types := StrSplit(Types, ",", A_Space)
         }
-        Types.AssertType(Array)
+        if (!(Types is Array)) {
+            throw TypeError("Expected an Array",, Type(Types))
+        }
         Mask := Array()
         Mask.Capacity := Types.Length * 2
         for T in Types {

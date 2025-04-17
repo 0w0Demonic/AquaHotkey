@@ -1,3 +1,4 @@
+class AquaHotkey_Number extends AquaHotkey {
 /**
  * AquaHotkey - Number.ahk
  * 
@@ -134,4 +135,5 @@ class Number {
         }
         return this
     }
-}
+} ; class Number
+} ; class AquaHotkey_Number extends AquaHotkey

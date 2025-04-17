@@ -1,3 +1,4 @@
+class AquaHotkey_RegExMatchInfo extends AquaHotkey {
 /**
  * AquaHotkey - RegExMatchInfo.ahk
  * 
@@ -8,4 +9,5 @@
  */
 class RegExMatchInfo {
     
-}
+} ; class RegExMatchInfo
+} ; class AquaHotkey_RegExMatchInfo extends AquaHotkey

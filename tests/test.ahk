@@ -1,5 +1,5 @@
 #Requires AutoHotkey >=v2.0.5
-#Include %A_LineFile%/../../src/AquaHotkey.ahk
+#Include %A_LineFile%/../../src/AquaHotkeyX.ahk
 
 class TestSuite {
     #Include %A_LineFile%/../Init/__New.ahk

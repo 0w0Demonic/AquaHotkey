@@ -94,7 +94,12 @@ class Window {
      */
     Close(SecondsToWait?) {
         if (IsSet(SecondsToWait)) {
-            SecondsToWait.AssertNumber().AssertGreaterOrEqual(0)
+            if (!IsNumber(SecondsToWait)) {
+                throw TypeError("Expected a Number",, SecondsToWait)
+            }
+            if (SecondsToWait < 0) {
+                throw ValueError("SecondsToWait < 0",, SecondsToWait)
+            }
         }
         WinClose(this.WinTitle,     this.WinText,
                  SecondsToWait?,

@@ -1,3 +1,4 @@
+class AquaHotkey_Error extends AquaHotkey {
 /**
  * AquaHotkey - Error.ahk
  * 
@@ -20,4 +21,5 @@ class Error {
     static Throw(Msg?, What?, Extra?) {
         throw this(Msg?, What?, Extra?)
     }
-}
+} ; class Error
+} ; class AquaHotkey_Error extends AquaHotkey

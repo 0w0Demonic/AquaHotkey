@@ -1,3 +1,5 @@
+#Include "%A_LineFile%/../Class.ahk"
+class AquaHotkey_Any extends AquaHotkey {
 /**
  * AquaHotkey - Any.ahk
  * 
@@ -13,7 +15,7 @@ class Any {
      * additional arguments `Args*`.
      * @example 
      * 
-     * MyVariable.DoThis().DoThat(Arg2, Arg3).MsgBox()
+     * MyVariable.DoThis().DoThat(Arg3, Arg3).MsgBox()
      * 
      * @param   {String}  FunctionName  name of the function object
      * @param   {Any*}    Args          zero or more additional arguments
@@ -185,39 +187,6 @@ class Any {
             return Types[ClassName] := Class.ForName(ClassName)
         }
     }
-
-    /**
-     * Returns a function stream with this variable as source.
-     * @see `Stream`
-     * @example
-     * 
-     * Arr    := [1, 2, 3, 4, 5]
-     * Stream := Arr.Stream(2) ; for Index, Value in Arr {...}
-     * 
-     * @param   {Integer?}  n  parameter length of the stream
-     * @return  {Stream}
-     */
-    Stream(n := 1) {
-        n.AssertInteger().AssertGreaterOrEqual(1)
-        if (HasProp(this, "__Enum")) {
-            return Stream(this.__Enum(n))
-        }
-        if (HasMethod(this)) {
-            return Stream(GetMethod(this))
-        }
-        throw UnsetError("this variable is not enumerable",, Type(this))
-    }
-
-    /**
-     * Returns an `Optional` that wraps around this variable.
-     * @see `Optional`
-     * @example
-     * 
-     * "Hello world!".Optional().IfPresent(MsgBox)
-     * 
-     * @return  {Optional}
-     */
-    Optional() => Optional(this)
     
     /**
      * Asserts that this variable is derived from class `T`. Otherwise, a
@@ -405,4 +374,5 @@ class Any {
             return Type(Value)
         }
     }
-}
+} ; class Any
+} ; class AquaHotkey_Any extends AquaHotkey

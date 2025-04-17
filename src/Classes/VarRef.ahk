@@ -1,3 +1,4 @@
+class AquaHotkey_VarRef extends AquaHotkey {
 /**
  * AquaHotkey - VarRef.ahk
  * 
@@ -46,4 +47,5 @@ class VarRef {
         pName := NumGet(ObjPtr(this) + 8 + 6 * A_PtrSize, "Ptr")
         return "&" . StrGet(pName, "UTF-16") 
     }
-}
+} ; class VarRef
+} ; class AquaHotkey_VarRef extends AquaHotkey

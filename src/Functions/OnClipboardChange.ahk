@@ -1,3 +1,4 @@
+class AquaHotkey_OnClipboardChange extends AquaHotkey {
 /**
  * AquaHotkey - OnClipboardChange.ahk
  * 
@@ -14,4 +15,5 @@ class OnClipboardChange {
     static CALL_BEFORE => -1
     static REMOVE      => 0
     static CALL_AFTER  => 1
-}
+} ; class OnClipboardChange
+} ; class AquaHotkey_OnClipboardChange extends AquaHotkey

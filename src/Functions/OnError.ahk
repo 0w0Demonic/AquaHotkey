@@ -1,3 +1,4 @@
+class AquaHotkey_OnError extends AquaHotkey {
 /**
  * AquaHotkey - OnError.ahk
  * 
@@ -14,4 +15,5 @@ class OnError {
     static CALL_BEFORE => -1
     static REMOVE      => 0
     static CALL_AFTER  => 1
-}
+} ; class OnError
+} ; class AquaHotkey_OnError extends AquaHotkey

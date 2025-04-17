@@ -1,3 +1,4 @@
+class AquaHotkey_InputHook extends AquaHotkey {
 /**
  * AquaHotkey - InputHook.ahk
  * 
@@ -18,4 +19,5 @@ class InputHook {
     static GetKeyName(VK, SC) {
         return GetKeyName(Format("vk{:x}sc{:x}", VK, SC))
     }
-}
+} ; class InputHook
+} ; class AquaHotkey_InputHook extends AquaHotkey

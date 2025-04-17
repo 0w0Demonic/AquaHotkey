@@ -1,3 +1,5 @@
+#Include "%A_LineFile%/../DllFunc.ahk"
+#Include "%A_LineFile%/../DllCallType.ahk"
 /**
  * AquaHotkey - DLL.ahk
  * 
@@ -144,7 +146,7 @@ class DLL extends UninstantiableClass {
          */
         static DeleteAllProperties(DllClass) {
             static Delete(Obj, PropertyName) {
-                return Object.Prototype.DeleteProp.Call(Obj, PropertyName)
+                (Object.Prototype.DeleteProp)(Obj, PropertyName)
             }
 
             Proto         := DllClass.Prototype
@@ -243,7 +245,10 @@ class DLL extends UninstantiableClass {
         }
 
         if (ObjHasOwnProp(this, "TypeSignatures")) {
-            TypeSignatures := this.TypeSignatures.AssertType(Object)
+            TypeSignatures := this.TypeSignatures
+            if (!IsObject(TypeSignatures)) {
+                throw TypeError("Expected an Object",, Type(TypeSignatures))
+            }
         } else {
             TypeSignatures := Object()
         }
@@ -279,10 +284,12 @@ class DLL extends UninstantiableClass {
      * @param   {String/Array}
      */
     static __Set(PropName, Args, TypeSignature) {
-        if (TypeSignature is Primitive) {
+        if (!IsObject(TypeSignature)) {
             TypeSignature := StrSplit(TypeSignature, ",", A_Space)
         }
-        TypeSignature.AssertType(Array)
+        if (!(TypeSignature is Array)) {
+            throw TypeError("Expected a String or Array",, Type(TypeSignature))
+        }
 
         IsOrdinal := (TypeSignature.Length && IsInteger(TypeSignature[1]))
         if (IsOrdinal) {

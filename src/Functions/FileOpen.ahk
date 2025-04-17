@@ -1,3 +1,4 @@
+class AquaHotkey_FileOpen extends AquaHotkey {
 /**
  * AquaHotkey - FileOpen.ahk
  * 
@@ -29,4 +30,5 @@ class FileOpen {
         static N          => "`n"
         static R          => "`r"
     }
-}
+} ; class FileOpen
+} ; class AquaHotkey_FileOpen extends AquaHotkey

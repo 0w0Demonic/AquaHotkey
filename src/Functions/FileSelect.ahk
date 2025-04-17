@@ -1,3 +1,4 @@
+class AquaHotkey_FileSelect extends AquaHotkey {
 /**
  * AquaHotkey - FileSelect.ahk
  * 
@@ -16,4 +17,5 @@ class FileSelect {
     static PROMPT_CREATE    => 0x8
     static PROMPT_OVERWRITE => 0x10
     static SHORTCUTS_AS_IS  => 0x20
-}
+} ; class FileSelect
+} ; class AquaHotkey_FileSelect extends AquaHotkey

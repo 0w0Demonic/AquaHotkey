@@ -1,3 +1,4 @@
+class AquaHotkey_Float extends AquaHotkey {
 /**
  * AquaHotkey - Float.ahk
  * 
@@ -8,4 +9,5 @@
  */
 class Float {
     
-}
+} ; class Float
+} ; class AquaHotkey_Float extends AquaHotkey

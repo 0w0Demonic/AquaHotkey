@@ -1,3 +1,5 @@
+#Include "%A_LineFile%/../Any.ahk"
+class AquaHotkey_Map extends AquaHotkey {
 /**
  * AquaHotkey - Map.ahk
  * 
@@ -403,4 +405,5 @@ class Map {
         }
         return true
     }
-}
+} ; class Map
+} ; class AquaHotkey_Map extends AquaHotkey

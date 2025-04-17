@@ -1,3 +1,4 @@
+class AquaHotkey_BoundFunc extends AquaHotkey {
 /**
  * AquaHotkey - BoundFunc.ahk
  * 
@@ -8,4 +9,5 @@
  */
 class BoundFunc {
     
-}
+} ; class BoundFunc
+} ; class AquaHotkey_BoundFunc extends AquaHotkey

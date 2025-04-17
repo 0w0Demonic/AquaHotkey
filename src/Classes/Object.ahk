@@ -1,3 +1,6 @@
+#Include %A_LineFile%/../Any.ahk
+#Include %A_LineFile%/../../Other/Stream.ahk
+class AquaHotkey_Object extends AquaHotkey {
 /**
  * AquaHotkey - Object.ahk
  * 
@@ -216,4 +219,5 @@ class Object {
 
         return Type(this) . "{ " . (Result ?? "unset") . " }"
     }
-}
+} ; class Object
+} ; class AquaHotkey_Object extends AquaHotkey
