@@ -94,8 +94,8 @@ If you prefer a lighter setup, you can selectively include specific modules:
 #Include <AquaHotkey>
 
 #Include path/to/AquaHotkey/src/
-  #Include Classes/Array.ahk
-  #Include Classes/Map.ahk
+  #Include Builtins/Array.ahk
+  #Include Builtins/Map.ahk
 #Include %A_ScriptDir% ; change back the "working directory"
 ```
 
@@ -136,6 +136,8 @@ class MyExtensions extends AquaHotkey {
 Four := 2.TimesTwo()
 MsgBox(Four)
 ```
+
+For more detailed information, see [class prototyping](./docs/about-class-prototyping.md).
 
 ---
 
@@ -313,7 +315,7 @@ class InternetExplorer extends COM {
 
 ## More Features
 
-Check out the [API Overview](./docs/03-api-overview.md) for the full list of
+Check out the [API Overview](./docs/api-overview.md) for the full list of
 features.
 
 ## About

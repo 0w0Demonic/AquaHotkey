@@ -70,6 +70,11 @@ static __New() {
      * @param   {Object}  PropertyDesc  property descriptor
      */
     static Define(Obj, PropertyName, PropertyDesc) {
+        ; Very strange edge case: defining an empty property does not
+        ; throw an error, but is an invalid argument for `.DefineProp()`.
+        if (!ObjOwnPropCount(PropertyDesc)) {
+            return
+        }
         (Object.Prototype.DefineProp)(Obj, PropertyName, PropertyDesc)
     }
 
@@ -279,5 +284,5 @@ static __New() {
 } ; static __New()
 } ; class AquaHotkey
 
-#Include %A_LineFile%/../Init/AquaHotkey_Backup.ahk
-#Include %A_LineFile%/../Init/AquaHotkey_Ignore.ahk
+#Include %A_LineFile%/../Core/AquaHotkey_Backup.ahk
+#Include %A_LineFile%/../Core/AquaHotkey_Ignore.ahk

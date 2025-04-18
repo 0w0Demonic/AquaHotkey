@@ -1,4 +1,3 @@
-#Include %A_LineFile%/../Any.ahk
 class AquaHotkey_String extends AquaHotkey {
 /**
  * AquaHotkey - String.ahk
@@ -125,7 +124,12 @@ class String {
      * @return  {String}
      */
     BeforeRegex(Pattern, StartingPos := 1) {
-        Pattern.AssertType(Primitive).AssertNotEquals("")
+        if (IsObject(Pattern)) {
+            throw TypeError("Expected a String",, Type(Pattern))
+        }
+        if (Pattern == "") {
+            throw ValueError("Pattern is empty")
+        }
         FoundPos := RegExMatch(this, Pattern,, StartingPos)
         if (FoundPos) {
             return SubStr(this, 1, FoundPos - 1)
@@ -166,7 +170,12 @@ class String {
      * @return  {String}
      */
     UntilRegex(Pattern, StartingPos := 1) {
-        Pattern.AssertType(Primitive).AssertNotEquals("")
+        if (IsObject(Pattern)) {
+            throw TypeError("Expected a String",, Type(Pattern))
+        }
+        if (Pattern == "") {
+            throw ValueError("Pattern is empty")
+        }
         FoundPos := RegExMatch(this, Pattern, &MatchObject, StartingPos)
         if (FoundPos) {
             return SubStr(this, 1, FoundPos - 1 + MatchObject.Len[0])
@@ -205,7 +214,12 @@ class String {
      * @return  {String}
      */
     FromRegex(Pattern, StartingPos := 1) {
-        Pattern.AssertType(Primitive).AssertNotEquals("")
+        if (IsObject(Pattern)) {
+            throw TypeError("Expected a String",, Type(Pattern))
+        }
+        if (Pattern == "") {
+            throw ValueError("Pattern is empty")
+        }
         FoundPos := RegExMatch(this, Pattern,, StartingPos)
         if (FoundPos) {
             return SubStr(this, FoundPos)
@@ -246,7 +260,12 @@ class String {
      * @return  {String}
      */
     AfterRegex(Pattern, StartingPos := 1) {
-        Pattern.AssertType(Primitive).AssertNotEquals("")
+        if (IsObject(Pattern)) {
+            throw TypeError("Expected a String",, Type(Pattern))
+        }
+        if (Pattern == "") {
+            throw ValueError("Pattern is empty")
+        }
         FoundPos := RegExMatch(this, Pattern, &MatchObject, StartingPos)
         if (FoundPos) {
             return SubStr(this, FoundPos + MatchObject.Len[0])
@@ -299,7 +318,10 @@ class String {
      * @return  {String}
      */
     Repeat(n) {
-        if (n.AssertInteger() < 0) {
+        if (!IsInteger(n)) {
+            throw TypeError("Expected an Integer",, Type(n))
+        }
+        if (n < 0) {
             throw ValueError("n < 0",, n)
         }
         n_Amount_Of_Spaces := Format("{: " . n . "}", " ")
@@ -421,7 +443,9 @@ class String {
         if (!IsSet(Pattern)) {
             Pattern := (*) => True
         }
-        Pattern.AssertCallable()
+        if (!HasMethod(Pattern)) {
+            throw TypeError("Expected a Function object",, Type(Pattern))
+        }
         if (!IsSet(ReturnValue)) {
             ReturnValue := "A_LoopFilePath"
         }
@@ -566,8 +590,12 @@ class String {
      * @param   {String}
      */
     Insert(Str, Position := 1) {
-        Str.AssertType(Primitive)
-        Position := Position.AssertInteger()
+        if (IsObject(Str)) {
+            throw TypeError("Expected a String",, Type(Str))
+        }
+        if (!IsInteger(Position)) {
+            throw TypeError("Expected an Integer",, Type(Position))
+        }
         tLen     := StrLen(this)
         if (Abs(Position) > tLen) {
             Msg     := "index out of bounds"
@@ -595,8 +623,12 @@ class String {
      * @return  {String}
      */
     Overwrite(Str, Position := 1) {
-        Str.AssertType(Primitive)
-        Position := Position.AssertInteger()
+        if (IsObject(Str)) {
+            throw TypeError("Expected a String",, Type(Str))
+        }
+        if (!IsInteger(Position)) {
+            throw TypeError("Expected an Integer",, Type(Position))
+        }
         tLen     := StrLen(this)
         if (Abs(Position) > tLen) {
             Pattern := "index {} (length of this string: {})"
@@ -624,7 +656,11 @@ class String {
      * @return  {String}
      */
     Delete(Position, Length := 1) {
-        if (!Position.AssertInteger() || !Length.AssertInteger()) {
+        if (!IsInteger(Position) || !IsInteger(Length)) {
+            throw TypeError("Expected an Integer",,
+                            Type(Position) . " " . Type(Length))
+        }
+        if (!Position || !Length) {
             return this
         }
         tLen := StrLen(this)
@@ -656,11 +692,17 @@ class String {
      * @return  {String}
      */ 
     LPad(PaddingStr := " ", n := 1) {
-        if (n.AssertInteger() < 0) {
+        if (!IsInteger(n)) {
+            throw TypeError("Expected an Integer",, Type(n))
+        }
+        if (n < 0) {
             throw ValueError("n < 0",, n)
         }
         if (n) {
-            return (PaddingStr.AssertType(String).Repeat(n) . this)
+            if (IsObject(PaddingStr)) {
+                throw TypeError("Expected a String",, Type(PaddingStr))
+            }
+            return (PaddingStr.Repeat(n) . this)
         }
         return this
     }
@@ -676,14 +718,19 @@ class String {
      * @return  {String}
      */
     RPad(PaddingStr := " ", n := 1) {
-        if (n.AssertInteger() < 0) {
+        if (!IsInteger(n)) {
+            throw TypeError("Expected an Integer",, Type(n))
+        }
+        if (n < 0) {
             throw ValueError("n < 0",, n)
         }
-        PaddingStr.AssertType(String)
-        if (!n) {
-            return this
+        if (n) {
+            if (IsObject(PaddingStr)) {
+                throw TypeError("Expected a String",, Type(PaddingStr))
+            }
+            return (this . PaddingStr.Repeat(n))
         }
-        return (this . PaddingStr.AssertType(String).Repeat(n))
+        return this
     }
 
     /**
@@ -699,7 +746,10 @@ class String {
      * @return  {String}
      */ 
     WordWrap(n := 80) {
-        if (n.AssertInteger() <= 0) {
+        if (!IsInteger(n)) {
+            throw TypeError("Expected an Integer",, Type(n))
+        }
+        if (n <= 0) {
             throw ValueError("n <= 0",, n)
         }
         Pos := 0
@@ -906,8 +956,10 @@ class String {
             if (!IsSet(Encoding)) {
                 return StrPut(this)
             }
-            Encoding.AssertType(Primitive)
-            return StrPut(this, Encoding.AssertType(Primitive))
+            if (IsObject(Encoding)) {
+                throw TypeError("Expected a String or Integer",, Type(Encoding))
+            }
+            return StrPut(this, Encoding)
         }
     }
 

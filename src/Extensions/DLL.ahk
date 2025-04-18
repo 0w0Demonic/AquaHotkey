@@ -1,5 +1,3 @@
-#Include "%A_LineFile%/../DllFunc.ahk"
-#Include "%A_LineFile%/../DllCallType.ahk"
 /**
  * AquaHotkey - DLL.ahk
  * 
@@ -111,7 +109,19 @@
  * Kernel32.Sleep(1000)
  * ```
  */
-class DLL extends UninstantiableClass {
+class DLL {
+    /** Constructor that throws an error. */
+    static Call(*) {
+        throw ValueError("this class is not instantiable",,
+                         this.Prototype.__Class)
+    }
+
+    /** Constructor that throws an error. */
+    __New(*) {
+        throw ValueError("this class is not instantiable",,
+                         Type(this))
+    }
+
     /**
      * Static class constructor that loads the DLL file and dynamically creates
      * properties.
@@ -321,7 +331,7 @@ class DLL extends UninstantiableClass {
         })
 
         static CreateCallback(EntryPoint, TypeSignature) {
-            DllCallback := DllFunc(EntryPoint, TypeSignature)
+            DllCallback := DLL.Func(EntryPoint, TypeSignature)
             return (Instance, Args*) => DllCallback(Args*)
         }
 
@@ -378,5 +388,35 @@ class DLL extends UninstantiableClass {
             return this.%NewPropName%(Args*)
         }
         throw PropertyError("DLL function does not exist",, OldPropName)
+    }
+
+    /**
+     * Binds a DLL function to a callable AutoHotkey function.
+     * 
+     * Accepts either a function name (String) or memory address (Integer),
+     * and a variadic list of type parameters and return type (Array or
+     * comma-delimited list of strings).
+     * 
+     * @example
+     * 
+     * sqrt := DLL.Func("msvcrt\sqrtf", "Float", "Float")
+     * MsgBox(sqrt(9.0)) ; 3.0
+     */
+    static Func(Function, Types) {
+        if (!IsObject(Types)) {
+            Types := StrSplit(Types, ",", A_Space)
+        }
+        if (!(Types is Array)) {
+            throw TypeError("Expected an Array",, Type(Types))
+        }
+        Mask := Array()
+        Mask.Capacity := Types.Length * 2
+        for T in Types {
+            Mask.Push(T, unset)
+        }
+        if (Mask.Length) {
+            Mask.Pop()
+        }
+        return DllCall.Bind(Function, Mask*)
     }
 }

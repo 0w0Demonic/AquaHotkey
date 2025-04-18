@@ -1,4 +1,4 @@
-# 02 - Class Prototyping
+# Class Prototyping
 
 **TL;DR.**:
 

@@ -1,4 +1,3 @@
-#Include "%A_LineFile%/../Any.ahk"
 class AquaHotkey_Map extends AquaHotkey {
 /**
  * AquaHotkey - Map.ahk
@@ -97,7 +96,9 @@ class Map {
      * @return  {Map}
      */
     RetainIf(Condition, Args*) {
-        Condition.AssertCallable()
+        if (!HasMethod(Condition)) {
+            throw TypeError("Expected a Function object",, Type(Condition))
+        }
         Result := Map()
         Result.CaseSense := this.CaseSense
         if (HasProp(this, "Default")) {
@@ -126,7 +127,9 @@ class Map {
      * @return  {this}
      */
     RemoveIf(Condition, Args*) {
-        Condition.AssertCallable()
+        if (!HasMethod(Condition)) {
+            throw TypeError("Expected a Function object",, Type(Condition))
+        }
         Result := Map()
         Result.CaseSense := this.CaseSense
         if (HasProp(this, "Default")) {
@@ -154,7 +157,9 @@ class Map {
      * @return  {this}
      */
     ReplaceAll(Mapper, Args*) {
-        Mapper.AssertCallable()
+        if (!HasMethod(Mapper)) {
+            throw TypeError("Expected a Function object",, Type(Mapper))
+        }
         for Key, Value in this {
             this[Key] := Mapper(Key, Value, Args*)
         }
@@ -177,7 +182,9 @@ class Map {
      * @return  {Map}
      */
     Map(Mapper, Args*) {
-        Mapper.AssertCallable()
+        if (!HasMethod(Mapper)) {
+            throw TypeError("Expected a Function object",, Type(Mapper))
+        }
         Result := Map()
         Result.CaseSense := this.CaseSense
         if (HasProp(this, "Default")) {
@@ -207,7 +214,9 @@ class Map {
      * @return  {this}
      */
     ForEach(Action, Args*) {
-        Action.AssertCallable()
+        if (!HasMethod(Action)) {
+            throw TypeError("Expected a Function object",, Type(Action))
+        }
         for Key, Value in this {
             Action(Key, Value, Args*)
         }
@@ -242,7 +251,9 @@ class Map {
      * @return  {this}
      */
     ComputeIfAbsent(Key, Mapper) {
-        Mapper.AssertCallable()
+        if (!HasMethod(Mapper)) {
+            throw TypeError("Expected a Function object",, Type(Mapper))
+        }
         (this.Has(Key) || this[Key] := Mapper(Key))
         return this
     }
@@ -260,7 +271,9 @@ class Map {
      * @return  {this}
      */
     ComputeIfPresent(Key, Mapper) {
-        Mapper.AssertCallable()
+        if (!HasMethod(Mapper)) {
+            throw TypeError("Expected a Function object",, Type(Mapper))
+        }
         (this.Has(Key) && this[Key] := Mapper(Key, this[Key]))
         return this
     }
@@ -289,7 +302,9 @@ class Map {
      * @return  {this}
      */
     Compute(Key, Mapper) {
-        Mapper.AssertCallable()
+        if (!HasMethod(Mapper)) {
+            throw TypeError("Expected a Function object",, Type(Mapper))
+        }
         if (this.Has(Key)) {
             this[Key] := Mapper(Key, this[Key])
         } else {
@@ -312,7 +327,9 @@ class Map {
      * Map().Merge("foo", 1, Sum)
      */
     Merge(Key, Value, Mapper) {
-        Mapper.AssertCallable()
+        if (!HasMethod(Mapper)) {
+            throw TypeError("Expected a Function object",, Type(Mapper))
+        }
         if (this.Has(Key)) {
             this[Key] := Mapper(this[Key], Value)
         } else {
@@ -349,7 +366,9 @@ class Map {
      * @return  {Object}
      */
     AnyMatch(Condition, Args*) {
-        Condition.AssertCallable()
+        if (!HasMethod(Condition)) {
+            throw TypeError("Expected a Function object",, Type(Condition))
+        }
         for Key, Value in this {
             if (Condition(Key, Value, Args*)) {
                 return { Key: Key, Value: Value }
@@ -373,7 +392,9 @@ class Map {
      * @return  {Boolean}
      */
     AllMatch(Condition, Args*) {
-        Condition.AssertCallable()
+        if (!HasMethod(Condition)) {
+            throw TypeError("Expected a Function object",, Type(Condition))
+        }
         for Key, Value in this {
             if (!Condition(Key, Value, Args*)) {
                 return false
@@ -397,7 +418,9 @@ class Map {
      * @return  {Boolean}
      */
     NoneMatch(Condition, Args*) {
-        Condition.AssertCallable()
+        if (!HasMethod(Condition)) {
+            throw TypeError("Expected a Function object",, Type(Condition))
+        }
         for Key, Value in this {
             if (Condition(Key, Value, Args*)) {
                 return false

@@ -8,9 +8,9 @@
  * 
  * **Overview**:
  * 
- * Returns a stream containing an arithmetic progression of numbers between
- * `Start` and `End`, inclusive, optionally at a specified interval of `Step`
- * (otherwise `1` or `-1`).
+ * Returns a `Enumerator` containing an arithmetic progression of numbers
+ * between `Start` and `End`, inclusive, optionally at a specified interval
+ * of `Step` (otherwise `1` or `-1`).
  * @example
  * 
  * Range(10)      ; <1, 2, 3, 4, 5, 6, 7, 8, 9, 10>
@@ -21,7 +21,7 @@
  * @param   {Number}   From  start of the sequence
  * @param   {Number?}  To    end of the sequence
  * @param   {Number?}  Step  interval between elements
- * @return  {Stream}
+ * @return  {Enumerator}
  */
 Range(Start, End?, Step := 1) {
     if (!IsSet(End)) {
@@ -32,9 +32,10 @@ Range(Start, End?, Step := 1) {
         Step := 1
     }
 
-    Start.AssertNumber()
-    End.AssertNumber()
-    Step.AssertNumber()
+    if (!IsNumber(Start) || !IsNumber(End) || !IsNumber(Step)) {
+        throw TypeError("Expected a Number",,
+                        Type(Start) . " " . Type(End) . " " . Type(Step))
+    }
 
     if (!Step) {
         Step := 1
@@ -45,9 +46,9 @@ Range(Start, End?, Step := 1) {
     
     Count := 1
     if (Step > 0) {
-        return Stream(RangeUp)
+        return RangeUp
     }
-    return Stream(RangeDown)
+    return RangeDown
 
     RangeUp(&OutValue) {
         OutValue := Start

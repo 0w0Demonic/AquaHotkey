@@ -1,5 +1,3 @@
-#Include %A_LineFile%/../Any.ahk
-#Include %A_LineFile%/../../Other/Stream.ahk
 class AquaHotkey_Object extends AquaHotkey {
 /**
  * AquaHotkey - Object.ahk
@@ -58,7 +56,9 @@ class Object {
      * @return  {this}
      */
     DefineGetter(PropertyName, Getter) {
-        Getter.AssertCallable()
+        if (!HasMethod(Getter)) {
+            throw TypeError("Expected a Function",, Type(Getter))
+        }
         return this.DefineProp(PropertyName, {
             Get: Getter
         })
@@ -94,8 +94,12 @@ class Object {
      * @return  {this}
      */
     DefineGetterSetter(PropertyName, Getter, Setter) {
-        Getter.AssertCallable()
-        Setter.AssertCallable()
+        if (!HasMethod(Getter)) {
+            throw TypeError("Expected a Function object",, Type(Getter))
+        }
+        if (!HasMethod(Setter)) {
+            throw TypeError("Expected a Function object",, Type(Setter))
+        }
         return this.DefineProp(PropertyName, {
             Get: Getter,
             Set: Setter
@@ -122,7 +126,9 @@ class Object {
      * @return  {this}
      */
     DefineSetter(PropertyName, Setter) {
-        Setter.AssertCallable()
+        if (!HasMethod(Setter)) {
+            throw TypeError("Expected a Function object",, Type(Setter))
+        }
         return this.DefineProp(PropertyName, {
             Set: Setter
         })
@@ -147,7 +153,9 @@ class Object {
      * @return  {this}
      */
     DefineMethod(PropertyName, Method) {
-        Method.AssertCallable()
+        if (!HasMethod(Method)) {
+            throw TypeError("Expected a Function object",, Type(Method))
+        }
         return this.DefineProp(PropertyName, {
             Call: Method
         })
@@ -195,27 +203,37 @@ class Object {
 
         Loop {
             try {
-                ; for Key, Value in this ...
-                Result := this.Stream(2).Map(KeyValueMapper).Join(", ")
+                Result := ""
+                for Key, Value in this {
+                    if (A_Index != 1) {
+                        Result .= ", "
+                    }
+                    Result .= KeyValueMapper(Key, Value?)
+                }
                 break
             }
             try {
-                ; for Value in this ...
-                Result := this.Stream(1).Map(String).Join(", ")
+                Result := ""
+                for Value in this {
+                    if (A_Index != 1) {
+                        Result .= ", "
+                    }
+                    Value := Value ?? "unset"
+                    Result .= String(Value)
+                }
                 break
             }
             try {
-                ; for PropertyName, Value in this ...
-                Enumer := this.OwnProps()
-                Enumer.DefineConstant("MaxParams", 2)
-                Result := Stream(Enumer).Map(KeyValueMapper).Join(", ")
-                if (Result != "") {
-                    break
+                Result := ""
+                for PropName, Value in this.OwnProps() {
+                    if (A_Index != 1) {
+                        Result .= ", "
+                    }
+                    Result .= KeyValueMapper(PropName, Value?)
                 }
             }
-            ; at this point, only return the object type
             return Type(this)
-        } Until true
+        } until true
 
         return Type(this) . "{ " . (Result ?? "unset") . " }"
     }

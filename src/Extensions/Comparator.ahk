@@ -1,6 +1,3 @@
-#Include "%A_LineFile%/../../Classes/Any.ahk"
-#Include "%A_LineFile%/../../Classes/Func.ahk"
-#Include "%A_LineFile%/../../Classes/Object.ahk"
 /**
  * AquaHotkey - Comparator.ahk
  * 
@@ -47,8 +44,12 @@ class Comparator {
      * @return  {Comparator}
      */
     __New(Comp) {
-        Comp.AssertCallable()
-        this.DefineMethod("Call", (Instance, a?, b?) => Comp(a?, b?))
+        if (!HasMethod(Comp)) {
+            throw TypeError("Expected a Function object",, Type(Comp))
+        }
+        this.DefineProp("Call", {
+            Call: (Instance, a?, b?) => Comp(a?, b?)
+        })
     }
 
     /**
@@ -66,10 +67,15 @@ class Comparator {
      * @return  {Comparator}
      */
     AndThen(Other) {
-        Other.AssertCallable()
-        return Object().SetBase(ObjGetBase(this)).DefineMethod("Call", (
-            (Instance, a?, b?) => (this(a?, b?) || Other(a?, b?))
-        ))
+        if (!HasMethod(Other)) {
+            throw TypeError("Expected a Function object",, Type(Other))
+        }
+        Obj := Object()
+        ObjSetBase(Obj, ObjGetBase(this))
+        Obj.DefineProp("Call", {
+            Call: (Instance, a?, b?) => (this(a?, b?) || Other(a?, b?))
+        })
+        return Obj
     }
 
     /**
@@ -90,10 +96,17 @@ class Comparator {
      * @return  {Comparator}
      */
     Compose(Mapper, Args*) {
-        Mapper.AssertCallable()
-        return Object().SetBase(ObjGetBase(this)).DefineMethod("Call", (
-            (Instance, a?, b?) => this(Mapper(a?, Args*), Mapper(b?, Args*))
-        ))
+        if (!HasMethod(Mapper)) {
+            throw TypeError("Expected a Function object",, Type(Mapper))
+        }
+        Obj := Object()
+        ObjSetBase(Obj, ObjGetBase(this))
+        Obj.DefineProp("Call", {
+            Call: (Instance, a?, b?) => (
+                this(Mapper(a?, Args*), Mapper(b?, Args*))
+            )
+        })
+        return Obj
     }
 
     /**
@@ -106,11 +119,19 @@ class Comparator {
      * @return  {Comparator}
      */
     Reversed() {
-        return Object().SetBase(ObjGetBase(this)).DefineMethod("Call", (
-            (Instance, First?, Second?) => this(Second?, First?)
-        )).DefineMethod("Reversed", (
-            (Instance) => this
-        ))
+        Obj := Object()
+        ObjSetBase(Obj, ObjGetBase(this))
+        Obj.DefineProp("Call", {
+            Call: (
+                (Instance, First?, Second?) => this(Second?, First?)
+            )
+        })
+        Obj.DefineProp("Reversed", {
+            Call: (
+                (Instance) => this
+            )
+        })
+        return Obj
     }
 
     /**
@@ -126,7 +147,10 @@ class Comparator {
      * @return  {Comparator}
      */
     NullsFirst() {
-        return (this.Class)(Callback)
+        Comp := Object()
+        ObjSetBase(Comp, ObjGetBase(this))
+        Comp.__New(Callback)
+        return Comp
 
         Callback(First?, Second?) {
             if (IsSet(First)) {
@@ -155,7 +179,10 @@ class Comparator {
      * @return  {Comparator}
      */
     NullsLast() {
-        return (this.Class)(Callback)
+        Comp := Object()
+        ObjSetBase(Comp, ObjGetBase(this))
+        Comp.__New(Callback)
+        return Comp
 
         Callback(First?, Second?) {
             if (IsSet(First)) {

@@ -47,7 +47,7 @@ This new syntax allows for very elegant and streamlined function chains,
 avoiding nested functions.
 
 **See**:
-[Function chaining](./../guide-function-chaining.md)
+[Function chaining](./about-function-chaining.md)
 
 **Example**:
 
@@ -93,7 +93,7 @@ AquaHotkey explicit function chaining. This method forwards this variable to
 function `Callback`, following by zero or more arguments `Args*`.
 
 **See**:
-[Function chaining](./../guide-function-chaining.md)
+[Function chaining](./about-function-chaining.md)
 
 **Example**:
 

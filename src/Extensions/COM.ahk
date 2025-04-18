@@ -1,8 +1,3 @@
-#Include "%A_LineFile%/../../Classes/Any.ahk"
-#Include "%A_LineFile%/../../Classes/Object.ahk"
-#Include "%A_LineFile%/../../Classes/Number.ahk"
-#Include "%A_LineFile%/../../Other/DllCallType.ahk"
-
 /**
  * AquaHotkey - COM.ahk
  * 
@@ -14,11 +9,8 @@
  * **Overview**:
  * 
  * The `COM` class is a user-friendly framework for COM objects which allows the
- * user to create complex wrapper classes, complete with `ComCall()`-methods and
- * event handling.
- * 
- * To define a COM subclass, extend the `COM` class and provide the necessary
- * static properties:
+ * user to create clean and class-based interfaces, by defining only a few
+ * static properties.
  * 
  * **Parameters**:
  * 
@@ -44,19 +36,9 @@
  * 
  * - `(optional) static EventSink => Class`:
  * 
- *   A nested class that handles events thrown by the COM object.
- * 
- * Alternatively, a static property `static EventSink => Class` can point to an
- * event sink class somewhere else in the script.
- * 
- * Although not necessary, an event sink should be a subtype of `ComEventSink`.
- * Otherwise, the base class of the current event sink class will be changed.
- * 
- * Instead of the event sink, the `this`-keyword used in methods of the event
- * sink refer to the instance of `COM` that raised the event.
- * 
- * Due to this change, methods of the event sink no longer accept the original
- * COM object as last parameter.
+ *   Class that handles events thrown by the COM object. Events contained
+ *   in the event sink are modified in such a way that *the `this`-keyword
+ *   refers to the original COM object*.
  * 
  * ---
  * 
@@ -79,16 +61,12 @@
  *         DoSomething: [1, "Int", "UInt"]
  *     }
  *     
- *     class EventSink extends ComEventSink
+ *     class EventSink extends COM.EventSink
  *     {
- *         ; see AHK docs on `ComObjConnect()`:
- *         ; the last parameter `ieFinalParam` is omitted
  *         DocumentComplete(pDisp, &URL)
  *         {
  *             MsgBox("document completed: " . URL)
- *             
- *             ; `this` refers to the instance of `InternetExplorer`!
- *             ; in this example: [InternetExplorer].Quit()
+ *             ; [InternetExplorer].Quit()
  *             this.Quit()
  *         }
  *     }
@@ -119,8 +97,12 @@ class COM {
         }
         
         (Object.Prototype.DeleteProp)(this.Prototype, "__Class")
-        this.CLSID.AssertType(String)
-        this.IID.AssertType(String)
+        if (IsObject(this.CLSID)) {
+            throw TypeError("Expected a String",, Type(this.CLSID))
+        }
+        if (IsObject(this.IID)) {
+            throw TypeError("Expected a String",, Type(this.IID))
+        }
 
         if (!ObjHasOwnProp(this, "MethodSignatures")) {
             return
@@ -134,17 +116,25 @@ class COM {
         }
 
         for MethodName, Signature in ObjOwnProps(Signatures) {
-            MethodName.AssertType(String)
-            Signature.AssertType(Array)
+            if (IsObject(MethodName)) {
+                throw TypeError("Expected a String",, Type(MethodName))
+            }
+            if (!(Signature is Array)) {
+                throw TypeError("Expected an Array",, Type(Signature))
+            }
 
-            Index := Signature.RemoveAt(1).AssertInteger()
-                              .AssertGreaterOrEqual(0)
+            Index := Signature.RemoveAt(1)
+            if (!IsInteger(Index)) {
+                throw TypeError("Expected an Integer",, Type(Index))
+            }
+            if (Index < 0) {
+                throw ValueError("Index < 0",, Index)
+            }
             
             Mask := Array()
             for TypeArg in Signature {
-                TypeArg.AssertType(String)
-                if (!DllCallType.Exists(TypeArg)) {
-                    throw ValueError("invalid data type",, TypeArg)
+                if (IsObject(TypeArg)) {
+                    throw TypeError("Expected a String",, Type(TypeArg))
                 }
                 Mask.Push(TypeArg, unset)
             }
@@ -159,9 +149,13 @@ class COM {
             Callback := ComCall.Bind(Index, unset, Mask*)
             try  {
                 Name     := Cls.Prototype.__Class . ".Prototype." . MethodName
-                Callback.DefineConstant("Name", Name)
+                Callback.DefineProp("Name", {
+                    Get: (Instance) => Name
+                })
             }
-            Cls.Prototype.DefineMethod(MethodName, Callback)
+            Cls.Prototype.DefineProp(MethodName, {
+                Call: Callback
+            })
         }
     }
 
@@ -258,13 +252,15 @@ class COM {
     static FromObj(ComObj, Args*) {
         Obj := Object()
         ObjSetBase(Obj, this.Prototype)
-        Obj.DefineConstant("_", ComObj)
+        Obj.DefineProp("_", {
+            Get: (Instance) => ComObj
+        })
         if (HasProp(this, "EventSink") && this.EventSink) {
-            if (!(HasBase(this.EventSink, ComEventSink))) {
+            if (!(HasBase(this.EventSink, COM.EventSink))) {
                 this.EventSink.DeleteProp("__New")
-                ObjSetBase(this.EventSink, ComEventSink)
-                ObjSetBase(this.EventSink.Prototype, ComEventSink.Prototype)
-                (ComEventSink.__New)(this.EventSink)
+                ObjSetBase(this.EventSink, COM.EventSink)
+                ObjSetBase(this.EventSink.Prototype, COM.EventSink.Prototype)
+                (COM.EventSink.__New)(this.EventSink)
             }
             EventSink := (this.EventSink)(Obj)
             ComObjConnect(Obj._, EventSink)
@@ -352,4 +348,139 @@ class COM {
      * @return  {String}
      */
     __Class => ComObjType(this._, "Class")
+
+
+    /**
+     * `EventSink` is used for handling events that the COM object throws.
+     * 
+     * The `this`-keyword refers to the instance of `COM` raised the event.
+     * This allows very easy managing of the COM object.
+     * 
+     * Because of this, the last parameter thrown by the COM object normally
+     * throws should be omitted from the callback function.
+     * 
+     * If non-static property `ShowEvents` is set to true, the event sink
+     * displays a feed of all undefined events raised by the COM object.
+     */
+    class EventSink {
+        /**
+         * Class initialization. This methods sets up special method handling
+         * which involves using the original event source (the COM class
+         * instance) as `this`.
+         */
+        static __New() {
+            if (ObjGetBase(this) == Object) {
+                return
+            }
+            for PropertyName in ObjOwnProps(this.Prototype) {
+                try {
+                    PropDesc := this.GetOwnPropDesc(PropertyName)
+                    this.DefineProp(PropertyName, PropDesc)
+                }
+            }
+        }
+
+        /**
+         * Defines or modifies an own property.
+         * 
+         * @param   {String}  PropertyName  the name of the property
+         * @param   {Object}  PropDesc      property descriptor
+         */
+        DefineProp(PropertyName, PropDesc) {
+            if (ObjHasOwnProp(PropDesc, "Call")) {
+                Callback := PropDesc.Call
+                EventHandler(Instance, Args*) {
+                    Args.Pop()
+                    return Callback(Instance.Source, Args*)
+                }
+                PropDesc.Call := EventHandler
+            }
+            (Object.Prototype.DefineProp)(this, PropertyName, PropDesc)
+        }
+
+        /**
+         * Constructs a new `COM.EventSink` from the given `COM` source.
+         * 
+         * @param   {COM}  Source  COM instance that throws events
+         * @return  {COM.EventSink}
+         */
+        __New(Source) {
+            this.DefineProp("Source", {
+                Get: (Instance) => Source
+            })
+        }
+
+        /**
+         * Determines if `__Call()` should display events on a tooltip.
+         * 
+         * @return  {Boolean}
+         */
+        ShowEvents => false
+
+        /**
+         * If `ShowEvents` is enabled, shows the name and type signature of
+         * undefined events thrown by the COM object. Otherwise, does nothing.
+         * 
+         * @param   {String}  MethodName  name of the undefined event
+         * @param   {Any*}    Args        zero or more arguments
+         * @return  {Any}
+         */
+        __Call(MethodName, Args) {
+            static Events := Array()
+
+            if (!this.ShowEvents) {
+                return
+            }
+            CoordMode("ToolTip", "Screen")
+            Args.Pop()
+
+            ArgumentTypes := ""
+            for Arg in Args {
+                if (A_Index != 1) {
+                    ArgumentTypes .= ", "
+                }
+                ArgumentTypes .= ToString(Arg)
+            }
+
+            DisplayedText := Format("{}({})", MethodName, ArgumentTypes)
+            
+            static ToString(Arg) {
+                if (Arg is VarRef) {
+                    return "&" . Type(%Arg%)
+                }
+                try return String(Arg)
+                return Type(Arg)
+            }
+
+            Events.Push(DisplayedText)
+            Display(Events)
+            SetTimer(DisplayAfterTimeout.Bind(Events), -3000)
+
+            static DisplayAfterTimeout(Events) {
+                Events.RemoveAt(1)
+                Display(Events)
+            }
+            static Display(Events) {
+                Result := ""
+                for Event in Events {
+                    if (A_Index != 1) {
+                        Result .= "`r`n"
+                    }
+                    Result .= Event
+                }
+                ToolTip(Result, 50, 50)
+            }
+        }
+
+        /** Called when an object is deleted. */
+        __Delete() {
+            Arr := Array()
+            for PropertyName in ObjOwnProps(this) {
+                Arr.Push(Object.Prototype.DeleteProp.Bind(this, PropertyName))
+            }
+            for Function in Arr {
+                Function()
+            }
+        }
+    }
 }

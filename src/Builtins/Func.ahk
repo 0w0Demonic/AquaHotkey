@@ -109,7 +109,9 @@ class Func {
      * @return  {Func}
      */
     AndThen(After, NextArgs*) {
-        After.AssertCallable()
+        if (!HasMethod(After)) {
+            throw TypeError("Expected a Function object",, Type(After))
+        }
         return (Args*) => After( this(Args*), NextArgs* )
     }
 
@@ -133,7 +135,9 @@ class Func {
      * @return  {Func}
      */
     Compose(Before, NextArgs*) {
-        Before.AssertCallable()
+        if (!HasMethod(Before)) {
+            throw TypeError("Expected a Function object",, Type(Before))
+        }
         return (Args*) => this( Before(Args*), NextArgs* )
     }
 
@@ -156,7 +160,9 @@ class Func {
      * @return  {Predicate}
      */
     And(Other) {
-        Other.AssertCallable()
+        if (!HasMethod(Other)) {
+            throw TypeError("Expected a Function object",, Type(Other))
+        }
         return (Args*) => this(Args*) && Other(Args*)
     }
 
@@ -179,7 +185,9 @@ class Func {
      * @return  {Predicate}
      */
     AndNot(Other) {
-        Other.AssertCallable()
+        if (!HasMethod(Other)) {
+            throw TypeError("Expected a Function object",, Type(Other))
+        }
         return (Args*) => this(Args*) && !Other(Args*)
     }
 
@@ -202,7 +210,9 @@ class Func {
      * @return  {Predicate}
      */
     Or(Other) {
-        Other.AssertCallable()
+        if (!HasMethod(Other)) {
+            throw TypeError("Expected a Function object",, Type(Other))
+        }
         return (Args*) => this(Args*) || Other(Args*)
     }
 
@@ -225,7 +235,9 @@ class Func {
      * @return  {Predicate}
      */
     OrNot(Other) {
-        Other.AssertCallable()
+        if (!HasMethod(Other)) {
+            throw TypeError("Expected a Function object",, Type(Other))
+        }
         return (Args*) => this(Args*) || !Other(Args*)
     }
     
@@ -266,12 +278,16 @@ class Func {
      * @return  {Func}
      */
     static Tee(First, Second, Combiner?) {
-        First.AssertCallable()
-        Second.AssertCallable()
+        if (!HasMethod(First) || !HasMethod(Second)) {
+            throw TypeError("Expected a Function object",,
+                            Type(First) . " " . Type(Second))
+        }
         if (!IsSet(Combiner)) {
             return TeeNoMerge
         }
-        Combiner.AssertCallable()
+        if (!HasMethod(Combiner)) {
+            throw TypeError("Expected a Function object",, Type(Combiner))
+        }
         return Tee
 
         TeeNoMerge(Args*) {

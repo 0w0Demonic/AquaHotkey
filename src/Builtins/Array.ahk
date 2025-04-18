@@ -1,5 +1,3 @@
-#Include "%A_LineFile%/../Any.ahk"
-#Include "%A_LineFile%/../../Other/Comparator.ahk"
 class AquaHotkey_Array extends AquaHotkey {
 /**
  * AquaHotkey - Array.ahk
@@ -67,15 +65,18 @@ class Array {
      * @param   {Integer?}  Step   interval at which elements are selected
      */
     Slice(Begin := 1, End := this.Length, Step := 1) {
-        Begin.AssertInteger().AssertNotEquals(0)
-        End.AssertInteger().AssertNotEquals(0)
-        Step.AssertInteger().AssertNotEquals(0)
-
+        if (!IsInteger(Begin) || !IsInteger(End) || !IsInteger(Step)) {
+            throw TypeError("Expected an Integer",,
+                            Type(Begin) . " " . Type(End) . " " . Type(Step))
+        }
+        if (!Begin || !End || !Step) {
+            throw IndexError("Out of bounds",,
+                             Begin . ", " . End . ", " . Step)
+        }
         if (Abs(Begin) > this.Length || Abs(End) > this.Length) {
             throw ValueError("array index out of bounds",,
                              "Begin " . Begin . " End " . End)
         }
-
         if (Begin < 0) {
             Begin := this.Length + 1 + Begin ; last x elements
         }
@@ -233,7 +234,10 @@ class Array {
             return Comp(Value2?, Value1?)
         }
 
-        Comp := Comp ?? Comparator.Numeric()
+        Comp := Comp ?? ((a, b) => (a > b) - (b > a))
+        if (!HasMethod(Comp)) {
+            throw TypeError("Expected a Function object",, Type(Comp))
+        }
         if (Reversed) {
             Callback := CompareReversed
         } else {
@@ -290,8 +294,10 @@ class Array {
         if (!this.Length) {
             throw UnsetError("this array is empty")
         }
-        Comp := Comp ?? Comparator.Numeric()
-        Comp.AssertCallable()
+        Comp := Comp ?? ((a, b) => (a > b) - (b > a))
+        if (!HasMethod(Comp)) {
+            throw TypeError("Expected a Function object",, Type(Comp))
+        }
         Enumer := this.__Enum(1)
         while (Enumer(&Result) && !IsSet(Result)) {
         } ; nop
@@ -326,8 +332,10 @@ class Array {
         if (!this.Length) {
             throw UnsetError("this array is empty")
         }
-        Comp := Comp ?? Comparator.Numeric()
-        Comparator.AssertCallable()
+        Comp := Comp ?? ((a, b) => (a > b) - (b > a))
+        if (!HasMethod(Comp)) {
+            throw TypeError("Expected a Function object",, Type(Comp))
+        }
         Enumer := this.__Enum(1)
         while (Enumer(&Result) && !IsSet(Result)) {
         } ; nop
@@ -394,10 +402,12 @@ class Array {
      * @return  {Array}
      */
     Map(Mapper, Args*) {
-        Mapper.AssertCallable()
+        if (!HasMethod(Mapper)) {
+            throw TypeError("Expected a Function object",, Type(Mapper))
+        }
         Result := Array()
         Result.Capacity := this.Length
-        if (ObjHasOwnProp(this, "Default")) {
+        if (HasProp(this, "Default")) {
             Result.Default := this.Default
         }
 
@@ -439,7 +449,9 @@ class Array {
      * @return  {this}
      */
     ReplaceAll(Mapper, Args*) {
-        Mapper.AssertCallable()
+        if (!HasMethod(Mapper)) {
+            throw TypeError("Expected a Function object",, Type(Mapper))
+        }
         Result := Array()
         Result.Capacity := this.Length
 
@@ -487,7 +499,7 @@ class Array {
      */
     FlatMap(Mapper?, Args*) {
         Result := Array()
-        if (ObjHasOwnProp(this, "Default")) {
+        if (HasProp(this, "Default")) {
             Result.Default := this.Default
         }
         if (!IsSet(Mapper)) {
@@ -550,9 +562,11 @@ class Array {
      * @return  {Array}
      */
     RetainIf(Condition, Args*) {
-        Condition.AssertCallable()
+        if (!HasMethod(Condition)) {
+            throw TypeError("Expected a Function object",, Type(Condition))
+        }
         Result := Array()
-        if (ObjHasOwnProp(this, "Default")) {
+        if (HasProp(this, "Default")) {
             Result.Default := this.Default
         }
         if (HasMethod(Condition,, 0)) {
@@ -587,9 +601,11 @@ class Array {
      * @return  {Array}
      */
     RemoveIf(Predicate, Args*) {
-        Predicate.AssertCallable()
+        if (!HasMethod(Predicate)) {
+            throw TypeError("Expected a Function object",, Type(Predicate))
+        }
         Result := Array()
-        if (ObjHasOwnProp(this, "Default")) {
+        if (HasProp(this, "Default")) {
             Result.Default := this.Default
         }
         if (HasMethod(Predicate,, 0)) {
@@ -646,7 +662,9 @@ class Array {
      * @return  {Map}
      */
     Partition(Predicate, Args*) {
-        Predicate.AssertCallable()
+        if (!HasMethod(Predicate)) {
+            throw TypeError("Expected a Function object",, Predicate)
+        }
         ValuesTrue  := Array()
         ValuesFalse := Array()
         if (HasMethod(Predicate,, 0)) {
@@ -711,7 +729,9 @@ class Array {
      * @return  {Map}
      */
     GroupBy(Classifier, CaseSense := true, Args*) {
-        Classifier.AssertCallable()
+        if (!HasMethod(Classifier)) {
+            throw TypeError("Expected a Function object",, Type(Classifier))
+        }
         Result := Map()
         Result.CaseSense := CaseSense
         if (HasMethod(Classifier,, 0)) {
@@ -792,7 +812,7 @@ class Array {
         Values := Map()
         Values.CaseSense := CaseSense
         Result := Array()
-        if (ObjHasOwnProp(this, "Default")) {
+        if (HasProp(this, "Default")) {
             Result.Default := this.Default
         }
 
@@ -833,7 +853,9 @@ class Array {
      * @return  {String}
      */
     Join(Delimiter := "", InitialCap := 0) {
-        Delimiter.AssertType(Primitive)
+        if (IsObject(Delimiter)) {
+            throw TypeError("Expected a String",, Type(Delimiter))
+        }
         Result := ""
         try VarSetStrCapacity(&Result, InitialCap)
 
@@ -894,7 +916,9 @@ class Array {
             }
             throw UnsetError("this array is empty")
         }
-        Combiner.AssertCallable()
+        if (!HasMethod(Combiner)) {
+            throw TypeError("Expected a Function object",, Type(Combiner))
+        }
         if (IsSet(Identity)) {
             Result := Identity
         }
@@ -930,7 +954,9 @@ class Array {
      * @return  {this}
      */
     ForEach(Action, Args*) {
-        Action.AssertCallable()
+        if (!HasMethod(Action)) {
+            throw TypeError("Expected a Function object",, Type(Action))
+        }
         if (HasMethod(Action,, 0)) {
             for Value in this {
                 Action(Value?, Args*)

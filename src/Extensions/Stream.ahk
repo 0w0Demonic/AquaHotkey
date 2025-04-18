@@ -1485,14 +1485,4 @@ class AquaHotkey_Stream extends AquaHotkey {
             throw UnsetError("this variable is not enumerable",, Type(this))
         }
     }
-
-    class Enumerator {
-        /**
-         * Override of `Func.Prototype.IsStream` that always returns `true`.
-         * @override `Func.Prototype.IsStream`
-         * 
-         * @return  {Boolean}
-         */
-        IsStream => true
-    }
 }
