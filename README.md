@@ -3,6 +3,13 @@
 
 *Class Prototyping Library for AutoHotkey v2.*
 
+```
+    o         /|    .   *
+.      0  (  / |  ,.       ,-.         .
+ .  *      `/._|,(_o\ \  \  ,-\    .     *
+        (_.'   l_    \ `-`\ `-´\     o
+```
+
 ## Overview
 
 ```ahk
