@@ -221,10 +221,10 @@ Optional(4).RemoveIf(x => (x is Number)) ; Optional(unset)
 
 **Parameters**:
 
-| Parameter Name | Type        | Description                        |
-| -------------- | ----------- | ---------------------------------- |
-| `Condition`    | `Predicate` | Function that evalutes a condition |
-| `Args`         | `Any*`      | Zero or more additional arguments  |
+| Parameter Name | Type        | Description                         |
+| -------------- | ----------- | ----------------------------------- |
+| `Condition`    | `Predicate` | Function that evaluates a condition |
+| `Args`         | `Any*`      | Zero or more additional arguments   |
 
 **Return Value**:
 

@@ -891,7 +891,7 @@ class String {
      * @param   {String}      Pattern      string to search for 
      * @param   {Primitive?}  CaseSense    case-sensitivity of the search
      * @param   {Integer?}    StartingPos  position to start searching from
-     * @param   {Integer?}    Occurrence   n-th occurrence to earch for
+     * @param   {Integer?}    Occurrence   n-th occurrence to search for
      * @return  {Integer}
      */
     InStr(Pattern, CaseSense := false, StartingPos := 1, Occurrence := 1) {

@@ -101,9 +101,9 @@ MsgBox(Obj.TwoTimesValue) ; 6
 
 **Description**:
 
-Defiens a new property by the name of `PropertyName`.
+Defines a new property by the name of `PropertyName`.
 
-The `Getter` function determines the value of the property when acccessed whereas `Setter` is executed whenever the property is being assigned a value.
+The `Getter` function determines the value of the property when accessed whereas `Setter` is executed whenever the property is being assigned a value.
 
 **Example**:
 

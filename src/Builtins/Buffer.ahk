@@ -9,7 +9,7 @@ class AquaHotkey_Buffer extends AquaHotkey {
  */
 class Buffer {
     /**
-     * Class initialization to set up all `Get<NumType>` and `Put<Numtype>`
+     * Class initialization to set up all `Get<NumType>` and `Put<NumType>`
      * methods.
      */
     static __New() {
@@ -17,7 +17,7 @@ class Buffer {
                         "Int64", "UInt64", "Ptr", "UPtr", "Float", "Double")
         {
             this.Prototype.DefineProp("Get" . NumType, {
-                Call: CreateGetter(this, Numtype)
+                Call: CreateGetter(this, NumType)
             })
             this.Prototype.DefineProp("Put" . NumType, {
                 Call: CreateSetter(this, NumType)
@@ -56,7 +56,7 @@ class Buffer {
              * @return  {Number}
              */
             Setter(Instance, Value, Offset := 0) {
-                PreviousValue := NumGet(Instance, Offset, Numtype)
+                PreviousValue := NumGet(Instance, Offset, NumType)
                 NumPut(NumType, Value, Instance, Offset)
                 return PreviousValue
             }

@@ -541,7 +541,7 @@ Map().Merge("foo", 2, Sum)
 
 **Description**:
 
-Returns `true`, if any element in this map satisfyies the given predicate
+Returns `true`, if any element in this map satisfies the given predicate
 function `Condition`.
 
 `Condition` is called using key and value as arguments, followed by zero or more

@@ -72,7 +72,7 @@ a class and focuses on code readability and conciseness.
 
 **Description**:
 
-Contructs a new `Control` object from the given control parameter, followed by WinTitle parameters.
+Creates a new `Control` object from the given control parameter, followed by WinTitle parameters.
 
 **Parameters**:
 

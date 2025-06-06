@@ -9,7 +9,7 @@ class AquaHotkey_Integer extends AquaHotkey {
  */
 class Integer {
     /**
-     * Returns a hexadecimal represenation of this string.
+     * Returns a hexadecimal representation of this string.
      * @example
      * 
      * (255).ToHexString() ; "FF"

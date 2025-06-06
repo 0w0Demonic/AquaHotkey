@@ -106,7 +106,7 @@ If you prefer a lighter setup, you can selectively include specific modules:
 #Include %A_ScriptDir% ; change back the "working directory"
 ```
 
-The modules inside the standard library have no mutual dependancies, that makes
+The modules inside the standard library have no mutual dependencies, that makes
 it relatively easy to pick what features you want to have in your script.
 
 ### How to extend types

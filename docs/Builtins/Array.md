@@ -225,7 +225,7 @@ This array is sorted in reverse order, if `Reversed` is set to `true`.
 
 **See**:
 
-[Comparator](./../Other/Comparator.md)
+[Comparator](./../Extensions/Comparator.md)
 
 **Example**:
 
@@ -291,7 +291,7 @@ values.
 
 **See**:
 
-[Comparator](./../Other/Comparator.md)
+[Comparator](./../Extensions/Comparator.md)
 
 **Example**:
 
@@ -328,7 +328,7 @@ has no values.
 
 **See**:
 
-[Comparator](./../Other/Comparator.md)
+[Comparator](./../Extensions/Comparator.md)
 
 **Example**:
 
@@ -398,7 +398,7 @@ the given `Mapper` function.
 `Mapper` is called using items in the array as first argument,
 followed by zero or more additional arguments `Args*`.
 
-Unset elements are ignored, unless `Mapper` explicitly supportes unset
+Unset elements are ignored, unless `Mapper` explicitly supports unset
 parameters.
 
 **Example**:

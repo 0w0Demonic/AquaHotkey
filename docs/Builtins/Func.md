@@ -33,7 +33,7 @@
 
 **Description**:
 
-Provides a shorthand for function binding, with behaviour that adapts depending
+Provides a shorthand for function binding, with behavior that adapts depending
 on the type of the function it is applied to. This method simplifies common
 binding patterns for functions in global/local scope, static methods and
 non-static methods.
@@ -390,7 +390,7 @@ SumAndAverage(1, 2, 3, 4) ; "Sum: 10, Average: 2.5"
 Returns a memoized version of this function, caching previously computed results
 in a `Map` object instead of calculating a result on every call.
 
-The method determines behaviour based on the type of the first parameter:
+The method determines behavior based on the type of the first parameter:
 
 If a `Boolean` (`true` or `false`) or `String` (`"On"`, `"Off"` or `"Locale"`)
 is provided as first parameter, it determines the case-sensitivity of the

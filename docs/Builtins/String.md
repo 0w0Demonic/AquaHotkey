@@ -299,7 +299,7 @@ Returns a substring that starts at the first match of a regex `Pattern`.
 
 **Description**:
 
-Returns a substring that starts afzer a specified occurrence of `Pattern`.
+Returns a substring that starts after a specified occurrence of `Pattern`.
 
 **Example**:
 
@@ -950,7 +950,7 @@ Pads this on the right using `PaddingStr` a total of `n` times.
 
 **Description**:
 
-Stripls all whitespace from this string and then formats words into lines with a maximum length of `n` characters.
+Strips all whitespace from this string and then formats words into lines with a maximum length of `n` characters.
 
 **Example**:
 
@@ -1249,7 +1249,7 @@ Searches for a given occurrence of a string, from the left or the right.
 | `Pattern`      | `String`             | String to search for             |
 | `CaseSense`    | `Primitive := false` | Case-sensitivity of the search   |
 | `StartingPos`  | `Integer := 1`       | Position to start searching from |
-| `Occurrence`   | `Integer := 1`       | n-th occurence to search for     |
+| `Occurrence`   | `Integer := 1`       | n-th occurrence to search for     |
 
 **Return Value**:
 

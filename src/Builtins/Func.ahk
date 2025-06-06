@@ -9,14 +9,14 @@ class AquaHotkey_Func extends AquaHotkey {
  */
 class Func {
     /**
-     * Provides a shorthand for function binding, with behaviour that adapts
+     * Provides a shorthand for function binding, with behavior that adapts
      * depending on the type of the function it is applied to. This method
      * simplifies common binding patterns for functions in global/local scope,
      * static methods and non-static methods.
      * 
      * ---
      * 
-     * **Behaviour for Regular Functions and Static Methods**:
+     * **Behavior for Regular Functions and Static Methods**:
      * 
      * - The method starts binding arguments from the *second* parameter,
      *   leaving the first parameter untouched.
@@ -37,7 +37,7 @@ class Func {
      * 
      * ---
      * 
-     * **Behaviour for Non-Static Methods**:
+     * **Behavior for Non-Static Methods**:
      * 
      * - The method binds arguments starting from the *first* parameter,
      *   leaving out the `this`-parameter referring to the object instance.
@@ -118,7 +118,7 @@ class Func {
     /**
      * Returns a composed function that first applies `Before` with the
      * given input, and then forwards the result to this function, followed
-     * by zero or more additionl arguments `Args*`.
+     * by zero or more additional arguments `Args*`.
      * @example
      * 
      * TimesTwo(x) {
@@ -206,7 +206,7 @@ class Func {
      * Condition := GreaterThan5.Or(EqualsOne)
      * Condition(1) ; true
      * 
-     * @param   {Predicate}  Other  function that evalutes a condition
+     * @param   {Predicate}  Other  function that evaluates a condition
      * @return  {Predicate}
      */
     Or(Other) {
@@ -304,7 +304,7 @@ class Func {
      * Returns a memoized version of this function, caching previously computed
      * results in a `Map` object instead of calculating a result on every call.
      * 
-     * The method determines behaviour based on the type of the first parameter:
+     * The method determines behavior based on the type of the first parameter:
      * 
      * ---
      * 

@@ -51,7 +51,7 @@
  * }
  * ```
  * 
- * **Function Resolution Behaviour**:
+ * **Function Resolution Behavior**:
  * 
  * - If a method is **directly defined**, it is used immediately.
  * - If a method is **not available**, the class automatically 

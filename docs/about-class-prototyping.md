@@ -37,7 +37,7 @@ Array(1, 2, 3, 4).Sum() ; 10
 One reason that it is clunky is because wrapper functions can accept
 any type of object, and there's no safeguard if you accidentally pass something
 unexpected (e.g., a `Map` instead of an `Array`) - the function might fail
-silently or misbahave badly. With AquaHotkey, there's *no type checking needed*,
+silently or misbehave badly. With AquaHotkey, there's *no type checking needed*,
 because methods are directly owned by the variables themselves (and because
 polymorphism is awesome).
 
@@ -175,7 +175,7 @@ Static variable declarations, however, work perfectly as you would expect.
 >For `Object` and `Any`, you must use an `__Init()` method with a function body.
 >Otherwise, AutoHotkey will crash from infinite recursion.
 
-## Preserving Original Behaviour with `AquaHotkey_Backup`
+## Preserving Original Behavior with `AquaHotkey_Backup`
 
 Use the `AquaHotkey_Backup` class to create a snapshot of an existing class's
 properties and methods. This lets you safely override functionality while
@@ -225,9 +225,9 @@ class MyProject extends AquaHotkey {
 }
 ```
 
-## Sharing Behaviour Access Multiple Classes with `AquaHotkey_MultiApply`
+## Sharing Behavior Access Multiple Classes with `AquaHotkey_MultiApply`
 
-If you want multiple unrelated classes to share behaviour without repeating
+If you want multiple unrelated classes to share behavior without repeating
 code, use `AquaHotkey_MultiApply`.
 
 ```ahk
@@ -251,7 +251,7 @@ class Tanuki extends AquaHotkey {
 }
 ```
 
-This lets you write shared behaviour once, and inject it into multiple
+This lets you write shared behavior once, and inject it into multiple
 components cleanly.
 
 ## Class Hierarchy

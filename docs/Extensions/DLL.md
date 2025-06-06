@@ -45,7 +45,7 @@ class User32 extends DLL {
 }
 ```
 
-## Function Resolution Behaviour
+## Function Resolution Behavior
 
 - If a method is **directly defined**, it is used immediately.
 - If a method is **not available**, the class automatically 
@@ -81,7 +81,7 @@ Each subclass can only reference a single DLL.
 Further subclasses cannot override properties:
 
 - `static FilePath`
-- `static TypeSignatures` 
+- `static TypeSignatures`
 - `static Ptr`
 
 **Example Usage**:

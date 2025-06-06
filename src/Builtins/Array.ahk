@@ -216,7 +216,7 @@ class Array {
             ; 0 - String, 1 - Integer, 2 - Float, 5 - Object
             switch NumGet(ptr + 8, "Int") {
                 case 0: out := StrGet(NumGet(ptr, "Ptr") + 2 * A_PtrSize)
-                case 1: out := Numget(ptr, "Int64")
+                case 1: out := NumGet(ptr, "Int64")
                 case 2: out := NumGet(ptr, "Double")
                 case 5: out := ObjFromPtrAddRef(NumGet(ptr, "Ptr"))
             }
@@ -758,7 +758,7 @@ class Array {
      * 
      * Unset elements are removed.
      * 
-     * The method determines behaviour based on the type of the first parameter:
+     * The method determines behavior based on the type of the first parameter:
      * 
      * ---
      * 

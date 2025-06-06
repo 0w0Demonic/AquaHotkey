@@ -147,7 +147,7 @@ keep the implementation clean.
 
 ---
 
-## Behaviour of Stream Parameter Length
+## Behavior of Stream Parameter Length
 
 The stream always takes the longest possible length it can, depending on
 the intermediate operation it receives. For example:
@@ -539,7 +539,7 @@ Returns a new stream which closes as soon as the given predicate function
 `Condition` evaluates to `false`.
 
 The parameter length of the new stream depends on the maximum supported
-parameter legth of `Condition`.
+parameter length of `Condition`.
 
 **Example**:
 
@@ -596,7 +596,7 @@ Removes duplicate elements from the stream by using a `Map` object to track
 previously seen keys. This method ensures that only unique elements remain
 in the resulting stream.
 
-The method determines behaviour based on the type of the first parameter:
+The method determines behavior based on the type of the first parameter:
 
 If a `Boolean` (`true` or `false`) or `String` (`"On"`, `"Off"` or `"Locale"`)
 is provided as first parameter, it determines the case-sensitivity of the
@@ -1024,7 +1024,7 @@ string (default `""`).
 pre-allocating the necessary memory.
 
 Only the *first parameter* of each element set is used. To customize this
-behaviour, preprocess this stream with `.Map()`.
+behavior, preprocess this stream with `.Map()`.
 
 **Example**:
 

@@ -184,7 +184,7 @@ class Object {
      * Converts this object into a string. `String(Obj)` implicitly calls this
      * method.
      * 
-     * The behaviour of this method might be changed in future versions.
+     * The behavior of this method might be changed in future versions.
      * @example
      * 
      * ({ Foo: 45, Bar: 123 }) ; "Object {Bar: 123, Foo: 45}"

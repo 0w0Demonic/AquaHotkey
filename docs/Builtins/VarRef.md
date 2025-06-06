@@ -51,7 +51,7 @@ ref.ToString() ; "&foo"
 
 Returns the pointer of the string or object that this VarRef references.
 
-This property allows passing string to `DllCall()` as byref `&Str`.
+This property allows passing string to `DllCall()` as ByRef `&Str`.
 
 **Example**:
 

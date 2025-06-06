@@ -68,7 +68,7 @@ the string).
 ### Using ByRef
 
 Using ByRef parameters reduces overhead, because the variable is passed *by
-*reference instead. Using the approach in the example below, no unneccessary
+*reference instead. Using the approach in the example below, no unnecessary
 string copies are made:
 
 ```ahk

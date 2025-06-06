@@ -21,7 +21,7 @@ cmd := Window.Run("cmd.exe").WaitActive().Maximize()
 | [`__New(WinTitle?, WinText?, ExcludeTitle?, ExcludeText?)`](#__New)      | `Window`     | Constructs a new `Window` from WinTitle parameters                |
 | [`static Run(Target, WorkingDir?, Options?)`](#Run)                      | `Window`     | Constructs a new `Window` by executing a program                  |
 | [`__Enum(n)`](#__Enum)                                                   | `Enumerator` | Enumerates the WinTitle parameters of the window in a for-loop    |
-| [`Activate()`](#Activate)                                                | `this`       | Activates the top mactching window                                |
+| [`Activate()`](#Activate)                                                | `this`       | Activates the top matching window                                 |
 | [`ActivateBottom()`](#ActivateBottom)                                    | `this`       | Activates the bottom matching window                              |
 | [`Close(SecondsToWait?)`](#Close)                                        | `this`       | Closes the first matching window                                  |
 | [`SetStyle(Value)`](#SetStyle)                                           | `this`       | Sets the style of the window                                      |
@@ -43,7 +43,7 @@ cmd := Window.Run("cmd.exe").WaitActive().Maximize()
 | [`SetEnabled(Value)`](#SetEnabled)                                       | `this`       | Enables and disables the window                                   |
 | [`Wait(Timeout?)`](#Wait)                                                | `Window`     | Waits until the window exists                                     |
 | [`WaitActive(Timeout?)`](#WaitActive)                                    | `Window`     | Waits until the window is active                                  |
-| [`WaitNotActive(Timeoue?)`](#WaitNotActive)                              | `Window`     | Waits until the window is not active                              |
+| [`WaitNotActive(Timeout?)`](#WaitNotActive)                              | `Window`     | Waits until the window is not active                              |
 | [`WaitClose(Timeout?)`](#WaitClose)                                      | `Window`     | Waits until the window closes                                     |
 | [`StatusBarWait(BarText?, Timeout?, Index?, Interval?)`](#StatusBarWait) | `Boolean`    | Waits until the window's status bar contains the specified string |
 
@@ -89,7 +89,7 @@ cmd := Window.Run("cmd.exe").WaitActive().Maximize()
 
 **Description**:
 
-Constrcuts a new `Window` from the given WinTitle parameters.
+Creates a new `Window` from the given WinTitle parameters.
 
 **Parameters**:
 

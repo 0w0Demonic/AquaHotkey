@@ -368,7 +368,7 @@ class Control {
      * 
      * Shows or hides the control.
      * 
-     * @param   {Boolean}  Value  visiblity of the control
+     * @param   {Boolean}  Value  visibility of the control
      * @return  {Boolean}
      */
     Visible {

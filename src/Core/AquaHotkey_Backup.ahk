@@ -125,7 +125,7 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
          * Supplier to Receiver.
          */
         static Transfer(Supplier, Receiver) {
-            ; find protoype and name of property supplier
+            ; find prototype and name of property supplier
             FormatString := "`n[Aqua] ######## {1} -> {2} ########`n"
             switch {
                 case (Supplier is Class):

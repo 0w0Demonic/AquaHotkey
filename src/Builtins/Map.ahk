@@ -200,7 +200,7 @@ class Map {
      * Calls the given `Action` function on each element of this map.
      * 
      * `Action` is called using key and value as first two arguments, followed
-     * by zero or more addditional arguments `Args*`.
+     * by zero or more additional arguments `Args*`.
      * @example
      * 
      * Print(Key, Value) {
@@ -408,7 +408,7 @@ class Map {
      * predicate function `Condition`.
      * 
      * `Condition` is called using key and value as first two arguments,
-     * followed by zero or more addtional arguments `Args*`.
+     * followed by zero or more additional arguments `Args*`.
      * @example
      * 
      * Map(1, 2, 3, 4).NoneMatch((Key, Value) => (Key == 3)) ; false

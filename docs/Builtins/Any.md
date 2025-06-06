@@ -257,7 +257,7 @@ using its `__Enum()` or `Call()` method.
 
 **See**:
 
-[Using Stream](./../guide-stream.md)
+[Using Stream](./../Extensions/Stream.md)
 
 **Example**:
 

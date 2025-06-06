@@ -604,12 +604,12 @@ class Stream {
      * Returns a new stream which closes as soon as the given predicate
      * function `Condition` evaluates to `false`.
      * 
-     * The parameter length of the new stream is dermined by `.ArgSize()`.
+     * The parameter length of the new stream is determined by `.ArgSize()`.
      * @example
      * 
      * Array(1, -2, 4, 6, 2, 1).Stream().TakeWhile(x => x < 5) ; <1, -2, 4>
      * 
-     * @param   {Predicate}  Condition  function that evalutes a condition
+     * @param   {Predicate}  Condition  function that evaluates a condition
      * @return  {Stream}
      */
     TakeWhile(Condition) {
@@ -741,7 +741,7 @@ class Stream {
      * 
      * The parameter length of the new stream remains the same.
      * 
-     * The method determines behaviour based on the type of the first parameter:
+     * The method determines behavior based on the type of the first parameter:
      * 
      * ---
      * 
@@ -1063,7 +1063,7 @@ class Stream {
      * 
      * Array(1, 2, 3, 4, 5, 92).Stream().NoneMatch(x => x > 10) ; false
      * 
-     * @param   {Predicate}  Condition  function that evulates a condition
+     * @param   {Predicate}  Condition  function that evaluates a condition
      * @return  {Boolean}
      */
     NoneMatch(Condition) {
@@ -1405,7 +1405,7 @@ class Stream {
      * ---
      * 
      * Only the *first parameter* of each element set is used. To customize this
-     * behaviour, preprocess this stream with `.Map()`.
+     * behavior, preprocess this stream with `.Map()`.
      * 
      * ---
      * @example

@@ -17,7 +17,7 @@
 **Description**:
 
 This method is an override of AquaHotkey's
-[function chaining method](./../guide-function-chaining.md) which prevents
+[function chaining method](./about-function-chaining.md) which prevents
 this feature when working with class objects and throws a `MethodError`.
 
 **Example**:

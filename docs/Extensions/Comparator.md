@@ -32,7 +32,7 @@ Array("foo", "bar", "a", "Hello, world!", unset).Sort(
 
 | Method Name                                            | Return Type  | Description                                                      |
 | ------------------------------------------------------ | ------------ | ---------------------------------------------------------------- |
-| [`__New(Comp)`](#__New)                                | `Comparator` | Construts a new comparator                                       |
+| [`__New(Comp)`](#__New)                                | `Comparator` | Creates a new comparator                                         |
 | [`AndThen(Other)`](#AndThen)                           | `Comparator` | Specifies a second comparator to use when two elements are equal |
 | [`Compose(Other)`](#Compose)                           | `Comparator` | Makes the comparator extract a value before comparison           |
 | [`Reversed()`](#Reversed)                              | `Comparator` | Reverses the comparator                                          |
@@ -126,7 +126,7 @@ followed by zero or more additional arguments `Args*`.
 **Example**:
 
 ```ahk
-ByStringLength := Comparator.Numeric().Compose(StrLen)
+ByStringLength := Comparator.Alphabetic().Compose(StrLen)
 
 ; ["", "a", "l9", "foo"]
 Array("foo", "a", "", "l9").Sort(ByStringLength)
