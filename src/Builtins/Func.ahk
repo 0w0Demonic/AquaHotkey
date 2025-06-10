@@ -90,6 +90,20 @@ class Func {
     }
 
     /**
+     * Stores a clone of the function in `Output`.
+     * @example
+     * 
+     * MyVariable.Store(&Copy)
+     * 
+     * @param   {VarRef}  Output  output variable to store current value in
+     * @return  {this}
+     */
+    Store(&Output) {
+        Output := this
+        return this
+    }
+
+    /**
      * Returns a composed function that first applies this function with the
      * given input, and then forwards the result to `After` as first parameter,
      * followed by zero or more additional arguments `NextArgs*`.

@@ -162,7 +162,7 @@ class Any {
     BindMethod(MethodName, Args*) => ObjBindMethod(this, MethodName, Args*)
 
     /**
-     * Stores a clone of the current value of this variable in `Output`.
+     * Stores a clone of the variable in `Output`.
      * @example
      * 
      * MyVariable.Store(&Copy)
@@ -171,11 +171,7 @@ class Any {
      * @return  {this}
      */
     Store(&Output) {
-        if (IsObject(this) && !(this is Func)) {
-            Output := this.Clone()
-        } else {
-            Output := this
-        }
+        Output := this
         return this
     }
 

@@ -162,6 +162,20 @@ class Object {
     }
 
     /**
+     * Stores a clone of the object in `Output`.
+     * @example
+     * 
+     * MyVariable.Store(&Copy)
+     * 
+     * @param   {VarRef}  Output  output variable to store current value in
+     * @return  {this}
+     */
+    Store(&Output) {
+        Output := this.Clone()
+        return this
+    }
+
+    /**
      * Sets the base of this object.
      * @example
      * 
