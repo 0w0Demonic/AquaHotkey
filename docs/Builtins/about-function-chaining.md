@@ -2,55 +2,48 @@
 
 ## Overview
 
-Function chaining in AquaHotkey allows users to chain functions together without
-nesting, similar to the pipe (`|>`) operator in Elixir. This feature improves
-code readability and flow, by enabling a left-to-right transformation of data.
+Function chaining is a feature greatly inspired by the pipe operator `|>` in
+Elixir. The main focus is code readability and flow, by taking the result
+of one expression, and passing it onto the next function.
 
-### 1. Implicit Function Chaining (`Any.Prototype.__Call`)
+### 1. Implicit Chaining
 
-When a method is not defined for a variable, AquaHotkey attempts to invoke a
-global function with the variable as the **first argument**, followed by any
-additional parameters.
-
-**Example**:
+Whenever a method `.Foo()` is undefined, AquaHotkey will try to call a global
+function `Foo()`. The variable is passed on as **first argument**, followed by
+any additional parameters.
 
 ```ahk
 "Hello, world!".Foo().Bar("Baz") ; Bar(Foo("Hello, world!"), "Baz")
 ```
 
-### 2. Explicit Function Chaining (`Any.Prototype.o0()`)
+### 2. Explicit Chaining
 
-The `.o0()` method accepts the function to be called as first argument,
-followed by zero or more additional arguments.
-
-**Example**:
+As opposed to the implicit version, the `.o0()` method directly accepts the
+function to be called.
 
 ```ahk
 "Hello, world!".o0(Foo).o0(Bar, "Baz") ; Bar(Foo("Hello, world!"), "Baz")
-```
 
-**Example**:
-
-```ahk
 "hello".o0(StrUpper)              ; "HELLO"
        .o0(StrReplace, "E", "3")  ; "H3LLO"
 ```
 
-**Key Differences:**
+**Key Differences**:
 
-- Implicit chaining looks up global functions by name dereference, making this
-  approach more concise at the cost of being marginally slower.
-- Explicit chaining is marginally faster and more flexible, as the `.o0()` method
-  accepts any function object.
+- Implicit chaining is more concise at the cost of being marginally slower.
+- Explicit chaining is marginally faster and more flexible, because it accepts
+  any function to be called.
 
 ## Performance
 
-Using AquaHotkey's function chaining is a good trade-off for greater
-readability, as the performance difference caused by additional overhead is
-often minimal.
+>If you're scared of performance, consider using something else than AutoHotkey.
 
-However, operation on very large strings leads to dramatic overhead, because
-of the way they are passed as parameters or returned by functions in AutoHotkey.
+In most cases, this feature is a very nice trade-off to make some non-critical
+sections of your code significantly prettier to look at.
+
+However, watch out for anything that has to handle very large strings, as this
+can cause dramatic overhead because of the way how strings are passed *by value*
+instead of *by reference*.
 
 ```ahk
 ; slow - file content is copied twice!
@@ -59,17 +52,14 @@ of the way they are passed as parameters or returned by functions in AutoHotkey.
 "hugeFile.txt".FileRead().InStr("Hello, world!")
 ```
 
-In the example above, the contents of the file are copied twice:
-The first string copy occurs when `Any.Prototype.__Call()` calls `FileRead()`
-and returns its result, the second copy occurs whenever calling a method from a
-string (the method accepts an implicit `this`-parameter, and therefore a copy of
-the string).
+In this example, the contents of the file are copied twice, because primitive
+types are always passed by value, not by reference. Firstly, the return
+value of `.FileRead()`. Secondly, the call to `.InStr()`.
 
 ### Using ByRef
 
-Using ByRef parameters reduces overhead, because the variable is passed *by
-*reference instead. Using the approach in the example below, no unnecessary
-string copies are made:
+In general, you should handle large strings in the form of `VarRef` objects
+(&MyStr). This way, you can cut down on unnecessary string copies.
 
 ```ahk
 FileReadRef(FileName) {

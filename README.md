@@ -70,13 +70,33 @@ MsgBox(Arr.IsEmpty) ; true
    ```ahk
    #Requires AutoHotkey >=v2.0.5
    #Include  path/to/AquaHotkey.ahk
+
+   ; more ideally, put the repo into one of the standard lib paths:
+   #Include <AquaHotkey>
    ```
 
-Consider placing the repository into your user library path
-(`%A_Documents%/AutoHotkey/lib`) for much easier access from your scripts.
+**Installation for Advanced Users**:
+
+If you're frequently using the library to define property extensions which are
+packed into their own packages, consider using the following setup:
+
+```txt
+%A_Documents%/AutoHotkey/lib
+|- AquaHotkeyX.ahk
+|- AquaHotkey.ahk
+|
+|- StringUtils.ahk // things that depend on AquaHotkey
+|- ArrayUtils.ahk
+|
+`- AquaHotkey/...
+```
+
+This way, your packages are all accessible with the convenient angle brackets
+syntax (`<>`):
 
 ```ahk
-#Include <AquaHotkey>
+#Include <StringUtils> ; Awesome.
+#Include <ArrayUtils>
 ```
 
 ### Using AquaHotkeyX
