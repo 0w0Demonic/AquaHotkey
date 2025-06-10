@@ -1,5 +1,5 @@
 #Requires AutoHotkey >=v2.0.5
-#Include <AquaHotkeyX>
+#Include "%A_LineFile%/../../AquaHotkeyX.ahk"
 
 class A extends AquaHotkey_Backup {
     static __New() => super.__New(Hotkey)
