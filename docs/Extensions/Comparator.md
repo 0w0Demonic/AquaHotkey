@@ -30,16 +30,16 @@ Array("foo", "bar", "a", "Hello, world!", unset).Sort(
 
 ## Method Summary
 
-| Method Name                                            | Return Type  | Description                                                      |
-| ------------------------------------------------------ | ------------ | ---------------------------------------------------------------- |
-| [`__New(Comp)`](#__New)                                | `Comparator` | Creates a new comparator                                         |
-| [`AndThen(Other)`](#AndThen)                           | `Comparator` | Specifies a second comparator to use when two elements are equal |
-| [`Compose(Other)`](#Compose)                           | `Comparator` | Makes the comparator extract a value before comparison           |
-| [`Reversed()`](#Reversed)                              | `Comparator` | Reverses the comparator                                          |
-| [`NullsFirst()`](#NullsFirst)                          | `Comparator` | Orders `unset` before other elements                             |
-| [`NullsLast()`](#NullsLast)                            | `Comparator` | Orders `unset` after other elements                              |
-| [`static Numeric()`](#Numeric)                         | `Comparator` | Returns a numerical comparator                                   |
-| [`static Alphabetic(CaseSense := false)`](#Alphabetic) | `Comparator` | Returns a lexicographical comparator                             |
+| Method Name                                                            | Return Type  | Description                                                      |
+| ---------------------------------------------------------------------- | ------------ | ---------------------------------------------------------------- |
+| [`__New(Comp)`](#__New)                                                | `Comparator` | Creates a new comparator                                         |
+| [`AndThen(Other)`](#AndThen)                                           | `Comparator` | Specifies a second comparator to use when two elements are equal |
+| [`Compose(Other)`](#Compose)                                           | `Comparator` | Makes the comparator extract a value before comparison           |
+| [`Reversed()`](#Reversed)                                              | `Comparator` | Reverses the comparator                                          |
+| [`NullsFirst()`](#NullsFirst)                                          | `Comparator` | Orders `unset` before other elements                             |
+| [`NullsLast()`](#NullsLast)                                            | `Comparator` | Orders `unset` after other elements                              |
+| [`static Numeric(Mapper?, Args*)`](#Numeric)                           | `Comparator` | Returns a numerical comparator                                   |
+| [`static Alphabetic(CaseSense := false, Mapper?, Args*)`](#Alphabetic) | `Comparator` | Returns a lexicographical comparator                             |
 
 ---
 
@@ -92,7 +92,7 @@ as equal (whenever `Comp(a, b) == 0`)
 **Example**:
 
 ```ahk
-ByLength := Comparator.Numeric().Compose(StrLen)
+ByLength := Comparator.Numeric(StrLen)
 Alphabetical := Comparator.Alphabetical(false)
 
 ; ["", "zz", "bar", "foo"]
@@ -126,7 +126,8 @@ followed by zero or more additional arguments `Args*`.
 **Example**:
 
 ```ahk
-ByStringLength := Comparator.Alphabetic().Compose(StrLen)
+; easier alternative: `Comparator.Numeric(StrLen)`
+ByStringLength := Comparator.Numeric().Compose(StrLen)
 
 ; ["", "a", "l9", "foo"]
 Array("foo", "a", "", "l9").Sort(ByStringLength)
@@ -212,12 +213,15 @@ NullsLast := Comparator.Numeric().NullsLast()
 
 <a id="Numeric"></a>
 
-### `static Numeric() => Comparator`
+### `static Numeric(Mapper: Func?, Args: Any*) => Comparator`
 
 **Description**:
 
 Returns a `Comparator` that orders numbers or numeric strings by their
 natural order.
+
+If present, the comparator first extracts a sort key on the element by
+using the `Mapper` function and zero or more additional arguments.
 
 **Example**:
 
@@ -227,6 +231,13 @@ Comp := Comparator.Numeric()
 ; [1, 2, 3, 4, 5]
 Array(2, 5, 3, 4, 1).Sort(Comp)
 ```
+
+**Parameters**:
+
+| Parameter Name  | Type    | Description                        |
+| --------------- | ------- | ---------------------------------- |
+| `Mapper`        | `Func?` | Key extractor function             |
+| `Args`          | `Any*`  | Zero or more additional arguments  |
 
 **Return Value**:
 
@@ -243,6 +254,9 @@ Array(2, 5, 3, 4, 1).Sort(Comp)
 Returns a `Comparator` which lexicographically orders two strings with
 the given case sensitivity `CaseSense`.
 
+If present, the comparator first extracts a sort key on the element by
+using the `Mapper` function and zero or more additional arguments.
+
 **Example**:
 
 ```ahk
@@ -257,6 +271,8 @@ Array("kiwi", "apple", "banana").Sort(Comp)
 | Parameter Name       | Type             | Description                         |
 | -------------------- | ---------------- | ----------------------------------- |
 | `CaseSense := false` | `Boolean/String` | Case sensitivity of the comparison  |
+| `Mapper`             | `Func?`          | Key extractor function              |
+| `Args`               | `Any*`           | Zero or more additional arguments   |
 
 **Return Value**:
 

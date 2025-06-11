@@ -8,27 +8,25 @@
  * 
  * **Overview**:
  * 
- * A `Comparator` is a function object used for comparison and sorting, which
- * orders its two arguments by value and returns:
+ * Comparators are functions that decide a natural ordering between two
+ * elements `a` and `b`. Return values are specified such that...
  * 
  * - a positive integer, if `a > b`,
  * - zero, if `a == b`, and
  * - a negative integer, if `a < b`.
  * 
  * @example
- * 
  * ; [unset, "a", "bar", "foo", "Hello, world!"]
  * Array("a", "foo", "bar", "Hello, world!", unset).Sort(
- *      Comparator.Numeric().Compose(StrLen)     ; 1. string length, ascending
+ *      Comparator.Numeric(StrLen)               ; 1. string length, ascending
  *             .AndThen(Comparator.Alphabetic()) ; 2. alphabetical order
  *             .NullsFirst())                    ; 3. `unset` at the beginning
  */
 class Comparator {
     /**
-     * Constructs a new `Comparator` from the given callback function `Comp`
-     * which compares two elements.
-     * @example
+     * Creates a new `Comparator` that uses the given function for comparison.
      * 
+     * @example
      * Callback(a, b) {
      *     if (a > b) {
      *         return 1
@@ -57,7 +55,7 @@ class Comparator {
      * whenever two elements as equal in value.
      * @example
      * 
-     * ByStringLength := Comparator.Numeric().Compose(StrLen)
+     * ByStringLength := Comparator.Numeric(StrLen)
      * Alphabetic     := Comparator.Alphabetic()
      * 
      * ; ["", "bar", "foo", "hello"]
@@ -84,8 +82,9 @@ class Comparator {
      * 
      * `Mapper` is called using each elements as first argument respectively,
      * followed by zero or more additional arguments `Args*`.
-     * @example
      * 
+     * @example
+     * ; easier alternative: `Comparator.Numeric(StrLen)`
      * ByStringLength := Comparator.Numeric().Compose(StrLen)
      * 
      * ; ["", "a", "l9", "foo"]
@@ -200,33 +199,51 @@ class Comparator {
 
     /**
      * Returns a `Comparator` which orders numbers by natural order.
-     * @example
      * 
+     * If present, the comparator first extracts a sort key on the element by
+     * using the `Mapper` function and zero or more additional arguments.
+     * 
+     * @example
      * Comp := Comparator.Numeric()
      * 
      * ; [1, 2, 3, 4]
      * Array(4, 5, 2, 3, 1).Sort(Comp)
      * 
+     * @param   {Func?}  Mapper  key extractor function
+     * @param   {Any*}   Args    zero or more additional arguments
      * @return  {Comparator}
      */
-    static Numeric() {
-        return Comparator((A, B) => (A > B) - (B > A))
+    static Numeric(Mapper?, Args*) {
+        Comp := Comparator((A, B) => (A > B) - (B > A))
+        if (!IsSet(Mapper)) {
+            return Comp
+        }
+        return Comp.Compose(Mapper, Args*)
     }
 
     /**
      * Returns a `Comparator` which lexicographically orders two strings with
      * the given case sensitivity `CaseSense`.
-     * @example
      * 
+     * If present, the comparator first extracts a sort key on the element by
+     * using the `Mapper` function and zero or more additional arguments.
+     * 
+     * @example
      * Comp := Comparator.Alphabetic()
      * 
      * ; ["apple", "banana", "kiwi"]
      * Array("kiwi", "apple", "banana").Sort(Comp)
      * 
      * @param   {Boolean/String}  CaseSense  case sensitivity of the comparison
+     * @param   {Func?}           Mapper     key extractor function
+     * @param   {Any*}            Args       zero or more additional arguments
      * @return  {Comparator}
      */
-    static Alphabetic(CaseSense := false) {
-        return Comparator(StrCompare.Bind(unset, unset, CaseSense))
+    static Alphabetic(CaseSense := false, Mapper?, Args*) {
+        Comp := Comparator(StrCompare.Bind(unset, unset, CaseSense))
+        if (!IsSet(Mapper)) {
+            return Comp
+        }
+        return Comp.Compose(Mapper, Args*)
     }
 }

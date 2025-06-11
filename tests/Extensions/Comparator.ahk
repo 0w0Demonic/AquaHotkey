@@ -10,6 +10,10 @@ class Comparator {
     static Numeric() {
         Array(5, 3, 4, 2, 1).Sort(Comparator.Numeric())
                             .Join(", ").AssertEquals("1, 2, 3, 4, 5")
+
+        Array("90", "869", "i", "Hello").Sort(Comparator.Numeric(StrLen))
+            .Join(", ")
+            .AssertEquals("i, 90, 869, Hello")
     }
     
     static Alphabetic() {
@@ -17,6 +21,12 @@ class Comparator {
                                   .Join(", ").AssertEquals("bar, baz, foo")
         Array("foo", "FOO").Sort(Comparator.Alphabetic(true))
                            .Join(", ").AssertEquals("FOO, foo")
+
+        Array("apple", "banana", "kiwi")
+            ; sort alphabetically by `SubStr(Str, 2, 1)`
+            .Sort(Comparator.Alphabetic(false, SubStr, 2, 1))
+            .Join(", ")
+            .AssertEquals("banana, kiwi, apple")
     }
 
     static AndThen() {
