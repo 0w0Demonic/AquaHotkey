@@ -1278,7 +1278,14 @@ class Stream {
      * @param   {Func?}  Finisher     transforms container to final value
      * @return  {Any}
      */
-    Collect(Supplier, Accumulator, Finisher?) {
+    Collect(Supplier, Accumulator?, Finisher?) {
+        if (Supplier is Collector) {
+            c := Supplier
+            Supplier := c.Supplier
+            Accumulator := c.Accumulator
+            Finisher := c.Finisher
+        }
+
         if (!HasMethod(Supplier)) {
             throw TypeError("Expected a Function object",, Type(Supplier))
         }

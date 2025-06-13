@@ -37,4 +37,5 @@
 #Include %A_LineFile%/../../Extensions/Process.ahk
 #Include %A_LineFile%/../../Extensions/Range.ahk
 #Include %A_LineFile%/../../Extensions/Stream.ahk
+#Include %A_LineFile%/../../Extensions/Collector.ahk
 #Include %A_LineFile%/../../Extensions/Window.ahk

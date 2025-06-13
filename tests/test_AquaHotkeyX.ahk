@@ -56,6 +56,7 @@ class TestSuite {
         }
     }
 
+    /*
     #Include %A_LineFile%/../Builtins/Any.ahk
     #Include %A_LineFile%/../Builtins/Array.ahk
     #Include %A_LineFile%/../Builtins/Buffer.ahk
@@ -69,6 +70,9 @@ class TestSuite {
     #Include %A_LineFile%/../Extensions/Stream.ahk
     #Include %A_LineFile%/../Extensions/Optional.ahk
     #Include %A_LineFile%/../Extensions/Comparator.ahk
+    */
+    
+    #Include %A_LineFile%/../Extensions/Collector.ahk
 
     static AssertThrows(Function) {
         try {
