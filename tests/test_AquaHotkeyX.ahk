@@ -73,6 +73,7 @@ class TestSuite {
     */
     
     #Include %A_LineFile%/../Extensions/Collector.ahk
+    #Include %A_LineFile%/../Extensions/Gatherer.ahk
 
     static AssertThrows(Function) {
         try {

@@ -30,12 +30,15 @@
 #Include %A_LineFile%/../../Builtins/VarRef.ahk
 
 #Include %A_LineFile%/../../Extensions/COM.ahk
-#Include %A_LineFile%/../../Extensions/Comparator.ahk
-#Include %A_LineFile%/../../Extensions/Control.ahk
 #Include %A_LineFile%/../../Extensions/DLL.ahk
+
 #Include %A_LineFile%/../../Extensions/Optional.ahk
-#Include %A_LineFile%/../../Extensions/Process.ahk
 #Include %A_LineFile%/../../Extensions/Range.ahk
 #Include %A_LineFile%/../../Extensions/Stream.ahk
 #Include %A_LineFile%/../../Extensions/Collector.ahk
+#Include %A_LineFile%/../../Extensions/Gatherer.ahk
+#Include %A_LineFile%/../../Extensions/Comparator.ahk
+
+#Include %A_LineFile%/../../Extensions/Process.ahk
+#Include %A_LineFile%/../../Extensions/Control.ahk
 #Include %A_LineFile%/../../Extensions/Window.ahk
