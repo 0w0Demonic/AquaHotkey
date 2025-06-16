@@ -1,35 +1,48 @@
 
 class Gatherer {
-    static TimesTwo() {
-        Array(1, 2, 3, 4, 5).Gather(Gatherer(
-            () => "",
-            (Arr, Downstream, Num) => Downstream(Num, Num) || true,
-            (Arr, Downstream) => ""
-        ))
-        .Join()
-        .AssertEquals("1122334455")
+    static __New() {
+        global G := Gatherer
     }
 
-    static Windows() {
-        SlidingWindows := Gatherer(Init, Integ, Fin)
-        Range(100).Stream().Gather(SlidingWindows).Map(String).JoinLine().MsgBox()
+    static TimesTwo() {
+        Array(1, 2, 3, 4, 5).Gather(TestSuite.__Gatherer_Times_Two)
+                .Join()
+                .AssertEquals("1122334455")
+    }
 
-        Init() {
-            return Array()
-        }
+    static WindowFixed() {
+        Range(100).Stream()
+                  .Gather(G.WindowFixed(2))
+                  .Map(String)
+                  .JoinLine()
+    }
 
-        Integ(State, Downstream, Num) {
-            if (State.Length == 3) {
-                Downstream(State.Clone())
-                State.Length := 0
-            } else {
-                State.Push(Num)
-            }
-            return true
-        }
+    static WindowSliding() {
+        Range(8).Stream()
+                .Gather(G.WindowSliding(6))
+                .Map(Array.Prototype.Join)
+                .Join(", ")
+                .AssertEquals("123456, 234567, 345678")
+    }
 
-        Fin(State, Downstream) {
-            Downstream(State)
-        }
+    static Scan() {
+        Range(4).Gather(G.Scan(() => "", (a, b) => (a . b)))
+                .Join(", ")
+                .AssertEquals("1, 12, 123, 1234")
+    }
+}
+
+class __Gatherer_Times_Two extends Gatherer {
+    static Initializer() {
+        return ""
+    }
+
+    static Integrator(_, Downstream, Val) {
+        Downstream(Val, Val)
+        return true
+    }
+
+    static Finisher(*) {
+
     }
 }

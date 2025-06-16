@@ -321,13 +321,10 @@ class Stream {
      * ; <1, "foo", 2, "bar">
      * Array("foo", "bar").Stream(2).FlatMap(Array)
      * 
-     * ; <1, 2, 3, 4, 5, 6, 7, 8>
-     * Array([1, 2, 3], 4, [5, 6], 7, [8]).Stream().FlatMap()
-     * 
      * @param   {Func?}  Mapper  function that maps and flattens elements
      * @return  {Stream}
      */
-    FlatMap(Mapper := Array) {
+    FlatMap(Mapper) {
         Enumer := (*) => false
         n := this.ArgSize(Mapper)
         f := this.Call

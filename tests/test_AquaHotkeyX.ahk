@@ -6,6 +6,9 @@ class TestSuite {
         Output := "TESTS: AutoHotkey " . A_AHKVersion . "`n" . "-".Repeat(60) . "`n"
 
         for ClsName in ObjOwnProps(this) {
+            if (ClsName ~= "^__") {
+                continue
+            }
             Cls := this.%ClsName%
             if (!(Cls is Class)) {
                 continue
