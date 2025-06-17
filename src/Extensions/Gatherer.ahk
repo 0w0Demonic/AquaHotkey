@@ -4,9 +4,10 @@
  * Gatherers are a special interface used for processing a stream of input
  * elements into a stream of output elements.
  *
- * They originate from JDK 24's "Structured Concurrency & Stream Gatherers" feature,
- * now adapted for AquaHotkey. Gatherers shine particularly when working with infinite streams
- * or scenarios where one input produces multiple outputs.
+ * They originate from JDK 24's "Structured Concurrency & Stream Gatherers"
+ * feature, now adapted for AquaHotkey. Gatherers shine particularly when
+ * working with infinite streams or scenarios where one input produces multiple
+ * outputs.
  *
  * ```ahk
  * ; <[1, 2, 3], [2, 3, 4], [3, 4, 5]>
@@ -38,8 +39,8 @@
  *
  * **`.Initializer()`**
  *
- * Initializes the internal state for processing. In this case, we create an array
- * to collect elements into fixed-size windows.
+ * Initializes the internal state for processing. In this case, we create an
+ * array to collect elements into fixed-size windows.
  *
  * ```ahk
  * Initializer() => Array()
@@ -58,7 +59,8 @@
  * @param  {Any*}  Args   the current stream element(s)
  *
  * - `Next()` refers to the downstream's internal `.Push()` method.
- * - The return value controls stream termination (`true` = continue, `false` = stop).
+ * - The return value controls stream termination (`true` = continue,
+ *   `false` = stop).
  *
  * ```ahk
  * Integrator(State, Next, Val?) {
@@ -96,8 +98,8 @@
  *
  * **Method 1 — Direct constructor call (low-level, not recommended)**
  *
- * Even though this works for Collectors in some very trivial cases, gatherers
- * are usually too complex to properly use without the help of subclasses.
+ * Even though this works well for some very trivial Collectors, gatherers
+ * are usually too complex to construct directly.
  * 
  * ```ahk
  * WF_Initializer() { ... }
@@ -120,7 +122,8 @@
  * ```ahk
  * class WindowFixed extends Gatherer {
  *     __New(Size) {
- *         super.__New()
+ *         super.__New() ; important!
+ * 
  *         if (!IsInteger(Size)) {
  *             throw ValueError("nope! wrong value.")
  *         }
@@ -321,8 +324,14 @@ class Gatherer {
 
 class AquaHotkey_Gatherer extends AquaHotkey {
     static __New() {
-        ; do not implement, if stream API is absent
         if (!IsSet(AquaHotkey_Stream)) {
+            MsgBox("
+            (
+            Stream support not found. `.Gather()` will be unavailable.
+            To enable, import the Stream module.
+
+            #Include .../Extensions/Stream.ahk
+            )", "AquaHotkey - Gatherer.ahk", 0x40)
             return
         }
         super.__New()
@@ -346,6 +355,7 @@ class AquaHotkey_Gatherer extends AquaHotkey {
          * @return  {Stream}
          */
         Gather(Gath) {
+            static S := Stream ?? ""
             if (!(Gath is Gatherer) && !HasBase(Gath, Gatherer)) {
                 throw TypeError("Expected a Collector",, Type(Gath))
             }
@@ -362,10 +372,10 @@ class AquaHotkey_Gatherer extends AquaHotkey {
 
             f := this.Call
             switch (this.MaxParams) {
-                case 1: return Stream(Gather1)
-                case 2: return Stream(Gather2)
-                case 3: return Stream(Gather3)
-                case 4: return Stream(Gather4)
+                case 1: return S(Gather1)
+                case 2: return S(Gather2)
+                case 3: return S(Gather3)
+                case 4: return S(Gather4)
             }
             throw ValueError("invalid parameter length",, this.MaxParams)
 

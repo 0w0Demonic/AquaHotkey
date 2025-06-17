@@ -78,7 +78,7 @@ that lets you customize the language in a way that hasn't been possible before.
 You don't need to start from scratch, though. The repo contains my own
 implementation `AquaHotkeyX`, which takes lots of inspiration from functional
 programming constructs, exploring some fancy - sometimes questionable - new
-behavior made possible by this library. See [features](#using-aquahotkeyx)
+behavior made possible by this library. See [features](#list-of-features)
 
 ## Workflow
 

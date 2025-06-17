@@ -9,20 +9,11 @@ class AquaHotkey_Func extends AquaHotkey {
  */
 class Func {
     /**
-     * A function that always returns its input argument.
-     * 
-     * @param   {Any}  x  any input argument
-     * @return  {Fun}
-     */
-    static Self => (x => x)
-
-    /**
      * Returns a function that always returns the given input `x`
-     * 
      * @param   {Any}  x  any input argument
      * @return  {Func}
      */
-    static Returning(x) => (() => x)
+    static Constantly(x) => (() => x)
 
     /**
      * Provides a shorthand for function binding, with behavior that adapts

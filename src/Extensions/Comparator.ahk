@@ -198,6 +198,12 @@ class Comparator {
     }
 
     /**
+     * Returns a default numerical comparator.
+     * @return  {Comparator}
+     */
+    static Numeric => this.Numeric()
+
+    /**
      * Returns a `Comparator` which orders numbers by natural order.
      * 
      * If present, the comparator first extracts a sort key on the element by
@@ -220,6 +226,12 @@ class Comparator {
         }
         return Comp.Compose(Mapper, Args*)
     }
+
+    /**
+     * Returns a default lexicographical comparator.
+     * @return  {Comparator}
+     */
+    static Alphabetic => this.Alphabetic()
 
     /**
      * Returns a `Comparator` which lexicographically orders two strings with
