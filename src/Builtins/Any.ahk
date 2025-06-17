@@ -9,15 +9,15 @@ class AquaHotkey_Any extends AquaHotkey {
  */
 class Any {
     /**
-     * Implicitly forwards this variable as first parameter of a function
-     * object `%FunctionName%` at global scope, followed by zero or more
+     * Implicitly forwards this variable as first parameter of a global
+     * function `%FunctionName%` at global scope, followed by zero or more
      * additional arguments `Args*`.
-     * @example 
      * 
+     * @example 
      * MyVariable.DoThis().DoThat(Arg3, Arg3).MsgBox()
      * 
-     * @param   {String}  FunctionName  name of the function object
-     * @param   {Any*}    Args          zero or more additional arguments
+     * @param   {String}  FunctionName  name of the global function
+     * @param   {Any*}    Args          additional arguments
      * @return  {Any}
      */
     __Call(FunctionName, Args) {
@@ -25,7 +25,7 @@ class Any {
         static Deref1(this) {
             return %this%
         }
-        ; same as Deref1, in case the variable is literally named "this"
+        ; edge case whenever `FunctionName == "this"`
         static Deref2(VarName) {
             return %VarName%
         }
@@ -65,7 +65,7 @@ class Any {
         ; make the function object delete the cache entry as soon as it
         ; loses its last reference
         try __DeletePrevious := Function.__Delete
-        ; create a __Delete() meta-function that removes the cache entry
+        ; define a `.__Delete()` method that removes the cache entry
         Function.DefineProp("__Delete", { Call: __Delete })
         __Delete(Instance) {
             try __DeletePrevious(Instance)
@@ -99,13 +99,13 @@ class Any {
      * ```
      * 
      * ---
-     * @example
      * 
+     * @example
      * MyVariable.o0(DoThis)
      *           .o0(DoThat, Arg2, Arg3)
      *           .o0(MsgBox)
      * 
-     * @param   {Func}  Callback  a function object
+     * @param   {Func}  Callback  a function to forward to
      * @param   {Any*}  Args      zero or more additional arguments
      * @return  {Any}
      */
@@ -149,8 +149,8 @@ class Any {
     /**
      * Creates a `BoundFunc` which calls a method `MethodName` bound to this
      * particular instance, followed by zero or more arguments `Args*`.
-     * @example
      * 
+     * @example
      * Arr       := Array()
      * PushToArr := Arr.BindMethod("Push")
      * PushToArr("Hello, world!")
@@ -162,9 +162,9 @@ class Any {
     BindMethod(MethodName, Args*) => ObjBindMethod(this, MethodName, Args*)
 
     /**
-     * Stores a clone of the variable in `Output`.
-     * @example
+     * Stores a clone of the variable in `&Output`.
      * 
+     * @example
      * MyVariable.Store(&Copy)
      * 
      * @param   {VarRef}  Output  output variable to store current value in
@@ -177,8 +177,8 @@ class Any {
 
     /**
      * Returns the type of this variable in the same way as built-in `Type()`.
-     * @example
      * 
+     * @example
      * "Hello, world!".Type ; "String"
      * 
      * @return  {String}
@@ -187,8 +187,8 @@ class Any {
 
     /**
      * Returns the type of this variable as a class.
-     * @example
      * 
+     * @example
      * "Hello, world!".Class ; String
      * 
      * @return  {Class}
@@ -208,12 +208,30 @@ class Any {
             return Types[ClassName] := Class.ForName(ClassName)
         }
     }
+
+    /**
+     * Asserts that the given `Condition` is true for the value. Otherwise,
+     * throws an error.
+     * 
+     * @example
+     * MyVariable.Assert(IsNumber, "Not a number")
+     * 
+     * @param   {Func}     Condition  the condition to assert
+     * @param   {String?}  Msg        custom error message
+     * @return  {this}
+     */
+    Assert(Condition, Msg?) {
+        if (Condition(this)) {
+            return this
+        }
+        throw ValueError(Msg ?? "failed assertion")
+    }
     
     /**
      * Asserts that this variable is derived from class `T`. Otherwise, a
      * `TypeError` is thrown with the error message `Msg`.
-     * @example
      * 
+     * @example
      * MyVariable.AssertType(String, "this variable is not a string")
      * 
      * @param   {Class}    T    expected type
@@ -229,13 +247,14 @@ class Any {
                         Type(this))
     }
 
+    ; TODO deprecate this?
     /**
      * Asserts that this variable is a number or a numeric string. Otherwise,
      * a `TypeError` is thrown with the error message `Msg`.
      * 
      * The return value of this method is converted into a number.
-     * @example
      * 
+     * @example
      * "123.23".AssertNumber("this value is not an number")
      * 
      * @param   {String?}  Msg  custom error message
@@ -249,13 +268,14 @@ class Any {
                         Type(this))
     }
 
+    ; TODO deprecate this?
     /**
      * Asserts that this variable is an integer or a numeric whole number
      * string. Otherwise, a `TypeError` is thrown with the error message `Msg`.
      * 
      * The return value of this method is converted into an integer.
-     * @example
      * 
+     * @example
      * "123".AssertInteger("this value is not an integer")
      * 
      * @param   {String?}  Msg  custom error message
@@ -269,14 +289,15 @@ class Any {
                         Type(this))
     }
 
+    ; TODO deprecate this?
     /**
      * Asserts that this variable is callable. Otherwise, a `TypeError` is
      * thrown with the error message `Msg`.
      * 
      * Additional checks are made to account for parameter length, if
      * `ArgLength` is specified.
-     * @example
      * 
+     * @example
      * MyFunc(Value) {
      *     ; ...
      * }
@@ -300,8 +321,8 @@ class Any {
     /**
      * Asserts that this variable is case-insensitive equal to `Other`.
      * Otherwise, a `ValueError` is thrown with the error message `Msg`.
-     * @example
      * 
+     * @example
      * Str.AssertEquals("foo", 'this string is not equal to "foo"')
      * 
      * @param   {Any}      Other  expected value
@@ -324,8 +345,8 @@ class Any {
     /**
      * Asserts that this variable is case-sensitive equal to `Other`. Otherwise,
      * a `ValueError` is thrown with the error message `Msg`.
-     * @example
      * 
+     * @example
      * Str.AssertStrictEquals("foo", 'this string is not equal to "foo"')
      * 
      * @param   {Any}      Other  expected value
@@ -350,7 +371,6 @@ class Any {
      * Otherwise, a `ValueError` is thrown with the error message `Msg`.
  
      * @example
-     * 
      * Str.AssertNotEquals("foo", 'this string is equal to "foo"')
      * 
      * @param   {Any}      Other  unexpected value
@@ -373,8 +393,8 @@ class Any {
     /**
      * Asserts that this variable is not case-sensitive equal to `Other`.
      * Otherwise, a `ValueError` is thrown with the error message `Msg`.
-     * @example
      * 
+     * @example
      * Str.AssertStrictNotEquals("foo", 'this string is equal to "foo"')
      * 
      * @param   {Any}      Other  unexpected value

@@ -15,15 +15,14 @@ class Func {
      */
     static Constantly(x) => (() => x)
 
+    ; TODO deprecate this?
     /**
      * Provides a shorthand for function binding, with behavior that adapts
-     * depending on the type of the function it is applied to. This method
-     * simplifies common binding patterns for functions in global/local scope,
-     * static methods and non-static methods.
+     * depending on the type of the function it is applied to.
      * 
      * ---
      * 
-     * **Behavior for Regular Functions and Static Methods**:
+     * **Global Functions and Static Methods**:
      * 
      * - The method starts binding arguments from the *second* parameter,
      *   leaving the first parameter untouched.
@@ -75,8 +74,10 @@ class Func {
      * MyStaticMethod.DefineConstant("Name", "MyClass.MyMethod")
      * MyNonStaticMethod.DefineConstant("Name", "MyClass.Prototype.MyMethod")
      * ```
-     * @example
      * 
+     * ---
+     * 
+     * @example
      * FirstCharacter := SubStr.__(1, 1)
      * FirstCharacter("foo") ; "f"
      * 
@@ -96,6 +97,7 @@ class Func {
         return this.Bind(unset, Args*)
     }
 
+    ; TODO deprecate this?
     /**
      * Stores a clone of the function in `Output`.
      * @example
@@ -114,14 +116,11 @@ class Func {
      * Returns a composed function that first applies this function with the
      * given input, and then forwards the result to `After` as first parameter,
      * followed by zero or more additional arguments `NextArgs*`.
-     * @example
      * 
-     * TimesTwo(x) {
-     *     return (x * 2)
-     * }
-     * PlusFive(x) {
-     *     return (x + 5)
-     * }
+     * @example
+     * TimesTwo(x) => (x * 2)
+     * PlusFive(x) => (x + 5)
+     * 
      * TimesTwoPlusFive := TimesTwo.AndThen(PlusFive)
      * TimesTwoPlusFive(3) ; 11
      * 
@@ -139,15 +138,12 @@ class Func {
     /**
      * Returns a composed function that first applies `Before` with the
      * given input, and then forwards the result to this function, followed
-     * by zero or more additional arguments `Args*`.
-     * @example
+     * by zero or more additional arguments `NextArgs*`.
      * 
-     * TimesTwo(x) {
-     *     return (x * 2)
-     * }
-     * PlusFive(x) {
-     *     return (x + 5)
-     * }
+     * @example
+     * TimesTwo(x) => (x * 2)
+     * PlusFive(x) => (x + 5)
+     * 
      * PlusFiveTimesTwo := TimesTwo.Compose(PlusFive)
      * PlusFiveTimesTwo(3) ; 16
      * 
@@ -166,19 +162,16 @@ class Func {
      * Returns a predicate function that represents a logical AND of this
      * predicate and `Other`. The resulting predicate short-circuits, if the
      * first expression evaluates to `false`.
-     * @example
      * 
-     * GreaterThan5(x) {
-     *     return (x > 5)
-     * }
-     * LessThan100(x) {
-     *     return (x < 100)
-     * }
+     * @example
+     * GreaterThan5(x) => (x > 5)
+     * LessThan100(x) => (x < 100)
+     * 
      * Condition := GreaterThan5.And(LessThan100)
      * Condition(23) ; true
      * 
-     * @param   {Predicate}  Other  function that evaluates a condition
-     * @return  {Predicate}
+     * @param   {Func}  Other  function that evaluates a condition
+     * @return  {Func}
      */
     And(Other) {
         if (!HasMethod(Other)) {
@@ -191,19 +184,16 @@ class Func {
      * Returns a predicate function that presents a logical AND NOT of this
      * predicate and `Other`. The resulting predicate short-circuits, if the
      * first expression evaluates to `false`.
-     * @example
      * 
-     * GreaterThan5(x) {
-     *     return (x > 5)
-     * }
-     * GreaterThan100(x) {
-     *     return (x > 100)
-     * }
+     * @example
+     * GreaterThan5(x) => (x > 5)
+     * GreaterThan100(x) => (x > 100)
+     * 
      * Condition := GreaterThan5.AndNot(GreaterThan100)
      * Condition(56) ; true
      * 
-     * @param   {Predicate}  Other  function that evaluates a condition
-     * @return  {Predicate}
+     * @param   {Func}  Other  function that evaluates a condition
+     * @return  {Func}
      */
     AndNot(Other) {
         if (!HasMethod(Other)) {
@@ -216,19 +206,16 @@ class Func {
      * Returns a predicate function that represents a logical OR of this
      * predicate and `Other`. The resulting predicate short-circuits, if the
      * first expression evaluates to `true`
-     * @example
      * 
-     * GreaterThan5(x) {
-     *     return (x > 5)
-     * }
-     * EqualsOne(x) {
-     *     return (x = 1)
-     * }
+     * @example
+     * GreaterThan5(x) => (x > 5)
+     * EqualsOne(x) => (x == 1)
+     * 
      * Condition := GreaterThan5.Or(EqualsOne)
      * Condition(1) ; true
      * 
-     * @param   {Predicate}  Other  function that evaluates a condition
-     * @return  {Predicate}
+     * @param   {Func}  Other  function that evaluates a condition
+     * @return  {Func}
      */
     Or(Other) {
         if (!HasMethod(Other)) {
@@ -241,19 +228,16 @@ class Func {
      * Returns a predicate function that represents a logical OR NOT of this
      * predicate and `Other`. The resulting predicate short-circuits, if the
      * first expression evaluates to `true`.
-     * @example
      * 
-     * GreaterThan5(x) {
-     *     return (x > 5)
-     * }
-     * GreaterThan0(x) {
-     *     return (x > 0)
-     * }
+     * @example
+     * GreaterThan5(x) => (x > 5)
+     * GreaterThan0(x) => (x > 0)
+     * 
      * Condition := GreaterThan5.OrNot(GreaterThan0)
      * Condition(-3) ; true
      * 
-     * @param   {Predicate}  Other  function that evaluates a condition
-     * @return  {Predicate}
+     * @param   {Func}  Other  function that evaluates a condition
+     * @return  {Func}
      */
     OrNot(Other) {
         if (!HasMethod(Other)) {
@@ -264,8 +248,8 @@ class Func {
     
     /**
      * Returns a predicate that represents a negation of this predicate.
-     * @example
      * 
+     * @example
      * IsAdult(Person) => (Person.Age >= 18)
      * IsNotAdult := IsAdult.Negate()
      * 
@@ -275,12 +259,12 @@ class Func {
      */
     Negate() => ((Args*) => !this(Args*))
 
+    ; TODO deprecate this?
     /**
-     * Returns a composed function which applies its input to two
-     * functions `First` and `Second`, optionally using `Combiner` to merge
-     * the two return values into a final result.
-     * @example
+     * Composes a function that applies its input to both `First` and `Second`,
+     * optionally merging both results into a final result.
      * 
+     * @example
      * Sum(Values*) {
      *     ; ...
      * }
@@ -349,8 +333,8 @@ class Func {
      * Specifies case-sensitivity of the internal `Map`.
      * 
      * ---
-     * @example
      * 
+     * @example
      * Fibonacci(x) {
      *     if (x > 1) {
      *         ; Important:
@@ -416,22 +400,21 @@ class Func {
 
     /**
      * Returns `true`, if this function is memoized.
-     * 
      * @return  {Boolean}
      */
     IsMemoized => false
 
     /**
-     * Returns a string representation of this function object.
-     * @example
+     * Returns the string representation of the function.
      * 
+     * @example
      * MsgBox.ToString() ; "Func MsgBox"
      * 
      * @return  {String}
      */
     ToString() {
         if (this.Name == "") {
-            return Type(this) . " <...>"
+            return Type(this) . " (unnamed)"
         }
         return Type(this) . " " . this.Name
     }

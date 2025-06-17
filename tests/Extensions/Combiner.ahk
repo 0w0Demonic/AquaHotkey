@@ -38,7 +38,7 @@ class Combiner {
         Array(1, 2, 3, 4).Reduce(  Combiner.First  ).AssertEquals(1)
     }
 
-    static First2() {
+    static Last() {
         Array(1, 2, 3, 4).Reduce(  Combiner.Last  ).AssertEquals(4)
     }
 }

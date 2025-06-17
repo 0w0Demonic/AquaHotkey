@@ -11,8 +11,8 @@ class Class {
     /**
      * Override of `Any.Prototype.__Call()` that throws an error.
      * @override `Any.Prototype.__Call()`
-     * @example
      * 
+     * @example
      * Foo(Value) {
      *     MsgBox(Type(Value))
      * }
@@ -27,9 +27,9 @@ class Class {
     }
 
     /**
-     * Returns the class with the name of `ClassName`.
-     * @example
+     * Returns a class by the given name.
      * 
+     * @example
      * (Class.ForName("Gui.ActiveX") == Gui.ActiveX) ; true
      * 
      * @param   {String}  ClassName  name of a class
@@ -63,9 +63,9 @@ class Class {
     }
 
     /**
-     * Returns this class expressed as a string.
-     * @example
+     * Returns the string representation of the class.
      * 
+     * @example
      * Gui.ToString() ; "Class Gui"
      * 
      * @return  {String}
