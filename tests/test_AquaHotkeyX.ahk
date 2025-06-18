@@ -64,7 +64,9 @@ class TestSuite {
     #Include %A_LineFile%/../Builtins/Array.ahk
     #Include %A_LineFile%/../Builtins/Buffer.ahk
     #Include %A_LineFile%/../Builtins/Class.ahk
+    */
     #Include %A_LineFile%/../Builtins/Func.ahk
+    /*
     #Include %A_LineFile%/../Builtins/Map.ahk
     #Include %A_LineFile%/../Builtins/Object.ahk
     #Include %A_LineFile%/../Builtins/String.ahk
@@ -75,9 +77,10 @@ class TestSuite {
     #Include %A_LineFile%/../Extensions/Comparator.ahk
     */
     
-
+    /*
     #Include %A_LineFile%/../Extensions/Collector.ahk
     #Include %A_LineFile%/../Extensions/Gatherer.ahk
+    */
 
     /*
     #Include %A_LineFile%/../Extensions/Condition.ahk
@@ -93,10 +96,11 @@ class TestSuite {
     }
 }
 
-class Reflection extends AquaHotkey {
+class Debug extends AquaHotkey {
     class Object {
         ListAllProperties() {
-            return ObjOwnProps(this).Stream().FlatMap(GetNames).ToArray()
+            return ObjOwnProps(this).Stream()
+                        .FlatMap(GetNames).ToArray().Sort(Comparator.Alphabetic)
 
             GetNames(PropName) {
                 PropDesc := (Object.Prototype.GetOwnPropDesc)(this, PropName)
@@ -110,5 +114,7 @@ class Reflection extends AquaHotkey {
         }
     }
 }
+
+Object.Prototype.ListAllProperties().JoinLine().MsgBox()
 
 ExitApp()
