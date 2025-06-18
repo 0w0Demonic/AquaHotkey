@@ -9,11 +9,32 @@ class AquaHotkey_Func extends AquaHotkey {
  */
 class Func {
     /**
-     * Returns a function that always returns the given input `x`
-     * @param   {Any}  x  any input argument
+     * Returns a function that always returns its input argument.
      * @return  {Func}
      */
-    static Constantly(x) => ((Args*) => x)
+    static Self => ((x) => x)
+
+    /**
+     * Returns a function that always returns the given input `x`
+     * @param   {Any}  x  the value to return
+     * @return  {Func}
+     */
+    static Constantly(x) => ((*) => x)
+
+    /**
+     * Returns a function that always returns the given input `x`. If the value
+     * is an object, a fresh copy is returned each time.
+     * 
+     * @param   {Any}  x  the value to return (and optionally clone)
+     * @return  {Func}
+     */
+    static Replicate(x) {
+        if (IsObject(x)) {
+            x := x.Clone()
+            return ((*) => x.Clone())
+        }
+        return ((*) => x)
+    }
 
     ; TODO deprecate this?
     /**
@@ -305,6 +326,7 @@ class Func {
         }
     }
     
+    ; TODO improve this somehow
     /**
      * Returns a memoized version of this function, caching previously computed
      * results in a `Map` object instead of calculating a result on every call.
@@ -352,57 +374,28 @@ class Func {
      * @param   {Primitive?}        CaseSense          case-sensitivity
      * @return  {Func}
      */
-    Memoized(CaseSenseOrHasher := True, CaseSense?) {
-        static FunctionPool := Map()
-
-        if (ObjHasOwnProp(this, "IsMemoized")) {
-            return this
-        }
-        if (Function := FunctionPool.Get(this, false)) {
-            return Function
-        }
-
-        if (HasMethod(CaseSenseOrHasher)) {
-            Hasher    := CaseSenseOrHasher
-            CaseSense := CaseSense ?? true
+    Memoized(Hasher?, MapOrSupplier := Map) {
+        if (HasMethod(MapOrSupplier)) {
+            Cache := MapOrSupplier()
         } else {
-            Hasher    := unset
-            CaseSense := CaseSenseOrHasher
+            Cache := MapOrSupplier
         }
 
-        Cache           := Map()
-        Cache.CaseSense := CaseSense
+        Result := IsSet(Hasher) ? HashedMemoized : Memoized
+        (Object.Prototype.DefineProp)(Result, "Memoized", { Call: x => x })
+        return Result
 
-        if (IsSet(Hasher)) {
-            Function := HashedMemoized
-        } else {
-            Function := DefaultMemoized
-        }
-
-        Function.DefineProp("IsMemoized", { Get: (Instance) => true })
-        return FunctionPool[this] := Function
-
-        DefaultMemoized(Arg) {
-            if (!Cache.Has(Arg)) {
-                Cache[Arg] := this(Arg)
-            }
-            return Cache[Arg]
+        Memoized(Arg) {
+            return Cache.Has(Arg) ? Cache[Arg]
+                                  : Cache[Arg] := this(Arg)
         }
 
         HashedMemoized(Args*) {
             Key := Hasher(Args*)
-            if (!Cache.Has(Key)) {
-                Cache[Key] := this(Args*)
-            }
-            return Cache[Key]
+            return Cache.Has(Key) ? Cache[Key]
+                                  : Cache[Key] := this(Args*)
         }
     }
-
-    /**
-     * Returns `true`, if this function is memoized.
-     * @return  {Boolean}
-     */
-    IsMemoized => false
 
     /**
      * Returns the string representation of the function.

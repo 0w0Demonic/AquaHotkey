@@ -60,7 +60,7 @@ class Func {
         f(Person).AssertEquals("John Knee is an adult")
     }
 
-    static Memoized() {
+    static Memoized1() {
         FibonacciSequence(N) {
             if (N > 1) {
                 return Memo(N - 1) + Memo(N - 2)
@@ -78,6 +78,44 @@ class Func {
             if (!IsSet(Result)) {
                 throw TimeoutError("timeout")
             }
+        }
+    }
+
+    static Memoized2() {
+        static Identity(x) => x
+
+        Cache1 := TestSuite.CustomMap()
+        Cache2 := TestSuite.CustomMap() 
+
+        Cache1.CaseSense := true
+        Cache2.CaseSense := false
+
+        Memoized1 := Identity.Memoized(unset, Cache1)
+        Memoized2 := Identity.Memoized(unset, Cache2)
+
+        Memoized1("a")
+        Memoized1("A")
+
+        Memoized2("a")
+        Memoized2("A")
+
+        Cache1.Hits.AssertEquals(0)
+        Cache2.Hits.AssertEquals(1)
+    }
+}
+
+class CustomMap extends Map {
+    Hits := 0
+
+    Get(Key, DefaultValue?) {
+        this.Hits++
+        return super.Get(Key, DefaultValue?)
+    }
+    
+    __Item[Key] {
+        get {
+            ++this.Hits
+            return super[Key]
         }
     }
 }
