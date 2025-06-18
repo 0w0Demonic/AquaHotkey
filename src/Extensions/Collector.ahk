@@ -17,11 +17,14 @@
  * 
  * **How They Work**:
  * 
- * - `.Supplier()`: initializes an object to store the result in.
+ * - `.Supplier()`: initializes something to store the result in
  * 
  *   ```ahk
  *   Supplier() => Array()
  *   ```
+ * 
+ * Although the value produced by `.Supplier()` should generally be an object,
+ * you can use VarRefs (e.g., `&Str`) to wrap around strings and numbers.
  * 
  * ---
  * 
@@ -216,11 +219,7 @@ class Collector {
         NextAcc := Next.Accumulator
         return this(Next.Supplier, Acc, Next.Finisher)
         
-        Acc(Obj, Val?) {
-            if (Condition(Val?)) {
-                NextAcc(Obj, Val?)
-            }
-        }
+        Acc(Obj, Val?) => (Condition(Val?) && NextAcc(Obj, Val?) && 0)
     }
 
     /**
@@ -239,11 +238,7 @@ class Collector {
         NextAcc := Next.Accumulator
         return this(Next.Supplier, Acc, Next.Finisher)
 
-        Acc(Obj, Val?) {
-            if (!Condition(Val?)) {
-                NextAcc(Obj, Val?)
-            }
-        }
+        Acc(Obj, Val?) => (Condition(Val?) || (NextAcc(Obj, Val?)) && 0)
     }
 
     /**
@@ -274,17 +269,9 @@ class Collector {
      * @return  {Collector}
      */
     class ToArray extends Collector {
-        static Supplier() {
-            return Array()
-        }
-
-        static Accumulator(Arr, Val?) {
-            Arr.Push(Val?)
-        }
-
-        static Finisher(Arr) {
-            return Arr
-        }
+        static Supplier()             => Array()
+        static Accumulator(Arr, Val?) => Arr.Push(Val?)
+        static Finisher(Arr)          => Arr
     }
 
     /**
@@ -309,41 +296,39 @@ class Collector {
      * @return  {Collector}
      */
     class Frequency extends Collector {
-        static Supplier() {
-            return Map()
+        static Supplier() => Map()
+
+        static Accumulator(M, Val) {
+            M[Val] := M.Get(Val, 0) + 1
         }
 
-        static Accumulator(MapObj, Val) {
-            MapObj[Val] := MapObj.Get(Val, 0) + 1
-        }
-
-        static Finisher(MapObj) {
-            return MapObj
-        }
+        static Finisher(M) => M
 
         __New(Classifier, CaseSense := true) {
             super.__New()
 
             MapObj := Map()
             MapObj.CaseSense := CaseSense
-            this.DefineProp("MapObj",     { Get: (_) => MapObj     })
+            MapObj.Default := 0
 
             GetMethod(Classifier)
+            this.DefineProp("CaseSense",  { Get: (_) => CaseSense })
             this.DefineProp("Classifier", { Get: (_) => Classifier })
         }
 
         Supplier() {
-            
+            M := Map()
+            M.Default := 0
+            M.CaseSense := this.CaseSense
+            return M
         }
 
-        Accumulator(_, Args*) {
+        Accumulator(M, Args*) {
             Key := (this.Classifier)(Args*)
-            this.MapObj[Key] := this.MapObj.Get(Key, 0) + 1
+            M[Key] := M.Get(Key, 0) + 1
         }
 
-        Finisher(_) {
-            return this.MapObj
-        }
+        Finisher(M) => M
     }
 
     /**
@@ -355,17 +340,9 @@ class Collector {
      * @return  {Collector}
      */
     class Count extends Collector {
-        static Supplier() {
-            return { Val: 0 }
-        }
-
-        static Accumulator(Obj, Val?) {
-            Obj.Val++
-        }
-
-        static Finisher(Obj) {
-            return Obj.Val
-        }
+        static Supplier()             => &(x := 0)
+        static Accumulator(&x, Args*) => ++x
+        static Finisher(&x)           => x
     }
 
     /**
@@ -382,52 +359,37 @@ class Collector {
      * @param   {String?}  Suffix     string at the end of the result
      */
     class Join extends Collector {
-        static Supplier() {
-            return { Val: "" }
+        static Supplier() => &(Str := "")
+
+        static Accumulator(&Str, Val?) {
+            Str .= String(Val ?? "")
         }
 
-        static Accumulator(Obj, Val?) {
-            if (IsSet(Val)) {
-                Obj.Val .= String(Val)
-            }
-        }
+        static Finisher(&Str) => Str
 
-        static Finisher(Obj) {
-            return Obj.Val
-        }
-
-        __New(Delimiter, Prefix := "", Suffix := "") {
+        __New(Delim, Prefix := "", Suffix := "") {
             super.__New()
-            Delimiter .= ""
-            Prefix    .= ""
-            Suffix    .= ""
+            Delim  .= ""
+            Prefix .= ""
+            Suffix .= ""
 
-            this.DefineProp("Delimiter", { Get: (Instance) => Delimiter })
-            this.DefineProp("Prefix",    { Get: (Instance) => Prefix    })
-            this.DefineProp("Suffix",    { Get: (Instance) => Suffix    })
+            this.DefineProp("Delim",  { Get: (Instance) => Delim  })
+            this.DefineProp("Prefix", { Get: (Instance) => Prefix })
+            this.DefineProp("Suffix", { Get: (Instance) => Suffix })
         }
 
-        Supplier() {
-            return { Val: "" }
-        }
+        Supplier() => &(Str := "")
 
-        Accumulator(Obj, Val?) {
+        Accumulator(&Str, Val?) {
             if (IsSet(Val)) {
-                Obj.Val .= String(Val)
-                Obj.Val .= this.Delimiter
+                Str .= String(Val)
+                Str .= this.Delim
             }
         }
 
-        Finisher(Obj) {
-            if (this.Delimiter == "") {
-                return this.Prefix
-                     . Obj.Val
-                     . this.Suffix
-            }
-            return this.Prefix
-                 . SubStr(Obj.Val, 1, -StrLen(this.Delimiter))
-                 . this.Suffix
-        }
+        Finisher(&Str) => (this.Delim == "")
+            ? this.Prefix . Str . this.Suffix
+            : this.Prefix . SubStr(Str, 1, -StrLen(this.Delim)) . this.Suffix
     }
 
     /**
@@ -445,25 +407,18 @@ class Collector {
      * @return  {Collector}
      */
     class Min extends Collector {
-        static Supplier() {
-            return Object()
-        }
+        static Supplier() => &x
 
-        static Accumulator(Obj, Val?) {
+        static Accumulator(&x, Val?) {
             if (!IsSet(Val) || !IsNumber(Val)) {
                 return
             }
-            if (!ObjHasOwnProp(Obj, "Val") || (Val < Obj.Val)) {
-                Obj.Val := Val
+            if (!IsSet(x) || (Val < x)) {
+                x := Val
             }
         }
 
-        static Finisher(Obj) {
-            if (ObjHasOwnProp(Obj, "Val")) {
-                return Obj.Val
-            }
-            throw UnsetError("No value present")
-        }
+        static Finisher(&x) => x
 
         __New(Comparator) {
             super.__New()
@@ -471,23 +426,16 @@ class Collector {
             this.DefineProp("Comparator", { Get: (_) => Comparator })
         }
 
-        Supplier() {
-            return Object()
-        }
+        Supplier() => &x
 
-        Accumulator(Obj, Val) {
+        Accumulator(&x, Val?) {
             Comp := (this.Comparator)
-            if (!ObjHasOwnProp(Obj, "Val") || Comp(Val, Obj.Val) < 0) {
-                Obj.Val := Val
+            if (!IsSet(x) || Comp(x, Val?) > 0) {
+                x := Val
             }
         }
 
-        Finisher(Obj) {
-            if (ObjHasOwnProp(Obj, "Val")) {
-                return Obj.Val
-            }
-            throw UnsetError("No value present")
-        }
+        Finisher(&x) => x
     }
 
     /**
@@ -505,25 +453,18 @@ class Collector {
      * @return  {Collector}
      */
     class Max extends Collector {
-        static Supplier() {
-            return Object()
-        }
+        static Supplier() => &x
 
-        static Accumulator(Obj, Val?) {
+        static Accumulator(&x, Val?) {
             if (!IsSet(Val) || !IsNumber(Val)) {
                 return
             }
-            if (!ObjHasOwnProp(Obj, "Val") || (Val > Obj.Val)) {
-                Obj.Val := Val
+            if (!IsSet(x) || (Val > x)) {
+                x := Val
             }
         }
 
-        static Finisher(Obj) {
-            if (ObjHasOwnProp(Obj, "Val")) {
-                return Obj.Val
-            }
-            throw UnsetError("No value present")
-        }
+        static Finisher(&x) => x
 
         __New(Comparator) {
             super.__New()
@@ -531,23 +472,16 @@ class Collector {
             this.DefineProp("Comparator", { Get: (_) => Comparator })
         }
 
-        Supplier() {
-            return Object()
-        }
+        Supplier() => &x
 
-        Accumulator(Obj, Val) {
+        Accumulator(&x, Val?) {
             Comp := (this.Comparator)
-            if (!ObjHasOwnProp(Obj, "Val") || Comp(Val, Obj.Val) > 0) {
-                Obj.Val := Val
+            if (!IsSet(x) || Comp(x, Val?) < 0) {
+                x := Val
             }
         }
 
-        Finisher(Obj) {
-            if (ObjHasOwnProp(Obj, "Val")) {
-                return Obj.Val
-            }
-            throw UnsetError("No value present")
-        }
+        Finisher(&x) => x
     }
 
     /**
@@ -566,39 +500,19 @@ class Collector {
      * @return  {Comparator}
      */
     class Sum extends Collector {
-        static Supplier() {
-            return { Val: 0 }
-        }
-
-        static Accumulator(Obj, Num?) {
-            if (IsSet(Num) && IsNumber(Num)) {
-                Obj.Val += Num
-            }
-        }
-
-        static Finisher(Obj) {
-            return Obj.Val
-        }
+        static Supplier()                => &(x := 0)
+        static Accumulator(&x, Num := 0) => (IsNumber(Num) && (x += Num))
+        static Finisher(&x)              => x
 
         __New(Mapper) {
             super.__New()
-            if (!HasMethod(Mapper)) {
-                throw TypeError("Expected Func object",, Type(Mapper))
-            }
+            GetMethod(Mapper)
             this.DefineProp("Mapper", { Get: (Instance) => Mapper })
         }
 
-        Supplier() {
-            return { Val: 0 }
-        }
-
-        Accumulator(Obj, Num?) {
-            Obj.Val += (this.Mapper)(Num?)
-        }
-
-        Finisher(Obj) {
-            return Obj.Val
-        }
+        Supplier()            => &(x := 0)
+        Accumulator(&x, Num?) => (x += (this.Mapper)(Num?))
+        Finisher(&x)          => x
     }
 
     /**
@@ -609,58 +523,41 @@ class Collector {
      * Range(5).Collect(_.Average) ; 3.0
      * 
      * ; 15.0
-     * Array({ x: 10 }, { x: 15 }, { x: 20 }).Collect(_.Sum(
-     *     Obj => Obj.x
-     * ))
+     * Array({ x: 10 }, { x: 15 }, { x: 20 }).Collect(_.Sum(Obj => Obj.x))
      * 
      * @param   {Func?}  Mapper  function to retrieve numeric values
      * @return  {Collector}
      */
     class Average extends Collector {
-        static Supplier() {
-            return { Sum: Float(0), Count: 0 }
-        }
+        static Supplier() => Array(Float(0), 0)
 
-        static Accumulator(Obj, Val?) {
+        static Accumulator(Arr, Val?) {
             if (IsSet(Val) && IsNumber(Val)) {
-                Obj.Sum += Val
-                Obj.Count++
+                Arr[1] += Val
+                Arr[2]++
             }
         }
 
-        static Finisher(Obj) {
-            if (Obj.Count) {
-                return (Obj.Sum / Obj.Count)
-            }
-            return Float(0)
-        }
+        static Finisher(Arr) => Float(Arr[2] && (Arr[1] / Arr[2]))
 
         Sum   := Float(0)
         Count := 0
 
         __New(Mapper) {
             super.__New()
-            if (!HasMethod(Mapper)) {
-                throw TypeError("Expected a Func object",, Type(Mapper))
-            }
+            GetMethod(Mapper)
             this.DefineProp("Mapper", { Get: (Instance) => Mapper })
         }
 
         Supplier() {
-
         }
 
+        ; TODO what to do with unset?
         Accumulator(_, Val?) {
-            this.Sum += (this.Mapper)(Val?)
-            ++this.Count
+            (++this.Count && (this.Sum += (this.Mapper)(Val?)))
         }
 
-        Finisher(_) {
-            if (this.Count) {
-                return (this.Sum / this.Count)
-            }
-            return Float(0)
-        }
+        Finisher(_) => Float(this.Count && (this.Sum / this.Count))
     }
 
     /**
@@ -680,25 +577,16 @@ class Collector {
         return this(Sup, Acc, Fin)
 
         Sup() {
-            Obj := Object()
-            if (IsSet(Identity)) {
-                Obj.Val := Identity
-            }
-            return Obj
+            x := Identity ?? unset
+            return &x
         }
         
-        Acc(Obj, Val?) {
-            Obj.Val := ObjHasOwnProp(Obj, "Val")
-                ? Merger(Obj.Val, Val)
-                : Obj.Val := Val
+        Acc(&x, Val?) {
+            x := (IsSet(x)) ? Merger(x, Val?)
+                            : (Val ?? unset)
         }
 
-        Fin(Obj) {
-            if (ObjHasOwnProp(Obj, "Val")) {
-                return Obj.Val
-            }
-            throw UnsetError("No values present.")
-        }
+        Fin(&x) => x
     }
 
     /**
@@ -732,9 +620,7 @@ class Collector {
 
         Acc(M, Val?) {
             Key := Classifier(Val?)
-            if (!M.Has(Key)) {
-                M[Key] := NextSup()
-            }
+            (M.Has(Key) || (M[Key] := NextSup()))
             NextAcc(M[Key], Val?)
         }
 
@@ -765,21 +651,13 @@ class Collector {
         CollFin := Coll.Finisher
         return this(Sup, Acc, Fin)
         
-        Sup() {
-            M := Map()
-            M.Set(true, CollSup(), false, CollSup())
-            return M
-        }
+        Sup() => Map(true, CollSup(), false, CollSup())
 
         Acc(M, Val?) {
             CollAcc(M[!!Condition(Val?)], Val?)
         }
 
-        Fin(M) {
-            M[true] := CollFin(M[true])
-            M[false] := CollFin(M[false])
-            return M
-        }
+        Fin(M) => Map(true, CollFin(M[true]), false, CollFin(M[false]))
     }
 
     /**
@@ -807,17 +685,9 @@ class Collector {
      * @return  {Collector}
      */
     class ToMap extends Collector {
-        static Supplier() {
-            return Map()
-        }
-
-        static Accumulator(M, Key, Val, *) {
-            M.Set(Key, Val)
-        }
-
-        static Finisher(M) {
-            return M
-        }
+        static Supplier()                  => Map()
+        static Accumulator(M, Key, Val, *) => (M.Set(Key, Val) && 0)
+        static Finisher(M)                 => M
 
         __New(KeyMapper   := ((k, *) => k),
               ValueMapper := ((k, v, *) => v),
@@ -832,9 +702,7 @@ class Collector {
             M.CaseSense := CaseSense
             return super.__New(Sup, Acc, Fin)
 
-            Sup() {
-                
-            }
+            Sup() => 0 ; do nothing
 
             Acc(_, Args*) {
                 Key   := KeyMapper(Args*)
@@ -846,9 +714,7 @@ class Collector {
                 }
             }
 
-            Fin(_) {
-                return M
-            }
+            Fin(_) => M
         }
     }
 
@@ -882,13 +748,13 @@ class Collector {
             LeftObj  := LeftSup()
             RightObj := RightSup()
         }
+
         Acc(_, Val) {
             LeftAcc(LeftObj, Val)
             RightAcc(RightObj, Val)
         }
-        Fin(_) {
-            return Merger(LeftFin(LeftObj), RightFin(RightObj))
-        }
+
+        Fin(_) => Merger(LeftFin(LeftObj), RightFin(RightObj))
     }
 }
 
@@ -930,8 +796,8 @@ class AquaHotkey_Collector extends AquaHotkey {
     }
 
     static __New() {
-        ; do not overwrite `Stream`, if it doesn't exist
         if (!IsSet(AquaHotkey_Stream)) {
+            OutputDebug("[Aqua] Collector.ahk: support for stream disabled.")
             this.DeleteProp("Stream")
         }
         super.__New()

@@ -46,7 +46,12 @@
  * Initializer() => Array()
  * ```
  *
- * The returned state is passed to `.Integrator()` for each input element.
+ * The returned state is passed to `.Integrator()` for each input element,
+ * and should generally be an object (otherwise it will be immutable).
+ * 
+ * If needed, you can wrap strings an numbers into VarRefs (e.g., `&Str`).
+ * This is also the most convenient way make gather operations using primitive
+ * types (see below).
  *
  * ---
  *
@@ -71,6 +76,13 @@
  *     State.Push(Val?)
  *     return true
  * }
+ * ```
+ * 
+ * A convenient way to write gatherers for primitive types is to box/unbox them
+ * into VarRefs.
+ * 
+ * ```ahk
+ * Integrator(&Str, Next, Args*) { ... }
  * ```
  *
  * ---
@@ -298,6 +310,22 @@ class Gatherer {
         }
     }
 
+    /**
+     * Creates a stream gatherer that emits a running result using the given
+     * initial value produced by `Supplier` by repeatedly combining values
+     * using `Combiner`.
+     * 
+     * ```ahk
+     * CrossSums := _.Scan(() => 0, (a, b := 0) => (a + b))
+     * 
+     * ; <1, 3, 6, 10>
+     * Array(1, 2, 3, 4).Gather(CrossSums)
+     * ```
+     * 
+     * @param   {Func}  Supplier  function to produce initial value
+     * @param   {Func}  Combiner  function to merge values with
+     * @return  {Gatherer}
+     */
     class Scan extends Gatherer {
         __New(Supplier, Merger) {
             super.__New()
