@@ -9,8 +9,13 @@ class AquaHotkey_VarRef extends AquaHotkey {
  */
 class VarRef {
     /**
-     * Returns the pointer of the value behind this `VarRef`.
-     * This property allows passing strings to `DllCall()` by reference `&Str`.
+     * Returns the pointer of the value behind the reference.
+     * This is particularly useful for passing strings to `DllCall()`
+     * by reference.
+     * 
+     * @example
+     * Str := "Hello, world!"
+     * DllCall("...", "Ptr", &Str)
      * 
      * @return  {Integer}
      */
@@ -35,9 +40,9 @@ class VarRef {
     }
 
     /**
-     * Returns a string representation of this VarRef.
-     * @example
+     * Returns a string representation of the reference.
      * 
+     * @example
      * Bar := &(Foo := 2)
      * Bar.ToString() ; "&Foo"
      * 

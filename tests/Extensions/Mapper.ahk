@@ -74,4 +74,24 @@ class Mapper {
             .Join(", ")
             .AssertEquals("b: bar, f: foo")
     }
+
+    static IfAbsent() {
+        Array("foo", unset).Map(  Mapper.IfAbsent("bar")  )
+            .Join(", ")
+            .AssertEquals("foo, bar")
+    }
+
+    static IfAbsentGet() {
+        Array("foo", unset).Map(  Mapper.IfAbsentGet(() => "bar")  )
+            .Join(", ")
+            .AssertEquals("foo, bar")
+    }
+
+    static Ternary() {
+        IsEven(x) => !Mod(x, 2)
+
+        Array(2).Map(  Mapper.Ternary(IsEven, "yes", "no")  )
+            .Get(1)
+            .AssertEquals("yes")
+    }
 }

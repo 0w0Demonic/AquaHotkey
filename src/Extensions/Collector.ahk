@@ -106,9 +106,7 @@
  *   ```
  */
 class Collector {
-    /**
-     * Initializes static collectors.
-     */
+    /** Initializes static collectors. */
     static __New() {
         for Name in Array("Supplier", "Accumulator", "Finisher") {
             if (!HasProp(this, Name)) {
@@ -268,8 +266,8 @@ class Collector {
 
     /**
      * Collects all elements into an array.
-     * @example
      * 
+     * @example
      * ; ["H", "e", ..., "d", "!"]
      * "Hello, world!".Collect(_.ToArray)
      * 
@@ -674,8 +672,8 @@ class Collector {
      * ; 15
      * Range(5).Collect(_.Reduce(  (a, b) => (a + b)  , 0))
      * 
-     * @param   {Func?}  Merger    
-     * @param   {Any?}   Identity  
+     * @param   {Func?}  Merger    function two merger two values
+     * @param   {Any?}   Identity  initial starting value
      * @return  {Collector}
      */
     static Reduce(Merger?, Identity?) {

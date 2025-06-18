@@ -101,7 +101,7 @@ class Stream {
 
     /**
      * Calculates the parameter length of the new stream that is returned after
-     * adding an intermediate operation such as `.RetainIf()` to this stream.
+     * adding an intermediate operation such as `.RetainIf()` to the stream.
      * 
      * ---
      * 
@@ -137,7 +137,7 @@ class Stream {
      * @example
      * Array(1, 2, 3, 4).Stream().RetainIf(x => (x > 2)) ; <3, 4>
      * 
-     * @param   {Predicate}  Condition  function that acts as condition
+     * @param   {Func}  Condition  the given condition
      * @return  {Stream}
      */
     RetainIf(Condition) {
@@ -197,7 +197,7 @@ class Stream {
      * @example
      * Array(1, 2, 3, 4).Stream().RemoveIf(x => (x > 2)) ; <1, 2>
      * 
-     * @param   {Predicate}  Condition  function that acts as condition
+     * @param   {Func}  Condition  the given condition
      * @param   {Stream}
      */
     RemoveIf(Condition) {
@@ -579,7 +579,7 @@ class Stream {
      * @example
      * Array(1, -2, 4, 6, 2, 1).Stream().TakeWhile(x => x < 5) ; <1, -2, 4>
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
+     * @param   {Func}  Condition  the given condition
      * @return  {Stream}
      */
     TakeWhile(Condition) {
@@ -652,7 +652,7 @@ class Stream {
      * @example
      * Array(1, 2, 3, 4, 2, 1).Stream().DropWhile(x => x < 3) ; <4, 2, 1>
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
+     * @param   {Func}  Condition  the given condition
      * @return  {Stream}
      */
     DropWhile(Condition) {
@@ -813,8 +813,8 @@ class Stream {
      * element set as intermediate stream operation.
      * 
      * - The parameter length of the new stream remains the same.
-     * @example
      * 
+     * @example
      * Foo(Value) {
      *     MsgBox("Intermediate stream operation: " . Value)
      * }
@@ -825,7 +825,7 @@ class Stream {
      * 
      * Array(1, 2, 3, 4).Stream().Peek(Foo).ForEach(Bar)
      * 
-     * @param   {Func}  Action  the function to call on each element set
+     * @param   {Func}  Action  the function to be called
      * @return  {Stream}
      */
     Peek(Action) {
@@ -879,7 +879,7 @@ class Stream {
      * 
      * Array(1, 2, 3, 4).Stream().ForEach(MsgBox)
      * 
-     * @param   {Func}  Action  the function to call on each set of elements
+     * @param   {Func}  Action  the function to be called
      * @return  (none)
      */
     ForEach(Action) {
@@ -917,8 +917,8 @@ class Stream {
      * Array(1, 2, 3, 8, 4).Stream().AnyMatch(x => x < 5, &Output) ; true
      * Output.ToString() ; "[8]"
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
-     * @param   {VarRef?}    Match      first matching element set
+     * @param   {Func}     Condition  the given condition
+     * @param   {VarRef?}  Match      first matching element set
      * @return  {Boolean}
      */
     AnyMatch(Condition, &Match?) {
@@ -959,13 +959,13 @@ class Stream {
     }
 
     /**
-     * Returns `true`, if all elements in this map satisfy the
-     * given `Condition`.
+     * Returns `true`, if all elements in this map satisfy the given
+     * `Condition`.
      * 
      * @example
      * Array(1, 2, 3, 4).Stream().AllMatch(x => x < 10) ; true
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
+     * @param   {Func}  Condition  the given condition
      * @return  {Boolean}
      */
     AllMatch(Condition) {
@@ -1002,13 +1002,13 @@ class Stream {
     }
 
     /**
-     * Returns `true`, if none of the element sets in this stream satisfy the
+     * Returns `true`, if none of the element sets in the stream satisfy the
      * given `Condition`.
      * 
      * @example
      * Array(1, 2, 3, 4, 5, 92).Stream().NoneMatch(x => x > 10) ; false
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
+     * @param   {Func}  Condition  the given condition
      * @return  {Boolean}
      */
     NoneMatch(Condition) {
@@ -1045,7 +1045,7 @@ class Stream {
     }
 
     /**
-     * Returns the highest ordered element in this stream.
+     * Returns the highest ordered element in the stream.
      * 
      * - If the stream is empty, this method throws an error.
      * - Only the *first parameter* of each element set is compared.
@@ -1056,7 +1056,7 @@ class Stream {
      * Array(1, 2, 3, 4).Stream().Max()                   ; 4
      * Array("banana", "zigzag").Stream().Max(StrCompare) ; "zigzag"
      * 
-     * @param   {Comparator}  Comp  function that compares two elements
+     * @param   {Func?}  Comp  the comparator to apply
      * @return  {Any}
      */
     Max(Comp := (a, b) => (a > b) - (b - a)) {
@@ -1070,13 +1070,13 @@ class Stream {
             (IsSet(Value) && Comp(Value, Result) > 0 && Result := Value)
         }
         if (!IsSet(Result)) {
-            throw UnsetError("every element in this stream is unset")
+            throw UnsetError("no values present")
         }
         return Result
     }
 
     /**
-     * Returns the lowest element in this stream.
+     * Returns the lowest element in the stream.
      * 
      * - If the stream is empty, this method throws an error.
      * - Only the *first parameter* of each element set is compared.
@@ -1087,7 +1087,7 @@ class Stream {
      * Array(1, 2, 3, 4, 5, 90, -34).Stream().Min()       ; -34
      * Array("banana", "zigzag").Stream().Max(StrCompare) ; "banana"
      * 
-     * @param   {Comparator}  Comp  function that compares two elements
+     * @param   {Func?}  Comp  the compator to apply
      * @return  {Any}
      */
     Min(Comp := (a, b) => (a > b) - (b > a)) {
@@ -1101,18 +1101,18 @@ class Stream {
             (IsSet(Value) && Comp(Value, Result) < 0 && Result := Value)
         }
         if (!IsSet(Result)) {
-            throw UnsetError("every element in this stream is unset")
+            throw UnsetError("no value present")
         }
         return Result
     }
 
     /**
-     * Returns the total sum of numbers in this stream. Unset and non-numerical
+     * Returns the total sum of numbers in the stream. Unset and non-numerical
      * values are ignored.
      *
      * - Only the first parameter of each element set is taken as argument.
-     * @example
      * 
+     * @example
      * Array("foo", 3, "4", unset).Stream().Sum() ; 7
      * 
      * @return  {Float}
@@ -1193,13 +1193,13 @@ class Stream {
             (IsSet(Value) && Result := Combiner(Result, Value))
         }
         if (!IsSet(Result)) {
-            throw UnsetError("every element in this stream is unset")
+            throw UnsetError("no value present")
         }
         return Result
     }
 
     /**
-     * Concatenates the elements of this stream into a single string, separated
+     * Concatenates the elements of the stream into a single string, separated
      * by the specified `Delimiter`. The method converts objects to strings
      * using their `.ToString()` method.
      * 
@@ -1236,8 +1236,8 @@ class Stream {
     }
 
     /**
-     * Concatenates the elements of this stream into a single string, each
-     * element separated by `\n`.
+     * Concatenates the elements of the stream into a single string, each
+     * element separated by `\r\n`.
      * @see `Func.Join()`
      * @example
      * 
@@ -1250,12 +1250,12 @@ class Stream {
      * @return  {String}
      */
     JoinLine(InitialCap := 0) {
-        return this.Join("`n", InitialCap)
+        return this.Join("`r`n", InitialCap)
     }
 
     /**
      * Creates an infinite stream where each element is produced by the
-     * given supplier function.
+     * given `Supplier` function.
      * 
      * The stream is infinite unless filtered or limited with other methods.
      * 
@@ -1318,10 +1318,10 @@ class Stream {
 class AquaHotkey_Stream extends AquaHotkey {
     class Any {
         /**
-         * Returns a function stream with this variable as source.
+         * Returns a function stream with the current element as source.
          * @see `Stream`
-         * @example
          * 
+         * @example
          * Arr    := [1, 2, 3, 4, 5]
          * Stream := Arr.Stream(2) ; for Index, Value in Arr {...}
          * 

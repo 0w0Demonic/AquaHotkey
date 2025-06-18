@@ -1,13 +1,5 @@
 #Requires AutoHotkey >=v2.0.5
 
-;@Ahk2Exe-IgnoreBegin
-if (A_ScriptFullPath == A_LineFile) {
-    MsgBox("This file should not be run directly. Use #Include to import it.",
-           "AquaHotkey", 0x40)
-    ExitApp(1)
-}
-;@Ahk2Exe-IgnoreEnd
-
 /**
  * AquaHotkey - AquaHotkey.ahk
  * 
@@ -48,7 +40,6 @@ class AquaHotkey extends AquaHotkey_Ignore
  *   defined by the user.
  * 
  * @example
- * 
  * class StringExtensions extends AquaHotkey {
  *     ; StringExtensions.String
  *     ; `--> String
@@ -89,12 +80,14 @@ static __New() {
     }
 
     /**
-     * In order to avoid issues with deleting properties during iteration
-     * of `ObjOwnProps()`, keep an array of `BoundFunc` to delete all property
-     * supplier classes after successful setup.
+     * After properties have been successfully transferred to the target,
+     * classes are erased.
+     * 
+     * In order to avoid issues with deleting properties *during iteration*
+     * of `ObjOwnProps()`, this array keeps track of all classes to delete
+     * afterwards.
      * 
      * @example
-     * 
      * [() => (Object.Prototype.DeleteProp)(AquaHotkey, String),
      *  () => (Object.Prototype.DeleteProp)(AquaHotkey, Integer),
      *  ...
@@ -204,9 +197,7 @@ static __New() {
             SupplierInit(Instance) ; user-defined `__Init()`
         }
 
-        ; Check whether the receiver is a primitive class, in which case
-        ; defining a new `__Init()` would have no effect as primitive types
-        ; cannot own any properties.
+        ; Ignore primitive classes, as its instances cannot have any fields.
         if (!HasBase(Receiver, Primitive)) {
             ; Rename the new `__Init()` method to something useful
             InitMethodName := SupplierProto.__Class . ".Prototype.__Init"
@@ -229,9 +220,6 @@ static __New() {
         static DoRecursion(Supplier, Receiver, PropertyName) {
             try return (Supplier is Class) && (Supplier.%PropertyName% is Class)
                     && (Receiver is Class) && (Receiver.%PropertyName% is Class)
-                    /** e.g. InStr("AquaHotkey.Integer", "Integer") */
-                    ; && InStr(Supplier.%PropertyName%.Prototype.__Class,
-                    ;          Receiver.%PropertyName%.Prototype.__Class)
             return false
         }
 
@@ -263,9 +251,7 @@ static __New() {
         Overwrite(this, PropertyName, DeletionQueue, unset)
     }
 
-    ; Finally, delete all supplier classes.
-    ; They can no longer be accessed through member access
-    ; `AquaHotkey.{...}` anymore.
+    ; Finally, erase all supplier classes.
     while (DeletionQueue.Length) {
         DeletionQueue.Pop()()
     }

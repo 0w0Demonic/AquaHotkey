@@ -2,7 +2,6 @@
  * Utility class used for creating different types of mapper functions.
  * 
  * @example
- * 
  * ; [2, 3, 4, 5, 6]
  * Array(1, 2, 3, 4, 5).Map(  Mapper.Increment  )
  */
@@ -149,5 +148,38 @@ class Mapper {
      */
     static Method(MethodName, Args*) {
         return ((Obj) => (Obj.%MethodName%(Args*)))
+    }
+
+    /**
+     * Mapper that returns a default value if the input element is unset.
+     * @param   {Any}  DefaultValue  value to be used as default
+     * @return  {Func}
+     */
+    static IfAbsent(DefaultValue) {
+        return ((Val?) => Val ?? DefaultValue)
+    }
+
+    /**
+     * Mapper that returns a default value if the input element is unset,
+     * supplied by calling the given `Supplier`.
+     * @param   {Func}  Supplier  function to be called if value is unset
+     * @return  {Func}
+     */
+    static IfAbsentGet(Supplier) {
+        GetMethod(Supplier)
+        return ((Val?) => Val ?? Supplier())
+    }
+
+    /**
+     * Mapper that acts as a ternary operator. Evaluating the given `Condition`
+     * returns either the `Yes` or `No` value.
+     * @param   {Func}  Condition  the given condition to evaluate
+     * @param   {Any}   Yes        value to return when condition is true
+     * @param   {Any}   No         value to return when condition is false
+     * @return  {Func}
+     */
+    static Ternary(Condition, Yes, No) {
+        GetMethod(Condition)
+        return ((Args*) => Condition(Args*) ? Yes : No)
     }
 }

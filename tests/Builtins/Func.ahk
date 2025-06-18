@@ -7,6 +7,11 @@
  * - tests/Builtins/Func.ahk
  */
 class Func {
+    static Constantly() {
+        Range(5).Stream().Map(  Func.Constantly(15)  ).Join(", ")
+                .AssertEquals("15, 15, 15, 15, 15")
+    }
+
     static __() {
         ((x, y) => x + (2 * y))
             .__(2)
@@ -29,7 +34,7 @@ class Func {
             .AssertEquals(10)
     }
 
-    static Tee() {
+    static Tee1() {
         Person := {
             FirstName: "John",
             LastName:  "Knee",

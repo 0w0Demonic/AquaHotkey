@@ -133,4 +133,18 @@ class Condition {
         Pattern .= ""
         return ((Str) => (Str ~= Pattern))
     }
+
+    /**
+     * Returns whether a number is divisible by the given `Num`.
+     * @param   {Integer}  Num  the number to divide with
+     * @return  {Func}
+     */
+    static DivisibleBy(Num) {
+        if (!IsInteger(Num)) {
+            throw TypeError("Expected an Integer",, Type(Num))
+        }
+        Num := Integer(Num)
+
+        return (x) => !Mod(x, Num)
+    }
 }

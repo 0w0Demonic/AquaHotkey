@@ -13,7 +13,7 @@
  * It automatically loads and frees the library, resolves function addresses
  * and binds method signatures for type safety.
  * 
- * **Usage**:
+ * **How to Use**:
  * 
  * To create a DLL wrapper, define a subclass and specify the target DLL using
  * the `static FilePath` property:

@@ -73,4 +73,9 @@ class Condition {
         Array("Hello", "world!").RetainIf(  Condition.Matches("^\w++$")  )
             .Join().AssertEquals("Hello")
     }
+
+    static DivisibleBy() {
+        Range(5).Stream().RetainIf(  Condition.DivisibleBy(2)  )
+            .Join().AssertEquals("24")
+    }
 }

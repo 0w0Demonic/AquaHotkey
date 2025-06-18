@@ -19,8 +19,8 @@
 class Optional {
     /**
      * Returns an optional with no value present.
-     * @example
      * 
+     * @example
      * Opt := Optional.Empty()
      * Opt.IsPresent ; false
      * 
@@ -31,8 +31,8 @@ class Optional {
     /**
      * Constructs a new optional describing the given `Value` if specified,
      * otherwise an empty optional.
-     * @example
      * 
+     * @example
      * Opt   := Optional("foo")
      * Empty := Optional()
      * 
@@ -46,8 +46,8 @@ class Optional {
     /**
      * If present, returns the value of the optional, otherwise throws an
      * `UnsetError`.
-     * @example
      * 
+     * @example
      * Optional("foo").Get()  ; "foo"
      * Optional.Empty().Get() ; Error!
      * 
@@ -62,8 +62,8 @@ class Optional {
 
     /**
      * Returns `true`, if a value is present for this optional.
-     * @example
      * 
+     * @example
      * Optional("foo").IsPresent ; true
      * Optional(unset).IsPresent ; false
      * 
@@ -73,8 +73,8 @@ class Optional {
 
     /**
      * Returns `true`, if this Optional does not contain a value.
-     * @example
      * 
+     * @example
      * Optional("foo").IsAbsent ; false
      * Optional(unset).IsAbsent ; true
      * 
@@ -87,11 +87,11 @@ class Optional {
      * 
      * `Action` is called using the value as first argument, followed by zero
      * or more additional arguments `Args*`.
-     * @example
      * 
+     * @example
      * Optional("Hello, world!").IfPresent(MsgBox)
      *
-     * @param   {Func}  Action  the function to call
+     * @param   {Func}  Action  the function to be called
      * @param   {Any*}  Args    zero or more additional arguments
      * @return  {this}
      */
@@ -104,11 +104,11 @@ class Optional {
      * If no value is present, calls the given `Action` function.
      * 
      * `Action` is called using zero or more arguments `Args*`
-     * @example
      * 
+     * @example
      * Optional.Empty().IfAbsent(() => MsgBox("no value present"))
      * 
-     * @param   {Func}  EmptyAction  the function to call
+     * @param   {Func}  EmptyAction  the function to be called
      * @param   {Any*}  Args         zero or more additional arguments
      * @return  {this}
      */
@@ -118,14 +118,14 @@ class Optional {
     }
 
     /**
-     * Filters the value based on the given predicate function `Condition`.
+     * Filters the value based on the given `Condition`.
      * The optional becomes empty, if `Condition` evaluates to `false`.
-     * @example
      * 
-     * Optional(4).RetainIf(x => (x is Number)) ; Optional(4)
+     * @example
+     * Optional(4).RetainIf(IsNumber) ; Optional(4)
      *
-     * @param   {Predicate}  Condition  function that evaluates a condition
-     * @param   {Any*}       Args       zero or more additional arguments
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
      * @return  {Optional}
      */
     RetainIf(Condition, Args*) {
@@ -139,14 +139,13 @@ class Optional {
     }
 
     /**
-     * Removes the value if the given predicate function `Condition` returns
-     * `true`.
-     * @example
+     * Removes the value if the value fulfills the given `Condition`.
      * 
-     * Optional(4).RemoveIf(x => (x is Number)) ; Optional.Empty()
+     * @example
+     * Optional(4).RemoveIf(IsNumber) ; Optional.Empty()
      *
-     * @param   {Predicate}  Condition  function that evaluates a condition
-     * @param   {Any*}       Args       zero or more additional arguments
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
      * @return  {Optional}
      */
     RemoveIf(Condition, Args*) {
@@ -165,8 +164,8 @@ class Optional {
      * 
      * `Mapper` is called using the value as first argument, followed by zero
      * or more additional arguments `Args*`.
-     * @example
      * 
+     * @example
      * Multiply(x, y) {
      *     return x * y
      * }
@@ -187,8 +186,8 @@ class Optional {
 
     /**
      * If present, returns the value, otherwise returns the given default value.
-     * @example
      * 
+     * @example
      * Optional(2).OrElse("")      ; 2
      * Optional.Empty().OrElse("") ; ""
      *
@@ -205,8 +204,8 @@ class Optional {
     /**
      * Returns the value if present, otherwise calls the `Supplier` function
      * to obtain a default value.
-     * @example
      * 
+     * @example
      * Optional(4).OrElseGet(() => 6) ; 4
      * Optional.Empty().OrElseGet()
      *
@@ -224,8 +223,8 @@ class Optional {
     /**
      * Returns the value if present, otherwise throws an exception provided by
      * the `ExceptionSupplier`.
-     * @example
      * 
+     * @example
      * ; `throw ValueError("argument is not a number")`
      * Optional("foo").RetainIf(IsNumber)
      *                .OrElseThrow(ValueError, "argument is not a number")
@@ -234,13 +233,11 @@ class Optional {
      * @param   {Any*}   Args               zero or more arguments
      * @return  {Any}
      */
-    OrElseThrow(ExceptionSupplier?, Args*) {
+    OrElseThrow(ExceptionSupplier := Error, Args*) {
         if (HasProp(this, "Value")) {
             return this.Value
         }
-        try {
-            Err := ExceptionSupplier(Args*)
-        }
+        try Err := ExceptionSupplier(Args*)
         if (IsSet(Err)) {
             throw Err
         }
@@ -248,9 +245,9 @@ class Optional {
     }
 
     /**
-     * Returns a string representation of the optional.
-     * @example
+     * Returns the string representation of the optional.
      * 
+     * @example
      * Array(1, 2, 3).Optional().ToString() ; "Optional{ [1, 2, 3] }"
      * 
      * @return  {String}
@@ -269,10 +266,10 @@ class Optional {
 class AquaHotkey_Optional extends AquaHotkey {
     class Any {
         /**
-         * Returns an `Optional` that wraps around this variable.
+         * Returns a new optional that wraps arount the element.
          * @see `Optional`
-         * @example
          * 
+         * @example
          * "Hello world!".Optional().IfPresent(MsgBox)
          * 
          * @return  {Optional}

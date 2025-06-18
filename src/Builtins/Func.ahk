@@ -13,7 +13,7 @@ class Func {
      * @param   {Any}  x  any input argument
      * @return  {Func}
      */
-    static Constantly(x) => (() => x)
+    static Constantly(x) => ((Args*) => x)
 
     ; TODO deprecate this?
     /**

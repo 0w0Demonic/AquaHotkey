@@ -1,3 +1,4 @@
+; TODO deprecate this
 /**
  * AquaHotkey - Window.ahk
  * 

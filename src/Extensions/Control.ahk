@@ -1,3 +1,4 @@
+; TODO deprecate this
 /**
  * AquaHotkey - Control.ahk
  * 
@@ -17,14 +18,12 @@
  * ---
  *
  * @example
- * 
  * EditCtl      := Control("Edit1", "ahk_exe notepad.exe")
  * EditCtl.Text := "Hello, world!"
  */
 class Control {
     /**
-     * Constructs a new `Control` from the given control parameter, followed
-     * by WinTitle parameters.
+     * Creates a new instance from the given control and WinTitle parameters.
      * 
      * @param   {Any}      Value         GUI control parameter
      * @param   {Any?}     WinTitle      window title
@@ -42,7 +41,7 @@ class Control {
     }
     
     /**
-     * Enumerates the control and WinTitle parameters of the `Control` object.
+     * Enumerates the control and WinTitle parameters.
      * 
      * @param   {Integer}  n  parameter length of the for-loop
      * @return  {Enumerator}
@@ -54,7 +53,7 @@ class Control {
     }
 
     /**
-     * Adds the specified string as new entry at the bottom of a ListBox or
+     * Adds the given string as new entry at the bottom of a ListBox or
      * ComboBox.
      * 
      * @param   {String}  Str  the string to add
@@ -66,7 +65,7 @@ class Control {
     }
 
     /**
-     * Deletes the specified entry number from a ListBox or ComboBox.
+     * Deletes the given entry number from a ListBox or ComboBox.
      * 
      * @param   {Integer}  n  index of the item to delete
      * @return  {this}

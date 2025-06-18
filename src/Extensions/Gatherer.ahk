@@ -1,7 +1,7 @@
 /**
  * ### Gatherers
  *
- * Gatherers are a special interface used for processing a stream of input
+ * Gatherers are an interface used for processing a stream of input
  * elements into a stream of output elements.
  *
  * They originate from JDK 24's "Structured Concurrency & Stream Gatherers"

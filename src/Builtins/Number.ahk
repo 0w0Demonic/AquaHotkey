@@ -12,9 +12,7 @@ class Number {
     static PI => 3.14159265358979
     static E  => 2.71828182845905
     
-    /**
-     * Built-in math function to avoid overhead of `Any.Prototype.__Call()`
-     */
+    /** Built-in math functions. */
     Abs()     => Abs(this)
     ASin()    => ASin(this)
     ACos()    => ACos(this)
@@ -33,20 +31,20 @@ class Number {
 
     /**
      * Returns the logarithm base `BaseN` of this number.
-     * @example
      * 
+     * @example
      * (32).Log(2) ; 5.0
      * 
      * @param   {Number}  BaseN  logarithm base
      * @return  {Float}
      */
-    Log(BaseN := 10) => Log(this) / Log(BaseN)
+    Log(BaseN := 10) => (Log(this) / Log(BaseN))
 
     /**
      * Asserts that this number is greater than `x`. Otherwise, a `ValueError`
      * is thrown with the error message `Msg`.
-     * @example
      * 
+     * @example
      * (12.23).AssertGreater(5, "number is not greater than 5")
      * 
      * @param   {Number}   x    any number
@@ -63,8 +61,8 @@ class Number {
     /**
      * Asserts that this number is greater than or equal to `x`. Otherwise, a
      * `ValueError` is thrown with the error message `Msg`.
-     * @example
      * 
+     * @example
      * (0).AssertGreaterOrEqual(0, "number is less than 0")
      * 
      * @param   {Number}   x    any number
@@ -81,8 +79,8 @@ class Number {
     /**
      * Asserts that this number is less than `x`. Otherwise, a `ValueError` is
      * thrown with the error message `Msg`.
-     * @example
      * 
+     * @example
      * (23).AssertLess(65, "number is not less than 65")
      * 
      * @param   {Number}   x    any number
@@ -99,8 +97,8 @@ class Number {
     /**
      * Asserts that this number is smaller than or equal to `x`. Otherwise,
      * a `ValueError` is thrown with the error message `Msg`.
-     * @example
      * 
+     * @example
      * (23).AssertLessOrEqual(65, "number is greater than 65")
      * 
      * @param   {Number}   x    any number
@@ -118,7 +116,6 @@ class Number {
      * Asserts that this number lies in the inclusive range between `x` and `y`.
      * 
      * @example
-     * 
      * (12).AssertInRange(1, 100, "number is not between 1-100")
      * 
      * @param   {Number}   x    lower limit
