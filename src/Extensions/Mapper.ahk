@@ -7,12 +7,6 @@
  */
 class Mapper {
     /**
-     * Mapper which returns the input argument that was given.
-     * @return  {Func}
-     */
-    static Identity => ((x) => x)
-
-    /**
      * Mapper which increments numbers.
      * @return  {Func}
      */

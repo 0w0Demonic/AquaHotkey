@@ -38,88 +38,6 @@ class Func {
 
     ; TODO deprecate this?
     /**
-     * Provides a shorthand for function binding, with behavior that adapts
-     * depending on the type of the function it is applied to.
-     * 
-     * ---
-     * 
-     * **Global Functions and Static Methods**:
-     * 
-     * - The method starts binding arguments from the *second* parameter,
-     *   leaving the first parameter untouched.
-     * 
-     *   ```
-     *   ContainsLetterF := InStr.__("F") ; InStr.Bind(unset, "F")
-     *   ContainsLetterF("Foo")           ; InStr("Foo", "F")
-     * 
-     *   class MyClass {
-     *       static MyMethod(Args*) {
-     *           ; ...
-     *       }
-     *   }
-     *   
-     *   Method := MyClass.MyMethod.__(Arg1, Arg2)
-     *   Method("foo") ; MyClass.MyMethod("foo", Arg1, Arg2)
-     *   ```
-     * 
-     * ---
-     * 
-     * **Behavior for Non-Static Methods**:
-     * 
-     * - The method binds arguments starting from the *first* parameter,
-     *   leaving out the `this`-parameter referring to the object instance.
-     *   
-     *   ```
-     *   class MyClass {
-     *       MyMethod(Args*) {
-     *           ; ...
-     *       }
-     *   }
-     *   
-     *   Method := MyClass.MyMethod.__(Arg1, Arg2)
-     *   Instance := MyClass() ; create a new object
-     *   Method(Instance)      ; same as Instance.Method(Arg1, Arg2)
-     *   ```
-     * 
-     * ---
-     * 
-     * **Note**:
-     * 
-     * This method relies on the `Name` property to determine whether this
-     * function is a regular function, static method or non-static method (its
-     * name is being searched for strings `.` and `.Prototype.`).
-     * When dynamically creating new methods, they must be named according to
-     * the standard naming convention of AutoHotkey functions.
-     * 
-     * ```
-     * MyStaticMethod.DefineConstant("Name", "MyClass.MyMethod")
-     * MyNonStaticMethod.DefineConstant("Name", "MyClass.Prototype.MyMethod")
-     * ```
-     * 
-     * ---
-     * 
-     * @example
-     * FirstCharacter := SubStr.__(1, 1)
-     * FirstCharacter("foo") ; "f"
-     * 
-     * @param   {Any*}  Args  zero or more arguments
-     * @return  {BoundFunc}
-     */
-    __(Args*) {
-        FunctionName := this.Name
-        if (InStr(FunctionName, ".")) {
-            if (InStr(FunctionName, ".Prototype.")) {
-                return this.Bind(unset, Args*)
-            }
-            IndexLastDot := InStr(FunctionName, ".", false,, -1)
-            ClassName    := SubStr(FunctionName, 1, IndexLastDot - 1)
-            return this.Bind(Class.ForName(ClassName), unset, Args*)
-        }
-        return this.Bind(unset, Args*)
-    }
-
-    ; TODO deprecate this?
-    /**
      * Stores a clone of the function in `Output`.
      * @example
      * 
@@ -326,42 +244,23 @@ class Func {
         }
     }
     
-    ; TODO improve this somehow
     /**
      * Returns a memoized version of this function, caching previously computed
-     * results in a `Map` object instead of calculating a result on every call.
+     * results in a Map to avoid redundant computation.
      * 
-     * The method determines behavior based on the type of the first parameter:
+     * Customize key generation by passing a `Hasher` - a function
+     * that takes the input arguments and returns a key (preferably a string).
      * 
-     * ---
-     * 
-     * **1. `CaseSenseOrHasher` (`Boolean`|`String`|`Func`, optional)**:
-     * 
-     * If a `Boolean` (`true` or `false`) or `String` (`"On"`, `"Off"` or
-     * `"Locale"`) is provided, it determines the case-sensitivity of the
-     * internal `Map` used for equality checks.
-     * 
-     * If a function object is provided, it is treated as a custom `Hasher` for
-     * generating keys. This is useful for comparing objects based on their
-     * values instead of their identity.
-     * 
-     * A custom `Hasher` is required for supporting streams with a parameter
-     * length greater than 1.
-     * 
-     * ---
-     * 
-     * **2. `CaseSense` (`Boolean`|`String`, optional)**:
-     * 
-     * Specifies case-sensitivity of the internal `Map`.
-     * 
-     * ---
+     * You can also customize the internal Map behaviour by passing `MapParam`,
+     * which can be:
+     * - a map (used directly),
+     * - function returning a map,
+     * - or a case-sensitivity option.
      * 
      * @example
      * Fibonacci(x) {
      *     if (x > 1) {
-     *         ; Important:
-     *         ;   Recursive calls must also call the memoized version of this
-     *         ;   function, otherwise only the result for input `80` is cached!
+     *         ; If you recurse, you need to call the memoized version.
      *         return FibonacciMemo(x - 2) + FibonacciMemo(x - 1)
      *     }
      *     return 1
@@ -369,16 +268,22 @@ class Func {
      * FibonacciMemo := Fibonacci.Memoized()
      * FibonacciMemo(80) ; 23416728348467685
      * 
-     * @param   {Primitive?/Func?}  CaseSenseOrHasher  case-sensitivity or
-     *                                                 object hasher
-     * @param   {Primitive?}        CaseSense          case-sensitivity
+     * @param   {Func?}                  Hasher    function creating map keys
+     * @param   {Map?/Func?/Primitive?}  MapParam  specifies map options
      * @return  {Func}
      */
-    Memoized(Hasher?, MapOrSupplier := Map) {
-        if (HasMethod(MapOrSupplier)) {
-            Cache := MapOrSupplier()
-        } else {
-            Cache := MapOrSupplier
+    Memoized(Hasher?, MapParam := Map()) {
+        switch {
+            case (MapParam is Map):
+                Cache := MapParam
+            case (HasMethod(MapParam)):
+                Cache := MapParam()
+                if (!(Cache is Map)) {
+                    throw ValueError("Expected a Map",, Type(Cache))
+                }
+            default:
+                Cache := Map()
+                Cache.CaseSense := MapParam
         }
 
         Result := IsSet(Hasher) ? HashedMemoized : Memoized
