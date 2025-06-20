@@ -14,18 +14,9 @@ class Object {
      * 
      * @example
      * class Foo {
-     *     static Bar {
-     *         Get {
-     *             ; do something here...
-     *             Sleep(2000)
-     *             ; next time, return `Result` instantly
-     *             return this.DefineConstant("Bar", 42)
-     *         }
-     *     }
+     *     ; property "Bar" becomes immutable
+     *     __New(Bar) => this.DefineConstant("Bar", Bar)
      * }
-     * 
-     * MsgBox(Foo.Bar) ; (2 seconds later...) 42
-     * MsgBox(Foo.Bar) ; 42
      * 
      * @param   {String}  PropertyName  name of the new property
      * @param   {Any}     Value         value that is returned by this property
@@ -138,20 +129,6 @@ class Object {
             throw TypeError("Expected a Function object",, Type(Method))
         }
         return this.DefineProp(PropertyName, { Call: Method })
-    }
-
-    /**
-     * Stores a clone of the object in `Output`.
-     * 
-     * @example
-     * MyVariable.Store(&Copy)
-     * 
-     * @param   {VarRef}  Output  output variable to store current value in
-     * @return  {this}
-     */
-    Store(&Output) {
-        Output := this.Clone()
-        return this
     }
 
     /**

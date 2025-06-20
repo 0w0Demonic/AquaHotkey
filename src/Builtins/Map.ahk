@@ -77,14 +77,17 @@ class Map {
      * @example
      * Map().IsEmpty ; true
      * Map(1, 2, "foo", "bar").IsEmpty ; false
+     * 
+     * @return  {Boolean}
      */
     IsEmpty  => (!this.Count)
 
     /**
      * Returns a new map of all elements that fulfill the given `Condition`.
      * 
-     * `Condition` is called using key and value as first two arguments,
-     * followed by zero or more additional arguments `Args*`.
+     * ```ahk
+     * Condition(Key, Value, Args*)
+     * ```
      * 
      * @example
      * ; Map { 1 => 2 }
@@ -114,8 +117,9 @@ class Map {
      * Returns a new map of all elements that don't satisfy the given
      * `Condition`.
      * 
-     * `Condition` is called using key and value as first two arguments,
-     * followed by zero or more additional arguments `Args*`
+     * ```ahk
+     * Condition(Key, Value, Args*)
+     * ```
      * 
      * @example
      * ; Map { 3 => 4 }
@@ -144,8 +148,9 @@ class Map {
      * Replaces all values in the map *in place* by applying `Mapper` to
      * each element.
      * 
-     * `Mapper` is called using key and value as first two arguments, followed
-     * by zero or more additional arguments `Args*`.
+     * ```ahk
+     * Mapper(Key, Value, Args*)
+     * ```
      * 
      * @example
      * ; Map { 1 => 4, 3 => 8 }
@@ -159,8 +164,13 @@ class Map {
         if (!HasMethod(Mapper)) {
             throw TypeError("Expected a Function object",, Type(Mapper))
         }
+        Result := Map()
+        Result.Capacity := this.Count
         for Key, Value in this {
-            this[Key] := Mapper(Key, Value, Args*)
+            Result[Key] := Mapper(Key, Value, Args*)
+        }
+        for Key, Value in this {
+            this[Key] := Result[Key]
         }
         return this
     }
@@ -169,10 +179,11 @@ class Map {
      * Returns a new map of elements transformed by applying `Mapper` to
      * each element.
      * 
-     * `Mapper` is called using key and value as first two arguments, followed
-     * by zero or more additional arguments `Args*`.
-     * @example
+     * ```ahk
+     * Mapper(Key, Value, Args*)
+     * ```
      * 
+     * @example
      * ; Map { 1 => 4, 3 => 8 }
      * Map(1, 2, 3, 4).Map((Key, Value) => (Value * 2))
      * 
@@ -200,6 +211,10 @@ class Map {
      * 
      * `Action` is called using key and value as first two arguments, followed
      * by zero or more additional arguments `Args*`.
+     * 
+     * ```ahk
+     * Action(Key, Value, Args*)
+     * ```
      * 
      * @example
      * Print(Key, Value) {
@@ -236,9 +251,14 @@ class Map {
         return this
     }
     
+    ; TODO Args*?
     /**
      * Adds a new element to the map if absent. A value is computed by applying
      * `Mapper` to the given key.
+     * 
+     * ```ahk
+     * Mapper(Key)
+     * ```
      * 
      * @example
      * ; Map { 1 => 2 }
@@ -256,9 +276,14 @@ class Map {
         return this
     }
 
+    ; TODO Args*?
     /**
      * If present, replaces the value by applying the given `Mapper`,
      * using key and value as arguments.
+     * 
+     * ```ahk
+     * Mapper(Key, Value)
+     * ```
      * 
      * @example
      * ; Map { 1 => 3 }
@@ -280,8 +305,9 @@ class Map {
      * If absent, adds a new map element. Otherwise, the value is changed by
      * applying the given `Mapper`.
      * 
-     * `Mapper` is called using key and value as two arguments. If there is not
-     * yet an element present, `unset` is passed as current value.
+     * ```ahk
+     * Mapper(Key, Value?)
+     * ```
      * 
      * @example
      * Mapper(Key, Value?) {
@@ -314,7 +340,9 @@ class Map {
      * If absent, adds a new map element. Otherwise, its current value
      * will be merged with `Value` and the given `Combiner`.
      * 
-     * `Combiner` is called using the current value and `Value` as arguments.
+     * ```ahk
+     * Combiner(OldValue, NewValue)
+     * ```
      * 
      * @example
      * Map().Merge("foo", 1, (a, b) => (a + b))
@@ -341,10 +369,9 @@ class Map {
      * in which case it will return the first matching element in the form
      * of an object with `Key` and `Value` properties.
      * 
-     * `Condition` is called with key and value of the element,
-     * followed by optional `Args*`.
-     * 
-     * If no elements satisfy `Condition`, the method returns `false`.
+     * ```ahk
+     * Condition(Key, Value, Args*)
+     * ```
      * 
      * @example
      * KeyEquals1(Key, Value) {
@@ -376,8 +403,9 @@ class Map {
     /**
      * Returns `true`, if all elements satisfy the given `Condition`.
      * 
-     * `Condition` is called using key and value as arguments, followed by zero
-     * or more additional arguments `Args*`
+     * ```ahk
+     * Condition(Key, Value, Args*)
+     * ```
      * 
      * @example
      * Map(1, 2, 3, 4).AllMatch((Key, Value) => (Key != 6)) ; true
@@ -401,10 +429,11 @@ class Map {
     /**
      * Returns `true`, if none of the elements satisfy the given `Condition`.
      * 
-     * `Condition` is called using key and value as first two arguments,
-     * followed by zero or more additional arguments `Args*`.
-     * @example
+     * ```ahk
+     * Condition(Key, Value, Args*)
+     * ```
      * 
+     * @example
      * Map(1, 2, 3, 4).NoneMatch((Key, Value) => (Key == 3)) ; false
      * 
      * @param   {Func}  Condition  the given condition

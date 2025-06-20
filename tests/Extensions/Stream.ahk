@@ -110,7 +110,7 @@ class Stream {
     static Distinct2() {
         Array("foo", "Foo", "FOO")
             .Stream()
-            .Distinct(false)
+            .Distinct(StrLower)
             .Join()
             .AssertEquals("foo")
     }

@@ -296,12 +296,6 @@ class Array {
     }
 
     static RetainIf2() {
-        Arr := Array(1, 2, 3, 4, unset).RetainIf(Num => Num > 2)
-        Arr.Length.AssertEquals(2)
-        Arr.Join().AssertEquals("34")
-    }
-
-    static RetainIf3() {
         static Filter(Value?) {
             if (!IsSet(Value)) {
                 return true
@@ -314,7 +308,7 @@ class Array {
         Arr.Join().AssertEquals("23")
     }
 
-    static RetainIf4() {
+    static RetainIf3() {
         Array("foo", "bar").RetainIf(InStr, "o").Join().AssertEquals("foo")
     }
 
@@ -324,12 +318,6 @@ class Array {
     }
 
     static RemoveIf2() {
-        Arr := Array(1, 2, 3, 4, unset).RetainIf(Num => Num > 2)
-        Arr.Length.AssertEquals(2)
-        Arr.Join().AssertEquals("34")
-    }
-
-    static RemoveIf3() {
         static Filter(Value?) {
             if (!IsSet(Value)) {
                 return false
@@ -341,62 +329,8 @@ class Array {
         Arr.Join().AssertEquals("1")
     }
 
-    static RemoveIf4() {
+    static RemoveIf3() {
         Array("foo", "bar").RemoveIf(InStr, "f").Join().AssertEquals("bar")
-    }
-
-    static Partition1() {
-        static IsEven(Num) => !(Num & 1)
-        M := Array(1, 2, 3, 4, 5).Partition(IsEven)
-
-        M[true].Join().AssertEquals("24")
-        M[false].Join().AssertEquals("135")
-    }
-
-    static Partition2() {
-        M := Array("foo", "bar").Partition(InStr, "f")
-        M[true].Join().AssertEquals("foo")
-        M[false].Join().AssertEquals("bar")
-    }
-
-    static GroupBy1() {
-        M := Array(12, 23, 3, 45, 95).GroupBy((Num) => Mod(Num, 10))
-        M[2].Join(" ").AssertEquals("12")
-        M[3].Join(" ").AssertEquals("23 3")
-        M[5].Join(" ").AssertEquals("45 95")
-    }
-
-    static GroupBy2() {
-        static Classifier(Value?) {
-            if (!IsSet(Value)) {
-                return 0
-            }
-            return Mod(Value, 10)
-        }
-        M := Array(12, 12, unset, unset).GroupBy(Classifier)
-
-        UnsetElements := M[0]
-        UnsetElements.Length.AssertEquals(2)
-        UnsetElements.Has(1).AssertEquals(false)
-        UnsetElements.Has(2).AssertEquals(false)
-
-        M[2].Join(" ").AssertEquals("12 12")
-    }
-
-    static GroupBy3() {
-        static FirstLetter(Value) => SubStr(Value, 1, 1)
-
-        M := Array("foo", "Foo", "FOO").GroupBy(FirstLetter, true)
-        M["f"].Join().AssertEquals("foo")
-        M["F"].Join(" ").AssertEquals("Foo FOO")
-    }
-
-    static GroupBy4() {
-        M := Array("foo", "bar").GroupBy(SubStr, false, 1, 1)
-
-        M.Count.AssertEquals(2)
-        M["f"].Join().AssertEquals("foo")
-        M["b"].Join().AssertEquals("bar")
     }
 
     static Distinct1() {
@@ -404,7 +338,7 @@ class Array {
     }
 
     static Distinct2() {
-        StrSplit("aaAbBbbcCdd").Distinct(false).Join().AssertEquals("abcd")
+        StrSplit("aaAbBbbcCdd").Distinct(unset, false).Join().AssertEquals("abcd")
     }
 
     static Distinct3() {
@@ -434,17 +368,9 @@ class Array {
     }
 
     static Reduce2() {
-        Array(1, 2, 3, unset, unset).Reduce((a, b) => a + b).AssertEquals(6)
-    }
-
-    static Reduce3() {
         TestSuite.AssertThrows(() => (
             Array(unset, unset, unset).Reduce((a, b) => a + b).MsgBox()
         ))
-    }
-
-    static Reduce4() {
-        Array(unset, unset).Reduce((a, b) => a + b, 0).AssertEquals(0)
     }
 
     static ForEach1() {

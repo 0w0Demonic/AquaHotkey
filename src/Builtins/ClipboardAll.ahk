@@ -8,6 +8,9 @@ class AquaHotkey_ClipboardAll extends AquaHotkey {
  * - src/Builtins/ClipboardAll.ahk
  */
 class ClipboardAll {
-    
+    ToClipboard() {
+        A_Clipboard := this
+        return this
+    }
 } ; class ClipboardAll
 } ; class AquaHotkey_ClipboardAll extends AquaHotkey

@@ -165,15 +165,15 @@ class Mapper {
     }
 
     /**
-     * Mapper that acts as a ternary operator. Evaluating the given `Condition`
-     * returns either the `Yes` or `No` value.
-     * @param   {Func}  Condition  the given condition to evaluate
-     * @param   {Any}   Yes        value to return when condition is true
-     * @param   {Any}   No         value to return when condition is false
+     * Mapper that applies its input arguments to `Left` and `Right`, and
+     * then joins them with the given `Combiner`.
+     * @param   {Func}  Left      first function to apply
+     * @param   {Func}  Right     second function to apply
+     * @param   {Func}  Combiner  function to combine two values
      * @return  {Func}
      */
-    static Ternary(Condition, Yes, No) {
-        GetMethod(Condition)
-        return ((Args*) => Condition(Args*) ? Yes : No)
+    static Tee(Left, Right, Combiner) {
+        (GetMethod(Left) && GetMethod(Right) && GetMethod(Combiner))
+        return (Args*) => Combiner(Left(Args*), Right(Args*))
     }
 }

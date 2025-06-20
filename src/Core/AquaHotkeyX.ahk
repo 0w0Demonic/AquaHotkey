@@ -3,29 +3,20 @@
 
 #Include %A_LineFile%/../../Builtins/Any.ahk
 #Include %A_LineFile%/../../Builtins/Array.ahk
-#Include %A_LineFile%/../../Builtins/BoundFunc.ahk
 #Include %A_LineFile%/../../Builtins/Buffer.ahk
 #Include %A_LineFile%/../../Builtins/Class.ahk
 #Include %A_LineFile%/../../Builtins/ClipboardAll.ahk
-#Include %A_LineFile%/../../Builtins/Closure.ahk
-#Include %A_LineFile%/../../Builtins/ComObject.ahk
 #Include %A_LineFile%/../../Builtins/ComValue.ahk
 #Include %A_LineFile%/../../Builtins/ComValueRef.ahk
-#Include %A_LineFile%/../../Builtins/Enumerator.ahk
 #Include %A_LineFile%/../../Builtins/Error.ahk
 #Include %A_LineFile%/../../Builtins/File.ahk
-#Include %A_LineFile%/../../Builtins/Float.ahk
 #Include %A_LineFile%/../../Builtins/Func.ahk
-#Include %A_LineFile%/../../Builtins/Gui.ahk
 #Include %A_LineFile%/../../Builtins/InputHook.ahk
 #Include %A_LineFile%/../../Builtins/Integer.ahk
 #Include %A_LineFile%/../../Builtins/Map.ahk
-#Include %A_LineFile%/../../Builtins/Menu.ahk
-#Include %A_LineFile%/../../Builtins/MenuBar.ahk
 #Include %A_LineFile%/../../Builtins/Number.ahk
 #Include %A_LineFile%/../../Builtins/Object.ahk
 #Include %A_LineFile%/../../Builtins/Primitive.ahk
-#Include %A_LineFile%/../../Builtins/RegExMatchInfo.ahk
 #Include %A_LineFile%/../../Builtins/String.ahk
 #Include %A_LineFile%/../../Builtins/VarRef.ahk
 

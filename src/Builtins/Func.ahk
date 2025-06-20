@@ -36,21 +36,6 @@ class Func {
         return ((*) => x)
     }
 
-    ; TODO deprecate this?
-    /**
-     * Stores a clone of the function in `Output`.
-     * @example
-     * 
-     * MyVariable.Store(&Copy)
-     * 
-     * @param   {VarRef}  Output  output variable to store current value in
-     * @return  {this}
-     */
-    Store(&Output) {
-        Output := this
-        return this
-    }
-
     /**
      * Returns a composed function that first applies this function with the
      * given input, and then forwards the result to `After` as first parameter,
@@ -197,52 +182,6 @@ class Func {
      * @return  {Predicate}
      */
     Negate() => ((Args*) => !this(Args*))
-
-    ; TODO deprecate this?
-    /**
-     * Composes a function that applies its input to both `First` and `Second`,
-     * optionally merging both results into a final result.
-     * 
-     * @example
-     * Sum(Values*) {
-     *     ; ...
-     * }
-     * Average(Values*) {
-     *     ; ...
-     * }
-     * FormatResult(Sum, Average) {
-     *     return Format("Sum: {}, Average: {}", Sum, Average)
-     * }
-     * Evaluate := Func.Tee(Sum, Average, FormatResult)
-     * Evaluate(1, 2, 3, 4) ; "Sum: 10, Average: 2.5"
-     * 
-     * @param   {Func}       First     the first function to call
-     * @param   {Func}       Second    the second function to call
-     * @param   {Combiner?}  Combiner  function that combines two results
-     * @return  {Func}
-     */
-    static Tee(First, Second, Combiner?) {
-        if (!HasMethod(First) || !HasMethod(Second)) {
-            throw TypeError("Expected a Function object",,
-                            Type(First) . " " . Type(Second))
-        }
-        if (!IsSet(Combiner)) {
-            return TeeNoMerge
-        }
-        if (!HasMethod(Combiner)) {
-            throw TypeError("Expected a Function object",, Type(Combiner))
-        }
-        return Tee
-
-        TeeNoMerge(Args*) {
-            First(Args*)
-            Second(Args*)
-        }
-
-        Tee(Args*) {
-            return Combiner(First(Args*), Second(Args*))
-        }
-    }
     
     /**
      * Returns a memoized version of this function, caching previously computed

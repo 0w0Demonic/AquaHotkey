@@ -1,8 +1,4 @@
 class Mapper {
-    static Identity() {
-        Array(1, 2, 3).Map(  Mapper.Identity  ).Join().AssertEquals("123")
-    }
-
     static Increment() {
         Array(1, 2, 3).Map(  Mapper.Increment  ).Join().AssertEquals("234")
     }
@@ -85,13 +81,5 @@ class Mapper {
         Array("foo", unset).Map(  Mapper.IfAbsentGet(() => "bar")  )
             .Join(", ")
             .AssertEquals("foo, bar")
-    }
-
-    static Ternary() {
-        IsEven(x) => !Mod(x, 2)
-
-        Array(2).Map(  Mapper.Ternary(IsEven, "yes", "no")  )
-            .Get(1)
-            .AssertEquals("yes")
     }
 }

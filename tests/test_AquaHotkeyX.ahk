@@ -59,14 +59,11 @@ class TestSuite {
         }
     }
 
-    /*
     #Include %A_LineFile%/../Builtins/Any.ahk
     #Include %A_LineFile%/../Builtins/Array.ahk
     #Include %A_LineFile%/../Builtins/Buffer.ahk
     #Include %A_LineFile%/../Builtins/Class.ahk
-    */
     #Include %A_LineFile%/../Builtins/Func.ahk
-    /*
     #Include %A_LineFile%/../Builtins/Map.ahk
     #Include %A_LineFile%/../Builtins/Object.ahk
     #Include %A_LineFile%/../Builtins/String.ahk
@@ -75,18 +72,13 @@ class TestSuite {
     #Include %A_LineFile%/../Extensions/Stream.ahk
     #Include %A_LineFile%/../Extensions/Optional.ahk
     #Include %A_LineFile%/../Extensions/Comparator.ahk
-    */
     
-    /*
     #Include %A_LineFile%/../Extensions/Collector.ahk
     #Include %A_LineFile%/../Extensions/Gatherer.ahk
-    */
 
-    /*
     #Include %A_LineFile%/../Extensions/Condition.ahk
     #Include %A_LineFile%/../Extensions/Mapper.ahk
     #Include %A_LineFile%/../Extensions/Combiner.ahk
-    */
 
     static AssertThrows(Function) {
         try {
@@ -114,7 +106,5 @@ class Debug extends AquaHotkey {
         }
     }
 }
-
-Object.Prototype.ListAllProperties().JoinLine().MsgBox()
 
 ExitApp()

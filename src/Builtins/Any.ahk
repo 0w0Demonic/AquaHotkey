@@ -78,6 +78,7 @@ class Any {
         return Function(this, Args*)
     }
 
+    ; TODO performance
     /**
      * Explicitly forwards this variable as first parameter to the given
      * function `Callback`, followed by zero or more additional arguments
@@ -162,20 +163,6 @@ class Any {
     BindMethod(MethodName, Args*) => ObjBindMethod(this, MethodName, Args*)
 
     /**
-     * Stores a clone of the variable in `&Output`.
-     * 
-     * @example
-     * MyVariable.Store(&Copy)
-     * 
-     * @param   {VarRef}  Output  output variable to store current value in
-     * @return  {this}
-     */
-    Store(&Output) {
-        Output := this
-        return this
-    }
-
-    /**
      * Returns the type of this variable in the same way as built-in `Type()`.
      * 
      * @example
@@ -244,77 +231,6 @@ class Any {
         }
         throw TypeError(Msg ?? "expected variable to be type "
                       . T.Prototype.__Class,,
-                        Type(this))
-    }
-
-    ; TODO deprecate this?
-    /**
-     * Asserts that this variable is a number or a numeric string. Otherwise,
-     * a `TypeError` is thrown with the error message `Msg`.
-     * 
-     * The return value of this method is converted into a number.
-     * 
-     * @example
-     * "123.23".AssertNumber("this value is not an number")
-     * 
-     * @param   {String?}  Msg  custom error message
-     * @return  {Number}
-     */
-    AssertNumber(Msg?) {
-        if (IsNumber(this)) {
-            return Number(this)
-        }
-        throw TypeError(Msg ?? "expected a number or numeric string",,
-                        Type(this))
-    }
-
-    ; TODO deprecate this?
-    /**
-     * Asserts that this variable is an integer or a numeric whole number
-     * string. Otherwise, a `TypeError` is thrown with the error message `Msg`.
-     * 
-     * The return value of this method is converted into an integer.
-     * 
-     * @example
-     * "123".AssertInteger("this value is not an integer")
-     * 
-     * @param   {String?}  Msg  custom error message
-     * @return  {Integer}
-     */
-    AssertInteger(Msg?) {
-        if (IsInteger(this)) {
-            return Integer(this)
-        }
-        throw TypeError(Msg ?? "expected an integer or numeric string",,
-                        Type(this))
-    }
-
-    ; TODO deprecate this?
-    /**
-     * Asserts that this variable is callable. Otherwise, a `TypeError` is
-     * thrown with the error message `Msg`.
-     * 
-     * Additional checks are made to account for parameter length, if
-     * `ArgLength` is specified.
-     * 
-     * @example
-     * MyFunc(Value) {
-     *     ; ...
-     * }
-     * MyFunc.AssertCallable(1, "variable is not callable with 1 param")
-     * 
-     * @param   {Integer?}  n    number of parameters passed to function
-     * @param   {String?}   Msg  custom error message
-     * @return  {this}
-     */
-    AssertCallable(n?, Msg?) {
-        if (HasMethod(this,, n?)) {
-            return this
-        }
-        throw TypeError(Msg ?? (
-                        IsSet(n)
-                            ? "invalid " . n . "-parameter function"
-                            : "invalid function"),,
                         Type(this))
     }
 

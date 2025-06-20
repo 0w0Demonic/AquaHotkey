@@ -707,54 +707,28 @@ class Stream {
     /**
      * Removes duplicate elements from the stream.
      * 
-     * - The parameter length of the new stream remains the same.
-     * - If the first parameter is a function, it'll be used to create
-     *   a unique map key of the element. This is necessary for comparing
-     *   objects or streams of sizes greater than 1.
-     * 
-     * @example
-     * Array(1, 2, 3, 1, 2, 3).Stream().Distinct()        ; <1, 2, 3>
-     * Array("foo", "FOO", "Foo").Stream().Distinct(true) ; <"foo">
-     * 
-     * ; <{ Value: 2 }, { Value: 3 }>
-     * Array({ Value: 2 }, { Value: 2 }, { Value: 3 })
-     *         .Stream().Distinct(Obj => Obj.Value)
-     * 
-     * @param   {Primitive?/Func?}  CaseSenseOrHasher  case-sensitivity or
-     *                                                 object hasher
-     * @param   {Primitive?}        CaseSense          case-sensitivity
-     * @return  {Stream}
+     * ...
      */
-    Distinct(CaseSenseOrHasher := true, CaseSense?) {
-        if (HasMethod(CaseSenseOrHasher)) {
-            Hasher    := CaseSenseOrHasher
-            CaseSense := CaseSense ?? true
-        } else {
-            Hasher    := unset
-            CaseSense := CaseSenseOrHasher
+    Distinct(Hasher?, MapParam := Map()) {
+        switch {
+            case (MapParam is Map):
+                Cache := MapParam
+            case (HasMethod(MapParam)):
+                Cache := MapParam()
+                if (!(Cache is Map)) {
+                    throw TypeError("Expected a Map",, Type(Cache))
+                }
+            default:
+                Cache := Map()
+                Cache.CaseSense := MapParam
         }
 
-        Values := Map()
-        Values.CaseSense := CaseSense
         f := this.Call
-
         if (!IsSet(Hasher)) {
             return Stream(DefaultDistinct)
         }
-        DefaultDistinct(&A) {
-            while (f(&A)) {
-                if (!Values.Has(A)) {
-                    Values[A] := true
-                    return true
-                }
-            }
-            return false
-        }
 
-        if (!HasMethod(Hasher)) {
-            throw TypeError("Expected a Function object",, Type(Hasher))
-        }
-
+        GetMethod(Hasher)
         switch (this.MaxParams) {
             case 1: return Stream(Distinct1)
             case 2: return Stream(Distinct2)
@@ -763,11 +737,20 @@ class Stream {
         }
         throw ValueError("invalid parameter length",, this.MaxParams)
 
+        DefaultDistinct(&A) {
+            while (f(&A)) {
+                if (!Cache.Has(A)) {
+                    Cache[A] := true
+                    return true
+                }
+            }
+            return false
+        }
         Distinct1(&A) {
             while (f(&A)) {
                 Hash := Hasher(A?)
-                if (!Values.Has(Hash)) {
-                    Values[Hash] := true
+                if (!Cache.Has(Hash)) {
+                    Cache[Hash] := true
                     return true
                 }
             }
@@ -777,8 +760,8 @@ class Stream {
         Distinct2(&A, &B?) {
             while (f(&A, &B)) {
                 Hash := Hasher(A?, B?)
-                if (!Values.Has(Hash)) {
-                    Values[Hash] := true
+                if (!Cache.Has(Hash)) {
+                    Cache[Hash] := true
                     return true
                 }
             }
@@ -788,8 +771,8 @@ class Stream {
         Distinct3(&A, &B?, &C?) {
             while (f(&A, &B, &C)) {
                 Hash := Hasher(A?, B?, C?)
-                if (!Values.Has(Hash)) {
-                    Values[Hash] := true
+                if (!Cache.Has(Hash)) {
+                    Cache[Hash] := true
                     return true
                 }
             }
@@ -799,8 +782,8 @@ class Stream {
         Distinct4(&A, &B?, &C?, &D?) {
             while (f(&A, &B, &C, &D)) {
                 Hash := Hasher(A?, B?, C?, D?)
-                if (!Values.Has(Hash)) {
-                    Values[Hash] := true
+                if (!Cache.Has(Hash)) {
+                    Cache[Hash] := true
                     return true
                 }
             }
@@ -1237,7 +1220,7 @@ class Stream {
 
     /**
      * Concatenates the elements of the stream into a single string, each
-     * element separated by `\r\n`.
+     * element separated by `\n`.
      * @see `Func.Join()`
      * @example
      * 
@@ -1250,7 +1233,7 @@ class Stream {
      * @return  {String}
      */
     JoinLine(InitialCap := 0) {
-        return this.Join("`r`n", InitialCap)
+        return this.Join("`n", InitialCap)
     }
 
     /**
