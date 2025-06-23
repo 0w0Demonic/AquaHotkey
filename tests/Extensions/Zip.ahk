@@ -14,22 +14,31 @@ class Zip {
             .AssertEquals("1, 4, 7; 2, 5, 8; 3, 6, 9")
     }
 
-    static Zip() {
-        Array(1, 2).Zip(Array(3, 4)).Unzip((a, b) => (a + b))
+    static ZipWith() {
+        Array(1, 2).ZipWith(Array(3, 4)).Unzip((a, b) => (a + b))
                 .Join(", ").AssertEquals("4, 6")
     }
 
-    static Dissect1() {
+    static Zip() {
+        Array(1, 2).Zip((x) => Tuple(x, x + 1))
+            .Unzip(Combiner.Sum)
+            .Reduce(Combiner.Sum)
+            .AssertEquals(8)
+    }
+
+    static Spread1() {
         static FirstLetter(Str) => SubStr(Str, 1, 1)
         static LastLetter(Str)  => SubStr(Str, -1, 1)
 
-        Array("Hello", "world").Dissect(FirstLetter, LastLetter)
+        Array("Hello", "world").Spread(FirstLetter, LastLetter)
             .Unzip(Combiner.Concat).Join(", ")
             .AssertEquals("Ho, wd")
     }
 
-    static Dissect2() {
-        
+    static Spread2() {
+        Array("Hello", "world").Spread(
+                SubStr.Bind(unset, 1, 1),
+                SubStr.Bind(unset, -1, 1))
     }
 
     static Map() {

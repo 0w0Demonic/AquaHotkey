@@ -1,27 +1,20 @@
 
 class AquaHotkey_Zip extends AquaHotkey {
-    static __New() {
-        if (this != AquaHotkey_Zip) {
-            return
-        }
-        if (!IsSet(AquaHotkey_Array)) {
-            MsgBox("
-            ( ; TODO msg
-            
-            )", "AquaHotkey - Zip.ahk", 0x40)
-            return
-        }
-        super.__New()
-    }
-
     class Array {
         ZipWith(Arr) => ZippedArray.Of(this, Arr)
 
         Zip(TupleMapper) {
-            
+            GetMethod(TupleMapper)
+
+            Result := ZippedArray()
+            Result.Capacity := this.Length
+            for Value in this {
+                Result.Push(TupleMapper(Value?))
+            }
+            return Result
         }
 
-        Dissect(Mappers*) {
+        Spread(Mappers*) {
             if (Mappers.Length < 2) {
                 throw ValueError("At least two mappers required",,
                                  Mappers.Length)
@@ -46,7 +39,29 @@ class AquaHotkey_Zip extends AquaHotkey {
     }
 }
 
+/**
+ * Special array that consists of tuple values. Stream-like methods
+ * such as `.Map()` and `.RemoveIf()` are rewritten to *spread* their
+ * arguments into the function to be called.
+ * 
+ * ```ahk
+ * 
+ * ```
+ * 
+ * 
+ */
 class ZippedArray extends Array {
+    /**
+     * Creates a new zipped array from the given arrays to zip.
+     * The resulting array is truncated to the smallest element used.
+     * 
+     * ```ahk
+     * ZippedArray.Of([1, 2], [3, 4], [5, 6, 7]) ; [(1, 3, 5), (2, 4, 6)]
+     * ```
+     * 
+     * @param   {Array*}  Arrs  the arrays to be zipped
+     * @return  {ZippedArray}
+     */
     static Of(Arrs*) {
         if (Arrs.Length < 2) {
             throw ValueError("At least two mappers required",, Arrs.Length)
@@ -73,6 +88,12 @@ class ZippedArray extends Array {
         return Result
     }
 
+    /**
+     * Array constructor with additional type constraints.
+     * 
+     * @param   {Tuple*}  Elements  the elements to be added
+     * @return  {ZippedArray}
+     */
     __New(Elements*) {
         for Element in Elements {
             if (!(Element is Tuple)) {
@@ -82,6 +103,12 @@ class ZippedArray extends Array {
         super.__New(Elements*)
     }
 
+    /**
+     * Inserts `Values*` at the given `Index`.
+     * 
+     * @param   {Integer}  Index   index to add elements into
+     * @param   {Tuple*}   Values  the elements to add
+     */
     InsertAt(Index, Values*) {
         for Value in Values {
             if (!(Value is Tuple)) {
@@ -91,6 +118,11 @@ class ZippedArray extends Array {
         return super.InsertAt(Index, Values*)
     }
 
+    /**
+     * Inserts `Values*` into the back of the zipped array.
+     * 
+     * @param   {Tuple*}  Values  the elements to add
+     */
     Push(Values*) {
         for Value in Values {
             if (!(Value is Tuple)) {
@@ -100,6 +132,12 @@ class ZippedArray extends Array {
         return super.Push(Values*)
     }
 
+    /**
+     * Sets the value at the given `Index`.
+     * 
+     * @param   {Integer}  Index  array index of the element
+     * @param   {Any}      value  the new value to be set
+     */
     __Item[Index] {
         set {
             if (!(value is Tuple)) {
@@ -109,6 +147,15 @@ class ZippedArray extends Array {
         }
     }
 
+    /**
+     * Returns a new zipped array by transforming each element using
+     * the given `Mapper`.
+     * 
+     * The `Mapper` function must return a tuple. To convert back to a regular
+     * array, use `.Unzip()` instead.
+     * 
+     * TODO docs
+     */
     Map(Mapper) {
         GetMethod(Mapper)
         Result := ZippedArray()
@@ -127,6 +174,10 @@ class ZippedArray extends Array {
         return Result
     }
 
+    /**
+     * Returns a regular array by transforming each element using the
+     * given `Mapper`.
+     */
     Unzip(Mapper?) {
         if (!IsSet(Mapper)) {
             return Array(this*)
@@ -182,4 +233,9 @@ class ZippedArray extends Array {
 }
 
 class Tuple extends Array {
+}
+
+; TODO extend `Stream` in `static __New` or something
+class ZippedStream extends Stream {
+
 }
