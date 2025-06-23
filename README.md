@@ -242,8 +242,8 @@ ridiculous things that you throw at it.
 
 ### Advanced Installation
 
-If you're frequently using the library to define property extensions which are
-packed into their own on-demand packages, consider using the following setup:
+If you're frequently using the library for *on-demand* extensions, consider
+installing the repo like this:
 
 1. Create stub files `AquaHotkey.ahk` and `AquaHotkeyX.ahk` that each contain a
    single `#Include` pointing to the real source inside the repository folder:
@@ -331,15 +331,8 @@ If you prefer a lighter setup, you can selectively include specific modules:
     ```
 
 - **Exciting New Array Methods**
-  
-    ```ahk
-    ; Map {
-    ;     "A" -> ["Apple"],
-    ;     "B" -> ["Banana"],
-    ;     "K" -> ["Kiwi"]
-    ; }
-    Array("Apple", "Banana", "Kiwi").GroupBy((Str) => SubStr(Str, 1, 1))
 
+    ```ahk
     ; ["A", "p", "p", "l", "e", "B", "a", ...]
     Array("Apple", "Banana", "Kiwi").FlatMap(StrSplit)
     ```
@@ -360,8 +353,9 @@ If you prefer a lighter setup, you can selectively include specific modules:
     AutoHotkey v2.1-alpha.3 makes this much more elegant and easier to use:
 
     ```ahk
-    Array(34, 7, "foo", 9, "bar")
-        .Stream(2) ; <(1, 34), (2, 7), (3, "foo"), (4, 9), (5, "bar")>
+    ; <(1, 34), (2, 7), (3, "foo"), (4, 9), (5, "bar")>
+    Array(34, 7, "foo", 9, "bar").Stream(2)
+        .Stream(2)
         .Map((Index, Value) {
             return Format("Array[{}]: {}", Index, Value)
         })
@@ -369,18 +363,15 @@ If you prefer a lighter setup, you can selectively include specific modules:
         .MsgBox()
     ```
 
-    Works with *anything* that is enumerable - even strings, if you really want.
+    Works with *anything* that is enumerable - even strings or files, if
+    you really want.
 
     ```ahk
     Range(1000).Stream().RetainIf(IsEven).Sum().MsgBox()
 
     ; "72 101 108 108 111 44 32 119 111 114 108 100 33"
     "Hello, world!".Stream().Map(Ord).Join(" ")
-    ```
-
-    ...or files.
-
-    ```ahk
+    
     for Index, Line in FileOpen("message.txt") {
         MsgBox(Line)
     }

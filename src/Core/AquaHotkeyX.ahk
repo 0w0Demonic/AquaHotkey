@@ -32,3 +32,5 @@
 #Include %A_LineFile%/../../Extensions/Mapper.ahk
 #Include %A_LineFile%/../../Extensions/Combiner.ahk
 #Include %A_LineFile%/../../Extensions/Comparator.ahk
+
+#Include %A_LineFile%/../../Extensions/Zip.ahk

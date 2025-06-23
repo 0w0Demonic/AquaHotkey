@@ -422,9 +422,7 @@ class Array {
      * @return  {this}
      */
     ReplaceAll(Mapper, Args*) {
-        if (!HasMethod(Mapper)) {
-            throw TypeError("Expected a Function object",, Type(Mapper))
-        }
+        GetMethod(Mapper)
         Result := Array()
         Result.Capacity := this.Length
 
@@ -478,6 +476,7 @@ class Array {
             }
             return Result
         }
+        GetMethod(Mapper)
         for Value in this {
             Element := Mapper(Value?, Args*)
             if (Element is Array) {
