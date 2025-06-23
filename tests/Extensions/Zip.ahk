@@ -21,6 +21,57 @@ class Zip {
                 .Join(", ").AssertEquals("4, 6")
     }
 
+    static TupleConstraint() {
+        Z := ZipArray()
+        Array(InsertAt, Push, __Item).ForEach(f => TestSuite.AssertThrows(f))
+
+        InsertAt() {
+            Z.InsertAt(1, "")
+        }
+        Push() {
+            Z.Push(34)
+        }
+        __Item() {
+            Z[1] := 7
+        }
+    }
+
+    static Map1() {
+        ZipArray(Tuple(1, 2), Tuple(3, 4))
+            .Map((a, b) => Tuple(b, a))
+            .Narrow(Mapper.Arg(1))
+            .Join(", ")
+            .AssertEquals("2, 4")
+    }
+
+    static Map2() {
+        TestSuite.AssertThrows(
+            () => ZipArray(Tuple(1, 2)).Map(Func.Constantly(5))
+        )
+    }
+
+    static Unzip1() {
+        ZipArray(Tuple(1, 2), Tuple(3, 4)).Unzip()
+            .Map(Arr => Arr.Join(", "))
+            .Join("; ")
+            .AssertEquals("1, 3; 2, 4")
+    }
+
+    static Unzip2() {
+        ZipArray(Tuple(), Tuple(1), Tuple(1, 2))
+            .Unzip()
+            .Map(Arr => Arr.Map(Mapper.IfAbsent("unset")).Join(", "))
+            .Join("; ")
+            .AssertEquals("unset, 1, 1; unset, unset, 2")
+    }
+
+    static Narrow() {
+        ZipArray(Tuple(1, 2), Tuple(3, 4))
+            .Narrow(Combiner.Sum)
+            .Join(", ")
+            .AssertEquals("3, 7")
+    }
+
     static Zip() {
         Array(1, 2)
             .Zip((x) => Tuple(x, x + 1))
@@ -73,8 +124,16 @@ class Zip {
         Results.Join(", ").AssertEquals("5, 7, 9")
     }
 
-    static ZipStream() {
-        ZipArray.Of(Array(1, 2, 3), Array(4, 5, 6)).Stream()
-            .RetainIf((a, b) => (a + b) > 6)
+    static Distinct() {
+        ZipArray(Tuple(1, 2), Tuple(1, 2), Tuple(2, 1))
+            .Distinct()
+            .Length
+            .AssertEquals(2)
+    }
+
+    static FlatMap() {
+        ZipArray(Tuple(1, 2), Tuple(3, 4, 5)).FlatMap()
+            .Join(", ")
+            .AssertEquals("1, 2, 3, 4, 5")
     }
 }

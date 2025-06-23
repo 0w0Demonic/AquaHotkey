@@ -160,7 +160,7 @@ class ZipArray extends Array {
             }
             for Value in Element {
                 if (IsSet(Value)) {
-                    Result[A_Index]
+                    Result[A_Index].Push(Value)
                 } else {
                     Result[A_Index].Length++
                 }
@@ -263,23 +263,120 @@ class ZipArray extends Array {
     }
 
     /**
+     * Returns a new ZipArray of unique elements by keeping track of them in
+     * a Map.
      * 
+     * A custom `Hasher` can be used to specify the map key to be used
+     * (defaults to the string representation of tuples).
+     * 
+     * ```ahk
+     * Hasher(Values*)
+     * ```
+     * 
+     * You can determine the behavior of the internal Map by passing either...
+     * - the map to be used;
+     * - a function that returns the map to be used;
+     * - a case-sensitivity option
+     * 
+     * ...as value for the `MapParam` parameter.
+     * 
+     * @example
+     * ; [(1, 2), (2, 1)]
+     * ZipArray(Tuple(1, 2), Tuple(1, 2), Tuple(2, 1)).Distinct()
+     * 
+     * @param   {Func?}                  Hasher    function to create map keys
+     * @param   {Map?/Func?/Primitive?}  MapParam  internal map options
+     * @return  {ZipArray}
      */
-    Distinct(*) {
-        throw MethodError("Not available")
+    Distinct(Hasher?, MapParam := Map()) {
+        switch {
+            case (MapParam is Map):
+                Cache := MapParam
+            case (HasMethod(MapParam)):
+                Cache := MapParam()
+                if (!(Cache is Map)) {
+                    throw TypeError("Expected a Map",, Type(Cache))
+                }
+            default:
+                Cache := Map()
+                Cache.CaseSense := MapParam
+        }
+
+        Result := ZipArray()
+        if (HasProp(this, "Default")) {
+            Result.Default := this.Default
+        }
+
+        if (IsSet(Hasher)) {
+            for Value in this {
+                Key := Hasher(Value*)
+                if (!Cache.Has(Key)) {
+                    Result.Push(Value)
+                    Cache[Key] := true
+                }
+            }
+            return Result
+        }
+        for Value in this {
+            Key := String(Value)
+            if (!Cache.Has(Key)) {
+                Result.Push(Value)
+                Cache[Key] := true
+            }
+        }
+        return Result
     }
 
     /**
+     * Returns a regular array containing the elements of the ZipArray mapped
+     * using the given `Mapper`, resulting arrays flattened into separate
+     * elements.
      * 
+     * ```ahk
+     * Mapper(Values*)
+     * ```
+     * 
+     * The method defaults to flattening existing tuple elements, if no `Mapper`
+     * is given.
+     * 
+     * @example
+     * ; [1, 2, 3, 4]
+     * ZipArray(Tuple(1, 2), Tuple(3, 4)).FlatMap()
+     * 
+     * ; [3, 7]
+     * ZipArray(Tuple(1, 2), Tuple(3, 4)).FlatMap(Combiner.Sum)
+     * 
+     * ; ["H", "e", "l", "l", "o"]
+     * ZipArray(Tuple("Hello")).FlatMap(StrSplit)
+     * 
+     * @param   {Func?}  Mapper  function to convert and flatten elements
+     * @return  {Array}
      */
-    FlatMap(*) {
-        throw MethodError("Not available")
+    FlatMap(Mapper?) {
+        Result := Array()
+        if (HasProp(this, "Default")) {
+            Result.Default := this.Default
+        }
+        if (IsSet(Mapper)) {
+            GetMethod(Mapper)
+            for Value in this {
+                Element := Mapper(Value*)
+                if (Element is Array) {
+                    Result.Push(Element*)
+                } else {
+                    Result.Push(Element )
+                }
+            }
+            return Result
+        }
+        for Element in this {
+            Result.Push(Element*)
+        }
+        return Result
     }
 }
 
-/**
- * An immutable array.
- */
+/** An immutable array. */
 class Tuple extends Array {
     static __New() {
         if (this != Tuple) {

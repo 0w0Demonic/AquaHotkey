@@ -453,7 +453,7 @@ class Array {
      * Array([1, 2], [3, 4]).FlatMap()            ; [1, 2, 3, 4]
      * Array("a,b", "c,d").FlatMap(StrSplit, ",") ; ["a", "b", "c", "d"]
      * 
-     * @param   {Func?}  Mapper  function that returns zero or more elements
+     * @param   {Func?}  Mapper  function to convert and flatten elements
      * @param   {Any*}   Args    zero or more additional arguments
      * @return  {Array}
      */
@@ -462,27 +462,27 @@ class Array {
         if (HasProp(this, "Default")) {
             Result.Default := this.Default
         }
-        if (!IsSet(Mapper)) {
+        if (IsSet(Mapper)) {
+            GetMethod(Mapper)
             for Value in this {
-                if (IsSet(Value)) {
-                    if (Value is Array) {
-                        Result.Push(Value*)
-                    } else {
-                        Result.Push(Value )
-                    }
+                Element := Mapper(Value?, Args*)
+                if (Element is Array) {
+                    Result.Push(Element*)
                 } else {
-                    ++Result.Length
+                    Result.Push(Element )
                 }
             }
             return Result
         }
-        GetMethod(Mapper)
         for Value in this {
-            Element := Mapper(Value?, Args*)
-            if (Element is Array) {
-                Result.Push(Element*)
+            if (IsSet(Value)) {
+                if (Value is Array) {
+                    Result.Push(Value*)
+                } else {
+                    Result.Push(Value )
+                }
             } else {
-                Result.Push(Element )
+                ++Result.Length
             }
         }
         return Result
@@ -561,7 +561,6 @@ class Array {
      * ...as value for the `MapParam` parameter.
      * 
      * @example
-     * 
      * ; [1, 2, 3]
      * Array(1, 2, 3, 1).Distinct()
      * 

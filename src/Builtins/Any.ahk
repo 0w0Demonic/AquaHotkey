@@ -53,11 +53,7 @@ class Any {
         }
 
         ; assert that this variable has a `Call` method
-        try
-        {
-            Function := Function.AssertCallable()
-        }
-        catch {
+        if (!HasMethod(Function)) {
             throw TypeError("(__Call) variable not callable: " . FunctionName,,
                             Type(Function))
         }

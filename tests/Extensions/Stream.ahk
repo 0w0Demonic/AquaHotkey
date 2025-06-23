@@ -150,10 +150,10 @@ class Stream {
     }
 
     static AnyMatch() {
-        Array(1, 2, 3, 4, 5)
+        Output := Array(1, 2, 3, 4, 5)
             .Stream()
-            .AnyMatch(Num => Num == 5, &Output)
-            .AssertEquals(true)
+            .AnyMatch(Num => Num == 5)
+            .AssertNotEquals(false)
 
         Output.Length.AssertEquals(1)
         Output[1].AssertEquals(5)

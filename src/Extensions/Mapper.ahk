@@ -129,7 +129,7 @@ class Mapper {
      * @param   {Func}  Mapper  the mapper to be called
      * @return  {Func}
      */
-    static Unpack(Mapper) {
+    static Spread(Mapper) {
         GetMethod(Mapper)
         return (Args) => Mapper(Args*)
     }
