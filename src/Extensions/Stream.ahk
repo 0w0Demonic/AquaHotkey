@@ -583,7 +583,6 @@ class Stream {
      * @return  {Stream}
      */
     TakeWhile(Condition) {
-        NoDrop := true
         n := this.ArgSize(Condition)
         f := this.Call
         switch (n) {
@@ -594,53 +593,17 @@ class Stream {
         }
         throw ValueError("invalid parameter length",, n)
 
-        TakeWhile1(&A) {
-            if (!NoDrop) {
-                return false
-            }
-            while (f(&A)) {
-                if (NoDrop && (NoDrop &= Condition(A?))) {
-                    return true
-                }
-            }
-            return false
-        }
+        TakeWhile1(&A) => f(&A)
+                && Condition(A?)
 
-        TakeWhile2(&A, &B?) {
-            if (!NoDrop) {
-                return false
-            }
-            while (f(&A, &B)) {
-                if (NoDrop && (NoDrop &= Condition(A?, B?))) {
-                    return true
-                }
-            }
-            return false
-        }
+        TakeWhile2(&A, &B?) => f(&A, &B)
+                && Condition(A?, B?)
 
-        TakeWhile3(&A, &B?, &C?) {
-            if (!NoDrop) {
-                return false
-            }
-            while (f(&A, &B, &C)) {
-                if (NoDrop && (NoDrop &= Condition(A?, B?, C?))) {
-                    return true
-                }
-            }
-            return false
-        }
+        TakeWhile3(&A, &B?, &C?) => f(&A, &B, &C)
+                && Condition(A?, B?, C?)
 
-        TakeWhile4(&A, &B?, &C?, &D?) {
-            if (!NoDrop) {
-                return false
-            }
-            while (f(&A, &B, &C, &D)) {
-                if (NoDrop && (NoDrop &= Condition(A?, B?, C?, D?))) {
-                    return true
-                }
-            }
-            return false
-        }
+        TakeWhile4(&A, &B?, &C?, &D?) => f(&A, &B, &C, &D)
+                && Condition(A?, B?, C?, D?)
     }
 
     /**
@@ -705,9 +668,28 @@ class Stream {
     }
 
     /**
-     * Removes duplicate elements from the stream.
+     * Returns a stream of unique elements by keeping track of them in a Map.
      * 
-     * ...
+     * A custom `Hasher` can be used to specify the map key to be used.
+     * 
+     * ```ahk
+     * Hasher(Value1?, Value2?, ...)
+     * ```
+     * 
+     * You can determine the behavior of the internal Map by passing either...
+     * - the map to be used;
+     * - a function that returns the map to be used;
+     * - a case-sensitivity option
+     * 
+     * ...as value for the `MapParam` parameter.
+     * 
+     * @example
+     * ; <"foo">
+     * Array("foo", "Foo", "FOO").Distinct(StrLower)
+     * 
+     * @param   {Func?}                  Hasher    function to create map keys
+     * @param   {Map?/Func?/Primitive?}  MapParam  internal map options
+     * @return  {Stream}
      */
     Distinct(Hasher?, MapParam := Map()) {
         switch {
@@ -746,6 +728,7 @@ class Stream {
             }
             return false
         }
+
         Distinct1(&A) {
             while (f(&A)) {
                 Hash := Hasher(A?)
@@ -890,49 +873,47 @@ class Stream {
         }
     }
 
+    ; TODO just return the match as array?
     /**
      * Returns whether any element set satisfies the given `Condition`.
      * 
-     * - If a match is found, it will be outputted as `&Match` in the form
-     *   of an array.
+     * If a match it found, it'll be returned in the form of an array (which
+     * is a truthy value).
      * 
      * @example
-     * Array(1, 2, 3, 8, 4).Stream().AnyMatch(x => x < 5, &Output) ; true
-     * Output.ToString() ; "[8]"
+     * Match := Array(1, 2, 3, 8, 4).Stream().AnyMatch(x => x < 5)
+     * if (Match) {
+     *     MsgBox(Match[1]) ; 8
+     * }
      * 
      * @param   {Func}     Condition  the given condition
-     * @param   {VarRef?}  Match      first matching element set
      * @return  {Boolean}
      */
-    AnyMatch(Condition, &Match?) {
+    AnyMatch(Condition) {
         n := this.ArgSize(Condition)
         switch (n) {
             case 1:
                 for A in this {
                     if (Condition(A?)) {
-                        Match := Array(A)
-                        return true
+                        return Array(A?)
                     }
                 }
             case 2:
                 for A, B in this {
                     if (Condition(A?, B?)) {
-                        Match := Array(A, B)
-                        return true
+                        return Array(A?, B?)
                     }
                 }
             case 3:
                 for A, B, C in this {
                     if (Condition(A?, B?, C?)) {
-                        Match := Array(A, B, C)
-                        return true
+                        return Array(A?, B?, C?)
                     }
                 }
             case 4:
                 for A, B, C, D in this {
                     if (Condition(A?, B?, C?)) {
-                        Match := Array(A, B, C, D)
-                        return true
+                        return Array(A?, B?, C?, D?)
                     }
                 }
             default:
@@ -1250,9 +1231,7 @@ class Stream {
      * @return  {Stream}
      */
     static Generate(Supplier) {
-        if (!HasMethod(Supplier)) {
-            throw TypeError("Expected a Function object",, Type(Supplier))
-        }
+        GetMethod(Supplier)
         return Stream(Generate)
 
         Generate(&Out) {
@@ -1278,9 +1257,7 @@ class Stream {
      * @return  {Stream}
      */
     static Iterate(Seed, Mapper) {
-        if (!HasMethod(Mapper)) {
-            throw TypeError("Expected a Function object",, Type(Mapper))
-        }
+        GetMethod(Mapper)
         First := true
         Value := unset
         return Stream(Iterate)

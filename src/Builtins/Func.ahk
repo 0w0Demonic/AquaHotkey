@@ -182,7 +182,7 @@ class Func {
      * @return  {Predicate}
      */
     Negate() => ((Args*) => !this(Args*))
-    
+
     /**
      * Returns a memoized version of this function, caching previously computed
      * results in a Map to avoid redundant computation.
@@ -190,7 +190,7 @@ class Func {
      * Customize key generation by passing a `Hasher` - a function
      * that takes the input arguments and returns a key (preferably a string).
      * 
-     * You can also customize the internal Map behaviour by passing `MapParam`,
+     * You can also customize the internal Map behavior by passing `MapParam`,
      * which can be:
      * - a map (used directly),
      * - function returning a map,

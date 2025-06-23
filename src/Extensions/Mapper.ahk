@@ -114,6 +114,27 @@ class Mapper {
     }
 
     /**
+     * Mapper that first collects each variadic argument value into an array.
+     * @param   {Func}  Mapper  the mapper to be called
+     * @return  {Func}
+     */
+    static Pack(Mapper) {
+        GetMethod(Mapper)
+        return (Args*) => Mapper(Args)
+    }
+
+    /**
+     * Mapper that expands its input argument into separate elements by using
+     * a variadic call.
+     * @param   {Func}  Mapper  the mapper to be called
+     * @return  {Func}
+     */
+    static Unpack(Mapper) {
+        GetMethod(Mapper)
+        return (Args) => Mapper(Args*)
+    }
+
+    /**
      * Mapper that returns the `n`-th input argument.
      * @param   {Integer}  n  index of the argument to retrieve
      * @return  {Func}
