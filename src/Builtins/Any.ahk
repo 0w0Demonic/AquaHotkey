@@ -9,9 +9,8 @@ class AquaHotkey_Any extends AquaHotkey {
  */
 class Any {
     /**
-     * Implicitly forwards this variable as first parameter of a global
-     * function `%FunctionName%` at global scope, followed by zero or more
-     * additional arguments `Args*`.
+     * Forwards the variable to a global function as its first argument.
+     * The targeted function is named whatever undefined method you're calling.
      * 
      * @example 
      * MyVariable.DoThis().DoThat(Arg3, Arg3).MsgBox()
