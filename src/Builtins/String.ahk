@@ -10,7 +10,6 @@ class AquaHotkey_String extends AquaHotkey {
 class String {
     /**
      * Is-functions (see AHK docs).
-     * 
      * @return  {Boolean}
      */
     IsDigit  => IsDigit(this)
@@ -24,8 +23,8 @@ class String {
 
     /**
      * Returns `true`, if this string is empty.
-     * @example
      * 
+     * @example
      * "Hello, world!".IsEmpty ; false
      * "".IsEmpty              ; true
      * 
@@ -34,9 +33,9 @@ class String {
     IsEmpty => (this == "")
 
     /**
-     * Allows the enumeration of all characters in this string as a for-loop.
-     * @example
+     * Enumerates all character in the stream.
      * 
+     * @example
      * for Character in "Hello, world!" {
      *     MsgBox(Character)
      * }
@@ -77,9 +76,9 @@ class String {
     }
 
     /**
-     * Splits this string into an array of separate lines.
-     * @example
+     * Splits the string into an array of separate lines.
      * 
+     * @example
      * "
      * (
      * Hello,
@@ -93,14 +92,14 @@ class String {
     /**
      * Returns a substring that ends just before a specified occurrence
      * of `Pattern`.
-     * @example
      * 
+     * @example
      * "Hello, world!".Before("world") ; "Hello, "
      * "abcABCabc".Before("ABC", true) ; "abc"
      * 
-     * @param   {String}      Pattern       the substring to search for
-     * @param   {Primitive?}  CaseSense     case-sensitivity of the search
-     * @param   {Integer?}    StartingPos   position to start searching from
+     * @param   {String}      Pattern       substring to search for
+     * @param   {Primitive?}  CaseSense     case-sensitivity
+     * @param   {Integer?}    StartingPos   position to start from
      * @param   {Integer?}    Occurrence    n-th occurrence to find
      * @return  {String?}
      */
@@ -120,7 +119,7 @@ class String {
      * "Test123Hello".BeforeRegex("\d++") ; "Test"
      * 
      * @param   {String}    Pattern       regular expression to search for
-     * @param   {Integer?}  StartingPos   position to start searching from
+     * @param   {Integer?}  StartingPos   position to start from
      * @return  {String}
      */
     BeforeRegex(Pattern, StartingPos := 1) {
@@ -144,9 +143,9 @@ class String {
      * 
      * "Hello, world!".Until(", ") ; "Hello, "
      * 
-     * @param   {String}      Pattern      the substring to search for
-     * @param   {Primitive?}  CaseSense    case-sensitivity of the search
-     * @param   {Integer?}    StartingPos  position to start searching from
+     * @param   {String}      Pattern      substring to search for
+     * @param   {Primitive?}  CaseSense    case-sensitivity
+     * @param   {Integer?}    StartingPos  position to start from
      * @param   {Integer?}    Occurrence   n-th occurrence to find
      * @param   {String}
      */
@@ -166,7 +165,7 @@ class String {
      * "Test123Hello".UntilRegex("\d++") ; "Test123"
      * 
      * @param   {String}    Pattern      regular expression to search for
-     * @param   {Integer?}  StartingPos  position to start searching from
+     * @param   {Integer?}  StartingPos  position to start from
      * @return  {String}
      */
     UntilRegex(Pattern, StartingPos := 1) {
@@ -185,13 +184,13 @@ class String {
 
     /**
      * Returns a substring that starts at a specified occurrence of `Pattern`.
-     * @example
      * 
+     * @example
      * "Hello, world!".From(",") ; ", world!"
      * 
-     * @param   {String}      Pattern      the substring to search for
-     * @param   {Primitive?}  CaseSense    case-sensitivity of the search
-     * @param   {Integer?}    StartingPos  position to start searching from
+     * @param   {String}      Pattern      substring to search for
+     * @param   {Primitive?}  CaseSense    case-sensitivity
+     * @param   {Integer?}    StartingPos  position to start from
      * @param   {Integer?}    Occurrence   n-th occurrence to find
      * @param   {String}
      */
@@ -205,12 +204,12 @@ class String {
 
     /**
      * Returns a substring that starts at the first match of a regex `Pattern`.
-     * @example
      * 
+     * @example
      * "Test123Hello".FromRegex("\d++") ; "123Hello"
      * 
      * @param   {String}    Pattern      regular expression to search for
-     * @param   {Integer?}  StartingPos  position to start searching from
+     * @param   {Integer?}  StartingPos  position to start from
      * @return  {String}
      */
     FromRegex(Pattern, StartingPos := 1) {
@@ -230,13 +229,13 @@ class String {
     /**
      * Returns a substring that starts after a specified occurrence of
      * `Pattern`.
-     * @example
      * 
+     * @example
      * "Hello, world!".After(",") ; " world!"
      * 
-     * @param   {String}      Pattern      the substring to search for
-     * @param   {Primitive?}  CaseSense    case-sensitivity of the search
-     * @param   {Integer?}    StartingPos  position to start searching from
+     * @param   {String}      Pattern      substring to search for
+     * @param   {Primitive?}  CaseSense    case-sensitivity
+     * @param   {Integer?}    StartingPos  position to start from
      * @param   {Integer?}    Occurrence   n-th occurrence to find
      * @param   {String}
      */
@@ -251,12 +250,12 @@ class String {
     /**
      * Returns a substring that starts after the first match of a regex
      * `Pattern`.
-     * @example
      * 
+     * @example
      * "Test123Hello".AfterRegex("\d++") ; "Hello"
      * 
      * @param   {String}    Pattern      regular expression to search for
-     * @param   {Integer?}  StartingPos  position to start searching from
+     * @param   {Integer?}  StartingPos  position to start from
      * @return  {String}
      */
     AfterRegex(Pattern, StartingPos := 1) {
@@ -275,43 +274,43 @@ class String {
 
     /**
      * Returns this string prepended by `Before`.
-     * @example
      * 
+     * @example
      * "world!".Prepend("Hello, ") ; "Hello, world!"
      * 
-     * @param   {String}  Before  the string to prepend
+     * @param   {String}  Before  string to prepend
      * @return  {String}
      */ 
     Prepend(Before) => (Before . this)
 
     /**
      * Returns this string appended with `After`.
-     * @example
      * 
+     * @example
      * "Hello, ".Append("world!") ; "Hello, world!"
      * 
-     * @param   {String}  After  the string to append
+     * @param   {String}  After  string to append
      * @return  {String}
      */
     Append(After) => (this . After)
     
     /**
      * Returns a new string surrounded by `Before` and `After`.
-     * @example
      * 
+     * @example
      * "foo".Surround("(", ")") ; "(foo)"
      * "foo".Surround("_")      ; "_foo_"
      * 
-     * @param   {String}   Before  the string to prepend
-     * @param   {String?}  After   the string to append
+     * @param   {String}   Before  string to prepend
+     * @param   {String?}  After   string to append
      * @return  {String}
      */
     Surround(Before, After := Before) => (Before . this . After)
 
     /**
      * Returns this string repeated `n` times.
-     * @example
      * 
+     * @example
      * "foo".Repeat(3) ; "foofoofoo"
      * 
      * @param   {Integer}  n  amount of times to repeat the string
@@ -330,8 +329,8 @@ class String {
 
     /**
      * Returns this string with all characters in reverse order.
-     * @example
      * 
+     * @example
      * "foo".Reversed() ; "oof"
      * 
      * @return  {String}
@@ -343,23 +342,23 @@ class String {
     
     /**
      * Reads the contents of the file this string leads to.
-     * @example
      * 
+     * @example
      * "message.txt".FileRead()
      * 
-     * @param   {String?}  Options  additional options for `FileRead()`
+     * @param   {String?}  Options  additional `FileRead()` options
      * @return  {String}
      */ 
     FileRead(Options?) => FileRead(this, Options?)
 
     /**
      * Appends this string to the file `FileName`.
-     * @example
      * 
+     * @example
      * "Hello, world!".FileAppend("message.txt")
      * 
-     * @param   {String?}  FileName  name of the file to be appended
-     * @param   {String?}  Options   additional options for `FileAppend()`
+     * @param   {String?}  FileName  name of the file
+     * @param   {String?}  Options   additional `FileAppend()` options
      * @return  {this}
      */
     FileAppend(FileName?, Options?) {
@@ -370,11 +369,11 @@ class String {
     /**
      * Overwrites the file `FileName` with this string (Previous file contents
      * are lost!).
-     * @example
      * 
+     * @example
      * "Hello, world!".FileOverwrite("message.txt")
      * 
-     * @param   {String}  FileName  name of the file to overwrite
+     * @param   {String}  FileName  name of the file
      * @return  {this}
      */
     FileOverwrite(FileName) {
@@ -385,9 +384,9 @@ class String {
     }
 
     /**
-     * Opens a file with this string used as file name.
-     * @example
+     * Opens a file with the string being treated as file path.
      * 
+     * @example
      * FileObj := "message.txt".FileOpen("r")
      * 
      * @param   {Primitive}   Flags     desired access mode
@@ -399,8 +398,8 @@ class String {
     /**
      * Separates a file name or URL into its name, directory, extension,
      * and drive.
-     * @example
      * 
+     * @example
      * ; {
      * ;     Name:      "Address List.txt",
      * ;     Dir:       "C:\My Documents",
@@ -423,56 +422,56 @@ class String {
         }
     }
 
+    ; TODO just make this a stream?
     /**
-     * Returns the contents of a file-loop using this string as file pattern.
-     * Parameter `Pattern` refers to 0-parameter predicate function which has
-     * access to the built-in file-loop variables such as `A_LoopFilePath`.
-     * Parameter `ReturnValue` is the name of a file-loop variable to be
-     * returned, or a zero-parameter function similar to `Pattern`.
-     * @example
+     * Enumerates contents of a file-loop using the string as file pattern,
+     * collecting results into an array.
      * 
+     * ---
+     * 
+     * `Condition` filters elements based on built-in file-loop variables.
+     * 
+     * ```ahk
+     * () => InStr(A_LoopFileFullPath, "foo")
+     * ```
+     * 
+     * ----
+     * 
+     * `Mapper` produces a final result to be collected into the array.
+     * 
+     * ```ahk
+     * () => A_LoopFileFullPath
+     * ```
+     * 
+     * ----
+     * 
+     * @example
      * "C:\*".FindFiles("D") ; ["C:\Users", "C:\Windows", ...]
      * 
      * @param   {String?}       Mode         file-loop mode
-     * @param   {Func?}         Pattern      function that evaluates condition
-     * @param   {Func?/String}  ReturnValue  name of a file-loop variable or a
-     *                                       function that returns a value
+     * @param   {Func?}         Pattern      the given condition
+     * @param   {Func?}         Mapper       function that retrieves a value
      * @return  {Array}
      */
-    FindFiles(Mode := "FR", Pattern?, ReturnValue?) {
-        if (!IsSet(Pattern)) {
-            Pattern := (*) => True
-        }
-        if (!HasMethod(Pattern)) {
-            throw TypeError("Expected a Function object",, Type(Pattern))
-        }
-        if (!IsSet(ReturnValue)) {
-            ReturnValue := "A_LoopFilePath"
-        }
-        if (!(ReturnValue is String) && !HasMethod(ReturnValue)) {
-            throw TypeError("invalid return value argument",, Type(ReturnValue))
-        }
+    FindFiles(Mode := "FR", Pattern?, Mapper?) {
+        Pattern := Pattern ?? () => true
+        Mapper  := Mapper  ?? () => A_LoopFilePath
+
+        (GetMethod(Pattern) && GetMethod(Mapper))
         Result := Array()
-        if (HasMethod(ReturnValue)) {
-            Loop Files, this, Mode {
-                (Pattern() && Result.Push(ReturnValue()))
-            }
-        } else {
-            Loop Files, this, Mode {
-                (Pattern() && Result.Push(%ReturnValue%))
-            }
+        Loop Files, this, Mode {
+            (Pattern() && Result.Push(Mapper()))
         }
         return Result
     }
 
     /**
-     * Determines whether this string contains a regular expression `Pattern`.
-     * If present, the index of the first occurrence is returned.
-     * @example
+     * Determines whether the string matches the given regex `Pattern`.
      * 
+     * @example
      * "Test123Hello".RegExMatch("\d++") ; 5
      * 
-     * @param   {String}    Pattern      regular expression pattern
+     * @param   {String}    Pattern      regular expression
      * @param   {VarRef?}   MatchObj     output match object
      * @param   {Integer?}  StartingPos  position to start searching from
      * @return  {Integer} 
@@ -482,12 +481,12 @@ class String {
     }
 
     /**
-     * Replaces regular expression occurrence in this string.
-     * @example
+     * Replaces occurrences of a regex expression in the string.
      * 
+     * @example
      * "Test123Hello".RegExReplace("\d++", "") ; "TestHello"
      * 
-     * @param   {String}    Pattern  regular expression pattern
+     * @param   {String}    Pattern  regular expression
      * @param   {String?}   Replace  replacement string
      * @param   {VarRef?}   Count    output count
      * @param   {Integer?}  Limit    maximum number of replacements
@@ -501,11 +500,11 @@ class String {
     /**
      * Returns the match object for the first occurrence of a regular
      * expression `Pattern`.
-     * @example
      * 
+     * @example
      * MatchObj := "Test123Hello".Match("\d++")
      * 
-     * @param   {String}    Pattern      regular expression pattern
+     * @param   {String}    Pattern      regular expression
      * @param   {Integer?}  StartingPos  position to start searching from
      * @return  {RegExMatchInfo}
      */
@@ -517,17 +516,17 @@ class String {
     }
 
     /**
-     * Returns an array of all match objects for occurrences of a regular
-     * expression `Pattern`. Match objects do not overlap with each other.
-     * @example
+     * Returns all match objects for occurrence of a regex `Pattern` in
+     * the string. Match objects do not overlap with each other.
      * 
+     * @example
      * ; 1st iteration: "12"
      * ; 2nd iteration: "34"
      * for MatchObj in "12345".MatchAll("\d{2}+") {
      *     MsgBox(MatchObj[0])
      * }
      * 
-     * @param   {String}    Pattern      regular expression pattern
+     * @param   {String}    Pattern      regular expression
      * @param   {Integer?}  StartingPos  position to start searching from
      * @return  {Array}
      */
@@ -543,11 +542,11 @@ class String {
     /**
      * Returns the overall match of the first occurrence of a regular
      * expression `Pattern`.
-     * @example
      * 
+     * @example
      * "Test123Hello".Capture("\d++") ; "123"
      * 
-     * @param   {String}    Pattern      regular expression pattern
+     * @param   {String}    Pattern      regular expression
      * @param   {Integer?}  StartingPos  position to start searching from
      * @return  {String}
      */
@@ -561,11 +560,11 @@ class String {
     /**
      * Returns an array of all occurrences of regular expression `Pattern`.
      * Matches do not overlap with each other.
-     * @example
      * 
+     * @example
      * "12345".CaptureAll("\d{2}+") ; ["12", "34"]
      * 
-     * @param   {String}    Pattern      regular expression pattern
+     * @param   {String}    Pattern      regular expression
      * @param   {Integer?}  StartingPos  position to start searching from
      * @return  {String}
      */
@@ -579,9 +578,9 @@ class String {
     }
 
     /**
-     * Inserts `Str` into this string at index `Position`.
-     * @example
+     * Inserts `Str` into the string at index `Position`.
      * 
+     * @example
      * "Hello world!".Insert(",", 6) ; "Hello, world!"
      * "banaa".Insert("n", -1)       ; "banana"
      * 
@@ -612,9 +611,9 @@ class String {
     }
 
     /**
-     * Overwrites `Str` into this string at index `Position`.
-     * @example
+     * Overwrites `Str` into the string at index `Position`.
      * 
+     * @example
      * "banaaa".Overwrite("n", 5)  ; "banana"
      * "appll".Overwrite("e", -1)  ; "apple"
      * 
@@ -644,10 +643,10 @@ class String {
     }
 
     /**
-     * Removes a section from this string at index `Position`,
-     * `Length` characters long.
-     * @example
+     * Removes a section from the string at index `Position`, `Length`
+     * characters long.
      * 
+     * @example
      * "aapple".Delete(2)       ; "apple"
      * "banabana".Delete(-4, 2) ; "banana"
      * 
@@ -683,11 +682,11 @@ class String {
 
     /**
      * Pads this string on the left using `PaddingStr` a total of `n` times.
-     * @example
      * 
+     * @example
      * "foo".LPad(" ", 5) ; "     foo"
      * 
-     * @param   {String?}   PaddingStr  string used for padding
+     * @param   {String?}   PaddingStr  padding string
      * @param   {Integer?}  n           amount of padding
      * @return  {String}
      */ 
@@ -709,11 +708,11 @@ class String {
 
     /**
      * Pads this string on the right using `PaddingStr` a total of `n` times.
-     * @example
      * 
+     * @example
      * "foo".RPad(" ", 5) ; "foo     "
      * 
-     * @param   {String?}   PaddingStr  string used for padding
+     * @param   {String?}   PaddingStr  padding string
      * @param   {Integer?}  n           amount of padding
      * @return  {String}
      */
@@ -736,8 +735,8 @@ class String {
     /**
      * Strips all whitespace from this string and then formats words into lines
      * with a maximum length of `n` characters.
-     * @example
      * 
+     * @example
      * ; (use a really small line length for demonstration purposes)
      * ; "hello,`nworld!"
      * "hello, world!".WordWrap(3)
@@ -757,7 +756,7 @@ class String {
         Loop Parse this, "`n`s`t", "`r`n`s`t" {
             Len := StrLen(A_LoopField)
             if (Pos + Len > n) {
-                Out .= "`n"
+                Out .= "`r`n"
                 Pos := 0
             } else if ((A_Index - 1) && Len && Pos) {
                 Out .= " "
@@ -770,7 +769,7 @@ class String {
     }
 
     /**
-     * Trims characters `OmitChars` from the beginning and end of this string.
+     * Trims characters `OmitChars` from the beginning and end of the string.
      * @example
      * 
      * " foo ".Trim() ; "foo"
@@ -781,7 +780,7 @@ class String {
     Trim(OmitChars?) => Trim(this, OmitChars?)
 
     /**
-     * Trims characters `OmitChars` from the beginning of this string.
+     * Trims characters `OmitChars` from the beginning of the string.
      * 
      * @param   {String?}  OmitChars  characters to trim
      * @return  {String}
@@ -789,7 +788,7 @@ class String {
     LTrim(OmitChars?) => LTrim(this, OmitChars?)
 
     /**
-     * Trims characters `OmitChars` from the end of this string.
+     * Trims characters `OmitChars` from the end of the string.
      * 
      * @param   {String?}  OmitChars  characters to trim
      * @return  {String}
@@ -797,24 +796,36 @@ class String {
     RTrim(OmitChars?) => RTrim(this, OmitChars?)
 
     /**
-     * Returns a formatted string, using this as the format pattern.
+     * Formats by using the string as format pattern.
      * 
      * If an object is passed, it is converted to a string by using its
      * `ToString() method`.
-     * @example
      * 
+     * @example
      * "a: {}, b: {}".FormatWith(2, 42) ; "a: 2, b: 42"
      * 
      * @param   {Any*}  Args  zero or more additional arguments
      * @return  {String}
      */ 
-    Format(Args*)     => Format(this, Args.Map(String)*)
-    FormatWith(Args*) => Format(this, Args.Map(String)*)
+    Format(Args*) {
+        Input := Array()
+        for Value in Args {
+            Input.Push(String(Input))
+        }
+        return Format(this, Input*)
+    }
+    FormatWith(Args*) {
+        Input := Array()
+        for Value in Args {
+            Input.Push(String(Input))
+        }
+        return Format(this, Input*)
+    }
 
     /**
-     * Converts this string to lowercase.
-     * @example
+     * Converts the string to lowercase.
      * 
+     * @example
      * "FOO".ToLower() ; "foo"
      * 
      * @return  {String}
@@ -824,8 +835,8 @@ class String {
 
     /**
      * Converts this string to uppercase.
-     * @example
      * 
+     * @example
      * "foo".ToUpper() ; "FOO"
      * 
      * @return  {String}
@@ -835,8 +846,8 @@ class String {
 
     /**
      * Converts this string to title case.
-     * @example
      * 
+     * @example
      * "foo".ToTitle() ; "Foo"
      * 
      * @return  {String}
@@ -845,16 +856,16 @@ class String {
     ToTitle()  => StrTitle(this)
 
     /**
-     * Replaces occurrences of `Pattern` in this string.
-     * @example
+     * Replaces occurrences of `Pattern` in the string.
      * 
+     * @example
      * "abz".Replace("z", "c") ; "abc"
      * 
-     * @param   {String}      Pattern    string whose content is replaced
+     * @param   {String}      Pattern    string to replace
      * @param   {String?}     Rep        replacement string
-     * @param   {Primitive?}  CaseSense  case-sensitivity of the search
+     * @param   {Primitive?}  CaseSense  case-sensitivity
      * @param   {VarRef?}     Out        output of replacements that occurred
-     * @param   {Integer?}    Limit      maximum number of replacements
+     * @param   {Integer?}    Limit      replacement limit
      * @return  {String}
      */
     StrReplace(Pattern, Rep := "", CaseSense := false, &Out?, Limit := -1) {
@@ -865,9 +876,9 @@ class String {
     }
 
     /**
-     * Separates this string into an array of substrings using `Delimiter`.
-     * @example
+     * Separates the string into an array of substrings using `Delimiter`.
      * 
+     * @example
      * "a,b,c".Split(",") ; ["a", "b", "c"]
      * 
      * @param   {String?/Array?}  Delimiters  boundaries between substrings
@@ -884,12 +895,12 @@ class String {
 
     /**
      * Searches for a given occurrence of a string, from the left or the right.
-     * @example
      * 
+     * @example
      * "foo bar".Contains("b") ; 5
      * 
      * @param   {String}      Pattern      string to search for 
-     * @param   {Primitive?}  CaseSense    case-sensitivity of the search
+     * @param   {Primitive?}  CaseSense    case-sensitivity
      * @param   {Integer?}    StartingPos  position to start searching from
      * @param   {Integer?}    Occurrence   n-th occurrence to search for
      * @return  {Integer}
@@ -903,11 +914,11 @@ class String {
 
     /**
      * Returns a substring at index `Start` and length `Length` in characters.
-     * @example
      * 
+     * @example
      * "123abc789".SubStr(4, 3) ; "abc"
      * 
-     * @param   {Integer}   Start   start index of the substring
+     * @param   {Integer}   Start   starting index
      * @param   {Integer?}  Length  length in characters
      * @return  {String}
      */
@@ -916,11 +927,11 @@ class String {
     /**
      * Returns a substring at index `Start` and length `Length` in characters.
      * Unlike `SubStr()`, `Length` defaults to 1 when omitted.
-     * @example
      * 
+     * @example
      * ("foo bar")[5] ; "b"
      * 
-     * @param   {Integer}   Start   start index of the substring
+     * @param   {Integer}   Start   starting index
      * @param   {Integer?}  Length  length in characters
      * @return  {String}
      */
@@ -934,17 +945,21 @@ class String {
     }
 
     /**
-     * Returns the length of this string in characters.
+     * Returns the length of the string in characters.
+     * 
+     * @example
+     * "Hello".StrLen() ; 5
+     * "Hello".Length   ; 5
+     * 
      * @return  {Integer}
      */
     StrLen() => StrLen(this)
     Length   => StrLen(this)
 
     /**
-     * Returns the length of this string in bytes with the specified encoding
-     * `Encoding`.
-     * @example
+     * Returns the length of this string in bytes with the specified `Encoding`.
      * 
+     * @example
      * "Hello, world!".Size ; UTF-16: (13 + 1) * 2 = 28 bytes
      * "foo".Size["UTF-8"]  ; 4
      * 
@@ -965,8 +980,8 @@ class String {
 
     /**
      * Lexicographically compares this string with `Other`.
-     * @example
      * 
+     * @example
      * "a".Compare("b") ; -1
      * 
      * @param   {String}      Other      string to be compared

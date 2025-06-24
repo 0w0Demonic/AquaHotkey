@@ -21,7 +21,6 @@
  * multiple unrelated classes, use `AquaHotkey_MultiApply` instead.
  * 
  * @example
- * 
  * class Gui_Backup extends AquaHotkey_Backup {
  *     static __New() {
  *         super.__New(Gui)
@@ -81,7 +80,7 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
         }
 
         /**
-         * Returns a getter property that already returns `Value`.
+         * Returns a getter property that always returns `Value`.
          * 
          * @param   {Any}  Value  the value to return
          * @return  {Object}
@@ -121,8 +120,7 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
         }
         
         /**
-         * Copies over all static and instance properties from
-         * Supplier to Receiver.
+         * Copies all static and instance properties from Supplier to Receiver.
          */
         static Transfer(Supplier, Receiver) {
             ; find prototype and name of property supplier
@@ -157,10 +155,10 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
             ; responsible for declaring new instance variables.
             ; 
             ; In this case, the object is initialized with declarations of
-            ; both the supplier and receiver class. This only applies to
-            ; subclasses of `AquaHotkey_MultiApply`, if both supplier and
-            ; receiver are classes, and if the receiving class is not based on
-            ; `Primitive` (these are not allowed to have instance variables).
+            ; both the supplier and receiver class.
+            ; 
+            ; If the receiving class is based on `Primitive`, this behavior
+            ; is ignored (as they cannot own fields).
             if ((Supplier is Class) && (Receiver is Class)
                         && !(HasBase(Receiver, Primitive)))
             {

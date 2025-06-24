@@ -18,21 +18,17 @@
  * you want to copy into.
  * 
  * @example
- * 
  * class Tanuki extends AquaHotkey {
  *     class Gui {
  *         class Button {
  *             ButtonProp() => MsgBox("I'm a Button!")
  *         }
- * 
  *         class ButtonControlsCommon extends AquaHotkey_MultiApply {
  *             static __New() {
  *                 super.__New(Tanuki.Gui.Button, Tanuki.Gui.CheckBox)
  *             }
- * 
  *             CommonProp() => MsgBox("I'm a CheckBox or a Button!")
  *         }
- * 
  *         class CheckBox {
  *             CheckBoxProp() => MsgBox("I'm a CheckBox!")
  *         }
@@ -46,7 +42,6 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
      * method without passing any parameters.
      * 
      * @example
-     * 
      * ; class Tanuki extends AquaHotkey {
      * ; class Gui {
      * class CommonButtonControls extends AquaHotkey_MultiApply {
@@ -70,8 +65,8 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
             throw ValueError("No target class provided")
         }
 
-        ; Use the same method as `AquaHotkey_Backup`, but with the parameters
-        ; swapped around.
+        ; Use the same method as `AquaHotkey_Backup`, but with the supplier and
+        ; receiver swapped.
         for Target in Targets {
             (AquaHotkey_Backup.__New)(Target, this)
         }

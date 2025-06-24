@@ -9,9 +9,17 @@ class AquaHotkey_Primitive extends AquaHotkey {
  */
 class Primitive {
     /**
-     * Outputs this variable as text in a message box.
-     * @example
+     * Returns itself. This method allows you to call `.Clone()` on every
+     * single type (except for e.g. `ComObject`).
      * 
+     * @return  {Primitive}
+     */
+    Clone() => this
+
+    /**
+     * Outputs the value as text inside a message box.
+     * 
+     * @example
      * "Hello, world!".MsgBox("AquaHotkey", MsgBox.Icon.Info)
      * 
      * @param   {String?}     Title    message box title
@@ -24,13 +32,13 @@ class Primitive {
     }
 
     /**
-     * Outputs this variable on a tooltip control.
-     * @example
+     * Outputs the value on a tooltip control.
      * 
+     * @example
      * "Hello, world!".ToolTip(50, 50, 1)
      * 
-     * @param   {Integer?}  x             x-coordinate of the tooltip
-     * @param   {Integer?}  y             y-coordinate of the tooltip
+     * @param   {Integer?}  x             x-coordinate
+     * @param   {Integer?}  y             y-coordinate
      * @param   {Integer?}  WhichToolTip  which tooltip to operate on
      * @return  {this}
      */
@@ -40,9 +48,9 @@ class Primitive {
     }
 
     /**
-     * Outputs this variable using the `Send()` function.
-     * @example
+     * Outputs the value using `Send()`.
      * 
+     * @example
      * "Four score and seven years ago".Send()
      * 
      * @return  {this}
@@ -53,9 +61,9 @@ class Primitive {
     }
 
     /**
-     * Outputs this variable using the `SendText()` function.
-     * @example
+     * Outputs the value using `SendText()`.
      * 
+     * @example
      * "Four score and seven years ago".SendText()
      * 
      * @return  {this}
@@ -66,9 +74,9 @@ class Primitive {
     }
 
     /**
-     * Outputs this variable using the `SendPlay()` function.
-     * @example
+     * Outputs the value using `SendPlay()`.
      * 
+     * @example
      * "Four score and seven years ago".SendPlay()
      * 
      * @return  {this}
@@ -79,9 +87,9 @@ class Primitive {
     }
 
     /**
-     * Outputs this variable using the `SendEvent()` function.
-     * @example
+     * Outputs the value using `SendEvent()`.
      * 
+     * @example
      * "Four score and seven years ago".SendEvent()
      * 
      * @return  {this}
@@ -92,9 +100,9 @@ class Primitive {
     }
 
     /**
-     * Converts this variable into a float.
-     * @example
+     * Converts the value into a float.
      * 
+     * @example
      * (1).ToFloat() ; 1.0
      * 
      * @return  {Float}
@@ -102,9 +110,9 @@ class Primitive {
     ToFloat() => Float(this)
 
     /**
-     * Converts this variable into a number.
-     * @example
+     * Converts the value to a number.
      * 
+     * @example
      * "912".ToNumber() ; 912
      * "8.2".ToNumber() ; 8.2
      * 
@@ -113,9 +121,9 @@ class Primitive {
     ToNumber() => Number(this)
 
     /**
-     * Converts this variable into an integer.
-     * @example
+     * Converts the value to an integer.
      * 
+     * @example
      * (8.34).ToInteger() ; 8
      * 
      * @return  {Integer}
@@ -123,9 +131,9 @@ class Primitive {
     ToInteger() => Integer(this)
 
     /**
-     * Converts this variable into a string.
-     * @example
+     * Converts the value to a string.
      * 
+     * @example
      * (12).ToString() ; "12"
      * 
      * @return  {String}
@@ -133,9 +141,9 @@ class Primitive {
     ToString() => String(this)
 
     /**
-     * Puts this variable into the system clipboard.
-     * @example
+     * Puts the value into the system clipboard.
      * 
+     * @example
      * "This is the new clipboard content".ToClipboard()
      * 
      * @return  {this}
@@ -143,13 +151,13 @@ class Primitive {
     ToClipboard() => (A_Clipboard := this)
 
     /**
-     * Formats this variable into the given format pattern `Pattern`, followed
-     * by zero or more additional arguments `Args*`.
-     * @example
+     * Formats the variable by using the given `Pattern`, followed by zero or
+     * more additional `Args*`.
      * 
+     * @example
      * "world".FormatTo("{2}, {1}!", "Hello") ; "Hello, world!"
      * 
-     * @param   {String}  Pattern  the format pattern to use
+     * @param   {String}  Pattern  format pattern to use
      * @param   {Any*}    Args     zero or more additional arguments
      * @return  {String}
      */

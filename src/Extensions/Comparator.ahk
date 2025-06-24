@@ -6,6 +6,8 @@
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Extensions/Comparator.ahk
  * 
+ * ---
+ * 
  * **Overview**:
  * 
  * Comparators are functions that decide a natural ordering between two
@@ -24,7 +26,8 @@
  */
 class Comparator {
     /**
-     * Creates a new `Comparator` that uses the given function for comparison.
+     * Creates a new comparator using the given function for comparing
+     * function.
      * 
      * @example
      * Callback(a, b) {
@@ -42,19 +45,15 @@ class Comparator {
      * @return  {Comparator}
      */
     __New(Comp) {
-        if (!HasMethod(Comp)) {
-            throw TypeError("Expected a Function object",, Type(Comp))
-        }
-        this.DefineProp("Call", {
-            Call: (Instance, a?, b?) => Comp(a?, b?)
-        })
+        GetMethod(Comp)
+        this.DefineProp("Call", { Call: (Instance, a?, b?) => Comp(a?, b?) })
     }
 
     /**
-     * Returns a new `Comparator` which specifies a second `Comparator` to use
+     * Returns a new comparator which specifies a second comparator to use
      * whenever two elements as equal in value.
-     * @example
      * 
+     * @example
      * ByStringLength := Comparator.Numeric(StrLen)
      * Alphabetic     := Comparator.Alphabetic()
      * 
@@ -65,9 +64,7 @@ class Comparator {
      * @return  {Comparator}
      */
     AndThen(Other) {
-        if (!HasMethod(Other)) {
-            throw TypeError("Expected a Function object",, Type(Other))
-        }
+        GetMethod(Other)
         Obj := Object()
         ObjSetBase(Obj, ObjGetBase(this))
         Obj.DefineProp("Call", {
@@ -77,7 +74,7 @@ class Comparator {
     }
 
     /**
-     * Returns a new `Comparator` which first applies the given `Mapper`
+     * Returns a new comparator which first applies the given `Mapper`
      * function on elements to extract a sort key.
      * 
      * `Mapper` is called using each elements as first argument respectively,
@@ -95,9 +92,7 @@ class Comparator {
      * @return  {Comparator}
      */
     Compose(Mapper, Args*) {
-        if (!HasMethod(Mapper)) {
-            throw TypeError("Expected a Function object",, Type(Mapper))
-        }
+        GetMethod(Mapper)
         Obj := Object()
         ObjSetBase(Obj, ObjGetBase(this))
         Obj.DefineProp("Call", {
@@ -109,9 +104,9 @@ class Comparator {
     }
 
     /**
-     * Reverses the order of this `Comparator`.
-     * @example
+     * Reverses the order of the comparator.
      * 
+     * @example
      * ; [4, 3, 2, 1]
      * Array(4, 2, 3, 1).Sort(Comparator.Numeric().Reversed())
      * 
@@ -134,10 +129,10 @@ class Comparator {
     }
 
     /**
-     * Returns a new `Comparator` which considers `unset` to be lesser than
-     * the non-null elements. 
-     * @example
+     * Returns a new comparator that considers `unset` to be lesser than the
+     * non-null elements.
      * 
+     * @example
      * NullsFirst := Comparator.Numeric().NullsFirst()
      * 
      * ; [unset, unset, 1, 2, 3, 4]
@@ -166,10 +161,10 @@ class Comparator {
     }
 
     /**
-     * Returns a new `Comparator` which considers `unset` to be greater than
-     * the non-null elements.
-     * @example
+     * Returns a new comparator that consider `unset` to be greater than the
+     * non-null elements.
      * 
+     * @example
      * NullsLast := Comparator.Numeric().NullsLast()
      * 
      * ; [1, 2, 3, 4, unset, unset]
@@ -198,7 +193,14 @@ class Comparator {
     }
 
     /**
-     * Returns a `Comparator` which orders numbers by natural order.
+     * Returns a default numerical comparator.
+     * 
+     * @return  {Comparator}
+     */
+    static Numeric => this.Numeric()
+
+    /**
+     * Returns a comparator that orders numbers by natural order.
      * 
      * If present, the comparator first extracts a sort key on the element by
      * using the `Mapper` function and zero or more additional arguments.
@@ -222,8 +224,15 @@ class Comparator {
     }
 
     /**
-     * Returns a `Comparator` which lexicographically orders two strings with
-     * the given case sensitivity `CaseSense`.
+     * Returns a default lexicographical comparator.
+     * 
+     * @return  {Comparator}
+     */
+    static Alphabetic => this.Alphabetic()
+
+    /**
+     * Returns a comparator that lexicographically orders two strings using
+     * `StrCompare`.
      * 
      * If present, the comparator first extracts a sort key on the element by
      * using the `Mapper` function and zero or more additional arguments.
@@ -234,7 +243,7 @@ class Comparator {
      * ; ["apple", "banana", "kiwi"]
      * Array("kiwi", "apple", "banana").Sort(Comp)
      * 
-     * @param   {Boolean/String}  CaseSense  case sensitivity of the comparison
+     * @param   {Boolean/String}  CaseSense  case sensitivity
      * @param   {Func?}           Mapper     key extractor function
      * @param   {Any*}            Args       zero or more additional arguments
      * @return  {Comparator}

@@ -9,9 +9,9 @@ class AquaHotkey_Error extends AquaHotkey {
  */
 class Error {
     /**
-     * Throws an error of this class.
-     * @example
+     * Throws an error of the given error type.
      * 
+     * @example
      * TargetError.Throw("unable to find window", -1, "ahk_exe notepad.exe")
      * 
      * @param   {String?}     Msg    message of the error object

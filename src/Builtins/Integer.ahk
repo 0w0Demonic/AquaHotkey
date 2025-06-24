@@ -9,9 +9,9 @@ class AquaHotkey_Integer extends AquaHotkey {
  */
 class Integer {
     /**
-     * Returns a hexadecimal representation of this string.
-     * @example
+     * Returns the hexadecimal representation of the string.
      * 
+     * @example
      * (255).ToHexString() ; "FF"
      * 
      * @return  {String}
@@ -19,27 +19,28 @@ class Integer {
     ToHexString() => Format("{:x}", this)
 
     /**
-     * Returns a binary representation of this string.
-     * @example
+     * Returns the binary representation of the string.
      * 
+     * @example
      * (32).ToBinaryString() ; "100000"
      * 
      * @return  {String}
      */
     ToBinaryString() {
-        i := this
-        Result := ""
-        while (i) {
-            Result .= i & i
-            i >>>= 1
-        }
-        return Result.Reversed()
+        Buf := Buffer(64)
+        x := this
+        i := 63
+        Loop {
+            NumPut("UChar", 0x30 + (x & 1), Buf.Ptr + i--)
+            x >>>= 1
+        } Until (!x)
+        return StrGet(Buf.Ptr + i + 1, "UTF-8", 64 - i)
     }
 
     /**
      * Returns the signum of this integer.
-     * @example
      * 
+     * @example
      * (12).Signum()   ; 1
      * (0).Signum()    ; 0
      * (-863).Signum() ; -1

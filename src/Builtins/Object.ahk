@@ -11,21 +11,12 @@ class Object {
     /**
      * Defines a new read-only property by the name of `PropertyName` for this
      * object, which returns a constant `Value`.
+     * 
      * @example
-     * 
      * class Foo {
-     *     static Bar {
-     *         Get {
-     *             ; do something here...
-     *             Sleep(2000)
-     *             ; next time, return `Result` instantly
-     *             this.DefineConstant("Bar", 42)
-     *         }
-     *     }
+     *     ; property "Bar" becomes immutable
+     *     __New(Bar) => this.DefineConstant("Bar", Bar)
      * }
-     * 
-     * MsgBox(Foo.Bar) ; (2 seconds later...) 42
-     * MsgBox(Foo.Bar) ; 42
      * 
      * @param   {String}  PropertyName  name of the new property
      * @param   {Any}     Value         value that is returned by this property
@@ -39,9 +30,7 @@ class Object {
     /**
      * Defines a new read-only property by the name of `PropertyName`.
      * 
-     * The `Getter` function determines the value of the property when accessed.
      * @example
-     * 
      * TwoTimesValue(this) {
      *     return this.Value * 2
      * }
@@ -51,27 +40,20 @@ class Object {
      * 
      * MsgBox(Obj.TwoTimesValue) ; 6
      * 
-     * @param   {String}  PropertyName  name of property
-     * @param   {Func}    Getter        property getter function
+     * @param   {String}  PropertyName  name of the property
+     * @param   {Func}    Getter        the function to be called
      * @return  {this}
      */
     DefineGetter(PropertyName, Getter) {
-        if (!HasMethod(Getter)) {
-            throw TypeError("Expected a Function",, Type(Getter))
-        }
-        return this.DefineProp(PropertyName, {
-            Get: Getter
-        })
+        GetMethod(Getter)
+        return this.DefineProp(PropertyName, { Get: Getter })
     }
 
     /**
-     * Defines a new property by the name of `PropertyName`.
+     * Defines a new property by the name of `PropertyName` with `Getter` and
+     * `Setter` methods.
      * 
-     * The `Getter` function determines the value of the property when accessed
-     * whereas `Setter` is executed whenever the property is being assigned a
-     * value.
      * @example
-     * 
      * Getter(this) {
      *     ++this.Count
      *     return this.Value
@@ -84,35 +66,25 @@ class Object {
      * 
      * Obj := ({ Count: 0 }).DefineGetterSetter("Foo", Getter, Setter)
      * 
-     * Obj.Foo := 3      ; calls `Setter` (Count: 1)
-     * MsgBox(Obj.Foo)   ; calls `Getter` (Count: 2)
+     * Obj.Foo := 3
+     * MsgBox(Obj.Foo)   ; 3
      * MsgBox(Obj.Count) ; 2
      * 
      * @param   {String}  PropertyName  name of the new property
-     * @param   {Func}    Getter        property getter function
-     * @param   {Func}    Setter        property setter function
+     * @param   {Func}    Getter        getter function
+     * @param   {Func}    Setter        setter function
      * @return  {this}
      */
     DefineGetterSetter(PropertyName, Getter, Setter) {
-        if (!HasMethod(Getter)) {
-            throw TypeError("Expected a Function object",, Type(Getter))
-        }
-        if (!HasMethod(Setter)) {
-            throw TypeError("Expected a Function object",, Type(Setter))
-        }
-        return this.DefineProp(PropertyName, {
-            Get: Getter,
-            Set: Setter
-        })
+        (GetMethod(Getter) && GetMethod(Setter))
+        return this.DefineProp(PropertyName, { Get: Getter, Set: Setter })
     }
 
     /**
-     * Defines a new property by the name of `PropertyName`.
+     * Defines a new property by the name of `PropertyName` with the given
+     * `Setter` function.
      * 
-     * The `Setter` function is executed whenever the property is being assigned
-     * a value.
      * @example
-     * 
      * Setter(this, Value) {
      *     return this.Value := Value.AssertInteger("only integers allowed")
      * }
@@ -122,63 +94,36 @@ class Object {
      * Obj.Foo := "bar" ; Error!
      * 
      * @param   {String}  PropertyName  name of the new property
-     * @param   {Func}    Setter        property setter function
+     * @param   {Func}    Setter        setter function
      * @return  {this}
      */
     DefineSetter(PropertyName, Setter) {
-        if (!HasMethod(Setter)) {
-            throw TypeError("Expected a Function object",, Type(Setter))
-        }
-        return this.DefineProp(PropertyName, {
-            Set: Setter
-        })
+        GetMethod(Setter)
+        return this.DefineProp(PropertyName, { Set: Setter })
     }
     
     /**
      * Defines a new method by the name of `PropertyName`.
      * 
-     * `Method` is the function invoked whenever this property is called like a
-     * method.
      * @example
-     *  
-     * PrintValue(this) {
-     *     MsgBox(this.Value)
-     * }
+     * PrintValue(this) => MsgBox(this.Value)
      * 
      * Obj := ({ Value: 42 }).DefineMethod("PrintValue", PrintValue)
      * Obj.PrintValue()
      * 
      * @param   {String}  PropertyName  name of property
-     * @param   {Func}    Method        method to be called
+     * @param   {Func}    Method        the function to be called
      * @return  {this}
      */
     DefineMethod(PropertyName, Method) {
-        if (!HasMethod(Method)) {
-            throw TypeError("Expected a Function object",, Type(Method))
-        }
-        return this.DefineProp(PropertyName, {
-            Call: Method
-        })
-    }
-
-    /**
-     * Stores a clone of the object in `Output`.
-     * @example
-     * 
-     * MyVariable.Store(&Copy)
-     * 
-     * @param   {VarRef}  Output  output variable to store current value in
-     * @return  {this}
-     */
-    Store(&Output) {
-        Output := this.Clone()
-        return this
+        GetMethod(Method)
+        return this.DefineProp(PropertyName, { Call: Method })
     }
 
     /**
      * Sets the base of this object.
-     * @example
      * 
+     * @example
      * class Foo {
      * 
      * }
@@ -199,8 +144,8 @@ class Object {
      * method.
      * 
      * The behavior of this method might be changed in future versions.
-     * @example
      * 
+     * @example
      * ({ Foo: 45, Bar: 123 }) ; "Object {Bar: 123, Foo: 45}"
      * 
      * @return  {String}

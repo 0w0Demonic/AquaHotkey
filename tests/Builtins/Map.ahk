@@ -161,10 +161,9 @@ class Map {
     static AnyMatch1() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
-        Map(1, 1, 3, 3, 5, 6)
+        Match := Map(1, 1, 3, 3, 5, 6)
             .AnyMatch(ValueIsEven)
             .AssertType(Object)
-            .Store(&Match)
 
         Match.Key.AssertEquals(5)
         Match.Value.AssertEquals(6)

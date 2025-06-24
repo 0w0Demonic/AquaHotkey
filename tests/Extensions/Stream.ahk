@@ -51,14 +51,6 @@ class Stream {
             .AssertEquals("H e l l o ,   w o r l d !")
     }
 
-    static FlatMap3() {
-        Array([1, 2, 3], 4, [5, 6], 7, [8])
-            .Stream()
-            .FlatMap()
-            .Join(" ")
-            .AssertEquals("1 2 3 4 5 6 7 8")
-    }
-
     static MapByRef() {
         static MapByRef(&Index, &Value) {
             Index *= 2
@@ -73,17 +65,6 @@ class Stream {
             .Map(Mapper)
             .Join(", ")
             .AssertEquals("2=ba, 4=aa, 6=na, 8=aa, 10=na, 12=aa")
-    }
-
-    static FindFirst() {
-        Arr := Array()
-        Array(1, 2, 3, 4, 5, 6, 7)
-            .Stream()
-            .RetainIf(Num => Num > 4)
-            .FindFirst()
-            .ForEach(x => Arr.Push(x))
-
-        Arr[1].AssertEquals(5)
     }
 
     static Limit() {
@@ -129,7 +110,7 @@ class Stream {
     static Distinct2() {
         Array("foo", "Foo", "FOO")
             .Stream()
-            .Distinct(false)
+            .Distinct(StrLower)
             .Join()
             .AssertEquals("foo")
     }
@@ -169,10 +150,10 @@ class Stream {
     }
 
     static AnyMatch() {
-        Array(1, 2, 3, 4, 5)
+        Output := Array(1, 2, 3, 4, 5)
             .Stream()
-            .AnyMatch(Num => Num == 5, &Output)
-            .AssertEquals(true)
+            .AnyMatch(Num => Num == 5)
+            .AssertNotEquals(false)
 
         Output.Length.AssertEquals(1)
         Output[1].AssertEquals(5)
@@ -252,20 +233,6 @@ class Stream {
             .ToArray()
             .Join(" ")
             .AssertEquals("1 2 3 4 5")
-    }
-
-    static Collect() {
-        Result := Array(2, 4, 6, 8, 10)
-            .Stream(2)
-            .Collect(Map, Map.Prototype.Set)
-        
-        Result.AssertType(Map)
-        Result.Count.AssertEquals(5)
-        Result[1].AssertEquals(2)
-        Result[2].AssertEquals(4)
-        Result[3].AssertEquals(6)
-        Result[4].AssertEquals(8)
-        Result[5].AssertEquals(10)
     }
 
     static Reduce() {

@@ -31,8 +31,8 @@ class Buffer {
             return Getter
             /**
              * Gets a number from this buffer at offset `Offset`.
-             * @example
              * 
+             * @example
              * MyBuffer.GetInt64(8) ; e.g. 12813612291
              * 
              * @param   {Integer?}  Offset  byte offset (default 0)
@@ -64,14 +64,15 @@ class Buffer {
     }
 
     /**
-     * Returns a hexadecimal representation of this buffer.
-     * @example
+     * Returns a hexadecimal representation of the buffer.
+     * `LineLength` determines the amount of bytes to display per line. If zero,
+     * no line breaks are made.
      * 
+     * @example
      * Buffer.OfString("foo", "UTF-8").HexDump() ; "66 6F 6F 00"
      * 
      * @param   {String?}   Delimiter   separator string
-     * @param   {Integer?}  LineLength  amount of bytes per line, (if zero, no
-     *                                  line breaks are made)
+     * @param   {Integer?}  LineLength  amount of bytes per line
      * @return  {String}
      */
     HexDump(Delimiter := A_Space, LineLength := 16) {
@@ -112,8 +113,8 @@ class Buffer {
     /**
      * Returns a buffer entirely containing the string `Str`
      * encoded in `Encoding`.
-     * @example
      * 
+     * @example
      * Buf := Buffer.OfString("foo", "UTF-8")
      * 
      * @param   {String}      Str       any string
@@ -139,8 +140,8 @@ class Buffer {
     /**
      * Returns a string representation of this buffer consisting of
      * its type, memory address pointer and size in bytes.
-     * @example
      * 
+     * @example
      * Buffer(128).ToString() ; "Buffer { Ptr: 000000000024D080, Size: 128 }"
      * 
      * @return  {String}

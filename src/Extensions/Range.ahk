@@ -1,3 +1,4 @@
+; TODO make this a class?
 /**
  * AquaHotkey - Range.ahk
  * 
@@ -6,13 +7,15 @@
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Extensions/Range.ahk
  * 
+ * ---
+ * 
  * **Overview**:
  * 
  * Returns a `Enumerator` containing an arithmetic progression of numbers
  * between `Start` and `End`, inclusive, optionally at a specified interval
  * of `Step` (otherwise `1` or `-1`).
- * @example
  * 
+ * @example
  * Range(10)      ; <1, 2, 3, 4, 5, 6, 7, 8, 9, 10>
  * Range(4, 7)    ; <4, 5, 6, 7>
  * Range(5, 3)    ; <5, 4, 3>

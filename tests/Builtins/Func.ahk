@@ -7,12 +7,9 @@
  * - tests/Builtins/Func.ahk
  */
 class Func {
-    static __() {
-        ((x, y) => x + (2 * y))
-            .__(2)
-            .AssertType(BoundFunc)
-            .Call(1)
-            .AssertEquals(5)
+    static Constantly() {
+        Range(5).Stream().Map(  Func.Constantly(15)  ).Join(", ")
+                .AssertEquals("15, 15, 15, 15, 15")
     }
 
     static AndThen() {
@@ -29,33 +26,7 @@ class Func {
             .AssertEquals(10)
     }
 
-    static Tee() {
-        Person := {
-            FirstName: "John",
-            LastName:  "Knee",
-            Age:       23
-        }
-        
-        static GetName(Person) {
-            return Person.FirstName . " " . Person.LastName
-        }
-
-        static IsAdult(Person) {
-            return Person.Age >= 18
-        }
-
-        static Evaluate(Name, Is18) {
-            if (Is18) {
-                return Name . " is an adult"
-            }
-            return Name . " is not an adult"
-        }
-
-        f := Func.Tee(GetName, IsAdult, Evaluate)
-        f(Person).AssertEquals("John Knee is an adult")
-    }
-
-    static Memoized() {
+    static Memoized1() {
         FibonacciSequence(N) {
             if (N > 1) {
                 return Memo(N - 1) + Memo(N - 2)
@@ -73,6 +44,44 @@ class Func {
             if (!IsSet(Result)) {
                 throw TimeoutError("timeout")
             }
+        }
+    }
+
+    static Memoized2() {
+        static Identity(x) => x
+
+        Cache1 := TestSuite.CustomMap()
+        Cache2 := TestSuite.CustomMap() 
+
+        Cache1.CaseSense := true
+        Cache2.CaseSense := false
+
+        Memoized1 := Identity.Memoized(unset, Cache1)
+        Memoized2 := Identity.Memoized(unset, Cache2)
+
+        Memoized1("a")
+        Memoized1("A")
+
+        Memoized2("a")
+        Memoized2("A")
+
+        Cache1.Hits.AssertEquals(0)
+        Cache2.Hits.AssertEquals(1)
+    }
+}
+
+class CustomMap extends Map {
+    Hits := 0
+
+    Get(Key, DefaultValue?) {
+        this.Hits++
+        return super.Get(Key, DefaultValue?)
+    }
+    
+    __Item[Key] {
+        get {
+            ++this.Hits
+            return super[Key]
         }
     }
 }

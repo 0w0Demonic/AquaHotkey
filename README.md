@@ -6,8 +6,8 @@
 ```
     o         /|    .   *
 .      0  (  / |  ,.       ,-.         .
- .  *      `/._|,(_o\ \  \  ,-\    .     *
-        (_.'   l_    \ `-`\ `-´\     o
+ .  *      `/._|,(_.\ \  \  ,-\    .     *
+        (_.'   l_    \ `-´\ `-´\     o
 ```
 
 ```ahk
@@ -78,7 +78,7 @@ that lets you customize the language in a way that hasn't been possible before.
 You don't need to start from scratch, though. The repo contains my own
 implementation `AquaHotkeyX`, which takes lots of inspiration from functional
 programming constructs, exploring some fancy - sometimes questionable - new
-behavior made possible by this library. See [features](#using-aquahotkeyx)
+behavior made possible by this library. See [features](#list-of-features)
 
 ## Workflow
 
@@ -242,8 +242,8 @@ ridiculous things that you throw at it.
 
 ### Advanced Installation
 
-If you're frequently using the library to define property extensions which are
-packed into their own on-demand packages, consider using the following setup:
+If you're frequently using the library for *on-demand* extensions, consider
+installing the repo like this:
 
 1. Create stub files `AquaHotkey.ahk` and `AquaHotkeyX.ahk` that each contain a
    single `#Include` pointing to the real source inside the repository folder:
@@ -282,29 +282,49 @@ using the standard angle brackets syntax:
 
 ## AquaHotkeyX - Batteries-Included
 
-Enjoy a standard library using fluent, expressive extensions inspired
-by functional programming languages and syntax sugar.
+AquaHotkeyX builds on the core AquaHotkey extension system. Designed for
+clarity, conciseness and elegance.
+
+It embraces functional programming idioms like stream-like methods, optional
+types, mappers and predicates.
 
 ```ahk
 #Include <AquaHotkeyX>
 ```
 
-If you prefer a lighter setup, you can selectively include specific modules:
+It's fully modular, i.e. you can selectively include only the things you need,
+if you want.
 
 ```ahk
 #Include <AquaHotkey>
 
+; You'll have to change the working directory to make this easier
 #Include path/to/AquaHotkey/src/
   #Include Builtins/Array.ahk
   #Include Builtins/Map.ahk
-#Include %A_ScriptDir% ; change back the "working directory"
+
+#Include %A_ScriptDir% ; change back working dir
 ```
 
 ---
 
 ### List of Features
 
+- **Rudimentary `Range()` Function**
+
+    For all the Python lovers out there.
+
+    ```ahk
+    MsgBox("Let's count!")
+    for Val in Range(10) {
+        MsgBox(Val)
+    }
+    ```
+
 - **Function Chaining**
+
+    This one is inspired by Elixir's `|>` operator. It takes the result of one
+    expression, and passes it onto the next function.
 
     ```ahk
     DoThis(Something) {
@@ -319,35 +339,24 @@ If you prefer a lighter setup, you can selectively include specific modules:
     Foo.DoThis().DoThat("bar").MsgBox()
     ```
 
-- **Rudimentary `Range()` Function**
-
-    For all the Python lovers out there.
-
-    ```ahk
-    MsgBox("Let's count!")
-    for Val in Range(10) {
-        MsgBox(Val)
-    }
-    ```
-
 - **Exciting New Array Methods**
-  
-    ```ahk
-    ; Map {
-    ;     "A" -> ["Apple"],
-    ;     "B" -> ["Banana"],
-    ;     "K" -> ["Kiwi"]
-    ; }
-    Array("Apple", "Banana", "Kiwi").GroupBy((Str) => SubStr(Str, 1, 1))
 
+    ```ahk
     ; ["A", "p", "p", "l", "e", "B", "a", ...]
     Array("Apple", "Banana", "Kiwi").FlatMap(StrSplit)
+
+    ; [("Hello", 5, "H", "o"), ("World!", 6, "W", "!")]
+    Array("Hello", "world!").Spread(
+            Func.Self,
+            StrLen,
+            Str => SubStr(Str, 1, 1)
+            Str => SubStr(Str, -1, 1))
     ```
 
 - **Lazy-Evaluated Streams**
 
-    The thing I'm most proud of - enjoy lazy data transformation
-    inspired by Java Streams and .NET LINQ:
+    The thing I'm most proud of - enjoy lazy evaluation and
+    functional data transformation inspired by Java Streams and .NET LINQ:
 
     ```ahk
     ; <4, 6, 234, 56>
@@ -357,11 +366,14 @@ If you prefer a lighter setup, you can selectively include specific modules:
     Array(72, "foo", 9, "bar").Stream(2)
     ```
 
-    AutoHotkey v2.1-alpha.3 makes this much more elegant and easier to use:
+    These are even more fun together with the alpha branch of AHK;
+    With the help of function declarations in v2.1-alpha.3, streams become
+    much more elegant and easy to use:
 
     ```ahk
-    Array(34, 7, "foo", 9, "bar")
-        .Stream(2) ; <(1, 34), (2, 7), (3, "foo"), (4, 9), (5, "bar")>
+    ; <(1, 34), (2, 7), (3, "foo"), (4, 9), (5, "bar")>
+    Array(34, 7, "foo", 9, "bar").Stream(2)
+        .Stream(2)
         .Map((Index, Value) {
             return Format("Array[{}]: {}", Index, Value)
         })
@@ -369,18 +381,15 @@ If you prefer a lighter setup, you can selectively include specific modules:
         .MsgBox()
     ```
 
-    Works with *anything* that is enumerable - even strings, if you really want.
+    Works with *anything* that is enumerable - even strings or files, if
+    you really want.
 
     ```ahk
     Range(1000).Stream().RetainIf(IsEven).Sum().MsgBox()
 
     ; "72 101 108 108 111 44 32 119 111 114 108 100 33"
     "Hello, world!".Stream().Map(Ord).Join(" ")
-    ```
-
-    ...or files.
-
-    ```ahk
+    
     for Index, Line in FileOpen("message.txt") {
         MsgBox(Line)
     }

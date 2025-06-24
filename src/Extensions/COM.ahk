@@ -6,13 +6,16 @@
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Extensions/COM.ahk
  * 
+ * ---
+ * 
  * **Overview**:
  * 
- * The `COM` class is a user-friendly framework for COM objects which allows the
- * user to create clean and class-based interfaces, by defining only a few
- * static properties.
+ * `COM` is a user-friendly framework that wraps COM objects neatly
+ * into clean and class-based interfaces.
  * 
- * **Parameters**:
+ * **How to Use**:
+ * 
+ * Create a subtype of `COM`, and define one of the following members:
  * 
  * ---
  * 
@@ -39,6 +42,12 @@
  *   Class that handles events thrown by the COM object. Events contained
  *   in the event sink are modified in such a way that *the `this`-keyword
  *   refers to the original COM object*.
+ * 
+ * ---
+ * 
+ * **Notes**:
+ * 
+ * - To assign new fields, you must use `.DefineProp(..., { Value: ...})`.
  * 
  * ---
  * 
@@ -77,15 +86,7 @@
  * }
  * ```
  * 
- * ---
- * 
- * **Declaring New Properties**:
- * 
- * To assign new properties for the `COM` object, you must use
- * `.DefineProp(... { Value: ... })` or similar to circumvent calling `__Set()`:
- * 
  * @example
- * 
  * class InternetExplorer extends COM {
  *     ; [...]
  * 
@@ -94,9 +95,7 @@
  * }
  * 
  * Obj := InternetExplorer()
- * 
  * Obj.DefineProp("IsBoring", { Value: false })
- * 
  */
 class COM {
     /** (optional) The default IID used for COM objects (IID-IDispatch). */
@@ -188,7 +187,7 @@ class COM {
 
     /**
      * Constructs a new `COM` object from the `static CLSID` and `static IID`
-     * properties of this class.
+     * properties of the class.
      * @example
      * 
      * class InternetExplorer extends COM {
@@ -254,8 +253,8 @@ class COM {
 
     /**
      * Constructs a new instance of `COM` by using a pointer to the COM object.
-     * @example
      * 
+     * @example
      * ie  := ComObject("InternetExplorer.Application")
      * ptr := ComObjValue(ie)
      * 
@@ -270,8 +269,8 @@ class COM {
     /**
      * Constructs a new instance of `COM` using a currently registered
      * COM object (using `ComObjActive()`).
-     * @example
      * 
+     * @example
      * ie := InternetExplorer.FromActive()
      * 
      * @param   {Any*}  Args  arguments passed to the `.New()` constructor
@@ -369,7 +368,7 @@ class COM {
     }
 
     /**
-     * Gets a property of the COM object.
+     * Sets a property of the COM object.
      * 
      * @param   {String}  PropertyName  name of the property to set
      * @param   {Array}   Args          zero or more arguments
@@ -399,8 +398,8 @@ class COM {
 
     /**
      * Calls a native interface method of this COM object by index.
-     * @example
      * 
+     * @example
      * ComObj(3, "Int", 0, "UInt", 1)
      * 
      * @param   {Integer}  Index  zero-based index of the method

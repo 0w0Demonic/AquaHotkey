@@ -8,14 +8,17 @@ class AquaHotkey_Array extends AquaHotkey {
  * - src/Builtins/Array.ahk
  */
 class Array {
+    ; TODO Find() function?
+    ; TODO AllMatch, NoneMatch, AnyMatch?
+
     /**
      * Sets the `Default` property of this array which is returned when
      * accessing an unset element.
-     * @example
      * 
+     * @example
      * Arr := Array().SetDefault(false)
      * 
-     * @param   {Any}  Default  any value
+     * @param   {Any}  Default  new array default value
      * @return  {this}
      */
     SetDefault(Default) {
@@ -25,11 +28,11 @@ class Array {
 
     /**
      * Sets the `Length` property of this array.
-     * @example
      * 
+     * @example
      * Arr := Array().SetLength(16)
      * 
-     * @param   {Integer}  Length new length of this array
+     * @param   {Integer}  Length  new array length
      * @return  {this}
      */
     SetLength(Length) {
@@ -39,11 +42,11 @@ class Array {
 
     /**
      * Sets the `Capacity` property of this array.
-     * @example
      * 
+     * @example
      * Arr := Array().SetCapacity(16)
      * 
-     * @param   {Integer}  Capacity  new capacity of this array
+     * @param   {Integer}  Capacity  new array capacity
      * @return  {this}
      */
     SetCapacity(Capacity) {
@@ -54,8 +57,8 @@ class Array {
     /**
      * Returns an array slice from index `Begin` to `End` (inclusive),
      * selecting elements at an interval `Step`.
-     * @example
      * 
+     * @example
      * Array(21, 23, 453, -73).Slice(, 2)  ; [21, 23]
      * Array(1, 2, 3, 4).Slice(2, -1)      ; [2, 3]
      * Array(1, 2, 3, 4, 5).Slice(1, 4, 2) ; [1, 3]
@@ -115,9 +118,9 @@ class Array {
     }
 
     /**
-     * Returns `true`, if this array is empty (its length is zero).
-     * @example
+     * Returns `true`, if the array is empty (its length is zero).
      * 
+     * @example
      * Array().IsEmpty   ; true
      * Array(42).IsEmpty ; false
      *  
@@ -126,9 +129,9 @@ class Array {
     IsEmpty => (!this.Length)
 
     /**
-     * Returns `true`, if this array has values.
-     * @example
+     * Returns `true`, if the array has values.
      * 
+     * @example
      * Array(unset, 42).HasElements ; true
      * Array(unset, unset).HasElements ; false
      * 
@@ -146,12 +149,12 @@ class Array {
     }
     
     /**
-     * Swaps two elements in this array with indices `a` and `b`.
+     * Swaps two elements in the array with indices `a` and `b`.
      * 
      * This method properly swaps unset values, but throws an error if the index
      * if out of bounds.
-     * @example
      * 
+     * @example
      * Arr := Array(1, 2, 3, 4)
      * Arr.Swap(2, 4) ; [1, 4, 3, 2]
      * 
@@ -175,9 +178,9 @@ class Array {
     }
     
     /**
-     * Reverses this array in place.
-     * @example
+     * Reverses the array in place.
      * 
+     * @example
      * Array(1, 2, 3, 4).Reverse() ; [4, 3, 2, 1]
      * 
      * @return  {this}
@@ -191,18 +194,16 @@ class Array {
     }
 
     /**
-     * Sorts this array in place, according to a `Comparator` function which
-     * orders two elements. Otherwise, elements in this array are sorted using
-     * numerical comparison.
+     * Sorts the array in place according to the given `Comparator` function.
      * 
-     * This array is sorted in reverse order, if `Reversed` is set to `true`.
+     * The array is sorted in reverse order, if `Reversed` is set to `true`.
      * @see `Comparator`
-     * @example
      * 
+     * @example
      * Array(5, 1, 2, 7).Sort() ; [1, 2, 5, 7]
      * 
-     * @param   {Comparator?}  Comp        function that orders two values
-     * @param   {Boolean?}     Reversed    sort in reverse order
+     * @param   {Func?}     Comp        function that orders two values
+     * @param   {Boolean?}  Reversed    sort in reverse order
      * @return  {this}
      */
     Sort(Comp?, Reversed := false) {
@@ -235,9 +236,8 @@ class Array {
         }
 
         Comp := Comp ?? ((a, b) => (a > b) - (b > a))
-        if (!HasMethod(Comp)) {
-            throw TypeError("Expected a Function object",, Type(Comp))
-        }
+
+        GetMethod(Comp)
         if (Reversed) {
             Callback := CompareReversed
         } else {
@@ -257,9 +257,9 @@ class Array {
     }
 
     /**
-     * Lexicographically sorts this array in place using `StrCompare()`.
+     * Lexicographically sorts the array in place using `StrCompare()`.
      * 
-     * This array is sorted in reverse order, if `Reversed` is set to `true`.
+     * The array is sorted in reverse order, if `Reversed` is set to `true`.
      * @example
      * 
      * Array("banana", "apple").SortAlphabetically() ; ["apple", "banana"]
@@ -272,22 +272,17 @@ class Array {
     }
 
     /**
-     * Returns the highest element in this array, according to the given
-     * Comparator function `Comp`.
+     * Returns the highest ordered element according to the given `Comparator`.
      * 
-     * If no `Comp` is specified, the largest number in this array is
-     * returned.
+     * Unset elements are ignored.
      * 
-     * Unset elements are ignored. An `UnsetError` is thrown, if this array
-     * has no values.
      * @see `Comparator`
-     * @example
      * 
+     * @example
      * Array(1, 4, 234, 67).Max()                ; 234
      * Array("banana", "zigzag").Max(StrCompare) ; "zigzag"
-     * Array().Max()                             ; Error!
      * 
-     * @param   {Comparator?}  Comp  function that orders two values
+     * @param   {Func?}  Comp  function that orders two values
      * @return  {Any}
      */
     Max(Comp?) {
@@ -295,9 +290,7 @@ class Array {
             throw UnsetError("this array is empty")
         }
         Comp := Comp ?? ((a, b) => (a > b) - (b > a))
-        if (!HasMethod(Comp)) {
-            throw TypeError("Expected a Function object",, Type(Comp))
-        }
+        GetMethod(Comp)
         Enumer := this.__Enum(1)
         while (Enumer(&Result) && !IsSet(Result)) {
         } ; nop
@@ -311,21 +304,16 @@ class Array {
     }
 
     /**
-     * Returns the lowest element in this array, according to the given
-     * Comparator function `Comp`.
+     * Returns the lowest ordered element according to the given `Comparator`.
      * 
-     * If no `Comp` is specified, the smallest number in this array is
-     * returned.
-     * 
-     * Unset elements are ignored. An `UnsetError` is thrown, if this array
-     * has no values.
+     * Unset elements are ignored.
      * @see `Comparator`
-     * @example
      * 
+     * @example
      * Array(1, 2, 3, 4).Min() ; 1
      * Array("apple", "banana", "foo").Min(StrCompare) ; "apple"
      * 
-     * @param   {Comparator?}  Comp  function that orders two values
+     * @param   {Func?}  Comp  function that orders two values
      * @return  {Any}
      */
     Min(Comp?) {
@@ -333,9 +321,7 @@ class Array {
             throw UnsetError("this array is empty")
         }
         Comp := Comp ?? ((a, b) => (a > b) - (b > a))
-        if (!HasMethod(Comp)) {
-            throw TypeError("Expected a Function object",, Type(Comp))
-        }
+        GetMethod(Comp)
         Enumer := this.__Enum(1)
         while (Enumer(&Result) && !IsSet(Result)) {
         } ; nop
@@ -349,10 +335,11 @@ class Array {
     }
 
     /**
-     * Returns the total sum of numbers and numerical string in this array.
-     * Non-numeric and unset elements are ignored.
-     * @example
+     * Returns the total sum of numbers and numerical string in the array.
      * 
+     * Non-numeric and unset elements are ignored.
+     * 
+     * @example
      * Array("foo", 3, "4", unset).Sum() ; 7
      * 
      * @return  {Float}
@@ -366,10 +353,11 @@ class Array {
     }
 
     /**
-     * Returns the arithmetic mean of numbers and numeric strings in this array.
-     * Non-numeric and unset elements are ignored.
-     * @example
+     * Returns the arithmetic mean of numbers and numeric strings in the array.
      * 
+     * Non-numeric and unset elements are ignored.
+     * 
+     * @example
      * Array("foo", 3, "4", unset) ; 3.5 (total sum 7, 2 numerical values)
      * 
      * @return  {Float}
@@ -387,13 +375,11 @@ class Array {
      * Returns a new array containing all values in this array transformed
      * by applying the given `Mapper` function.
      * 
-     * `Mapper` is called using items in the array as first argument, followed
-     * by zero or more additional arguments `Args*`.
+     * ```ahk
+     * Mapper(ArrElement?, Args*)
+     * ```
      * 
-     * Unset elements are ignored, unless `Mapper` explicitly supports unset
-     * parameters.
      * @example
-     * 
      * Array(1, 2, 3, 4).Map(x => x * 2)         ; [2, 4, 6, 8]
      * Array("hello", "world").Map(SubStr, 1, 1) ; ["h", "w"]
      * 
@@ -402,71 +388,44 @@ class Array {
      * @return  {Array}
      */
     Map(Mapper, Args*) {
-        if (!HasMethod(Mapper)) {
-            throw TypeError("Expected a Function object",, Type(Mapper))
-        }
+        GetMethod(Mapper)
         Result := Array()
         Result.Capacity := this.Length
         if (HasProp(this, "Default")) {
             Result.Default := this.Default
         }
 
-        if (HasMethod(Mapper,, 0)) {
-            for Value in this {
-                Result.Push(Mapper(Value?, Args*))
-            }
-            return Result
-        }
         for Value in this {
-            if (IsSet(Value)) {
-                Result.Push(Mapper(Value, Args*))
-            } else {
-                ++Result.Length
-            }
+            Result.Push(Mapper(Value?, Args*))
         }
         return Result
     }
 
     /**
-     * Transforms all values in the array in place, by applying the given
-     * `Mapper` function.
+     * Transforms all values in the array in place by applying the given
+     * `Mapper`.
      * 
-     * `Mapper` is called using items in this array as first argument, followed
-     * by zero or more additional arguments `Args*`.
-     * 
-     * Unset elements are ignored, unless `Mapper` explicitly supports unset
-     * parameters.
+     * ```ahk
+     * Mapper(ArrElement?, Args*)
+     * ```
      * 
      * @example
-     * 
      * Arr := Array(1, 2, 3)
-     * Arr.ReplaceAll(x => (x * 2))
      * 
-     * Arr.Join(", ").MsgBox() ; "1, 2, 3"
+     * Arr.ReplaceAll(x => (x * 2))
+     * Arr.Join(", ").MsgBox() ; "2, 4, 6"
      * 
      * @param   {Func}  Mapper  function that returns a new element
      * @param   {Any*}  Args    zero or more additional arguments
      * @return  {this}
      */
     ReplaceAll(Mapper, Args*) {
-        if (!HasMethod(Mapper)) {
-            throw TypeError("Expected a Function object",, Type(Mapper))
-        }
+        GetMethod(Mapper)
         Result := Array()
         Result.Capacity := this.Length
 
-        if (HasMethod(Mapper,, 0)) {
-            for Value in this {
-                Result.Push(Mapper(Value?, Args*))
-            }
-        } else {
-            for Value in this {
-                if (IsSet(Value)) {
-                    Result.Push(Mapper(Value, Args*))
-                } else {
-                    ++Result.Length
-                }
-            }
+        for Value in this {
+            Result.Push(Mapper(Value?, Args*))
         }
 
         Loop (this.Length) {
@@ -476,24 +435,23 @@ class Array {
     }
 
     /**
-     * Returns a new array containing all elements in this array transformed by
-     * the given `Mapper` function, resulting arrays flattened into separate
+     * Returns a new array containing all elements in the array transformed by
+     * applying the given `Mapper`, resulting arrays flattened into separate
      * elements.
      * 
-     * `Mapper` is called using items in this array as first argument, followed
-     * by zero or more additional arguments `Args*`.
+     * ```ahk
+     * Mapper(ArrElement?, Args*)
+     * ```
      * 
-     * Unset elements are ignored, unless `Mapper` has optional parameters.
+     * The method defaults to flattening existing array elements, if no `Mapper`
+     * is given.
      * 
-     * If `Mapper` is unset, no transformation is done and existing arrays are
-     * flattened.
      * @example
-     * 
      * Array("hel", "lo").FlatMap(StrSplit)       ; ["h", "e", "l", "l", "o"]
      * Array([1, 2], [3, 4]).FlatMap()            ; [1, 2, 3, 4]
      * Array("a,b", "c,d").FlatMap(StrSplit, ",") ; ["a", "b", "c", "d"]
      * 
-     * @param   {Func?}  Mapper  function that returns zero or more elements
+     * @param   {Func?}  Mapper  function to convert and flatten elements
      * @param   {Any*}   Args    zero or more additional arguments
      * @return  {Array}
      */
@@ -502,21 +460,8 @@ class Array {
         if (HasProp(this, "Default")) {
             Result.Default := this.Default
         }
-        if (!IsSet(Mapper)) {
-            for Value in this {
-                if (IsSet(Value)) {
-                    if (Value is Array) {
-                        Result.Push(Value*)
-                    } else {
-                        Result.Push(Value )
-                    }
-                } else {
-                    ++Result.Length
-                }
-            }
-            return Result
-        }
-        if (HasMethod(Mapper,, 0)) {
+        if (IsSet(Mapper)) {
+            GetMethod(Mapper)
             for Value in this {
                 Element := Mapper(Value?, Args*)
                 if (Element is Array) {
@@ -529,11 +474,10 @@ class Array {
         }
         for Value in this {
             if (IsSet(Value)) {
-                Element := Mapper(Value, Args*)
-                if (Element is Array) {
-                    Result.Push(Element*)
+                if (Value is Array) {
+                    Result.Push(Value*)
                 } else {
-                    Result.Push(Element )
+                    Result.Push(Value )
                 }
             } else {
                 ++Result.Length
@@ -543,274 +487,106 @@ class Array {
     }
     
     /**
-     * Returns a new array containing all elements in this array that match the
-     * given predicate function `Condition`.
+     * Returns a new array of all elements that satisfy the given `Condition`.
      * 
-     * `Condition` is called using items in this array as first argument,
-     * followed by zero or more additional arguments `Args*`.
+     * ```ahk
+     * Condition(ArrElement?, Args*)
+     * ```
      * 
-     * Unset elements are removed, unless `Condition` has optional parameters.
      * @example
+     * Array(1, 2, 3, 4).RetainIf(x => x > 2)    ; [3, 4]
+     * Array("foo", "bar").RetainIf(InStr, "f")  ; ["foo"]
      * 
-     * Array(1, 2, 3, 4).RetainIf(x => x > 2)                    ; [3, 4]
-     * Array(unset, 2, 3).RetainIf(x => x > 2)                   ; [3]
-     * Array(unset, 2, 3).RetainIf((x?) => (!IsSet(x) || x > 2)) ; [unset, 3]
-     * Array("foo", "bar").RetainIf(InStr, "f")                  ; ["foo"]
-     * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
-     * @param   {Any*}       Args       zero or more additional arguments
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
      * @return  {Array}
      */
     RetainIf(Condition, Args*) {
-        if (!HasMethod(Condition)) {
-            throw TypeError("Expected a Function object",, Type(Condition))
-        }
+        GetMethod(Condition)
         Result := Array()
         if (HasProp(this, "Default")) {
             Result.Default := this.Default
         }
-        if (HasMethod(Condition,, 0)) {
-            for Value in this {
-                (Condition(Value?, Args*) && Result.Push(Value?))
-            }
-            return Result
-        }
+
         for Value in this {
-            (IsSet(Value) && Condition(Value, Args*) && Result.Push(Value))
+            (Condition(Value?, Args*) && Result.Push(Value?))
         }
         return Result
     }
 
     /**
-     * Returns a new array containing all elements in this array that do not
-     * match the given predicate function `Condition`.
+     * Returns a new array of all elements that do not satisfy the given
+     * `Condition`.
      * 
-     * `Condition` is called using elements in this array as first
-     * argument, followed by zero or more additional arguments `Args*`.
+     * ```ahk
+     * Condition(ArrElement, Args*)
+     * ```
      * 
-     * Unset elements are removed, unless `Condition` has optional parameters.
      * @example
+     * Array(1, 2, 3, 4).RemoveIf(x => x > 2)    ; [1, 2]
+     * Array("foo", "bar").RemoveIf(InStr, "f")  ; ["bar"]
      * 
-     * Array(1, 2, 3, 4).RemoveIf(x => x > 2)                   ; [1, 2]
-     * Array(unset, 2, 3).RemoveIf(x => x > 2)                  ; [2]
-     * Array(unset, 2, 3).RemoveIf((x?) => (IsSet(x) && x > 2)) ; [unset, 2]
-     * Array("foo", "bar").RemoveIf(InStr, "f")                 ; ["bar"]
-     * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
+     * @param   {Predicate}  Condition  the given condition
      * @param   {Any*}       Args       zero or more additional arguments
      * @return  {Array}
      */
-    RemoveIf(Predicate, Args*) {
-        if (!HasMethod(Predicate)) {
-            throw TypeError("Expected a Function object",, Type(Predicate))
-        }
+    RemoveIf(Condition, Args*) {
+        GetMethod(Condition)
         Result := Array()
         if (HasProp(this, "Default")) {
             Result.Default := this.Default
         }
-        if (HasMethod(Predicate,, 0)) {
-            for Value in this {
-                (Predicate(Value?, Args*) || Result.Push(Value?))
-            }
-            return Result
-        }
         for Value in this {
-            (IsSet(Value) && (Predicate(Value, Args*) || Result.Push(Value)))
+            (Condition(Value?, Args*) || Result.Push(Value?))
         }
         return Result
     }
 
     /**
-     * Separates all elements in this array into a `Map` object with two entries
-     * `true` and `false`, based on whether they satisfy the given predicate
-     * function `Condition`
+     * Returns a new array of unique elements by keeping track of them in a Map.
      * 
-     * `Condition` is called using items in this array as first argument,
-     * followed by zero or more additional arguments `Args*`.
+     * A custom `Hasher` can be used to specify the map key to be used.
      * 
-     * Unset elements are removed, unless `Predicate` has optional parameters.
+     * ```ahk
+     * Hasher(ArrElement?)
+     * ```
+     * 
+     * You can determine the behavior of the internal Map by passing either...
+     * - the map to be used;
+     * - a function that returns the map to be used;
+     * - a case-sensitivity option
+     * 
+     * ...as value for the `MapParam` parameter.
+     * 
      * @example
-     * 
-     * IsEven(x) {
-     *     return !(x & 1)
-     * }
-     * 
-     * ; Map {
-     * ;     true  => [2, 4],
-     * ;     false => [1, 3]
-     * ; }
-     * Array(1, 2, 3, 4).Partition(IsEven)
-     * 
-     * IsUnsetOrEven(x?) {
-     *     return !IsSet(x) || !(x & 1)
-     * }
-     * 
-     * ; Map {
-     * ;     true  => [2, unset],
-     * ;     false => [1, 3]
-     * ; }
-     * Array(1, 2, 3, unset).Partition(IsUnsetOrEven)
-     * 
-     * ; Map {
-     * ;     true  => ["foo"],
-     * ;     false => ["bar"]
-     * ; }
-     * Array("foo", "bar").Partition(InStr, "f")
-     * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
-     * @param   {Any*}       Args       zero or more additional parameters
-     * @return  {Map}
-     */
-    Partition(Predicate, Args*) {
-        if (!HasMethod(Predicate)) {
-            throw TypeError("Expected a Function object",, Predicate)
-        }
-        ValuesTrue  := Array()
-        ValuesFalse := Array()
-        if (HasMethod(Predicate,, 0)) {
-            for Value in this {
-                if (Predicate(Value?, Args*)) {
-                    ValuesTrue.Push(Value?)
-                } else {
-                    ValuesFalse.Push(Value?)
-                }
-            }
-            return Map(true, ValuesTrue, false, ValuesFalse)
-        }
-        for Value in this {
-            if (IsSet(Value)) {
-                if (Predicate(Value, Args*)) {
-                    ValuesTrue.Push(Value)
-                } else {
-                    ValuesFalse.Push(Value)
-                }
-            }
-        }
-        return Map(true, ValuesTrue, false, ValuesFalse)
-    }
-
-    /**
-     * Returns a map of all elements in this array grouped by a given function
-     * `Classifier`, which returns the key used for the map.
-     * 
-     * `Classifier` is called using items in this array as first argument,
-     * followed by zero or more additional arguments `Args*`.
-     * 
-     * Unset elements are ignored, unless `Classifier` has optional parameters.
-     * 
-     * Parameter `CaseSense` determines case-sensitivity of the underlying
-     * `Map`.
-     * @example
-     * 
-     * LastDigit(x?) {
-     *     if (!IsSet(x) || !IsNumber(x)) {
-     *         return "undefined"
-     *     }
-     *     return Mod(x, 10)
-     * }
-     * 
-     * ; Map {
-     * ;     2 => [2],
-     * ;     3 => [3, 13],
-     * ;     4 => [4],
-     * ;     "undefined" => ["foo", unset]
-     * ; }
-     * Array(2, 3, 34, 13, "foo", unset).GroupBy(LastDigit)
-     * 
-     * ; Map {
-     * ;     "f" => ["foo"],
-     * ;     "b" => ["bar"]
-     * ; }
-     * Array("foo", "bar").GroupBy(SubStr, false, 1, 1)
-     * 
-     * @param   {Func}        Classifier  function that creates a map key
-     * @param   {Primitive?}  CaseSense   case-sensitivity of the map
-     * @param   {Any*}        Args        zero or more additional arguments
-     * @return  {Map}
-     */
-    GroupBy(Classifier, CaseSense := true, Args*) {
-        if (!HasMethod(Classifier)) {
-            throw TypeError("Expected a Function object",, Type(Classifier))
-        }
-        Result := Map()
-        Result.CaseSense := CaseSense
-        if (HasMethod(Classifier,, 0)) {
-            for Value in this {
-                Key := Classifier(Value?, Args*)
-                (Result.Has(Key) || Result[Key] := Array())
-                Result[Key].Push(Value?)
-            }
-            return Result
-        }
-        for Value in this {
-            if (IsSet(Value)) {
-                Key := Classifier(Value, Args*)
-                (Result.Has(Key) || Result[Key] := Array())
-                Result[Key].Push(Value)
-            }
-        }
-        return Result
-    }
-
-    /**
-     * Returns a new array containing all unique elements of this array. This
-     * method ensures that only unique elements remain in the resulting array.
-     * 
-     * Unset elements are removed.
-     * 
-     * The method determines behavior based on the type of the first parameter:
-     * 
-     * ---
-     * 
-     * **1. `CaseSenseOrHasher` (`Boolean`|`String`|`Func`, optional)**:
-     * 
-     * If a `Boolean` (`true` or `false`) or `String` (`"On"` or `"Off"`) is
-     * provided, it determines the case-sensitivity of the internal `Map` used
-     * for equality checks.
-     * 
-     * If a function object is provided, it is treated as a custom `Hasher` for
-     * generating keys. This is useful for comparing objects based on their
-     * values instead of their identity.
-     * 
-     * A custom `Hasher` is required for supporting streams with a parameter
-     * length greater than 1.
-     * 
-     * ---
-     * 
-     * **2. `CaseSense` (`Boolean`|`String`, optional)**:
-     * 
-     * Specifies case-sensitivity of the internal `Map`.
-     * This method uses an underlying map object to keep track of previous
-     * values, its case-sensitivity is determined by `CaseSense`.
-     * 
-     * ---
-     * @example
-     * 
      * ; [1, 2, 3]
      * Array(1, 2, 3, 1).Distinct()
      * 
      * ; ["foo"]
-     * Array("foo", "Foo", "FOO").Distinct(false)
+     * Array("foo", "Foo", "FOO").Distinct(StrLower)
      * 
      * ; [{ Value: 1 }, { Value: 2 }]
-     * Array({ Value: 1 }, { Value: 2 }, { Value: 1 }).Distinct(true, "Value")
+     * Array({ Value: 1 }, { Value: 2 }, { Value: 1 })
+     *         .Distinct(  (Obj) => Obj.Value )
      * 
-     * @param   {Primitive?/Func?}  CaseSenseOrHasher  case-sensitivity or
-     *                                                 object hasher
-     * @param   {Primitive?}        CaseSense          case-sensitivity
+     * @param   {Func?}                  Hasher    function to create map keys
+     * @param   {Map?/Func?/Primitive?}  MapParam  internal map options
      * @return  {Array}
      */
-    Distinct(CaseSenseOrHasher := true, CaseSense?) {
-        if (HasMethod(CaseSenseOrHasher)) {
-            Hasher    := CaseSenseOrHasher
-            CaseSense := CaseSense ?? true
-        } else {
-            Hasher    := unset
-            CaseSense := CaseSenseOrHasher
+    Distinct(Hasher?, MapParam := Map()) {
+        switch {
+            case (MapParam is Map):
+                Cache := MapParam
+            case (HasMethod(MapParam)):
+                Cache := MapParam()
+                if (!(Cache is Map)) {
+                    throw TypeError("Expected a Map",, Type(Cache))
+                }
+            default:
+                Cache := Map()
+                Cache.CaseSense := MapParam
         }
 
-        Values := Map()
-        Values.CaseSense := CaseSense
         Result := Array()
         if (HasProp(this, "Default")) {
             Result.Default := this.Default
@@ -818,34 +594,34 @@ class Array {
 
         if (IsSet(Hasher)) {
             for Value in this {
-                if (IsSet(Value) && !Values.Has(Hash := Hasher(Value?))) {
-                    Values[Hash] := true
+                Key := Hasher(Value?)
+                if (!Cache.Has(Key)) {
                     Result.Push(Value)
+                    Cache[Key] := true
                 }
             }
             return Result
         }
         for Value in this {
-            if (IsSet(Value) && !Values.Has(Value)) {
-                Values[Value] := true
+            if (IsSet(Value) && !Cache.Has(Value)) {
                 Result.Push(Value)
+                Cache[Value] := true
             }
         }
         return Result
     }
     
     /**
-     * Concatenates all elements in this array into a single string, each
-     * element separated by `Delimiter`. Objects are converted to a string using
-     * their `ToString()` method whereas unset elements are ignored.
+     * Concatenates elements into a string, separated by the given `Delimiter`.
      * 
-     * `InitialCap` specifies the initial capacity of the resulting string
-     * (default `0`). This can improve performance when working with large
-     * strings by pre-allocating the necessary memory.
+     * Objects are converted to strings by using `String(Obj)` (implicitly calls
+     * the `.ToString()` method).
+     * 
+     * `InitialCap` can improve performance by setting an initial capacity of
+     * the string.
+     * 
      * @example
-     * 
      * Array(1, 2, 3, 4).Join() ; "1234"
-     * Array(1, unset, 2).Join(", ") ; "1, 2"
      * ReallyLargeArray.Join(", ", 1048576) ; 1MB
      * 
      * @param   {String?}   Delimiter   separator string
@@ -853,10 +629,8 @@ class Array {
      * @return  {String}
      */
     Join(Delimiter := "", InitialCap := 0) {
-        if (IsObject(Delimiter)) {
-            throw TypeError("Expected a String",, Type(Delimiter))
-        }
-        Result := ""
+        Delimiter .= ""
+        Result    := ""
         try VarSetStrCapacity(&Result, InitialCap)
 
         if (Delimiter == "") {
@@ -876,8 +650,8 @@ class Array {
      * Joins all elements in this array into a single string, each element
      * separated by a newline character `\n`.
      * @see `Array.Join()`
-     * @example
      * 
+     * @example
      * Array(1, 2, 3, 4).JoinLine() ; "1`n2`n3`n4"
      * 
      * @param   {Integer?}  InitialCap  initial string capacity
@@ -886,67 +660,52 @@ class Array {
     JoinLine(InitialCap := 0) => this.Join("`n", InitialCap)
     
     /**
-     * Performs a reduction on the elements of this array, using the given
-     * `Combiner` function. This method iteratively combines elements to
-     * produce a single result, optionally starting with an `Identity` value.
+     * Combines all elements in the array using the given `Combiner` function
+     * to produce a final result.
+     * 
+     * ```ahk
+     * Combiner(ArrElement)
+     * ```
      * 
      * Unset elements are ignored.
      * 
-     * If specified, `Identity` is used as the starting value of the reduction.
-     * Otherwise, the first element is taken as initial value and reduction
-     * starts on the second element. An error is thrown, if the array has
-     * no elements.
+     * `Identity` can be used to set an initial value.
+     * 
      * @example
+     * Array(1, 2, 3, 4).Reduce((a, b) => (a + b)) ; 10
      * 
-     * Sum(a, b) {
-     *     return a + b
-     * }
-     * Array(1, 2, unset, 3, unset, 4).Reduce(Sum) ; 10
-     * Array(unset, unset, unset).Reduce(Sum)      ; Error!
-     * Array(unset, unset, unset).Reduce(Sum, 2)   ; 2
-     * 
-     * @param   {Func}  Combiner  function that combines two values
-     * @param   {Any?}  Identity  starting value of the reduction operation
+     * @param   {Func}  Combiner  function to combine two values
+     * @param   {Any?}  Identity  initial value
      * @return  {Any}
      */
     Reduce(Combiner, Identity?) {
-        if (!this.Length) {
-            if (IsSet(Identity)) {
-                return Identity
-            }
-            throw UnsetError("this array is empty")
+        if (!this.Length && IsSet(Identity)) {
+            return Identity
         }
-        if (!HasMethod(Combiner)) {
-            throw TypeError("Expected a Function object",, Type(Combiner))
-        }
+        GetMethod(Combiner)
+
+        Enumer := this.__Enum(1)
         if (IsSet(Identity)) {
             Result := Identity
         }
 
-        Enumer := this.__Enum(1)
         while (!IsSet(Result) && Enumer(&Result)) {
         } ; nop
         
         for Value in Enumer {
-            if (IsSet(Value)) {
-                Result := Combiner(Result, Value)
-            }
-        }
-        if (!IsSet(Result)) {
-            throw UnsetError("every element in this array is unset")
+            Result := Combiner(Result, Value)
         }
         return Result
     }
 
     /**
-     * Applies the given `Action` function on each element of this array.
+     * Applies the given `Action` function on each element in the array.
      * 
-     * `Action` is called using items in this array as first argument, followed
-     * by zero or more additional arguments `Args*`.
+     * ```ahk
+     * Action(ArrElement, Args*)
+     * ```
      * 
-     * Unset elements are ignored, unless `Action` has optional parameters.
      * @example
-     * 
      * Array(1, 2, 3, 4).ForEach(MsgBox, "Listing numbers in array", 0x40)
      * 
      * @param   {Func}  Action  the function to call on each element
@@ -954,25 +713,17 @@ class Array {
      * @return  {this}
      */
     ForEach(Action, Args*) {
-        if (!HasMethod(Action)) {
-            throw TypeError("Expected a Function object",, Type(Action))
-        }
-        if (HasMethod(Action,, 0)) {
-            for Value in this {
-                Action(Value?, Args*)
-            }
-            return this
-        }
+        GetMethod(Action)
         for Value in this {
-            (IsSet(Value) && Action(Value, Args*))
+            Action(Value?, Args*)
         }
         return this
     }
     
     /**
-     * Returns a string representation of this array.
+     * Returns the string representation of the array.
+     * 
      * @example
-     *
      * Array(1, 2, 3, 4).ToString() ; "[1, 2, 3, 4]" 
      * 
      * @return  {String}
@@ -980,7 +731,7 @@ class Array {
     ToString() {
         static Mapper(Value?) {
             if (!IsSet(Value)) {
-                return Value := "unset"
+                return "unset"
             }
             if (Value is String) {
                 return '"' . Value . '"'

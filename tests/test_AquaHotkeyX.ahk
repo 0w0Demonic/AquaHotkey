@@ -6,6 +6,9 @@ class TestSuite {
         Output := "TESTS: AutoHotkey " . A_AHKVersion . "`n" . "-".Repeat(60) . "`n"
 
         for ClsName in ObjOwnProps(this) {
+            if (ClsName ~= "^__") {
+                continue
+            }
             Cls := this.%ClsName%
             if (!(Cls is Class)) {
                 continue
@@ -65,10 +68,19 @@ class TestSuite {
     #Include %A_LineFile%/../Builtins/Object.ahk
     #Include %A_LineFile%/../Builtins/String.ahk
     #Include %A_LineFile%/../Builtins/VarRef.ahk
-
+    
     #Include %A_LineFile%/../Extensions/Stream.ahk
     #Include %A_LineFile%/../Extensions/Optional.ahk
     #Include %A_LineFile%/../Extensions/Comparator.ahk
+    
+    #Include %A_LineFile%/../Extensions/Collector.ahk
+    #Include %A_LineFile%/../Extensions/Gatherer.ahk
+    
+    #Include %A_LineFile%/../Extensions/Condition.ahk
+    #Include %A_LineFile%/../Extensions/Mapper.ahk
+    #Include %A_LineFile%/../Extensions/Combiner.ahk
+    
+    #Include %A_LineFile%/../Extensions/Zip.ahk
 
     static AssertThrows(Function) {
         try {
@@ -78,10 +90,11 @@ class TestSuite {
     }
 }
 
-class Reflection extends AquaHotkey {
+class Debug extends AquaHotkey {
     class Object {
         ListAllProperties() {
-            return ObjOwnProps(this).Stream().FlatMap(GetNames).ToArray()
+            return ObjOwnProps(this).Stream()
+                        .FlatMap(GetNames).ToArray().Sort(Comparator.Alphabetic)
 
             GetNames(PropName) {
                 PropDesc := (Object.Prototype.GetOwnPropDesc)(this, PropName)

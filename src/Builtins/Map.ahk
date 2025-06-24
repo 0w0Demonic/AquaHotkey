@@ -9,13 +9,13 @@ class AquaHotkey_Map extends AquaHotkey {
  */
 class Map {
     /**
-     * Sets the `Default` property of this map.
-     * @example
+     * Sets the `Default` property of the map.
      * 
+     * @example
      * MapObj := Map().SetDefault("(empty)")
      * MapObj["foo"] ; "(empty)"
      * 
-     * @param   {Any}  Default  any value
+     * @param   {Any}  Default  new default return value
      * @return  {this}
      */
     SetDefault(Default) {
@@ -24,12 +24,12 @@ class Map {
     }
 
     /**
-     * Sets the capacity of this map.
-     * @example
+     * Sets the capacity of the map.
      * 
+     * @example
      * MapObj := Map().SetCapacity(128)
      * 
-     * @param   {Integer}  Capacity  new capacity of this map
+     * @param   {Integer}  Capacity  new capacity
      * @return  {this}
      */
     SetCapacity(Capacity) {
@@ -38,12 +38,12 @@ class Map {
     }
 
     /**
-     * Sets the case-sensitivity `CaseSense` of this map.
-     * @example
+     * Sets the case-sensitivity of the map.
      * 
+     * @example
      * MapObj := Map().SetCaseSense(false)
      * 
-     * @param   {Primitive}  CaseSense  new case-sensitivity of this map
+     * @param   {Primitive}  CaseSense  new case-sensitivity
      * @return  {this}
      */
     SetCaseSense(CaseSense) {
@@ -52,9 +52,9 @@ class Map {
     }
 
     /**
-     * Returns an array of all keys in this map.
-     * @example
+     * Returns an array of all keys in the map.
      * 
+     * @example
      * Map(1, 2, "foo", "bar").Keys() ; [1, "foo"]
      * 
      * @return  {Array}
@@ -62,9 +62,9 @@ class Map {
     Keys() => Array(this*)
 
     /**
-     * Returns an array of all values in this map.
-     * @example
+     * Returns an array of all values in the map.
      * 
+     * @example
      * Map(1, 2, "foo", "bar").Values() ; [2, "bar"]
      * 
      * @return  {Array}
@@ -73,32 +73,32 @@ class Map {
 
     /**
      * Returns `true`, if this map is empty (has no entries).
-     * @example
      * 
+     * @example
      * Map().IsEmpty ; true
      * Map(1, 2, "foo", "bar").IsEmpty ; false
+     * 
+     * @return  {Boolean}
      */
     IsEmpty  => (!this.Count)
 
     /**
-     * Returns a new map containing all current elements which satisfy the given
-     * predicate function `Condition`.
+     * Returns a new map of all elements that fulfill the given `Condition`.
      * 
-     * `Condition` is called using key and value as first two arguments,
-     * followed by zero or more additional arguments `Args*`.
+     * ```ahk
+     * Condition(Key, Value, Args*)
+     * ```
+     * 
      * @example
-     * 
      * ; Map { 1 => 2 }
      * Map(1, 2, 3, 4).RetainIf((Key, Value) => (Key == 1))
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
-     * @param   {Any*}       Args       zero or more additional arguments
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
      * @return  {Map}
      */
     RetainIf(Condition, Args*) {
-        if (!HasMethod(Condition)) {
-            throw TypeError("Expected a Function object",, Type(Condition))
-        }
+        GetMethod(Condition)
         Result := Map()
         Result.CaseSense := this.CaseSense
         if (HasProp(this, "Default")) {
@@ -112,24 +112,23 @@ class Map {
     }
 
     /**
-     * Returns a new map containing all current elements which do not satisfy
-     * the given predicate function `Condition`.
+     * Returns a new map of all elements that don't satisfy the given
+     * `Condition`.
      * 
-     * `Condition` is called using key and value as first two arguments,
-     * followed by zero or more additional arguments `Args*`
+     * ```ahk
+     * Condition(Key, Value, Args*)
+     * ```
+     * 
      * @example
-     * 
      * ; Map { 3 => 4 }
      * Map(1, 2, 3, 4).RemoveIf((Key, Value) => (Key == 1))
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
-     * @param   {Any*}       Args       zero or more additional arguments
+     * @param   {Func}  Condition  function that evaluates a condition
+     * @param   {Any*}  Args       zero or more additional arguments
      * @return  {this}
      */
     RemoveIf(Condition, Args*) {
-        if (!HasMethod(Condition)) {
-            throw TypeError("Expected a Function object",, Type(Condition))
-        }
+        GetMethod(Condition)
         Result := Map()
         Result.CaseSense := this.CaseSense
         if (HasProp(this, "Default")) {
@@ -142,13 +141,14 @@ class Map {
     }
 
     /**
-     * Replaces all values in this map in place, by applying the given `Mapper`
-     * function on each element.
+     * Replaces all values in the map *in place* by applying `Mapper` to
+     * each element.
      * 
-     * `Mapper` is called using key and value as first two arguments, followed
-     * by zero or more additional arguments `Args*`.
+     * ```ahk
+     * Mapper(Key, Value, Args*)
+     * ```
+     * 
      * @example
-     * 
      * ; Map { 1 => 4, 3 => 8 }
      * Map(1, 2, 3, 4).ReplaceAll((Key, Value) => (Value * 2))
      * 
@@ -157,23 +157,27 @@ class Map {
      * @return  {this}
      */
     ReplaceAll(Mapper, Args*) {
-        if (!HasMethod(Mapper)) {
-            throw TypeError("Expected a Function object",, Type(Mapper))
+        GetMethod(Mapper)
+        Result := Map()
+        Result.Capacity := this.Count
+        for Key, Value in this {
+            Result[Key] := Mapper(Key, Value, Args*)
         }
         for Key, Value in this {
-            this[Key] := Mapper(Key, Value, Args*)
+            this[Key] := Result[Key]
         }
         return this
     }
 
     /**
-     * Returns a new map containing all current elements transformed by applying
-     * the given `Mapper` function to generate a new value.
+     * Returns a new map of elements transformed by applying `Mapper` to
+     * each element.
      * 
-     * `Mapper` is called using key and value as first two arguments, followed
-     * by zero or more additional arguments `Args*`.
+     * ```ahk
+     * Mapper(Key, Value, Args*)
+     * ```
+     * 
      * @example
-     * 
      * ; Map { 1 => 4, 3 => 8 }
      * Map(1, 2, 3, 4).Map((Key, Value) => (Value * 2))
      * 
@@ -182,9 +186,7 @@ class Map {
      * @return  {Map}
      */
     Map(Mapper, Args*) {
-        if (!HasMethod(Mapper)) {
-            throw TypeError("Expected a Function object",, Type(Mapper))
-        }
+        GetMethod(Mapper)
         Result := Map()
         Result.CaseSense := this.CaseSense
         if (HasProp(this, "Default")) {
@@ -197,39 +199,40 @@ class Map {
     }
 
     /**
-     * Calls the given `Action` function on each element of this map.
+     * Calls the given `Action` for each map element.
      * 
      * `Action` is called using key and value as first two arguments, followed
      * by zero or more additional arguments `Args*`.
-     * @example
      * 
+     * ```ahk
+     * Action(Key, Value, Args*)
+     * ```
+     * 
+     * @example
      * Print(Key, Value) {
      *     MsgBox("key: " . Key . ", value: " . Value)
      * }
-     * 
      * Map(1, 2, 3, 4).ForEach(Print)
      * 
-     * @param   {Func}  Action  the function to call on each element
+     * @param   {Func}  Action  the function to be called
      * @param   {Any*}  Args    zero or more additional arguments
      * @return  {this}
      */
     ForEach(Action, Args*) {
-        if (!HasMethod(Action)) {
-            throw TypeError("Expected a Function object",, Type(Action))
-        }
+        GetMethod(Action)
         for Key, Value in this {
             Action(Key, Value, Args*)
         }
     }
 
     /**
-     * If absent, adds a new element `Key ==> Value` to this map.
-     * @example
+     * If absent, adds a new map element.
      * 
+     * @example
      * ; Map { "foo" => "bar" }
      * Map().PutIfAbsent("foo", "bar") ; "bar"
      * 
-     * @param   {Any}  Key    key of the map entry
+     * @param   {Any}  Key    map key
      * @param   {Any}  Value  value associated with map key
      * @return  {this}
      */
@@ -238,11 +241,16 @@ class Map {
         return this
     }
     
+    ; TODO Args*?
     /**
-     * If absent, adds a new element `Key` to this map, with its value computed
-     * by applying the given `Mapper` function, using `Key` as argument.
-     * @example
+     * Adds a new element to the map if absent. A value is computed by applying
+     * `Mapper` to the given key.
      * 
+     * ```ahk
+     * Mapper(Key)
+     * ```
+     * 
+     * @example
      * ; Map { 1 => 2 }
      * Map().ComputeIfAbsent(1, (Key => Key * 2))
      * 
@@ -251,18 +259,21 @@ class Map {
      * @return  {this}
      */
     ComputeIfAbsent(Key, Mapper) {
-        if (!HasMethod(Mapper)) {
-            throw TypeError("Expected a Function object",, Type(Mapper))
-        }
+        GetMethod(Mapper)
         (this.Has(Key) || this[Key] := Mapper(Key))
         return this
     }
 
+    ; TODO Args*?
     /**
-     * If present, replaces the value of element `Key` by applying the given
-     * `Mapper` function, using key and value as arguments.
-     * @example
+     * If present, replaces the value by applying the given `Mapper`,
+     * using key and value as arguments.
      * 
+     * ```ahk
+     * Mapper(Key, Value)
+     * ```
+     * 
+     * @example
      * ; Map { 1 => 3 }
      * Map(1, 2).ComputeIfPresent(1, (Key, Value) => (Key + Value))
      * 
@@ -271,22 +282,20 @@ class Map {
      * @return  {this}
      */
     ComputeIfPresent(Key, Mapper) {
-        if (!HasMethod(Mapper)) {
-            throw TypeError("Expected a Function object",, Type(Mapper))
-        }
+        GetMethod(Mapper)
         (this.Has(Key) && this[Key] := Mapper(Key, this[Key]))
         return this
     }
 
     /**
-     * If absent, puts a new element `Key ==> Value` into this map. Otherwise,
-     * the value under element `Key` is replaced by applying the given `Mapper`
-     * function.
+     * If absent, adds a new map element. Otherwise, the value is changed by
+     * applying the given `Mapper`.
      * 
-     * `Mapper` is called using key and value as two arguments. If there is not
-     * yet an element present, `unset` is passed as current value.
+     * ```ahk
+     * Mapper(Key, Value?)
+     * ```
+     * 
      * @example
-     * 
      * Mapper(Key, Value?) {
      *     if (!IsSet(Value)) {
      *         return 1
@@ -302,9 +311,7 @@ class Map {
      * @return  {this}
      */
     Compute(Key, Mapper) {
-        if (!HasMethod(Mapper)) {
-            throw TypeError("Expected a Function object",, Type(Mapper))
-        }
+        GetMethod(Mapper)
         if (this.Has(Key)) {
             this[Key] := Mapper(Key, this[Key])
         } else {
@@ -314,24 +321,25 @@ class Map {
     }
 
     /**
-     * If absent, adds a new element `Key ==> Value` to this map. Otherwise, the
-     * value of element `Key` is replaced by applying the given `Mapper`
-     * function.
+     * If absent, adds a new map element. Otherwise, its current value
+     * will be merged with `Value` and the given `Combiner`.
      * 
-     * `Mapper` is called using the current value and `Value` as arguments.
+     * ```ahk
+     * Combiner(OldValue, NewValue)
+     * ```
+     * 
      * @example
+     * Map().Merge("foo", 1, (a, b) => (a + b))
      * 
-     * Sum(OldValue, Value) {
-     *     return OldValue + Value
-     * }
-     * Map().Merge("foo", 1, Sum)
+     * @param   {Any}   Key       map key
+     * @param   {Any}   Value     the new value
+     * @param   {Func}  Combiner  function to merge both values with
+     * @return  {this}
      */
-    Merge(Key, Value, Mapper) {
-        if (!HasMethod(Mapper)) {
-            throw TypeError("Expected a Function object",, Type(Mapper))
-        }
+    Merge(Key, Value, Combiner) {
+        GetMethod(Combiner)
         if (this.Has(Key)) {
-            this[Key] := Mapper(this[Key], Value)
+            this[Key] := Combiner(this[Key], Value)
         } else {
             this[Key] := Value
         }
@@ -339,36 +347,31 @@ class Map {
     }
 
     /**
-     * Determines if any element in the map satisfies the given predicate
-     * function `Condition`.
+     * Determines whether an element satisfies the given `Condition`,
+     * in which case it will return the first matching element in the form
+     * of an object with `Key` and `Value` properties.
      * 
-     * `Condition` is called using key and value as first two arguments,
-     * followed by zero or more additional arguments `Args*`.
+     * ```ahk
+     * Condition(Key, Value, Args*)
+     * ```
      * 
-     * While this method is designed to be used as a
-     * boolean-like check in conditional statements, it returns the first
-     * element that satisfies `Condition` as an object with the properties
-     * `Key` and `Value`, which is inherently a truthy value.
-     * 
-     * If no elements satisfy `Condition`, the method returns `false`.
      * @example
-     * 
      * KeyEquals1(Key, Value) {
      *     return (Key == 1)
      * }
      * 
-     * Map(1, 2, 3, 4).AnyMatch(KeyEquals1, &Key, &Value) ; true
-     * MsgBox(Key)   ; 1
-     * MsgBox(Value) ; 2
+     * Output := Map(1, 2, 3, 4).AnyMatch(KeyEquals1)
+     * if (Output) {
+     *     MsgBox(Output.Key)   ; 1
+     *     MsgBox(Output.Value) ; 2
+     * }
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
-     * @param   {Any*}       Args       zero or more additional arguments
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
      * @return  {Object}
      */
     AnyMatch(Condition, Args*) {
-        if (!HasMethod(Condition)) {
-            throw TypeError("Expected a Function object",, Type(Condition))
-        }
+        GetMethod(Condition)
         for Key, Value in this {
             if (Condition(Key, Value, Args*)) {
                 return { Key: Key, Value: Value }
@@ -378,23 +381,21 @@ class Map {
     }
 
     /**
-     * Returns `true`, if all elements in this map satisfy the given predicate
-     * function `Condition`.
+     * Returns `true`, if all elements satisfy the given `Condition`.
      * 
-     * `Condition` is called using key and value as arguments, followed by zero
-     * or more additional arguments `Args*`
+     * ```ahk
+     * Condition(Key, Value, Args*)
+     * ```
+     * 
      * @example
-     * 
      * Map(1, 2, 3, 4).AllMatch((Key, Value) => (Key != 6)) ; true
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
-     * @param   {Any*}       Args       zero or more additional arguments
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
      * @return  {Boolean}
      */
     AllMatch(Condition, Args*) {
-        if (!HasMethod(Condition)) {
-            throw TypeError("Expected a Function object",, Type(Condition))
-        }
+        GetMethod(Condition)
         for Key, Value in this {
             if (!Condition(Key, Value, Args*)) {
                 return false
@@ -404,23 +405,21 @@ class Map {
     }
 
     /**
-     * Returns `true`, if none of the elements in this map satisfy the given
-     * predicate function `Condition`.
+     * Returns `true`, if none of the elements satisfy the given `Condition`.
      * 
-     * `Condition` is called using key and value as first two arguments,
-     * followed by zero or more additional arguments `Args*`.
+     * ```ahk
+     * Condition(Key, Value, Args*)
+     * ```
+     * 
      * @example
-     * 
      * Map(1, 2, 3, 4).NoneMatch((Key, Value) => (Key == 3)) ; false
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
-     * @param   {Any*}       Args       zero or more additional arguments
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
      * @return  {Boolean}
      */
     NoneMatch(Condition, Args*) {
-        if (!HasMethod(Condition)) {
-            throw TypeError("Expected a Function object",, Type(Condition))
-        }
+        GetMethod(Condition)
         for Key, Value in this {
             if (Condition(Key, Value, Args*)) {
                 return false

@@ -8,15 +8,14 @@ class AquaHotkey_File extends AquaHotkey {
  * - src/Builtins/File.ahk
  */
 class File {
+    ; TODO Use with Collector or Gatherer API
+
     /**
-     * Returns an `Enumerator` of lines for this file object.
+     * Enumerates the lines of the file.
      * 
      * The file object is closed after all elements have been enumerated.
      * 
-     * The object returned by this method can immediately be used as a function
-     * stream.
      * @example
-     * 
      * for LineNumber, Line in FileOpen("message.txt", "r") {
      *     MsgBox("Line " . LineNumber ": " . Line)
      * }
@@ -70,8 +69,8 @@ class File {
 
     /**
      * Returns the file name of this file object.
-     * @example
      * 
+     * @example
      * FileObj.Name ; "C:\...\hello.txt"
      * 
      * @return  {String}
@@ -90,9 +89,7 @@ class File {
             FileName := SubStr(StrGet(Buf), 5) ; remove "\\?\"-prefix
 
             ; memoize result, because it is immutable
-            this.DefineProp("FileName", {
-                Get: (Instance) => FileName
-            })
+            this.DefineProp("FileName", { Get: (Instance) => FileName })
             return FileName
         }
     }

@@ -6,6 +6,8 @@
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Extensions/Stream.ahk
  * 
+ * ---
+ * 
  * **Overview**:
  * 
  * Streams are a powerful abstraction for processing sequences of data in a
@@ -53,7 +55,7 @@ class Stream {
      * 
      * 1. Only ByRef parameters `&ref`.
      * 2. No variadic parameters `args*`.
-     * 3. A `MaxParams` property with a value between `1` and `4`.
+     * 3. `MaxParams` is between `1` and `4`.
      * 
      * ---
      * @param   {Func}  Source  the function used as stream source
@@ -70,7 +72,7 @@ class Stream {
     }
 
     /**
-     * Returns the maximum parameter length supported by streams (`4`).
+     * The maximum parameter size currently supported.
      * @return  {Integer}
      */
     static MaxSupportedParams => 4
@@ -95,19 +97,18 @@ class Stream {
 
     /**
      * Returns the stream as enumerator object used in for-loops.
-     * 
      * @return  {Enumerator}
      */
     __Enum(n) => this.Call
 
     /**
      * Calculates the parameter length of the new stream that is returned after
-     * adding an intermediate operation such as `.RetainIf()` to this stream.
+     * adding an intermediate operation such as `.RetainIf()` to the stream.
      * 
      * ---
      * 
-     * Streams always takes the longest possible length they can, depending on how
-     * many parameters `Function` supports. For example:
+     * Streams always takes the longest possible length they can, depending on
+     * how many parameters `Function` supports. For example:
      * 
      * - A stream has 3 parameters.
      * - The function passed in an intermediate operation (such as
@@ -130,15 +131,15 @@ class Stream {
     }
 
     /**
-     * Returns a new stream that retains elements only if they match the given
-     * predicate function `Condition`.
+     * Returns a new stream that retains elements only if they match the
+     * given `Condition`.
      * 
-     * The parameter length of the new stream is decided by `.ArgSize()`.
+     * The new parameter size is decided by `.ArgSize()`.
+     * 
      * @example
+     * Array(1, 2, 3, 4).Stream().RetainIf(x => (x > 2)) ; <3, 4>
      * 
-     * Array(1, 2, 3, 4).Stream().RetainIf(x => x > 2) ; <3, 4>
-     * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
+     * @param   {Func}  Condition  the given condition
      * @return  {Stream}
      */
     RetainIf(Condition) {
@@ -190,15 +191,15 @@ class Stream {
     }
 
     /**
-     * Returns a new stream that removes all elements which match the given
-     * predicate function `Condition`.
+     * Returns a new stream that removes all elements that fulfill the
+     * given `Condition`.
      * 
-     * The parameter length of the new stream is decided by `.ArgSize()`.
+     * The new paremeter size is decided by `.ArgSize()`.
+     * 
      * @example
+     * Array(1, 2, 3, 4).Stream().RemoveIf(x => (x > 2)) ; <1, 2>
      * 
-     * Array(1, 2, 3, 4).Stream().RemoveIf(x => x > 2) ; <1, 2>
-     * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
+     * @param   {Func}  Condition  the given condition
      * @param   {Stream}
      */
     RemoveIf(Condition) {
@@ -250,19 +251,19 @@ class Stream {
     }
 
     /**
-     * Returns a new stream which transforms its elements by applying the given
+     * Returns a new stream that transforms its elements by applying the given
      * `Mapper` function.
      * 
-     * The parameter length of the new stream returned by this method equals 1.
-     * @example
+     * The resulting stream has a parameter size of 1.
      * 
+     * @example
      * ; <2, 4, 6, 8>
      * Array(1, 2, 3, 4).Stream().Map(x => x * 2).ToArray()
      * 
      * ; <(1, "foo"), (2, "bar"), (3, "baz")>
      * Array("foo", "bar", "baz").Stream(2).Map(Array)
      * 
-     * @param   {Func}  Mapper  function that returns a new element
+     * @param   {Func}  Mapper  function that maps all elements
      * @param   {Stream}
      */
     Map(Mapper) {
@@ -310,36 +311,23 @@ class Stream {
     }
 
     /**
-     * Returns a new stream which transforms its elements by optionally applying
-     * the given `Mapper` function, and then flattening resulting arrays into
-     * separate elements. Non-`Array` elements are not flattened.
+     * Returns a new stream that transforms, and then flattens resulting
+     * arrays each into separate elements.
      * 
-     * Streams returned by this method have a parameter length of 1.
+     * The resulting stream has a parameter size of 1.
+     * 
      * @example
-     * 
      * ; <"f", "o", "o", "b", "a", "r">
      * Array("foo", "bar").Stream().FlatMap(StrSplit)
      * 
      * ; <1, "foo", 2, "bar">
      * Array("foo", "bar").Stream(2).FlatMap(Array)
      * 
-     * ; <1, 2, 3, 4, 5, 6, 7, 8>
-     * Array([1, 2, 3], 4, [5, 6], 7, [8]).Stream().FlatMap()
-     * 
-     * @param   {Func?}  Mapper  function that returns zero or more new elements
+     * @param   {Func?}  Mapper  function that maps and flattens elements
      * @return  {Stream}
      */
-    FlatMap(Mapper?) {
+    FlatMap(Mapper) {
         Enumer := (*) => false
-        if (!IsSet(Mapper)) {
-            switch (this.MaxParams) {
-                case 1: Mapper := (A) => A
-                case 2: Mapper := (A, B) => A
-                case 3: Mapper := (A, B, C) => A
-                case 4: Mapper := (A, B, C, D) => A
-            }
-        }
-
         n := this.ArgSize(Mapper)
         f := this.Call
         switch (n) {
@@ -420,8 +408,8 @@ class Stream {
      * by applying the given `Mapper` function.
      * 
      * The parameter length of the new stream remains the same.
-     * @example
      * 
+     * @example
      * MutateValues(&Index, &Value) {
      *     ++Index
      *     Value .= "_"
@@ -477,28 +465,12 @@ class Stream {
     }
 
     /**
-     * Returns a new stream which is limited to its first element set. Note that
-     * this operation is intermediate, meaning that variables must be accessed
-     * by using a for-loop or a terminal stream operation such as `.ForEach()`.
-     * 
-     * The parameter length of the new stream remains the same.
-     * @example
-     * 
-     * Array(1, 2, 3, 4).Stream().RetainIf(x => x > 2).FindFirst() ; <3>
-     * 
-     * @return  {Stream}
-     */
-    FindFirst() {
-        return this.Limit(1)
-    }
-
-    /**
      * Returns a new stream that returns not more than `x` elements before
      * terminating.
      * 
      * The parameter length of the new stream remains the same.
-     * @example
      * 
+     * @example
      * Array(1, 2, 3, 4, 5).Stream().Limit(2) ; <1, 2>
      * 
      * @param   {Integer}  n  maximum amount of elements to be returned
@@ -539,8 +511,8 @@ class Stream {
      * Returns a new stream that skips the first `x` elements.
      * 
      * The parameter length of the new stream remains the same.
-     * @example
      * 
+     * @example
      * Array(1, 2, 3, 4).Stream().Skip() ; <3, 4>
      * 
      * @param   {Integer}  x  amount of elements to be skipped
@@ -601,19 +573,18 @@ class Stream {
     }
 
     /**
-     * Returns a new stream which closes as soon as the given predicate
-     * function `Condition` evaluates to `false`.
+     * Returns a new stream that terminates as soon as an element does
+     * not fulfill the given `Condition`.
      * 
-     * The parameter length of the new stream is determined by `.ArgSize()`.
+     * The resulting parameter size is determined by `.ArgSize()`.
+     * 
      * @example
-     * 
      * Array(1, -2, 4, 6, 2, 1).Stream().TakeWhile(x => x < 5) ; <1, -2, 4>
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
+     * @param   {Func}  Condition  the given condition
      * @return  {Stream}
      */
     TakeWhile(Condition) {
-        NoDrop := true
         n := this.ArgSize(Condition)
         f := this.Call
         switch (n) {
@@ -624,65 +595,29 @@ class Stream {
         }
         throw ValueError("invalid parameter length",, n)
 
-        TakeWhile1(&A) {
-            if (!NoDrop) {
-                return false
-            }
-            while (f(&A)) {
-                if (NoDrop && (NoDrop &= Condition(A?))) {
-                    return true
-                }
-            }
-            return false
-        }
+        TakeWhile1(&A) => f(&A)
+                && Condition(A?)
 
-        TakeWhile2(&A, &B?) {
-            if (!NoDrop) {
-                return false
-            }
-            while (f(&A, &B)) {
-                if (NoDrop && (NoDrop &= Condition(A?, B?))) {
-                    return true
-                }
-            }
-            return false
-        }
+        TakeWhile2(&A, &B?) => f(&A, &B)
+                && Condition(A?, B?)
 
-        TakeWhile3(&A, &B?, &C?) {
-            if (!NoDrop) {
-                return false
-            }
-            while (f(&A, &B, &C)) {
-                if (NoDrop && (NoDrop &= Condition(A?, B?, C?))) {
-                    return true
-                }
-            }
-            return false
-        }
+        TakeWhile3(&A, &B?, &C?) => f(&A, &B, &C)
+                && Condition(A?, B?, C?)
 
-        TakeWhile4(&A, &B?, &C?, &D?) {
-            if (!NoDrop) {
-                return false
-            }
-            while (f(&A, &B, &C, &D)) {
-                if (NoDrop && (NoDrop &= Condition(A?, B?, C?, D?))) {
-                    return true
-                }
-            }
-            return false
-        }
+        TakeWhile4(&A, &B?, &C?, &D?) => f(&A, &B, &C, &D)
+                && Condition(A?, B?, C?, D?)
     }
 
     /**
-     * Returns a new stream which skips the first set of elements as long as
-     * the given predicate function `Condition` evaluates to `true`.
+     * Returns a new stream that skips elements as long as its elements
+     * fulfill the given `Condition`.
      * 
-     * The parameter length of the new stream is determined by `.ArgSize()`.
+     * The resulting parameter size is determined by `.ArgSize()`.
+     * 
      * @example
-     * 
      * Array(1, 2, 3, 4, 2, 1).Stream().DropWhile(x => x < 3) ; <4, 2, 1>
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
+     * @param   {Func}  Condition  the given condition
      * @return  {Stream}
      */
     DropWhile(Condition) {
@@ -735,79 +670,49 @@ class Stream {
     }
 
     /**
-     * Removes duplicate elements from the stream by using a `Map` object
-     * to track previously seen keys. This method ensures that only unique
-     * elements remain in the resulting stream.
+     * Returns a stream of unique elements by keeping track of them in a Map.
      * 
-     * The parameter length of the new stream remains the same.
+     * A custom `Hasher` can be used to specify the map key to be used.
      * 
-     * The method determines behavior based on the type of the first parameter:
+     * ```ahk
+     * Hasher(Value1?, Value2?, ...)
+     * ```
      * 
-     * ---
+     * You can determine the behavior of the internal Map by passing either...
+     * - the map to be used;
+     * - a function that returns the map to be used;
+     * - a case-sensitivity option
      * 
-     * **1. `CaseSenseOrHasher` (`Boolean`|`String`|`Func`, optional)**:
+     * ...as value for the `MapParam` parameter.
      * 
-     * If a `Boolean` (`true` or `false`) or `String` (`"On"`, `"Off" or
-     * `"Locale"``) is provided, it determines the case-sensitivity of the
-     * internal `Map` used for equality checks.
-     * 
-     * If a function object is provided, it is treated as a custom `Hasher` for
-     * generating keys. This is useful for comparing objects based on their
-     * values instead of their identity.
-     * 
-     * A custom `Hasher` is required for supporting streams with a parameter
-     * length greater than 1.
-     * 
-     * ---
-     * 
-     * **2. `CaseSense` (`Boolean`|`String`, optional)**:
-     * 
-     * Specifies case-sensitivity of the internal `Map`.
-     * 
-     * ---
      * @example
-     * Array(1, 2, 3, 1, 2, 3).Stream().Distinct()        ; <1, 2, 3>
-     * Array("foo", "FOO", "Foo").Stream().Distinct(true) ; <"foo">
+     * ; <"foo">
+     * Array("foo", "Foo", "FOO").Distinct(StrLower)
      * 
-     * ; <{ Value: 2 }, { Value: 3 }>
-     * Array({ Value: 2 }, { Value: 2 }, { Value: 3 })
-     *         .Stream().Distinct(Obj => Obj.Value)
-     * 
-     * @param   {Primitive?/Func?}  CaseSenseOrHasher  case-sensitivity or
-     *                                                 object hasher
-     * @param   {Primitive?}        CaseSense          case-sensitivity
+     * @param   {Func?}                  Hasher    function to create map keys
+     * @param   {Map?/Func?/Primitive?}  MapParam  internal map options
      * @return  {Stream}
      */
-    Distinct(CaseSenseOrHasher := true, CaseSense?) {
-        if (HasMethod(CaseSenseOrHasher)) {
-            Hasher    := CaseSenseOrHasher
-            CaseSense := CaseSense ?? true
-        } else {
-            Hasher    := unset
-            CaseSense := CaseSenseOrHasher
+    Distinct(Hasher?, MapParam := Map()) {
+        switch {
+            case (MapParam is Map):
+                Cache := MapParam
+            case (HasMethod(MapParam)):
+                Cache := MapParam()
+                if (!(Cache is Map)) {
+                    throw TypeError("Expected a Map",, Type(Cache))
+                }
+            default:
+                Cache := Map()
+                Cache.CaseSense := MapParam
         }
 
-        Values := Map()
-        Values.CaseSense := CaseSense
         f := this.Call
-
         if (!IsSet(Hasher)) {
             return Stream(DefaultDistinct)
         }
-        DefaultDistinct(&A) {
-            while (f(&A)) {
-                if (!Values.Has(A)) {
-                    Values[A] := true
-                    return true
-                }
-            }
-            return false
-        }
 
-        if (!HasMethod(Hasher)) {
-            throw TypeError("Expected a Function object",, Type(Hasher))
-        }
-
+        GetMethod(Hasher)
         switch (this.MaxParams) {
             case 1: return Stream(Distinct1)
             case 2: return Stream(Distinct2)
@@ -816,11 +721,21 @@ class Stream {
         }
         throw ValueError("invalid parameter length",, this.MaxParams)
 
+        DefaultDistinct(&A) {
+            while (f(&A)) {
+                if (!Cache.Has(A)) {
+                    Cache[A] := true
+                    return true
+                }
+            }
+            return false
+        }
+
         Distinct1(&A) {
             while (f(&A)) {
                 Hash := Hasher(A?)
-                if (!Values.Has(Hash)) {
-                    Values[Hash] := true
+                if (!Cache.Has(Hash)) {
+                    Cache[Hash] := true
                     return true
                 }
             }
@@ -830,8 +745,8 @@ class Stream {
         Distinct2(&A, &B?) {
             while (f(&A, &B)) {
                 Hash := Hasher(A?, B?)
-                if (!Values.Has(Hash)) {
-                    Values[Hash] := true
+                if (!Cache.Has(Hash)) {
+                    Cache[Hash] := true
                     return true
                 }
             }
@@ -841,8 +756,8 @@ class Stream {
         Distinct3(&A, &B?, &C?) {
             while (f(&A, &B, &C)) {
                 Hash := Hasher(A?, B?, C?)
-                if (!Values.Has(Hash)) {
-                    Values[Hash] := true
+                if (!Cache.Has(Hash)) {
+                    Cache[Hash] := true
                     return true
                 }
             }
@@ -852,8 +767,8 @@ class Stream {
         Distinct4(&A, &B?, &C?, &D?) {
             while (f(&A, &B, &C, &D)) {
                 Hash := Hasher(A?, B?, C?, D?)
-                if (!Values.Has(Hash)) {
-                    Values[Hash] := true
+                if (!Cache.Has(Hash)) {
+                    Cache[Hash] := true
                     return true
                 }
             }
@@ -865,9 +780,9 @@ class Stream {
      * Returns a new stream which applies the given function `Action` on every
      * element set as intermediate stream operation.
      * 
-     * The parameter length of the new stream remains the same.
-     * @example
+     * - The parameter length of the new stream remains the same.
      * 
+     * @example
      * Foo(Value) {
      *     MsgBox("Intermediate stream operation: " . Value)
      * }
@@ -878,7 +793,7 @@ class Stream {
      * 
      * Array(1, 2, 3, 4).Stream().Peek(Foo).ForEach(Bar)
      * 
-     * @param   {Func}  Action  the function to call on each element set
+     * @param   {Func}  Action  the function to be called
      * @return  {Stream}
      */
     Peek(Action) {
@@ -926,13 +841,13 @@ class Stream {
     }
 
     /**
-     * Applies a given `Action` function on every element set as terminal
+     * Applies the given `Action` function on every element set as terminal
      * stream operation.
      * @example
      * 
      * Array(1, 2, 3, 4).Stream().ForEach(MsgBox)
      * 
-     * @param   {Func}  Action  the function to call on each set of elements
+     * @param   {Func}  Action  the function to be called
      * @return  (none)
      */
     ForEach(Action) {
@@ -960,51 +875,47 @@ class Stream {
         }
     }
 
+    ; TODO just return the match as array?
     /**
-     * Determines if any element in this stream satisfies the given predicate
-     * function `Condition`.
+     * Returns whether any element set satisfies the given `Condition`.
      * 
-     * An an element satisfies `Condition`, it is outputted into `&Match`
-     * in the form of an array.
+     * If a match it found, it'll be returned in the form of an array (which
+     * is a truthy value).
+     * 
      * @example
+     * Match := Array(1, 2, 3, 8, 4).Stream().AnyMatch(x => x < 5)
+     * if (Match) {
+     *     MsgBox(Match[1]) ; 8
+     * }
      * 
-     * Array(1, 2, 3, 8, 4).Stream().AnyMatch(x => x < 5, &Output) ; true
-     * Output.ToString() ; "[8]"
-     * 
-     * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
-     * @param   {VarRef?}    Match      first matching element set
+     * @param   {Func}     Condition  the given condition
      * @return  {Boolean}
      */
-    AnyMatch(Condition, &Match?) {
+    AnyMatch(Condition) {
         n := this.ArgSize(Condition)
         switch (n) {
             case 1:
                 for A in this {
                     if (Condition(A?)) {
-                        Match := Array(A)
-                        return true
+                        return Array(A?)
                     }
                 }
             case 2:
                 for A, B in this {
                     if (Condition(A?, B?)) {
-                        Match := Array(A, B)
-                        return true
+                        return Array(A?, B?)
                     }
                 }
             case 3:
                 for A, B, C in this {
                     if (Condition(A?, B?, C?)) {
-                        Match := Array(A, B, C)
-                        return true
+                        return Array(A?, B?, C?)
                     }
                 }
             case 4:
                 for A, B, C, D in this {
                     if (Condition(A?, B?, C?)) {
-                        Match := Array(A, B, C, D)
-                        return true
+                        return Array(A?, B?, C?, D?)
                     }
                 }
             default:
@@ -1014,13 +925,13 @@ class Stream {
     }
 
     /**
-     * Returns `true`, if all elements in this map satisfy the given predicate
-     * function `Condition`.
-     * @example
+     * Returns `true`, if all elements in this map satisfy the given
+     * `Condition`.
      * 
+     * @example
      * Array(1, 2, 3, 4).Stream().AllMatch(x => x < 10) ; true
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
+     * @param   {Func}  Condition  the given condition
      * @return  {Boolean}
      */
     AllMatch(Condition) {
@@ -1057,13 +968,13 @@ class Stream {
     }
 
     /**
-     * Returns `true`, if none of the element sets in this stream satisfy the
-     * given predicate function `Condition`.
-     * @example
+     * Returns `true`, if none of the element sets in the stream satisfy the
+     * given `Condition`.
      * 
+     * @example
      * Array(1, 2, 3, 4, 5, 92).Stream().NoneMatch(x => x > 10) ; false
      * 
-     * @param   {Predicate}  Condition  function that evaluates a condition
+     * @param   {Func}  Condition  the given condition
      * @return  {Boolean}
      */
     NoneMatch(Condition) {
@@ -1100,36 +1011,22 @@ class Stream {
     }
 
     /**
-     * Returns the highest element in this stream.
+     * Returns the highest ordered element in the stream.
      * 
-     * If a custom comparator function `Comp` is specified, it's used to
-     * determine the ordering of elements; otherwise, numerical ordering is
-     * used.
+     * - If the stream is empty, this method throws an error.
+     * - Only the *first parameter* of each element set is compared.
      * 
-     * If the stream is empty, this method throws an error.
-     * 
-     * ---
-     * 
-     * Only the *first parameter* of each element set is considered for
-     * comparison. If comparing beyond the first parameter is required, use
-     * `.Map()` to preprocess the stream, or use methods such as `.Reduce()` or
-     * `.ToArray().Max()` instead.
      * @see `Comparator`
      * @example
      * 
      * Array(1, 2, 3, 4).Stream().Max()                   ; 4
      * Array("banana", "zigzag").Stream().Max(StrCompare) ; "zigzag"
      * 
-     * @param   {Comparator}  Comp  function that compares two elements
+     * @param   {Func?}  Comp  the comparator to apply
      * @return  {Any}
      */
-    Max(Comp?) {
-        if (!IsSet(Comp)) {
-            Comp := (a, b) => (a > b) - (b - a)
-        }
-        if (!HasMethod(Comp)) {
-            throw TypeError("Expected a Function object",, Type(Comp))
-        }
+    Max(Comp := (a, b) => (a > b) - (b - a)) {
+        GetMethod(Comp)
         f := this.Call
         while (f(&Result) && !IsSet(Result)) {
         } ; nop
@@ -1137,42 +1034,28 @@ class Stream {
             (IsSet(Value) && Comp(Value, Result) > 0 && Result := Value)
         }
         if (!IsSet(Result)) {
-            throw UnsetError("every element in this stream is unset")
+            throw UnsetError("no values present")
         }
         return Result
     }
 
     /**
-     * Returns the lowest element in this stream.
+     * Returns the lowest element in the stream.
      * 
-     * If a custom comparator function `Comp` is specified, it is used to
-     * determine the ordering of elements; otherwise, numerical ordering is
-     * used.
+     * - If the stream is empty, this method throws an error.
+     * - Only the *first parameter* of each element set is compared.
      * 
-     * If the stream is empty, this method throws an error.
-     * 
-     * ---
-     * 
-     * Only the *first parameter* of each element set is considered for
-     * comparison. If comparing beyond the first parameter is required, use
-     * `.Map()` to preprocess the stream, or use methods such as `.Reduce()` or
-     * `.ToArray().Min()` instead.
      * @see `Comparator`
      * @example
      * 
      * Array(1, 2, 3, 4, 5, 90, -34).Stream().Min()       ; -34
      * Array("banana", "zigzag").Stream().Max(StrCompare) ; "banana"
      * 
-     * @param   {Comparator}  Comp  function that compares two elements
+     * @param   {Func?}  Comp  the compator to apply
      * @return  {Any}
      */
-    Min(Comp?) {
-        if (!IsSet(Comp)) {
-            Comp := (a, b) => (a > b) - (b > a)
-        }
-        if (!HasMethod(Comp)) {
-            throw TypeError("Expected a Function object",, Type(Comp))
-        }
+    Min(Comp := (a, b) => (a > b) - (b > a)) {
+        GetMethod(Comp)
         f := this.Call
         while (f(&Result) && !IsSet(Result)) {
         } ; nop
@@ -1180,18 +1063,18 @@ class Stream {
             (IsSet(Value) && Comp(Value, Result) < 0 && Result := Value)
         }
         if (!IsSet(Result)) {
-            throw UnsetError("every element in this stream is unset")
+            throw UnsetError("no value present")
         }
         return Result
     }
 
     /**
-     * Returns the total sum of numbers in this stream. Unset and non-numerical
+     * Returns the total sum of numbers in the stream. Unset and non-numerical
      * values are ignored.
      *
-     * Only the first parameter of each element set is taken as argument.
-     * @example
+     * - Only the first parameter of each element set is taken as argument.
      * 
+     * @example
      * Array("foo", 3, "4", unset).Stream().Sum() ; 7
      * 
      * @return  {Float}
@@ -1205,11 +1088,12 @@ class Stream {
     }
 
     /**
-     * Returns an array by collecting elements from this stream. The `n`
-     * parameter specifies which parameter to extract from each element set
-     * in the stream.
-     * @example
+     * Returns an array by collecting elements from the stream.
      * 
+     * - `n` specifies the index of which parameter to collect from each
+     *   element set of the stream.
+     *  
+     * @example
      * Array(1, 2, 3, 4).Stream().Map(x => x * 2).ToArray() ; [2, 4, 6, 8]
      * 
      * @param   {Integer?}  n  index of the parameter to push into array
@@ -1238,134 +1122,26 @@ class Stream {
     }
 
     /**
-     * Performs a mutable reduction on the elements of this stream, using the
-     * given `Supplier`, `Accumulator`, and optionally a `Finisher` function.
-     * This method allows for highly customizable data collection into various
-     * types of containers or final structures.
+     * Reduces all elements in the stream into a single value, by repeatedly
+     * "merging" values with the given `Combiner` function.
      * 
-     * ---
+     * ```ahk
+     * ; 10 (1 + 2 + 3 + 4)
+     * Array(1, 2, 3, 4).Stream().Reduce((a, b) => (a + b))
+     * ```
      * 
-     * **`Supplier` (`Func`|`Class`)**:
-     * 
-     * A function or class that provides a new, empty result container.
-     * 
-     * - For instance, `Array` creates a new array instance.
-     * - A custom function can be used to initialize more complex containers.
-     * 
-     * **`Accumulator` (`Func`)**:
-     * 
-     * A function that adds an element to the result container.
-     * 
-     * - The function is called with two arguments: the container and the
-     *   current element set of the stream.
-     * - The container is mutated as the stream is processed.
-     * 
-     * **`Finisher` (`Func`, optional)**:
-     * 
-     * A function that transforms the final result container.
-     * 
-     * ---
-     * @example
-     * 
-     * ; Map {
-     * ;     1 ==> "foo",
-     * ;     2 ==> "bar"
-     * ; }
-     * MapObj := Array("foo", "bar").Stream(2).Collect(Map, Map.Prototype.Set)
-     * 
-     * @param   {Func}   Supplier     supplies a container (e.g., `Array`)
-     * @param   {Func}   Accumulator  adds element to container
-     * @param   {Func?}  Finisher     transforms container to final value
-     * @return  {Any}
-     */
-    Collect(Supplier, Accumulator, Finisher?) {
-        if (!HasMethod(Supplier)) {
-            throw TypeError("Expected a Function object",, Type(Supplier))
-        }
-        if (!HasMethod(Accumulator)) {
-            throw TypeError("Expected a Function object",, Type(Accumulator))
-        }
-        if (IsSet(Finisher) && !HasMethod(Finisher)) {
-            throw TypeError("Expected a Function object",, Type(Finisher))
-        }
-        
-        Container := Supplier()
-        switch (this.MaxParams) {
-            case 1:
-                for A in this {
-                    Accumulator(Container, A?)
-                }
-            case 2:
-                for A, B in this {
-                    Accumulator(Container, A?, B?)
-                }
-            case 3:
-                for A, B, C in this {
-                    Accumulator(Container, A?, B?, C?)
-                }
-            case 4:
-                for A, B, C in this {
-                    Accumulator(Container, A?, B?, C?, D?)
-                }
-            default:
-                throw ValueError("invalid parameter length",, this.MaxParams)
-        }
-        
-        if (IsSet(Finisher)) {
-            return Finisher(Container)
-        }
-        return Container
-    }
-
-    /**
-     * Performs a reduction on the elements of the stream, using the given
-     * `Combiner` function. This method iteratively combines elements to produce
-     * a single result, optionally starting with an `Identity` value.
-     * 
-     * ---
-     * 
-     * **`Combiner` (`Func`)**:
-     * 
-     * A function that combines two elements into a single result.
-     * 
-     * - The `Combiner` function is called repeatedly with the current result
-     *   and the next element in the stream.
-     * - The final result is the accumulated value after processing all of the
-     *   elements.
-     * 
-     * **`Identity` (`Any`, optional)**:
-     * 
-     * An initial value for the reduction.
-     * 
-     * - If specified, this value is used as the starting value of the
-     *   reduction.
-     * - If omitted, the first element of the stream is used as the initial
-     *   value, and reduction starts with the second element. An error is
-     *   thrown, if the stream has no elements.
-     * 
-     * ---
-     * 
-     * This method only operates on the *first parameter* of each element set
-     * of the stream. To reduce over multiple parameters, preprocess the stream
-     * using `.Map()`.
-     * 
-     * A particularly flexible way of capturing multiple parameters is by using
-     * `.Map(Array)`:
+     * - If there is no value present in the stream, an error is thrown.
+     * - `Identity` can be used to give an initial value to merge with.
+     * - `unset` is ignored.
+     * - Only the *first parameter* of each element set is merged.
      * 
      * @example
-     * 
-     * ; <[1, "foo"], [2, "bar"], [3, "baz"]>
-     * Array("foo", "bar", "baz").Stream(2).Map(Array)
-     * 
-     * @example
-     * 
-     * Product(a, b) {
-     *     return a * b
-     * }
-     * Array(1, 2, unset, 3, unset, 4).Stream().Reduce(Product) ; 24
+     * Array(1, 2, unset, 3, unset, 4)
+     *         .Stream()
+     *         .Reduce((a, b) => (a * b)) ; 24
      * 
      * @param   {Combiner}  Combiner  function that combines two elements
-     * @param   {Any?}      Identity  Initial starting value
+     * @param   {Any?}      Identity  initial starting value
      * @return  {Any}
      */
     Reduce(Combiner, Identity?) {
@@ -1379,37 +1155,22 @@ class Stream {
             (IsSet(Value) && Result := Combiner(Result, Value))
         }
         if (!IsSet(Result)) {
-            throw UnsetError("every element in this stream is unset")
+            throw UnsetError("no value present")
         }
         return Result
     }
 
     /**
-     * Concatenates the elements of this stream into a single string, separated
+     * Concatenates the elements of the stream into a single string, separated
      * by the specified `Delimiter`. The method converts objects to strings
      * using their `.ToString()` method.
      * 
-     * ---
+     * - `InitialCap` can be used to pre-allocate enough space for concatenating
+     *   large strings.
+     *   
+     * - Only the *first parameter* of each element set is used.
      * 
-     * **`Delimiter` (`String`, optional)**:
-     * 
-     * Specifies the string used to separate elements in the resulting string
-     * (default `""`).
-     * 
-     * **`InitialCap` (`Integer`, optional)**:
-     * 
-     * Specifies the initial capacity of the resulting string (default `0`).
-     * This can improve performance when working with large strings by
-     * pre-allocating the necessary memory.
-     * 
-     * ---
-     * 
-     * Only the *first parameter* of each element set is used. To customize this
-     * behavior, preprocess this stream with `.Map()`.
-     * 
-     * ---
      * @example
-     * 
      * Array(1, 2, 3, 4).Stream().Join() ; "1234"
      * 
      * @param   {String?}   Delimiter   separator string
@@ -1437,7 +1198,7 @@ class Stream {
     }
 
     /**
-     * Concatenates the elements of this stream into a single string, each
+     * Concatenates the elements of the stream into a single string, each
      * element separated by `\n`.
      * @see `Func.Join()`
      * @example
@@ -1456,7 +1217,7 @@ class Stream {
 
     /**
      * Creates an infinite stream where each element is produced by the
-     * given supplier function.
+     * given `Supplier` function.
      * 
      * The stream is infinite unless filtered or limited with other methods.
      * 
@@ -1468,9 +1229,7 @@ class Stream {
      * @return  {Stream}
      */
     static Generate(Supplier) {
-        if (!HasMethod(Supplier)) {
-            throw TypeError("Expected a Function object",, Type(Supplier))
-        }
+        GetMethod(Supplier)
         return Stream(Generate)
 
         Generate(&Out) {
@@ -1486,17 +1245,17 @@ class Stream {
      * The stream is infinite unless filtered or limited with other methods.
      * 
      * @example
+     * PlusTwo(x) => (x + 2)
+     * 
      * ; <0, 2, 4, 6, 8, 10>
-     * Stream.Iterate(0, x => (x + 2)).Take(6).ToArray()
+     * Stream.Iterate(0, PlusTwo).Limit(6).ToArray()
      * 
      * @param   {Any}   Seed    the starting value
      * @param   {Func}  Mapper  a function that computes the next value
      * @return  {Stream}
      */
     static Iterate(Seed, Mapper) {
-        if (!HasMethod(Mapper)) {
-            throw TypeError("Expected a Function object",, Type(Mapper))
-        }
+        GetMethod(Mapper)
         First := true
         Value := unset
         return Stream(Iterate)
@@ -1517,10 +1276,10 @@ class Stream {
 class AquaHotkey_Stream extends AquaHotkey {
     class Any {
         /**
-         * Returns a function stream with this variable as source.
+         * Returns a function stream with the current element as source.
          * @see `Stream`
-         * @example
          * 
+         * @example
          * Arr    := [1, 2, 3, 4, 5]
          * Stream := Arr.Stream(2) ; for Index, Value in Arr {...}
          * 
