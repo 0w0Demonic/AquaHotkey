@@ -23,8 +23,7 @@ class Object {
      * @return  {Any}
      */
     DefineConstant(PropertyName, Value) {
-        this.DefineProp(PropertyName, { Get: (Instance) => Value })
-        return Value
+        return this.DefineProp(PropertyName, { Get: (Instance) => Value })
     }
 
     /**

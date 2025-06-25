@@ -389,11 +389,11 @@ class String {
      * @example
      * FileObj := "message.txt".FileOpen("r")
      * 
-     * @param   {Primitive}   Flags     desired access mode
+     * @param   {Primitive?}  Flags     desired access mode
      * @param   {Primitive?}  Encoding  file encoding
      * @return  {File}
      */
-    FileOpen(Flags, Encoding?) => FileOpen(this, Flags, Encoding?)
+    FileOpen(Flags := "r", Encoding?) => FileOpen(this, Flags, Encoding?)
 
     /**
      * Separates a file name or URL into its name, directory, extension,
@@ -448,19 +448,19 @@ class String {
      * @example
      * "C:\*".FindFiles("D") ; ["C:\Users", "C:\Windows", ...]
      * 
-     * @param   {String?}       Mode         file-loop mode
-     * @param   {Func?}         Pattern      the given condition
-     * @param   {Func?}         Mapper       function that retrieves a value
+     * @param   {String?}  Mode       file-loop mode
+     * @param   {Func?}    Condition  the given condition
+     * @param   {Func?}    Mapper     function that retrieves a value
      * @return  {Array}
      */
-    FindFiles(Mode := "FR", Pattern?, Mapper?) {
-        Pattern := Pattern ?? () => true
-        Mapper  := Mapper  ?? () => A_LoopFilePath
+    FindFiles(Mode := "FR", Condition?, Mapper?) {
+        Condition := Condition ?? () => true
+        Mapper    := Mapper    ?? () => A_LoopFilePath
 
-        (GetMethod(Pattern) && GetMethod(Mapper))
+        (GetMethod(Condition) && GetMethod(Mapper))
         Result := Array()
         Loop Files, this, Mode {
-            (Pattern() && Result.Push(Mapper()))
+            (Condition() && Result.Push(Mapper()))
         }
         return Result
     }

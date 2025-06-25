@@ -1,15 +1,12 @@
 # COM
 
-The `COM` class is a user-friendly framework for COM object which allows the
-user to create complex wrapper classes, complete with `ComCall()`-methods and
-event handling.
+## Overview
 
----
+`COM` is a user-friendly framework to wrap COM objects into class-based
+interfaces.
 
-## **Defining a Subclass**
-
-To define a COM subclass, extend the `COM` class and provide the necessary
-static properties:
+The main idea behind `COM` is to *extend the class* and to define a few options
+in the form of static members.
 
 ### `(required) static CLSID => String`
 

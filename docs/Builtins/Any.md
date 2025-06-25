@@ -11,7 +11,11 @@ and they'll be **assumed to be global functions**.
 StrUpper("Hello")
 ```
 
-It lets you pipe functions as if they were methods:
+It works because the `Any.__Call()` method is overwritten not to throw an
+error, but to search for a function to be piped to.
+
+This feature is directly inspired by Elixir's `|>` operator and lets you write
+code in the form of long method chains.
 
 ```ahk
 "Hello, world!".DoThis().DoThat("foo").StrUpper().MsgBox()
@@ -34,7 +38,7 @@ readability gains.
 However:
 
 - Avoid use with large strings. They are copied each time you call a method,
-  which adds significant overhead.
+  adding significant overhead.
 - For numbers, objects, arrays - performance is solid and will likely improve
   further.
 
@@ -43,10 +47,13 @@ However:
 ## Class Identification
 
 You can access the defining class of an object by accessing the `.Class`
-property:
+property. This is useful whenever you want to call a static property from the
+class that defines the object.
 
 ```ahk
 "foo".Class ; String
+
+MyObject.Class.StaticProp()
 ```
 
 ---
@@ -54,9 +61,9 @@ property:
 ## Assertions and Testing
 
 The `.Assert()` method (and related ones like `.AssertEquals()` and
-`.AssertType()`) make testing in one-liners easy. Their work great together with
-the `Mapper`, `Condition` utility classes for building test cases or elegant
-error checks.
+`.AssertType()`) make testing in one-liners more straightforward. They work
+great together with the `Mapper`, `Condition` utility classes for building
+test cases or error checks.
 
 ```ahk
 MyArr.AssertType(Array)

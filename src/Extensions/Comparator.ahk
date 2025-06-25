@@ -20,9 +20,9 @@
  * @example
  * ; [unset, "a", "bar", "foo", "Hello, world!"]
  * Array("a", "foo", "bar", "Hello, world!", unset).Sort(
- *      Comparator.Numeric(StrLen)               ; 1. string length, ascending
- *             .AndThen(Comparator.Alphabetic()) ; 2. alphabetical order
- *             .NullsFirst())                    ; 3. `unset` at the beginning
+ *      Comparator.Numeric(StrLen)  ; 1. string length, ascending
+ *             .AndThenAlphabetic() ; 2. alphabetical order
+ *             .NullsFirst())       ; 3. `unset` at the beginning
  */
 class Comparator {
     /**
@@ -72,6 +72,30 @@ class Comparator {
         })
         return Obj
     }
+
+    /**
+     * Specifies a numeric comparator to be used whenever two elements are
+     * equal in value.
+     * 
+     * @example
+     * Comparator.Alphabetic(FirstLetter).AndThenNumeric()
+     * 
+     * @param   {Any*}  Args  arguments passed to numeric comparator
+     * @return  {Func}
+     */
+    AndThenNumeric(Args*) => this.AndThen(Comparator.Numeric(Args*))
+
+    /**
+     * Specifies an alphabetic comparator to be used whenever two elements are
+     * equal in value.
+     * 
+     * @example
+     * ByStrLen := Comparator.Numeric(StrLen).AndThenAlphabetic()
+     * 
+     * @param   {Any*}  Args  arguments passed to alphabetic comparator
+     * @return  {Func}
+     */
+    AndThenAlphabetic(Args*) => this.AndThen(Comparator.Alphabetic(Args*))
 
     /**
      * Returns a new comparator which first applies the given `Mapper`

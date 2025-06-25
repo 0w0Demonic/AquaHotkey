@@ -99,6 +99,24 @@ class Mapper {
     }
 
     /**
+     * Mapper that parses a CSV line into an array.
+     * @return  {Func}
+     */
+    static ParseCSV {
+        get {
+            return Parse
+
+            static Parse(Line) {
+                Result := Array()
+                Loop Parse, Line, "CSV" {
+                    Result.Push(A_LoopField)
+                }
+                return Result
+            }
+        }
+    }
+
+    /**
      * Mapper that returns a substring.
      * @param   {Integer}   StartIndex  starting index of the substring
      * @param   {Integer?}  Length      length of the substring

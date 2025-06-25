@@ -15,7 +15,7 @@ Ref := ComValueRef.VARIANT(Buffer(24, 0)).Set("in value")
 sc.Run("Example", var)
 
 ; MsgBox(Ref[])
-MsgBox(Ref.Get())
+Ref.Get().MsgBox()
 ```
 
 ---
@@ -74,8 +74,7 @@ The `ComValueRef` class now supports passing buffer-like objects with a `Ptr` pr
 when creating `BYREF` values, instead of requiring raw pointer values.
 
 ```ahk
-Buf := Buffer(24, 0)
-ComValueRef.VARIANT(Buf) ; you pass the buffer directly, instead of the pointer.
+ComValueRef.VARIANT(Buffer(24, 0))
 ```
 
 ### Getter and Setter Methods

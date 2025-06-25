@@ -340,7 +340,7 @@ class Gatherer {
             super.__New()
             (GetMethod(Supplier) && GetMethod(Merger))
             this.Obj := Supplier()
-            this.DefineProp("Merger",{ Get: (_) => Merger })
+            this.DefineProp("Merger", { Get: (_) => Merger })
         }
 
         Initializer() {
