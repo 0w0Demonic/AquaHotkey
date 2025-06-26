@@ -104,6 +104,28 @@ Same goes for `Array`, `Map`, and `Stream`. It’s just more expressive this way
 - Prefer composing with `Mapper`, `Combiner`, `Condition` for clarity
 - Don’t stream giant strings unless you know what you’re doing
 
+## Collector and Gatherer API
+
+`Collector` and `Gatherer` provide some really powerful operations for
+collecting elements into different types of data structures and transforming
+data on the fly.
+
+```ahk
+C := Collector
+G := Gatherer
+
+; Map {
+;     true:  Map { true: [452, ...], false: [8, ...] },
+;     false: Map { true: [347, ...], false: [3, ...] }
+; }
+MyStream.Collect(C.Partition(IsEven, C.Partition(GreaterThan100)))
+
+; <(1, 2, 3), (2, 3, 4), (4, 5, 6)>
+Array(1, 2, 3, 4, 5).Stream().Gather(G.SlidingWindows(3))
+```
+
+For more fun, see: [Collector](./Collector.md), [Gatherer](./Gatherer.md)
+
 ## Some Technical Insight
 
 This section gives a quick oversight over how streams work.
@@ -124,7 +146,8 @@ Here's what the
 >Boolean := Enum.Call(&OutputVar1 [, &OutputVar2 ])
 >```
 >
->- This method returns 1 (`true`) if successful or 0 (`false`) if there were no items remaining.
+>- This method returns 1 (`true`) if successful or 0 (`false`) if there were
+>no items remaining.
 
 Now let's take a look at [the `__Enum()` method](https://www.autohotkey.com/docs/v2/Objects.htm#__Enum):
 
