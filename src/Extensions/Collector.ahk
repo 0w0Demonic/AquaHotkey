@@ -268,6 +268,7 @@ class Collector {
             (Obj) => Finisher(thisFin(Obj)))
     }
 
+    ; TODO nonstatic version with mapper?
     /**
      * Collects all elements into an array.
      * 
@@ -283,6 +284,7 @@ class Collector {
         static Finisher(Arr)          => Arr
     }
 
+    ; TODO change to MapParam instead of CaseSense?
     /**
      * Counts elements by frequency using a Map and an optional `Classifier`
      * function.
@@ -654,19 +656,19 @@ class Collector {
      * @param   {Collector?}  Next       next collector stage to apply
      * @return  {Collector}
      */
-    static Partition(Condition, Coll := Collector.ToArray) {
-        CollSup := Coll.Supplier
-        CollAcc := Coll.Accumulator
-        CollFin := Coll.Finisher
+    static Partition(Condition, Next := Collector.ToArray) {
+        NextSup := Next.Supplier
+        NextAcc := Next.Accumulator
+        NextFin := Next.Finisher
         return this(Sup, Acc, Fin)
         
-        Sup() => Map(true, CollSup(), false, CollSup())
+        Sup() => Map(true, NextSup(), false, NextSup())
 
         Acc(M, Val?) {
-            CollAcc(M[!!Condition(Val?)], Val?)
+            NextAcc(M[!!Condition(Val?)], Val?)
         }
 
-        Fin(M) => Map(true, CollFin(M[true]), false, CollFin(M[false]))
+        Fin(M) => Map(true, NextFin(M[true]), false, NextFin(M[false]))
     }
 
     /**
