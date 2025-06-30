@@ -628,21 +628,26 @@ class Collector {
      *         Collector.ToArray,          ; group elements into arrays
      *         false))                     ; case-insensitive
      * 
-     * @param   {Func}        Classifier  function to classify elements with
-     * @param   {Collector?}  Next        next collector stage to apply
-     * @param   {Primitive?}  CaseSense   case-sensitivity of underlying map
+     * @param   {Func}                  Classifier  classifies elements
+     * @param   {Collector?}            Next        next collector stage
+     * @param   {Map?/Func?/Primitive}  MapParam    internal map options
      */
-    static Group(Classifier, Next := Collector.ToArray, CaseSense := true) {
+    static Group(Classifier, Next := Collector.ToArray, MapParam := Map()) {
         NextSup := Next.Supplier
         NextAcc := Next.Accumulator
         NextFin := Next.Finisher
-        return this(Sup, Acc, Fin)
-
-        Sup() {
-            M := Map()
-            M.CaseSense := CaseSense
-            return M
+        
+        switch {
+            case (MapParam is Map):
+                Sup := Replicate(MapParam)
+            case (HasMethod(MapParam)):
+                Sup := MapFactory(MapParam)
+            default:
+                Cache := Map()
+                Cache.CaseSense := MapParam
+                Sup := Replicate(Cache)
         }
+        return this(Sup, Acc, Fin)
 
         Acc(M, Val?) {
             Key := Classifier(Val?)
@@ -655,6 +660,19 @@ class Collector {
                 M[Key] := NextFin(Value)
             }
             return M
+        }
+
+        static Replicate(MapObj) => () => MapObj.Clone()
+        static MapFactory(Supplier) {
+            return Factory
+
+            Factory() {
+                M := Supplier()
+                if (M is Map) {
+                    return M
+                }
+                throw TypeError("Expected a Map",, Type(M))
+            }
         }
     }
 
@@ -694,8 +712,6 @@ class Collector {
      * - This collector must be used inside of a stream with at least 2
      *   parameters, if the mappers aren't explicitly specified.
      * 
-     * - The `CaseSense` flag controls case sensitivity.
-     * 
      * @example
      * ; Map { 1: "foo", 2: "bar"}
      * Array("foo", "bar").Stream().Collect(C.ToMap)
@@ -705,9 +721,9 @@ class Collector {
      *     (Index, Value, *) => Value,  ; use the word as key
      *     (Index, Value, *) => Index)) ; use its index as value
      * 
-     * @param   {Func?}       KeyMapper    function that returns map key
-     * @param   {Func?}       ValueMapper  function that returns value
-     * @param   {Primitive?}  CaseSense    case-sensitivity of underlying map
+     * @param   {Func?}                  KeyMapper    returns map key
+     * @param   {Func?}                  ValueMapper  returns value
+     * @param   {Map?/Func?/Primitive?}  MapParam     internal map options
      * @return  {Collector}
      */
     class ToMap extends Collector {
@@ -718,19 +734,26 @@ class Collector {
         __New(KeyMapper   := ((k, *) => k),
               ValueMapper := ((k, v, *) => v),
               Merger      := ((l, r) => r),
-              CaseSense   := true)
+              MapParam    := Map())
         {
             GetMethod(KeyMapper)
             GetMethod(ValueMapper)
             GetMethod(Merger)
 
-            M := Map()
-            M.CaseSense := CaseSense
+            switch {
+                case (MapParam is Map):
+                    Sup := Replicate(MapParam)
+                case (HasMethod(MapParam)):
+                    Sup := MapFactory(MapParam)
+                default:
+                    Cache := Map()
+                    Cache.CaseSense := MapParam
+                    Sup := Replicate(Cache)
+            }
+
             return super.__New(Sup, Acc, Fin)
 
-            Sup() => 0 ; do nothing
-
-            Acc(_, Args*) {
+            Acc(M, Args*) {
                 Key   := KeyMapper(Args*)
                 Value := ValueMapper(Args*)
                 if (M.Has(Key)) {
@@ -740,7 +763,21 @@ class Collector {
                 }
             }
 
-            Fin(_) => M
+            Fin(M) => M
+
+            static Replicate(MapObj) => () => MapObj.Clone()
+
+            static MapFactory(Supplier) {
+                return Factory
+
+                Factory() {
+                    M := Supplier()
+                    if (M is Map) {
+                        return M
+                    }
+                    throw TypeError("Expected a Map",, Type(M))
+                }
+            }
         }
     }
 
