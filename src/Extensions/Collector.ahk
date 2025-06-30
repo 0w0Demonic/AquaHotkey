@@ -810,6 +810,7 @@ class AquaHotkey_Collector extends AquaHotkey {
         if (!IsSet(AquaHotkey_Stream)) {
             OutputDebug("[Aqua] Collector.ahk: support for stream disabled.")
             this.DeleteProp("Stream")
+            Collector.DeleteProp("ToMap")
         }
         super.__New()
     }

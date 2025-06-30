@@ -1,6 +1,13 @@
 # API Overview
 
-## Built-in classes
+## Core Library
+
+- [Basics](./basics.md)
+- [Advanced](./advanced.md)
+
+## AquaHotkeyX
+
+### Built-in classes
 
 - [Any](./Builtins/Any.md)
 - [Array](./Builtins/Array.md)
@@ -12,7 +19,7 @@
 - [String](./Builtins/String.md)
 - [VarRef](./Builtins/VarRef.md)
 
-## Other features
+### Other Features
 
 - [Collector](./Extensions/Collector.md)
 - [COM](./Extensions/COM.md)
