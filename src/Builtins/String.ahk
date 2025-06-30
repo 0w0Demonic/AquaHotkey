@@ -422,7 +422,6 @@ class String {
         }
     }
 
-    ; TODO just make this a stream?
     /**
      * Enumerates contents of a file-loop using the string as file pattern,
      * collecting results into an array.
