@@ -36,8 +36,8 @@ Use `C`,`Col`, whatever works - just don't write `Collector.` fifty times.
 
 | Method                                                            | Description                                   |
 | ----------------------------------------------------------------- | --------------------------------------------- |
-| `.ToArray`                                                        | returns an array of stream elements           |
-| `.Frequency`, `.Frequency(Classifier, CaseSense?)`                | counts by frequency                           |
+| `.ToArray`, `.ToArray(Mapper)`                                    | returns an array of stream elements           |
+| `.Frequency`, `.Frequency(Classifier, MapParam?)`                 | counts by frequency                           |
 | `.Count`                                                          | counts elements                               |
 | `.Join`, `.Join(Delim, Prefix?, Suffix?)`                         | returns a joined string                       |
 | `.Min`, `.Min(Comp)`                                              | returns the smallest element                  |

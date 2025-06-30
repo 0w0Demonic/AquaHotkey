@@ -19,7 +19,7 @@
  * ;     true:  [2, 4, 6, ..., 498],
  * ;     false: [500, 502, 504, ..., 2000]
  * ; }
- * Range(1000).Collect(_.Map(TimesTwo, _.Partition(LessThan500)))
+ * Range(1000).Collect(C.Map(TimesTwo, C.Partition(LessThan500)))
  * ```
  * 
  * ---
@@ -169,7 +169,7 @@ class Collector {
      * 
      * @example
      * ; [2, 4, 6, ..., 200]
-     * Range(100).Collect(_.Map(TimesTwo, _.ToArray))
+     * Range(100).Collect(C.Map(TimesTwo, C.ToArray))
      * 
      * @param   {Func}       Mapper  function to transform elements
      * @param   {Collector}  Next    the next collector stage to apply
@@ -190,7 +190,7 @@ class Collector {
      * 
      * @example
      * ; ["H", "e", "l", "l", "o"]
-     * Array("Hello").Collect(_.FlatMap(StrSplit, _.ToArray))
+     * Array("Hello").Collect(C.FlatMap(StrSplit, C.ToArray))
      * 
      * @param   {Func}       Mapper  function to transform and flatten elements
      * @param   {Collector}  Next    the next collector stage to apply
@@ -218,7 +218,7 @@ class Collector {
      * 
      * @example
      * ; [1, 2, 3, 4]
-     * Range(10).Collect(_.RetainIf(LessThan5, _.ToArray))
+     * Range(10).Collect(C.RetainIf(LessThan5, C.ToArray))
      * 
      * @param   {Func}       Condition  function to filter elements with
      * @param   {Collector}  Next       the next collector stage to apply
@@ -237,7 +237,7 @@ class Collector {
      * 
      * @example
      * ; [1, 2, 3, 4]
-     * Range(10).Collect(_.RemoveIf(LessThan5, _.ToArray))
+     * Range(10).Collect(C.RemoveIf(LessThan5, C.ToArray))
      * 
      * @param   {Func}       Condition  function to filter elements with
      * @param   {Collector}  Next       the next collector stage to apply
@@ -268,42 +268,54 @@ class Collector {
             (Obj) => Finisher(thisFin(Obj)))
     }
 
-    ; TODO nonstatic version with mapper?
     /**
      * Collects all elements into an array.
      * 
      * @example
      * ; ["H", "e", ..., "d", "!"]
-     * "Hello, world!".Collect(_.ToArray)
+     * "Hello, world!".Collect(C.ToArray)
      * 
+     * ; [72, 101, ..., 100, 33]
+     * "Hello, world!".Collect(C.ToArray(Ord))
+     * 
+     * @param   {Func?}  Mapper  retrieves the value to be pushed to the array
      * @return  {Collector}
      */
     class ToArray extends Collector {
         static Supplier()             => Array()
         static Accumulator(Arr, Val?) => Arr.Push(Val?)
         static Finisher(Arr)          => Arr
+
+        __New(Mapper) {
+            super.__New()
+            GetMethod(Mapper)
+            this.DefineProp("Mapper", { Get: (_) => Mapper })
+        }
+
+        Supplier()             => Array()
+        Accumulator(Arr, Val?) => Arr.Push((this.Mapper)(Val?))
+        Finisher(Arr)          => Arr
     }
 
-    ; TODO change to MapParam instead of CaseSense?
     /**
      * Counts elements by frequency using a Map and an optional `Classifier`
      * function.
      * 
      * @example
      * ; Map { "H": 1, "e": 1, "l": 3, ... }
-     * "Hello, world!".Collect(_.Frequency)
+     * "Hello, world!".Collect(C.Frequency)
      * 
      * ; Map { 72: 1, 101: 1, 108: 3, ... }
-     * "Hello, world!".Collect(_.Frequency(Ord))
+     * "Hello, world!".Collect(C.Frequency(Ord))
      * 
      * ; Map { "a": 34, "b": ... }
      * FileRead("foo.txt").StrSplit(" ").Collect(
-     *     _.Frequency(
+     *     C.Frequency(
      *         Word => SubStr(Word, 1, 1), ; classify by first letter
      *         false))                     ; case-insensitive
      * 
-     * @param   {Func?}       Classifier  function to retrieve unique map keys
-     * @param   {Primitive?}  CaseSense   case sensitivity of the map object
+     * @param   {Func?}                  Classifier  retrieves unique map keys
+     * @param   {Map?/Func?/Primitive?}  MapParam    internal map options
      * @return  {Collector}
      */
     class Frequency extends Collector {
@@ -315,24 +327,28 @@ class Collector {
 
         static Finisher(M) => M
 
-        __New(Classifier, CaseSense := true) {
+        __New(Classifier, MapParam := Map()) {
             super.__New()
-
-            MapObj := Map()
-            MapObj.CaseSense := CaseSense
-            MapObj.Default := 0
-
             GetMethod(Classifier)
-            this.DefineProp("CaseSense",  { Get: (_) => CaseSense })
+
+            switch {
+                case (MapParam is Map):
+                    Cache := MapParam
+                case (HasMethod(MapParam)):
+                    Cache := MapParam()
+                    if (!(Cache is Map)) {
+                        throw TypeError("Expected a Map",, Type(Cache))
+                    }
+                default:
+                    Cache := Map()
+                    Cache.CaseSense := MapParam
+            }
+
+            this.DefineProp("Cache",      { Get: (_) => Cache      })
             this.DefineProp("Classifier", { Get: (_) => Classifier })
         }
 
-        Supplier() {
-            M := Map()
-            M.Default := 0
-            M.CaseSense := this.CaseSense
-            return M
-        }
+        Supplier() => (this.Cache).Clone()
 
         Accumulator(M, Args*) {
             Key := (this.Classifier)(Args*)
@@ -346,7 +362,7 @@ class Collector {
      * Counts all input elements. Unset values are still counted as elements.
      * 
      * @example
-     * Range(4).Collect(_.Count) ; 4
+     * Range(4).Collect(C.Count) ; 4
      * 
      * @return  {Collector}
      */
@@ -361,9 +377,9 @@ class Collector {
      * with the specified prefix and suffix.
      * 
      * @example
-     * Range(5).Collect(_.Join)                 ; "12345"
-     * Range(5).Collect(_.Join(", "))           ; "1, 2, 3, 4, 5"
-     * Range(5).Collect(_.Join(", ", "[", "]")) ; "[1, 2, 3, 4, 5]"
+     * Range(5).Collect(C.Join)                 ; "12345"
+     * Range(5).Collect(C.Join(", "))           ; "1, 2, 3, 4, 5"
+     * Range(5).Collect(C.Join(", ", "[", "]")) ; "[1, 2, 3, 4, 5]"
      * 
      * @param   {String?}  Delimiter  the delimiter used between elements
      * @param   {String?}  Prefix     string at the beginning of the result
@@ -409,10 +425,10 @@ class Collector {
      * @see {Comparator}
      * 
      * @example
-     * Range(5, 10).Collect(_.Min) ; 5
+     * Range(5, 10).Collect(C.Min) ; 5
      * 
      * ; "a"
-     * FileRead("foo.txt").StrSplit(" ").Collect(_.Min(StrCompare))
+     * FileRead("foo.txt").StrSplit(" ").Collect(C.Min(StrCompare))
      * 
      * @param   {Func?}  Comparator  function that orders two elements
      * @return  {Collector}
@@ -455,10 +471,10 @@ class Collector {
      * @see {Comparator}
      * 
      * @example
-     * Range(5, 10).Collect(_.Max) ; 10
+     * Range(5, 10).Collect(C.Max) ; 10
      * 
      * ; "zoo"
-     * FileRead("foo.txt").StrSplit(" ").Collect(_.Max(StrCompare))
+     * FileRead("foo.txt").StrSplit(" ").Collect(C.Max(StrCompare))
      * 
      * @param   {Func?}  Comparator  function that orders two elements
      * @return  {Collector}
@@ -500,10 +516,10 @@ class Collector {
      * retrieve numeric values, if specified.
      * 
      * @example
-     * Range(5).Collect(_.Sum) ; 15
+     * Range(5).Collect(C.Sum) ; 15
      * 
      * ; 45
-     * Array({ x: 10 }, { x: 15 }, { x: 20 }).Collect(_.Sum(
+     * Array({ x: 10 }, { x: 15 }, { x: 20 }).Collect(C.Sum(
      *     Obj => Obj.x
      * ))
      * 
@@ -531,10 +547,10 @@ class Collector {
      * `Mapper` function to retrieve numeric values, if specified.
      * 
      * @example
-     * Range(5).Collect(_.Average) ; 3.0
+     * Range(5).Collect(C.Average) ; 3.0
      * 
      * ; 15.0
-     * Array({ x: 10 }, { x: 15 }, { x: 20 }).Collect(_.Sum(Obj => Obj.x))
+     * Array({ x: 10 }, { x: 15 }, { x: 20 }).Collect(C.Sum(Obj => Obj.x))
      * 
      * @param   {Func?}  Mapper  function to retrieve numeric values
      * @return  {Collector}
@@ -563,7 +579,6 @@ class Collector {
         Supplier() {
         }
 
-        ; TODO what to do with unset?
         Accumulator(_, Val?) {
             (++this.Count && (this.Sum += (this.Mapper)(Val?)))
         }
@@ -578,7 +593,7 @@ class Collector {
      * 
      * @example
      * ; 15
-     * Range(5).Collect(_.Reduce(  (a, b) => (a + b)  , 0))
+     * Range(5).Collect(C.Reduce(  (a, b) => (a + b)  , 0))
      * 
      * @param   {Func?}  Merger    function two merger two values
      * @param   {Any?}   Identity  initial starting value
@@ -608,7 +623,7 @@ class Collector {
      * @example
      * ; Map { "f": ["four"], "s": ["score", "seven"], "a": ["and", "ago"] }
      * StrSplit("four score and seven years ago", " ")
-     *     .Collect(_.Group(
+     *     .Collect(C.Group(
      *         Word => SubStr(Word, 1, 1), ; classify by first letter
      *         Collector.ToArray,          ; group elements into arrays
      *         false))                     ; case-insensitive
@@ -650,7 +665,7 @@ class Collector {
      * 
      * @example
      * ; Map { true: [2, 4, 6, 8, 10], false: [1, 3, 5, 7, 9] }
-     * Range(10).Collect(_.Partition(IsEven))
+     * Range(10).Collect(C.Partition(IsEven))
      * 
      * @param   {Func}        Condition  the given condition to partition with
      * @param   {Collector?}  Next       next collector stage to apply
@@ -683,10 +698,10 @@ class Collector {
      * 
      * @example
      * ; Map { 1: "foo", 2: "bar"}
-     * Array("foo", "bar").Stream().Collect(_.ToMap)
+     * Array("foo", "bar").Stream().Collect(C.ToMap)
      * 
      * ; Map { "Apple": 1, "Banana": 2, "Kiwi": 3 }
-     * Array("Apple", "Banana", "Kiwi").Stream(2).Collect(_.ToMap(
+     * Array("Apple", "Banana", "Kiwi").Stream(2).Collect(C.ToMap(
      *     (Index, Value, *) => Value,  ; use the word as key
      *     (Index, Value, *) => Index)) ; use its index as value
      * 
@@ -736,7 +751,7 @@ class Collector {
      * DisplayResult(Sum, Average) {
      *     ...
      * }
-     * Array(1, 2, 3, 4, 5).Collect(_.Sum, _.Average, DisplayResult)
+     * Array(1, 2, 3, 4, 5).Collect(C.Sum, C.Average, DisplayResult)
      * 
      * @param   {Collector}  Left    first collector
      * @param   {Collector}  Right   second collector
@@ -782,7 +797,7 @@ class AquaHotkey_Collector extends AquaHotkey {
          * 
          * @example
          * ; "1, 2, 3, 4"
-         * Array(1, 2, 3, 4).Collect(_.Join(", "))
+         * Array(1, 2, 3, 4).Collect(C.Join(", "))
          * 
          * @param   {Collector}  Coll  the collector to apply
          * @return  {Any}
@@ -826,7 +841,7 @@ class AquaHotkey_Collector extends AquaHotkey {
          * 
          * @example
          * ; Map { 1: "Apple", 2: "Banana", 3: "Kiwi" }
-         * Array("Apple", "Banana", "Kiwi").Stream(2).Collect(_.ToMap)
+         * Array("Apple", "Banana", "Kiwi").Stream(2).Collect(C.ToMap)
          */
         Collect(Coll) {
             if (!(Coll is Collector) && !HasBase(Coll, Collector)) {

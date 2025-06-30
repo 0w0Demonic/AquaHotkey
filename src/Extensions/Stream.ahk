@@ -875,7 +875,6 @@ class Stream {
         }
     }
 
-    ; TODO just return the match as array?
     /**
      * Returns whether any element set satisfies the given `Condition`.
      * 
