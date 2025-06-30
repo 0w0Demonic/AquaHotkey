@@ -35,6 +35,9 @@ Wouldn't it be better to just write:
 Array(1, 2, 3, 4).Sum() ; 10
 ```
 
+The main idea behind AquaHotkey is to allow you to make these changes possible
+without knowing about the rocket science that is AHK's object protocol.
+
 ## Getting Started
 
 - **Extend `AquaHotkey`**
@@ -89,31 +92,6 @@ Array(1, 2, 3, 4).Sum() ; 10
     MsgBox( Arr.Capacity ) ; 20
     ```
 
-## Real-World Example - Extending `Gui.Control`
-
-You can modify nested classes like `Gui.Control`, too:
-
-**Example - Define a `Hidden` property for `Gui.Control`**:
-
-```ahk
-class GuiControlExtensions extends AquaHotkey
-{
-    class Gui
-    {
-        class Control {
-            Hidden {
-                get => (!this.Visible)
-                set => (this.Visible := !value)
-            }
-        }
-    }
-}
-
-Btn := MyGui.Add("Button", "vMyButton", "Click me")
-
-Btn.Hidden := true ; hides the button
-```
-
 ## Instance Variable Declarations
 
 You can even define custom fields on built-in types by using simple
@@ -137,14 +115,24 @@ MsgBox( Arr.Foo ) ; "bar"
 MsgBox( Arr.Baz ) ; "quux"
 ```
 
-- Note: This doesn't work on primitive classes, because they can't have fields.
-        It is fine, however, to add `static` fields to primitive classes.
-
-**Known Issues**:
+- Note: Declaring non-static fields don't work on primitive classes such as
+        `Integer`, because they can't own any fields.
 
 > [!CAUTION]
->For `Object` and `Any`, you must use an `__Init()` method with a function body.
->Otherwise, AutoHotkey will crash from infinite recursion.
+>For `Object` and `Any`, you must declare nonstatic fields using `__Init()` -
+>otherwise, your script will crash from infinite recursion.
+>
+>```ahk
+>class ObjectExt extends AquaHotkey {
+>    class Object {
+>        ; Foo := "bar" <-- don't do this!!!
+>
+>        __Init() {
+>            this.Foo := "bar" <-- do this instead.
+>        }
+>    }
+>}
+>```
 
 ## Preserving Original Behavior with `AquaHotkey_Backup`
 
@@ -241,3 +229,91 @@ Object
 - `AquaHotkey_Backup` snapshots a class for safe method overriding.
 - `AquaHotkey_MultiApply` copies properties directly into multiple classes.
 - `AquaHotkey_Ignore` marks classes to skip during property injection.
+
+## Advanced Concepts
+
+This section talks about the basic conventions and some more advanced concepts
+to allow you to get the most out of this library.
+
+**One extension, one file**:
+
+You should generally offload each of your extension classes to separate files.
+It lets you very easily `#Include` previously used code across many different
+scripts.
+
+**Always assign clear names**:
+
+Extensions are global classes. Make sure to give clear and unambigious names
+to them to make them easy to reuse across multiple scripts.
+
+**Extending nested classes**:
+
+Extending nested classes such as `Gui.Button` works the exact same way, just
+keep nesting:
+
+```ahk
+class Extension_GuiButton extends AquaHotkey {
+    class Gui {
+        class Button {
+            ...
+        }
+    }
+}
+```
+
+**Conditional imports**:
+
+You can check whether certain extensions are imported, simply by calling
+`IsSet()` on the class that defines them. This allows you to very easily
+ensure that the right files are `#Include`'d in your script, or customize
+behavior based on what is present. Sort of like `#indef` in C/C++, if you
+think about it.
+
+```ahk
+class StreamExtensions extends AquaHotkey {
+    static __New() {
+        if (IsSet(AquaHotkey_Stream)) {
+            return super.__New() ; success - extend like usual
+        }
+
+        ; failure - return without calling `super.__New()`.
+        ; realistically, you'd throw an error instead of a message box
+        MsgBox("
+        (
+        StreamExtensions.Stream unavailable - Stream.ahk is missing.
+
+        #Include .../Stream.ahk
+        )", "StreamExtensions.ahk", 0x40)
+    }
+
+    class Stream {
+        ...
+    }
+}
+```
+
+**Order of execution**:
+
+In some cases, the order in which extension classes are loaded is crucial.
+Most of the time, this happens when you work with `AquaHotkey_Backup` -
+you want to take a snapshot of the class *before* any changes are applied.
+
+To ensure everything works correctly, you force the classes to load inside
+your `static __New()` method.
+
+```ahk
+class DarkModeGui extends AquaHotkey {
+    static __New() {
+        ; force this class to load (yes, this works, trust me bro.)
+        (BackupGui)
+    }
+
+    class Gui {
+        ...
+    }
+}
+
+class BackupGui extends AquaHotkey_Backup {
+    static __New() => super.__New(Gui)
+}
+```

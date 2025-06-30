@@ -282,8 +282,9 @@ using the standard angle brackets syntax:
 
 ## AquaHotkeyX - Batteries-Included
 
-AquaHotkeyX builds on the core AquaHotkey extension system. Designed for
-clarity, conciseness and elegance.
+AquaHotkeyX is a collection of extensions that I use for my own projects.
+it's a general-purpose standard lib designed for clarity, conciseness and
+elegance.
 
 It embraces functional programming idioms like stream-like methods, optional
 types, mappers and predicates.
@@ -292,8 +293,8 @@ types, mappers and predicates.
 #Include <AquaHotkeyX>
 ```
 
-It's fully modular, i.e. you can selectively include only the things you need,
-if you want.
+It's fully modular, i.e. you can selectively include only the things you need
+without having to worry about dependancy.
 
 ```ahk
 #Include <AquaHotkey>

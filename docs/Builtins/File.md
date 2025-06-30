@@ -17,6 +17,9 @@ for LineNumber, Line in FileOpen("stuff.txt", "r") {
 FileOpen("something.txt", "r").Stream().TakeWhile(...).ForEach(...)
 ```
 
+It's generally a good idea to close the file as soon as possible, but it's
+often not necessary.
+
 Use `Mapper.ParseCSV` to parse CSV files.
 
 ```ahk
