@@ -1,9 +1,5 @@
 # Advanced Concepts - Class Prototyping
 
-Now that you've ..., I'd like to demonstrate the more advanced concepts for
-getting the most out of this library and to show you how to make much more
-fundamental changes to AHK's built-ins.
-
 ## Extending Nested Classes
 
 Works exactly in the same way. Just nest one layer deeper:
@@ -24,7 +20,7 @@ class GuiButton extends AquaHotkey
 By specifying field declarations (like e.g. `Foo := "bar"`) or an `__Init()`
 method, you can control how objects are initialized.
 
-This is really useful if you want to set default values such as `Map.CaseSense`
+This is really useful if you want to set default values for `Map.CaseSense`
 or `Array.Default`:
 
 ```ahk
@@ -75,7 +71,7 @@ properties.
 **How to use**:
 
 In this following example, we'll overwrite the `Gui.__New()` constructor with
-our own method, without breaking any existing things.
+our own method, without breaking any existing properties.
 
 First, we define a new class that derives from `AquaHotkey_Backup`. To create
 a snapshot, call `super.__New()` and specify each class which you want to save.
@@ -94,8 +90,7 @@ class GuiExtensions extends AquaHotkey {
     class Gui {
         __New(Args*) {
             (OldGui.Prototype.__New)(this, Args*)
-
-
+            MsgBox("Overridden safely!")
         }
     }
 }
@@ -104,19 +99,16 @@ class GuiExtensions extends AquaHotkey {
 We've now safely overridden the old `Gui` constructor. Let's test it out:
 
 ```ahk
-; creates a valid Gui and then displays "Overridden safely" as message box
+; creates a valid Gui and then displays "Overridden safely!"
 g := Gui()
-g.AddEdit(...)
-...
-g.Show()
 ```
 
-One last thing we need to take into consideration is the *order of execution*.
-Especially when working with `AquaHotkey_Backup`, this can produce obscure bugs
-if you're not careful.
+One last thing we need to take into consideration is the *order of execution*
+of different AquaHotkey classes.
 
-We want to make sure that a backup is made *before* `GuiExtensions` is loaded.
-This is how we do it:
+Especially when working with `AquaHotkey_Backup`, this can produce obscure bugs
+if you're not careful. We want to make sure that a backup is made *before*
+`GuiExtensions` is loaded. This is how we do it:
 
 ```ahk
 class GuiExtensions extends AquaHotkey {
@@ -130,9 +122,6 @@ class GuiExtensions extends AquaHotkey {
 
 You can force classes to initialize by referencing them (i.e.,
 `(MyClass1 [  , MyClass2, ...  ])`) and then finally calling `super.__New()`.
-
-This is a very common pattern you'll encounter whenever you're making deeper
-changes to AHK's types.
 
 ## Sharing Behavior Across Multiple Classes with `AquaHotkey_MultiApply`
 
@@ -220,3 +209,17 @@ class StreamExtensions extends AquaHotkey {
 This is exactly what `Collector.ahk` and `Gatherer.ahk` do: if Streams aren't
 included, gatherers won't load at all, and collectors fall back to a smaller
 subset of features.
+
+## Quick Summary
+
+- Overriding nested classes works exactly the same, just nest deeper.
+- You can add field declarations to built-in types.
+  - Prefer making changes to `__New()`, instead.
+  - Doesn't work on primitive types.
+  - Watch out when dealing with `Object` and `Any`!
+- `AquaHotkey_Backup` creates a snapshot of one or multiple classes.
+  - Often times, the order of execution between classes is important.
+  - Force classes to load by referencing them: `(MyClass, ...)`
+- `AquaHotkey_MultiApply` overrides the same properties into multiple classes.
+- `AquaHotkey_Ignore` marks classes to be ignored by the prototyping system.
+- You can check whether extensions are included via `IsSet(<defining class>)`.
