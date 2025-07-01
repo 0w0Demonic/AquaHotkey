@@ -68,6 +68,27 @@ class Func {
         Cache1.Hits.AssertEquals(0)
         Cache2.Hits.AssertEquals(1)
     }
+
+    static __New() {
+        global KwargsTest
+        KwargsTest := (A, B, C) => (A + B + C)
+        KwargsTest.Signature := "A / A1 / A2 , B, C"
+    }
+
+    static With1() {
+        KwargsTest.With({
+            A: 1,
+            B: 2,
+            C: 3
+        }).AssertEquals(6)
+    }
+
+    static With2() {
+        TestSuite.AssertThrows(() => KwargsTest.With({ A: 4 }))
+
+        TestSuite.AssertThrows(() => KwargsTest.With(
+            { A: 1, A1: 2, B: 0, C: 0 }))
+    }
 }
 
 class CustomMap extends Map {

@@ -33,4 +33,5 @@
 #Include %A_LineFile%/../../Extensions/Combiner.ahk
 #Include %A_LineFile%/../../Extensions/Comparator.ahk
 
+#Include %A_LineFile%/../../Extensions/Kwargs.ahk
 #Include %A_LineFile%/../../Extensions/Zip.ahk

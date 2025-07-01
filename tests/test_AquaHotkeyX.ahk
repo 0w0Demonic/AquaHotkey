@@ -109,4 +109,6 @@ class Debug extends AquaHotkey {
     }
 }
 
+Abs.With({ x: -2 }).MsgBox()
+
 ExitApp()
