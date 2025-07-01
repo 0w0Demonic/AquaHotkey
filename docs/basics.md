@@ -1,44 +1,6 @@
 # Basics - Class Prototyping
 
-## Why This Matters
-
-AutoHotkey's built-in classes are powerful, but you can't easily modify them.
-
-Want to add `.Sum()` to every array? You'll be stuck writing wrapper functions
-like this:
-
-```ahk
-Array_Sum(Arr) {
-    if (!(Arr is Array)) {
-        throw TypeError()
-    }
-    Result := 0
-    for Value in Arr {
-        Result += (Value ?? 0)
-    }
-    return Result
-}
-
-Array_Sum([1, 2, 3, 4]) ; 10
-```
-
-It works, but it's clunky.
-
-Wouldn't it be better to just write:
-
-```ahk
-Array(1, 2, 3, 4).Sum() ; 10
-```
-
-The main idea behind AquaHotkey is to make built-in classes *even more*
-powerful tailored to your needs - without caring too much about AHK's internals.
-
 ## Quick Crash Course
-
-- AquaHotkey lets you *inject methods directly into classes*, so you can call
-  them like any normal methods.
-- It makes many wrapper functions *obsolete*.
-- You can write `ArrayObj.Sum()` instead of `Array_Sum(Arr)`.
 
 This is how you write your own extensions:
 
@@ -75,7 +37,37 @@ Okay. What just happened?
 - All nested class are enumerated - in this case, `ArrayUtils.Array`.
 - Everything defined in `ArrayUtils.Array` lands inside `Array`.
 
-That's about it, actually. I encourage you to test it out yourself:
+Yup, that's it.
+
+Always remember to follow this schema, and AquaHotkey will do the rest for you:
+
+```ahk
+class CoolStuff extends AquaHotkey
+{
+    class Array {
+        ... ; pretend that this here is the actual `Array` class.
+    }
+}
+```
+
+And yes, this also works for functions, if you really want to:
+
+```ahk
+class MsgBoxUtil extends AquaHotkey
+{
+    class MsgBox {
+        ; note: you should prefer static properties whenever you're
+        ;       dealing with functions.
+        static Info(Text?, Title?) => this(Text?, Title?, 0x40)
+    }
+}
+
+MsgBox.Info("(insert very informative text here)", "Absolute Cinema")
+```
+
+## Exercises
+
+Now that we've covered the very basics, I encourage you to try it out yourself:
 
 - Create a method `String.Contains(Str)` that checks occurrences of
   `Str` inside a string. (hint: use `InStr()`).
@@ -84,7 +76,7 @@ That's about it, actually. I encourage you to test it out yourself:
 - Bonus: try adding `Array.ForEach(Action)`, which calls `Action(Value)`
   on each element in the array.
 
----
+## Solutions
 
 <details>
   <summary><code>String.Contains(Str)</code></summary>

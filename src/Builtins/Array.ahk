@@ -8,9 +8,6 @@ class AquaHotkey_Array extends AquaHotkey {
  * - src/Builtins/Array.ahk
  */
 class Array {
-    ; TODO Find() function?
-    ; TODO AllMatch, NoneMatch, AnyMatch?
-
     /**
      * Sets the `Default` property of this array which is returned when
      * accessing an unset element.
@@ -719,7 +716,83 @@ class Array {
         }
         return this
     }
+
+    /**
+     * Returns `true` if any element in the array fulfills the given
+     * `Condition`, in which case the first matching element is returned
+     * as an object with `Value` property.
+     * 
+     * ```ahk
+     * Condition(ArrayElement?, Args*)
+     * ```
+     * 
+     * @example
+     * Array(1, 2, 3, 4).AnyMatch(  (x) => (x > 2)  ) ; { Value: 3}
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
+     * @return  {Boolean/Object}
+     */
+    AnyMatch(Condition, Args*) {
+        GetMethod(Condition)
+        for Value in this {
+            if (Condition(Value?, Args*)) {
+                return { Value: Value? }
+            }
+        }
+        return false
+    }
     
+    /**
+     * Returns `true` if all elements in the array fulfill the given
+     * `Condition`.
+     * 
+     * ```ahk
+     * Condition(ArrayElement?, Args*)
+     * ```
+     * 
+     * @example
+     * Array(1, 2, 3, 4).AllMatch(  (x) => (x < 10)  ) ; true
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
+     * @return  {Boolean}
+     */
+    AllMatch(Condition, Args*) {
+        GetMethod(Condition)
+        for Value in this {
+            if (!Condition(Value?, Args*)) {
+                return false
+            }
+        }
+        return true
+    }
+
+    /**
+     * Returns `true` if none of the elements in the array fulfill the given
+     * `Condition`.
+     * 
+     * ```ahk
+     * Condition(ArrayElement?, Args*)
+     * ```
+     * 
+     * @example
+     * Array(1, 2, 3, 4).NoneMatch(  (x) => (x == 4)  ) ; false
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
+     * @return  {Boolean}
+     */
+    NoneMatch(Condition, Args*) {
+        GetMethod(Condition)
+        for Value in this {
+            if (Condition(Value?, Args*)) {
+                return false
+            }
+        }
+        return true
+    }
+
     /**
      * Returns the string representation of the array.
      * 

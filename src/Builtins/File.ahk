@@ -8,8 +8,6 @@ class AquaHotkey_File extends AquaHotkey {
  * - src/Builtins/File.ahk
  */
 class File {
-    ; TODO Use with Collector or Gatherer API
-
     /**
      * Enumerates the lines of the file.
      * 

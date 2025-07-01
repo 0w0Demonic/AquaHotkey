@@ -45,9 +45,9 @@ Use `C`,`Col`, whatever works - just don't write `Collector.` fifty times.
 | `.Sum`, `.Sum(Mapper)`                                            | sums numbers                                  |
 | `.Average`, `.Average(Mapper)`                                    | averages numbers                              |
 | `.Reduce(Merger?, Identity?)`                                     | reduces to a single value                     |
-| `.Group(Classifier, Next?, CaseSense?)`                           | groups elements into a map by the given key   |
+| `.Group(Classifier, Next?, MapParam?)`                            | groups elements into a map by the given key   |
 | `.Partition(Condition, Next?)`                                    | partitions into a map with `true` and `false` |
-| `.ToMap`, `.ToMap(KeyMapper?, ValueMapper?, Merger?, CaseSense?)` | gathers elements into a map (stream-only)     |
+| `.ToMap`, `.ToMap(KeyMapper?, ValueMapper?, Merger?, MapParam?)`  | gathers elements into a map (stream-only)     |
 
 ## Composing Collectors
 

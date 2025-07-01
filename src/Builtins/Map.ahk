@@ -241,7 +241,6 @@ class Map {
         return this
     }
     
-    ; TODO Args*?
     /**
      * Adds a new element to the map if absent. A value is computed by applying
      * `Mapper` to the given key.
@@ -264,7 +263,6 @@ class Map {
         return this
     }
 
-    ; TODO Args*?
     /**
      * If present, replaces the value by applying the given `Mapper`,
      * using key and value as arguments.
@@ -348,7 +346,7 @@ class Map {
 
     /**
      * Determines whether an element satisfies the given `Condition`,
-     * in which case it will return the first matching element in the form
+     * in which case the first matching element is returned in the form
      * of an object with `Key` and `Value` properties.
      * 
      * ```ahk
@@ -368,7 +366,7 @@ class Map {
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
-     * @return  {Object}
+     * @return  {Boolean/Object}
      */
     AnyMatch(Condition, Args*) {
         GetMethod(Condition)
