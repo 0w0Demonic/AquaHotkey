@@ -13,13 +13,18 @@ WinTitle := WinTitle_1stHalf . ", " . WinTitle_2ndHalf
 WinTitleTimeout := WinTitle_1stHalf . ", Timeout, " . WinTitle_2ndHalf
 SetWinTitle := "Value, " . WinTitle
 
+Capacity := "Capacity/Cap/Size"
+
+Style := "Value/Style"
+ExStyle := "Value/Style/ExStyle"
+
 ComObj := "ComObj/ComObject"
 Size := "Bytes/Size/Length"
 Pointer := "Ptr/Addr/Address"
 Options := "Options/Opt"
 Control := "Control/Ctrl/Ctl"
 ControlWinTitle := Control . ", " . WinTitle
-ControlIndex := "N/Index/Idx"
+ControlIndex := "N/Index"
 IndexControlWinTitle := ControlIndex . ", " . ControlWinTitle
 
 Coordinates := "X, Y, Width/W, Height/H"
@@ -32,13 +37,14 @@ DriveOrFilePath := Drive . "/Path/FilePath"
 Key := "KeyName/Name/Key"
 Group := "GroupName/Group/Name"
 
+LTRB := "Left/L, Top/T, Right/R, Bottom/B"
 FilePattern := "FilePattern/FileName/FilePath"
 SingleFile := "Filename/FilePath/Path"
 
 SourcePattern := "SourcePattern/Source/From"
 DestPattern := "DestPattern/Dest/To"
+ParamCount := "ParamCount/MaxParams/Params"
 
-LTRB := "Left/L, Top/T, Right/R, Bottom/B"
 Callback := "Callback, AddRemove"
 Message := "Msg/Message/MsgNumber/MessageNumber"
 
@@ -52,8 +58,7 @@ return Map(
     ; Array
     BlockInput, "OnOff/SendMouse/MouseMove",
     Buffer, Size . ", FillByte",
-    CallbackCreate, "Function/Func/f, " . Options . ", "
-                  . "ParamCount/MaxParams/Params",
+    CallbackCreate, "Callback, " . Options . ", " . ParamCount,
     CallbackFree, Pointer,
     CaretGetPos, "X, Y",
     Ceil, SimpleMath,
@@ -236,9 +241,14 @@ return Map(
     ; Map
     ; Max
     MenuFromHandle, "Handle/Hwnd",
-    MenuSelect, WinTitle_1stHalf . ", Menu, SubMenu1/Sub1,"
-              . "SubMenu2/Sub2, SubMenu3/Sub3, SubMenu4/Sub4,"
-              . "SubMenu5/Sub5, SubMenu6/Sub6,"
+    MenuSelect, WinTitle_1stHalf
+              . ", Menu,"
+              . "SubMenu1/Sub1/Menu1,"
+              . "SubMenu2/Sub2/Menu2,"
+              . "SubMenu3/Sub3/Menu3,"
+              . "SubMenu4/Sub4/Menu4,"
+              . "SubMenu5/Sub5/Menu5,"
+              . "SubMenu6/Sub6/Menu6,"
               . WinTitle_2ndHalf,
     ; Min
     Mod, "Dividend, Divisor",
@@ -266,7 +276,7 @@ return Map(
     ObjGetDataSize, "Obj", ; TODO
     ObjOwnPropCount, "Obj",
     ObjSetBase, "Obj, BaseObj/Base",
-    ObjSetCapacity, "Obj, Capacity/Cap",
+    ObjSetCapacity, "Obj, " . Capacity,
     ObjSetDataPtr, "Obj, " . Pointer, ; TODO
     OnClipboardChange, Callback,
     OnError, Callback,
@@ -282,8 +292,10 @@ return Map(
     ProcessClose, Process,
     ProcessWaitClose, Process . ", Timeout",
     Random, "A, B",
-    ; RegExMatch
-    ; RegExReplace
+	RegExMatch, SimpleString . ", RegEx/Pattern, MatchObj/Match/Output/Out,"
+			  . "Start/StartingPos/Index",
+	RegExReplace, SimpleString . ", RegEx/Pattern, Rep/Replacement, "
+			    . "MatchObj/Match/Output/Out, Start/StartingPos/Index",
     RegCreateKey, "Key/Name/KeyName",
     RegDelete, "KeyName, ValueName",
     RegDeleteKey, "KeyName",
@@ -297,7 +309,7 @@ return Map(
     SendInput, "Keys/Text/Str/String",
     SendPlay, "Keys/Text/Str/String",
     SendEvent, "Keys/Text/Str/String",
-    SendLevel, "Level",
+    SendLevel, "Level/Value",
     SendMessage, Message . ", wParam, lParam, " . ControlWinTitle . ", Timeout",
     SendMode, "Mode/Type",
     SetCapsLockState, "State",
@@ -305,26 +317,26 @@ return Map(
     SetDefaultMouseSpeed, "Speed",
     SetKeyDelay, "Delay, PressDuration/Duration, Play",
     SetMouseDelay, "Delay, Play",
-    SetNumLockState, "State",
-    SetScrollLockState, "State",
+    SetNumLockState, "State/OnOff",
+    SetScrollLockState, "State/OnOff",
     SetRegView, "Mode/RegView",
     SetStoreCapsLockMode, "OnOff/Mode",
-    SetTimer, "Function/Callback/f, Period/Interval, Priority",
+    SetTimer, "Callback, Period/Interval, Priority",
     SetTitleMatchMode, "Speed/MatchMode/Mode",
     SetWinDelay, "Delay",
     SetWorkingDir, "DirName/Dir/WorkingDir",
     Shutdown, "Flag/Type/Mode",
     Sin, SimpleMath,
     Sleep, "Delay/Duration/Time",
-    Sort, "Str/String, " . Options . ", Callback",
+    Sort, SimpleString . ", " . Options . ", Callback",
     SoundBeep, "Frequency, Duration",
     SoundGetInterface, "IID, Component, Device",
     SoundGetMute, "Component, Device",
     SoundGetName, "Component, Device",
     SoundGetVolume, "Component, Device",
     SoundPlay, SingleFile . ", Wait",
-    SoundSetMute, "NewSetting/Setting, Component, Device",
-    SoundSetVolume, "NewSetting/Setting, Component, Device",
+    SoundSetMute, "Value/OnOff/Setting, Component, Device",
+    SoundSetVolume, "Value/OnOff/Setting, Component, Device",
     SplitPath, "Path, FileName, Dir, Extension, NameNoExt, Drive",
     Sqrt, SimpleMath,
     StatusBarGetText, "Part/N/Index, " . WinTitle,
@@ -337,12 +349,13 @@ return Map(
     StrLower, SimpleString,
     StrPtr, SimpleString,
     ; StrPut
-    ; StrReplace
-    StrSplit, "Str/String, Delimiters/Delim, OmitChars/Omit/Remove/Trim,"
+	StrReplace, SimpleString . ", Pattern, Rep/Replacement, CaseSense,"
+			  . "Count, Limit"
+    StrSplit, SimpleString . ", Delimiters/Delim, OmitChars/Omit/Remove/Trim,"
             . "MaxParts/Limit",
     StrTitle, SimpleString,
     StrUpper, SimpleString,
-    SubStr, "Str/String, Index/Start/StartingPos, Length/Len",
+    SubStr, SimpleString . ", Index/Start/StartingPos, Length/Len",
     Suspend, "State",
     SysGet, "Value/Property/Prop",
     Tan, SimpleMath,
@@ -354,7 +367,7 @@ return Map(
     RTrim, SimpleString . ", OmitChars/Omit/Remove/Trim",
     LTrim, SimpleString . ", OmitChars/Omit/Remove/Trim",
     Type, "Value",
-    VarSetStrCapacity, SimpleString . ", Capacity/Cap/Size",
+    VarSetStrCapacity, SimpleString . ", " . Capacity,
     VerCompare, "VersionA/A, VersionB/B",
     WinActivate, WinTitle,
     WinActivateBottom, WinTitle,
@@ -394,9 +407,9 @@ return Map(
     WinSetAlwaysOnTop, SetWinTitle,
     WinSetEnabled, SetWinTitle,
     WinSetRegion, Options . ", " . WinTitle,
-    WinSetStyle, SetWinTitle,
-    WinSetExStyle, SetWinTitle,
-    WinSetTitle, SetWinTitle,
+    WinSetStyle, Style . ", ", WinTitle,
+    WinSetExStyle, ExStyle . ", " . WinTitle,
+    WinSetTitle, "Title/Value, " . WinTitle,
     WinSetTransColor, "Color/" . SetWinTitle,
     WinSetTransparent, "N/OnOff/" . SetWinTitle,
     WinShow, WinTitle,
