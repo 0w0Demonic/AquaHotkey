@@ -2,6 +2,9 @@
 SimpleMath := "Number/Value/x"
 SimpleString := "String/Str"
 
+SimpleStringItem := SimpleString . "/Item"
+SimpleStringText := SimpleString . "/Text"
+
 WinTitle_1stHalf := "WinTitle/WTtl, WinText/WTxt"
 WinTitle_2ndHalf := "ExcludeTitle/ETtl/NoTitle,"
                      . "ExcludeText/ETxt/NoText"
@@ -21,9 +24,13 @@ IndexControlWinTitle := ControlIndex . ", " . ControlWinTitle
 
 Coordinates := "X, Y, Width/W, Height/H"
 CoordinatesWinTitle := Coordinates . ", " . WinTitle
+WorkArea := "X, Y, X1, Y1, X2, Y2"
 
 Drive := "Drive/DriveName"
 DriveOrFilePath := Drive . "/Path/FilePath"
+
+Key := "KeyName/Name/Key"
+Group := "GroupName/Group/Name"
 
 FilePattern := "FilePattern/FileName/FilePath"
 SingleFile := "Filename/FilePath/Path"
@@ -46,12 +53,12 @@ return Map(
     BlockInput, "OnOff/SendMouse/MouseMove",
     Buffer, Size . ", FillByte",
     CallbackCreate, "Function/Func/f, " . Options . ", "
-                    . "ParamCount/MaxParams/Params",
-    CallbackFree, "Address/Addr",
+                  . "ParamCount/MaxParams/Params",
+    CallbackFree, Pointer,
     CaretGetPos, "X, Y",
     Ceil, SimpleMath,
     Chr, SimpleMath,
-    Click, "Options/Opt",
+    Click, Options,
     ClipboardAll, Pointer . ", " . Size,
     ClipWait, "Timeout, WaitFor/Type",
     ; ComCall
@@ -66,17 +73,16 @@ return Map(
     ComObjType, ComObj . ", InfoType/Name/IID/Class/CLSID",
     ComObjValue, ComObj,
     ComObject, "VarType/Type, Value, Flags",
-    ControlAddItem, "Str/String/Item, " . ControlWinTitle,
+    ControlAddItem, SimpleStringItem . ControlWinTitle,
     ControlChooseIndex, ControlIndex . ", " . ControlWinTitle,
-    ControlChooseString, "Str/String/Item, " . ControlWinTitle,
-    ControlClick, Control
-                . "/Position/Pos, " . WinTitle_1stHalf
+    ControlChooseString, SimpleStringItem . "/Choice, " . ControlWinTitle,
+    ControlClick, Control . "/Position/Pos, " . WinTitle_1stHalf
                 . ", WhichButton/Button/Key/Type"
-                . ", ClickCount/Clicks/Repeat/Amount/Times"
-                . ", " . Options
+                . ", ClickCount/Clicks/Repeat/Amount/Times/Count"
+                . ", " . Options . ", "
                 . WinTitle_2ndHalf,
     ControlDeleteItem, ControlIndex . ", " . ControlWinTitle,
-    ControlFindItem, "Str/String/Item, " . ControlWinTitle,
+    ControlFindItem, SimpleStringItem . ControlWinTitle,
     ControlFocus, ControlWinTitle,
     ControlGetChecked, ControlWinTitle,
     ControlGetChoice, ControlWinTitle,
@@ -95,9 +101,9 @@ return Map(
     ControlHideDropDown, ControlWinTitle,
     ControlMove, Coordinates . ", " . ControlWinTitle,
     ControlSend, "Keys, " . ControlWinTitle,
-    ControlSendText, "Keys, " . ControlWinTitle,
-    ControlSetChecked, "Value, " . ControlWinTitle,
-    ControlSetEnabled, "Value, " . ControlWinTitle,
+    ControlSendText, "Keys/Text, " . ControlWinTitle,
+    ControlSetChecked, "Value/Checked, " . ControlWinTitle,
+    ControlSetEnabled, "Value/Enabled, " . ControlWinTitle,
     ControlSetStyle, "Value/Style, " . ControlWinTitle,
     ControlSetExStyle, "Value/Style/ExStyle, " . ControlWinTitle,
     ControlSetText, "Value/NewText/Text, " . ControlWinTitle,
@@ -107,10 +113,10 @@ return Map(
     Cos, SimpleMath,
     Critical, "Value/OnOff/Setting/Mode",
     DateAdd, "DateTime/Timestamp,"
-            . "Time/Difference/Duration/TimeSpan,"
+            . "Time/Difference/Duration/TimeSpan/Span,"
             . "Unit/Units/TimeUnit/TimeUnits",
     DateDiff, "DateTime/Timestamp,"
-            . "Time/Difference/Duration/TimeSpan,"
+            . "Time/Difference/Duration/TimeSpan/Span,"
             . "Unit/Units/TimeUnit/TimeUnits",
     DetectHiddenText, "Mode/OnOff",
     DetectHiddenWindows, "Mode/OnOff",
@@ -148,13 +154,13 @@ return Map(
     EditGetLine, IndexControlWinTitle,
     EditGetLineCount, ControlWinTitle,
     EditGetSelectedText, ControlWinTitle,
-    EditPaste, "Str/String/Text, " . ControlWinTitle,
+    EditPaste, SimpleStringText . ", " . ControlWinTitle,
     EnvGet, "EnvVar/Name",
     EnvSet, "EnvVar/Name, Value",
     Exit, "ExitCode/Code",
     ExitApp, "ExitCode/Code",
     Exp, SimpleMath,
-    FileAppend, "Text/Str/String, Filename/FilePath/Path, " . Options,
+    FileAppend, SimpleStringText . ", " . SingleFile . ", " . Options,
     FileCopy, "Source/SourcePattern/From,"
             . "Dest/DestPattern/To,"
             . "Overwrite",
@@ -164,8 +170,8 @@ return Map(
     FileDelete, FilePattern,
     FileEncoding, "Encoding",
     FileExist, FilePattern,
-    FileInstall, "Source/From, Dest/To, Overwrite",
-    FileGetAttrib, "Filename/FilePath/Path",
+    FileInstall, "Source/Src/From, Dest/To, Overwrite",
+    FileGetAttrib, SingleFile,
     FileGetShortcut, "LinkFile, Target, Dir, Args, Description,"
                     . "Icon, IconNum, RunState",
     FileGetSize, SingleFile . ", Units/In",
@@ -184,15 +190,15 @@ return Map(
     Floor, SimpleMath,
     ; Format
     FormatTime, "Timestamp/Time/Value, Format",
-    GetKeyName, "KeyName/Name/Key",
-    GetKeyVK, "KeyName/Name/Key",
-    GetKeySC, "KeyName/Name/Key",
-    GetKeyState, "KeyName/Name/Key, Mode/Type",
+    GetKeyName, Key,
+    GetKeyVK, Key,
+    GetKeySC, Key,
+    GetKeyState, Key . ", Mode/Type",
     GetMethod, "Value, Name/MethodName/Method, ParamCount/MaxParams",
-    GroupActivate, "Group/GroupName/Name, Mode/Type",
-    GroupAdd, "Group/GroupName/Name, " . WinTitle,
-    GroupClose, "Group/GroupName/Name, Mode/Type",
-    GroupDeactivate, "Group/GroupName/Name, Mode/Type",
+    GroupActivate, Group . ", Mode/Type",
+    GroupAdd, Group . ", " . WinTitle,
+    GroupClose, Group . ", Mode/Type",
+    GroupDeactivate, Group . ", Mode/Type",
     Gui, Options . ", Title, EventObj/EventSink",
     GuiCtrlFromHwnd, "Hwnd",
     GuiFromHwnd, "Hwnd, Recurse/RecurseParent",
@@ -204,10 +210,9 @@ return Map(
     Hotkey, "Hotkey/Keys/Key/KeyName, Action/Callback, " . Options,
     ; Hotstring
     IL_Create, "InitialCount, GrowCount, LargeIcons",
-    IL_Add, "ImageListID, IconFileName, IconNumber/MaskColor,"
-          . "Resize",
+    IL_Add, "ImageListID, IconFileName, IconNumber/MaskColor, Resize",
     IL_Destroy, "ImageListID",
-    ImageSearch, "X, Y, X1, Y1, X2, Y2, ImageFile/File/Image",
+    ImageSearch, WorkArea . ", ImageFile/File/Image/" . SingleFile,
     IniDelete, SingleFile . ", Section, Key",
     IniRead, SingleFile . ", Section, Key, Default",
     IniWrite, "Value/Pairs, " . SingleFile . ", Section, Key",
@@ -243,10 +248,8 @@ return Map(
     MonitorGetWorkArea, "N/Index, " . LTRB,
     MouseClick, "WhichButton/Button, X, Y, Clicks/ClickCount/Times,"
               . "Speed, Direction/DownOrUp, Relative",
-    MouseClickDrag, "WhichButton/Button, X, Y, X1, Y1, X2, Y2,"
-                    . "Speed, Relative",
-    MouseGetPos, "X, Y, Window/Hwnd, " . Control . "/ClassNN,"
-               . "Flag",
+    MouseClickDrag, "WhichButton/Button, " . WorkArea . ", Speed, Relative",
+    MouseGetPos, "X, Y, Window/Hwnd, " . Control . "/ClassNN, Flag",
     MouseMove, "X, Y, Speed, Relative",
     MsgBox, "Text, Title, Options",
     Number, SimpleMath,
@@ -274,7 +277,7 @@ return Map(
     Pause, "ThreadState",
     Persistent, "Persist",
     PixelGetColor, "X, Y, Mode/Type",
-    PixelSearch, "X, Y, X1, Y1, X2, Y2, ColorID/Color, Variation",
+    PixelSearch, WorkArea . ", ColorID/Color, Variation",
     PostMessage, Message . ", wParam, wParam, " . ControlWinTitle,
     ProcessClose, Process,
     ProcessWaitClose, Process . ", Timeout",
@@ -344,7 +347,7 @@ return Map(
     SysGet, "Value/Property/Prop",
     Tan, SimpleMath,
     ; Thread
-    ToolTip, "Str/String/Text, X, Y, Index/N/WhichToolTip",
+    ToolTip, SimpleStringText . ", X, Y, Index/N/WhichToolTip",
     TraySetIcon, SingleFile . ", Icon, Freeze",
     TrayTip, "Text, Title, " . Options,
     Trim, SimpleString . ", OmitChars/Omit/Remove/Trim",

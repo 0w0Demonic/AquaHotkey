@@ -113,24 +113,17 @@ class AquaHotkey_Kwargs extends AquaHotkey {
     }
 
     static __New() {
-        static InitConfig() {
-            #Include "%A_LineFile%/../KwargsConfig.ahk"
-        }
-
-        Configs := InitConfig()
-
         if (this != AquaHotkey_Kwargs) {
             return
         }
-
         super.__New()
 
-        for Function, Signature in Configs
-        {
-            (Object.Prototype.DefineProp)(Function, "Signature", {
-                Get: Getter(Signature)
-            })
+        for Function, Signature in InitConfig() {
+            Function.Signature := Signature
         }
-        static Getter(Obj) => (_) => Obj
+
+        static InitConfig() {
+            #Include "%A_LineFile%/../KwargsConfig.ahk"
+        }
     }
 }
