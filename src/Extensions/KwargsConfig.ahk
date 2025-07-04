@@ -50,12 +50,12 @@ Message := "Msg/Message/MsgNumber/MessageNumber"
 
 Process := "Proc/Process/Name/ProcessName/PID"
 
-return Map(
+return Array(
     Abs, SimpleMath,
     ASin, SimpleMath,
     ACos, SimpleMath,
     ATan, SimpleMath,
-    ; Array
+    Array, Array_With,
     BlockInput, "OnOff/SendMouse/MouseMove",
     Buffer, Size . ", FillByte",
     CallbackCreate, "Callback, " . Options . ", " . ParamCount,
@@ -190,10 +190,10 @@ return Map(
     FileSelect, Options . ", RootDir/From/" . SingleFile . ", Title, Filter",
     FileSetAttrib, "Attributes/NewValue/Flags/Value, " . FilePattern . ", Mode",
     FileSetTime, "Timestamp/Time/Value, " . FilePattern
-               . ", WhichTime/Type, Mode", ; TODO this is bad
+               . ", WhichTime/Type, Mode",
     Float, SimpleMath . "/Value",
     Floor, SimpleMath,
-    ; Format
+    Format, Format_With,
     FormatTime, "Timestamp/Time/Value, Format",
     GetKeyName, Key,
     GetKeyVK, Key,
@@ -238,8 +238,8 @@ return Map(
     LoadPicture, SingleFile . ", " . Options . ", ImageType",
     Log, SimpleMath,
     Ln, SimpleMath,
-    ; Map
-    ; Max
+    Map, Map_With,
+    Max, Max_With,
     MenuFromHandle, "Handle/Hwnd",
     MenuSelect, WinTitle_1stHalf
               . ", Menu,"
@@ -250,7 +250,7 @@ return Map(
               . "SubMenu5/Sub5/Menu5,"
               . "SubMenu6/Sub6/Menu6,"
               . WinTitle_2ndHalf,
-    ; Min
+    Min, Min_With,
     Mod, "Dividend, Divisor",
     MonitorGet, "N/Index, " . LTRB,
     Round, SimpleMath . ", Digits/N",
@@ -263,21 +263,21 @@ return Map(
     MouseMove, "X, Y, Speed, Relative",
     MsgBox, "Text, Title, Options",
     Number, SimpleMath,
-    ; NumGet
+    NumGet, NumGet_With,
     ; NumPut
     ObjAddRef, Pointer,
     ObjRelease, Pointer,
-    ; ObjBindMethod
+    ObjBindMethod, ObjBindMethod_With,
     ObjHasOwnProp, "Obj, Prop/Name/PropName/Property/PropertyName",
     ObjOwnProps, "Obj",
     ObjGetBase, "Obj",
     ObjGetCapacity, "Obj",
-    ObjGetDataPtr, "Obj", ; TODO
-    ObjGetDataSize, "Obj", ; TODO
+    ObjGetDataPtr?, "Obj",
+    ObjGetDataSize?, "Obj",
     ObjOwnPropCount, "Obj",
     ObjSetBase, "Obj, BaseObj/Base",
     ObjSetCapacity, "Obj, " . Capacity,
-    ObjSetDataPtr, "Obj, " . Pointer, ; TODO
+    ObjSetDataPtr?, "Obj, " . Pointer,
     OnClipboardChange, Callback,
     OnError, Callback,
     OnExit, Callback,
@@ -343,14 +343,14 @@ return Map(
     StatusBarWait, "BarText/Text, Timeout, Part/N/Index, " . WinTitle_1stHalf
                  . ", Interval, " . WinTitle_2ndHalf,
     StrCompare, "Str1/String1/A/First, Str2/String2/B/Second, CaseSense",
-    ; StrGet
+    StrGet, StrGet_With,
     String, "Value",
     StrLen, SimpleString,
     StrLower, SimpleString,
     StrPtr, SimpleString,
     ; StrPut
-	StrReplace, SimpleString . ", Pattern, Rep/Replacement, CaseSense,"
-			  . "Count, Limit"
+    StrReplace, SimpleString . ", Pattern, Rep/Replacement, CaseSense,"
+			  . "Count, Limit",
     StrSplit, SimpleString . ", Delimiters/Delim, OmitChars/Omit/Remove/Trim,"
             . "MaxParts/Limit",
     StrTitle, SimpleString,
@@ -374,13 +374,13 @@ return Map(
     WinActive, WinTitle,
     WinClose, WinTitleTimeout,
     WinExist, WinTitle,
-    WinGetAlwaysOnTop, WinTitle,
+    WinGetAlwaysOnTop?, WinTitle,
     WinGetClass, WinTitle,
     WinGetClientPos, CoordinatesWinTitle,
     WinGetControls, WinTitle,
     WinGetControlsHwnd, WinTitle,
     WinGetCount, WinTitle,
-    WinGetEnabled, WinTitle,
+    WinGetEnabled?, WinTitle,
     WinGetID, WinTitle,
     WinGetIDLast, WinTitle,
     WinGetList, WinTitle,
@@ -407,7 +407,7 @@ return Map(
     WinSetAlwaysOnTop, SetWinTitle,
     WinSetEnabled, SetWinTitle,
     WinSetRegion, Options . ", " . WinTitle,
-    WinSetStyle, Style . ", ", WinTitle,
+    WinSetStyle, Style . ", " . WinTitle,
     WinSetExStyle, ExStyle . ", " . WinTitle,
     WinSetTitle, "Title/Value, " . WinTitle,
     WinSetTransColor, "Color/" . SetWinTitle,
@@ -418,3 +418,67 @@ return Map(
     WinWaitNotActive, WinTitleTimeout,
     WinWaitClose, WinTitleTimeout
 )
+
+Array_With(_, ArgObj) => Array(ArgObj.Values*)
+
+Format_With(_, ArgObj) {
+    if (!HasProp(ArgObj, "Format")) {
+        throw UnsetError("Requires .Format")
+    }
+    if (HasProp(ArgObj, "Values")) {
+        return Format(ArgObj.Format, ArgObj.Values*)
+    }
+    return Format(ArgObj.Format)
+}
+
+Min_With(_, ArgObj) => Min(ArgObj.Values*)
+
+Max_With(_, ArgObj) => Max(ArgObj.Values*)
+
+ObjBindMethod_With(_, ArgObj) {
+    Args := Array(unset, unset)
+    if (!HasProp(ArgObj, "Obj")) {
+        throw UnsetError("Requires .Obj")
+    }
+    if (HasProp(ArgObj, "Params")) {
+        if (HasProp(ArgObj, "Values")) {
+            return ObjBindMethod(ArgObj.Obj, ArgObj.Params, ArgObj.Values*)
+        }
+        return ObjBindMethod(ArgObj.Obj, ArgObj.Params)
+    }
+    if (HasProp(ArgObj, "Values")) {
+        return ObjBindMethod(ArgObj.Obj, unset, ArgObj.Values*)
+    }
+    return ObjBindMethod(ArgObj.Obj)
+}
+
+NumGet_With(_, ArgObj) {
+    if (HasProp(ArgObj, "Offset")) {
+        return NumGet(ArgObj.Source, ArgObj.Offset, ArgObj.Type)
+    }
+    return NumGet(ArgObj.Source, ArgObj.Type)
+}
+
+StrGet_With(_, ArgObj) {
+    if (HasProp(ArgObj, "Length")) {
+        if (HasProp(ArgObj, "Encoding")) {
+            return StrGet(ArgObj.Source, ArgObj.Length, ArgObj.Encoding)
+        }
+        return StrGet(ArgObj.Source, ArgObj.Length)
+    }
+    if (HasProp(ArgObj, "Encoding")) {
+        return StrGet(ArgObj.Source, unset, ArgObj.Encoding)
+    }
+    return StrGet(ArgObj.Source)
+}
+
+Map_With(_, ArgObj) {
+    return Map(ArgObj.Values*)
+}
+
+ComObjQuery_With(_, ArgObj) {
+    if (HasProp(ArgObj, "SID")) {
+        return ComObjQuery(ArgObj.ComObj, ArgObj.SID, ArgObj.IID)
+    }
+    return ComObjQuery(ArgObj.ComObj, ArgObj.IID)
+}

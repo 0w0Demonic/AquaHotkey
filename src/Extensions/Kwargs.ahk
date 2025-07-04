@@ -118,8 +118,43 @@ class AquaHotkey_Kwargs extends AquaHotkey {
         }
         super.__New()
 
-        for Function, Signature in InitConfig() {
-            Function.Signature := Signature
+        Config := InitConfig()
+        if (!(Config is Array)) {
+            throw TypeError("Expected an Array",, Type(Config))
+        }
+        ; retrieve enumerator and yield key + value the easy way
+        Enumer := Config.__Enum(1)
+        while (Enumer(&Function) && Enumer(&Signature)) {
+            if (!IsSet(Function)) {
+                continue
+            }
+
+            ; don't remove this.
+            ; you're gonna have a bad time without these error details.
+            if (!HasMethod(Function)) {
+                Extra := ""
+                if (Function is String) {
+                    ; a comma is missing somewhere...
+                    if (HasMethod(Signature)) {
+                        Extra .= "(near " .  Signature.Name . "): "
+                    }
+                    Extra .= Function
+                } else {
+                    ; there's nothing we can do... (dans mon esprit
+                    ; tout divague, ...)
+                    Extra := Type(Function)
+                }
+                throw TypeError("Expected a Function",, Extra)
+            }
+
+            switch {
+                case (Signature is String):
+                    Function.Signature := Signature
+                case (HasMethod(Signature)):
+                    Function.DefineProp("With", { Call: Signature })
+                default:
+                    throw ValueError("Invalid signature",, Type(Signature))
+            }
         }
 
         static InitConfig() {
