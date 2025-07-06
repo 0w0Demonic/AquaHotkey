@@ -1,27 +1,27 @@
 /**
- * AquaHotkey - COM.ahk
+ * AquaHotkey - Com.ahk
  * 
  * Author: 0w0Demonic
  * 
  * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Extensions/COM.ahk
+ * - src/Extensions/Com.ahk
  * 
  * ---
  * 
  * **Overview**:
  * 
- * `COM` is a user-friendly framework that wraps COM objects neatly
+ * `Com` is a user-friendly framework that wraps Com objects neatly
  * into clean and class-based interfaces.
  * 
  * **How to Use**:
  * 
- * Create a subtype of `COM`, and define one of the following members:
+ * Create a subtype of `Com`, and define one of the following members:
  * 
  * ---
  * 
  * - `(required) static CLSID => String`:
  * 
- *   CLSID or Prog ID of the COM object.
+ *   CLSID or Prog ID of the Com object.
  * 
  * ---
  * 
@@ -39,22 +39,23 @@
  * 
  * - `(optional) static EventSink => Class`:
  * 
- *   Class that handles events thrown by the COM object. Events contained
+ *   Class that handles events thrown by the Com object. Events contained
  *   in the event sink are modified in such a way that *the `this`-keyword
- *   refers to the original COM object*.
+ *   refers to the original Com object*.
  * 
  * ---
  * 
- * **Notes**:
+ * - `(optional) static ReturnTypes => Object`
  * 
- * - To assign new fields, you must use `.DefineProp(..., { Value: ...})`.
- * 
+ *   Maps method or property names to their corresponding COM wrapper classes.
+ *   Used to automatically wrap returned COM object to the given types.
+ *  
  * ---
  * 
  * **Example**:
  * 
  * ```
- * class InternetExplorer extends COM {
+ * class InternetExplorer extends Com {
  *     static CLSID => "InternetExplorer.Application"
  *     ; static IID => "..."
  * 
@@ -70,7 +71,7 @@
  *         DoSomething: [1, "Int", "UInt"]
  *     }
  *     
- *     class EventSink extends COM.EventSink
+ *     class EventSink extends Com.EventSink
  *     {
  *         DocumentComplete(pDisp, &URL)
  *         {
@@ -86,58 +87,89 @@
  * }
  * ```
  * 
- * @example
- * class InternetExplorer extends COM {
- *     ; [...]
+ * ---
  * 
- *     ; alternatively, just define them here - much easier.
- *     IsBoring := false
+ * **Notes**:
+ * 
+ * - To assign new fields, you must use `.DefineProp(..., { Value: ...})`.
+ * 
+ * @example
+ * class InternetExplorer extends Com {
+ *     ...
  * }
  * 
- * Obj := InternetExplorer()
- * Obj.DefineProp("IsBoring", { Value: false })
+ * IE := InternetExplorer()
+ * IE.DefineProp("IsBoring", { Value: false })
  */
-class COM {
-    /** (optional) The default IID used for COM objects (IID-IDispatch). */
-    static IID => "{00020400-0000-0000-C000-000000000046}"
-
+class Com {
     /** (required) CLSID to wrap around. This property must be overwritten. */
     static CLSID => false
+
+    /** (optional) The default IID used for Com objects (IID-IDispatch). */
+    static IID => "{00020400-0000-0000-C000-000000000046}"
 
     /** (optional) Method signatures to `ComCall()` methods. */
     static MethodSignatures => false
 
+    /** (optional) Maps methods and properties to the given return type. */
+    static ReturnTypes => false
+
     /**
      * Class initialization.
      * 
-     * 1. Ensures a COM-class has both `CLSID` and `IID`.
-     * 2. Sets up `ComCall()`-methods declared in `static MethodSignatures`.
+     * 1. Ensures a Com-class has both `CLSID` and `IID`.
+     * 2. Maps return types defined by `static ReturnTypes`.
+     * 3. Sets up `ComCall()`-methods declared in `static MethodSignatures`.
      */
     static __New() {
-        if (this == COM) {
+        if (this == Com || this == AbstractCom) {
             return
         }
-        (Object.Prototype.DeleteProp)(this.Prototype, "__Class")
+        ClassName := this.Prototype.__Class
+        if (!HasBase(this, AbstractCom)) {
+            (Object.Prototype.DeleteProp)(this.Prototype, "__Class")
+            if (!this.CLSID) {
+                throw ValueError('Missing "static CLSID" property.',,
+                                 ClassName)
+            }
+            if (IsObject(this.CLSID)) {
+                throw TypeError("Expected CLSID to be a String",,
+                                Type(this.CLSID))
+            }
+            if (IsObject(this.IID)) {
+                throw TypeError("Expected IID to be a String",,
+                                Type(this.IID))
+            }
+        }
 
-        if (!this.CLSID) {
-            throw ValueError('Missing "static CLSID" property.',,
-                             this.Prototype.__Class)
-        }
-        if (IsObject(this.CLSID)) {
-            throw TypeError("Expected CLSID to be a String",, Type(this.CLSID))
-        }
-        if (IsObject(this.IID)) {
-            throw TypeError("Expected IID to be a String",, Type(this.IID))
-        }
         if (ObjHasOwnProp(this, "EventSink") && !(this.EventSink is Class)) {
             throw TypeError("Event sink must be a Class object.")
         }
+
+        if (this.ReturnTypes) {
+            Types := this.ReturnTypes
+            for PropName, ReturnType in Types.OwnProps() {
+                if (!HasBase(ReturnType, Com)) {
+                    throw TypeError("Expected a Com class", Type(ReturnType))
+                }
+                PropDesc := CreateMethod(PropName, ReturnType)
+                this.Prototype.DefineProp(PropName, PropDesc)
+
+                static CreateMethod(PropName, T) {
+                    return {
+                        Get:  (C, Args*) => T.FromObj(C._.%PropName%[Args*]),
+                        Call: (C, Args*) => T.FromObj(C._.%PropName%(Args*))
+                    }
+                }
+            }
+        }
+
         if (!this.MethodSignatures) {
             return
         }
 
         Signatures := this.MethodSignatures
-        if (!(ObjGetBase(Signatures)) is Object) {
+        if (!ObjGetBase(Signatures) is Object) {
             Msg   := '"static MethodSignatures" must be an object literal'
             Extra := Type(Signatures)
             throw TypeError(Msg,, Extra)
@@ -186,11 +218,11 @@ class COM {
     }
 
     /**
-     * Constructs a new `COM` object from the `static CLSID` and `static IID`
+     * Constructs a new `Com` object from the `static CLSID` and `static IID`
      * properties of the class.
      * @example
      * 
-     * class InternetExplorer extends COM {
+     * class InternetExplorer extends Com {
      *     static CLSID => "InternetExplorer.Application"
      *     ; ...
      * }
@@ -198,14 +230,14 @@ class COM {
      * ie := InternetExplorer("https://www.autohotkey.com")
      * 
      * @param   {Any*}  Args  arguments passed to `__New()`
-     * @return  {COM}
+     * @return  {Com}
      */
     static Call(Args*) {
         return this.FromObj(ComObject(this.CLSID, this.IID), Args*)
     }
 
     /**
-     * Queries the COM object for an interface or service.
+     * Queries the Com object for an interface or service.
      * 
      * @param   {String}   IID  the interface identifier to query
      * @param   {String?}  SID  the service identifier to query
@@ -216,10 +248,10 @@ class COM {
     }
 
     /**
-     * Connects the COM object to an event sink.
+     * Connects the Com object to an event sink.
      * 
      * If you provide your own event sink class, it **should** inherit from
-     * `COM.EventSink`. Otherwise, it'll be automatically forced to do so.
+     * `Com.EventSink`. Otherwise, it'll be automatically forced to do so.
      * 
      * @param   {Class}  EventSink  event sink that handles events
      * @return  {this}
@@ -228,21 +260,21 @@ class COM {
         if (EventSink is Class) {
             throw TypeError("Expected a Class object",, Type(EventSink))
         }
-        if (!HasBase(EventSink, COM.EventSink))
+        if (!HasBase(EventSink, Com.EventSink))
         {
             (Object.Prototype.DeleteProp)(EventSink, "__New")
-            ObjSetBase(EventSink,           COM.EventSink)
-            ObjSetBase(EventSink.Prototype, COM.EventSink.Prototype)
+            ObjSetBase(EventSink,           Com.EventSink)
+            ObjSetBase(EventSink.Prototype, Com.EventSink.Prototype)
 
             ; call `static __New()`, which sets up its smart event handling.
-            (COM.EventSink.__New)(EventSink)
+            (Com.EventSink.__New)(EventSink)
         }
         ComObjConnect(this._, EventSink)
         return this
     }
 
     /**
-     * Disconnects the COM object from its current event sink.
+     * Disconnects the Com object from its current event sink.
      * 
      * @return  {this}
      */
@@ -252,7 +284,7 @@ class COM {
     }
 
     /**
-     * Constructs a new instance of `COM` by using a pointer to the COM object.
+     * Constructs a new instance of `Com` by using a pointer to the Com object.
      * 
      * @example
      * ie  := ComObject("InternetExplorer.Application")
@@ -260,37 +292,37 @@ class COM {
      * 
      * ie  := InternetExplorer.FromPtr(ptr)
      * 
-     * @param   {Integer}  Ptr   pointer to the COM object
+     * @param   {Integer}  Ptr   pointer to the Com object
      * @param   {Any*}     Args  arguments passed to `.New()`
-     * @return  {COM}
+     * @return  {Com}
      */
     static FromPtr(Ptr, Args*) => this.FromObj(ComObjFromPtr(Ptr), Args*)
 
     /**
-     * Constructs a new instance of `COM` using a currently registered
-     * COM object (using `ComObjActive()`).
+     * Constructs a new instance of `Com` using a currently registered
+     * Com object (using `ComObjActive()`).
      * 
      * @example
      * ie := InternetExplorer.FromActive()
      * 
      * @param   {Any*}  Args  arguments passed to the `.New()` constructor
-     * @return  {COM}
+     * @return  {Com}
      */
     static FromActive(Args*) => this.FromObj(ComObjActive(this.CLSID), Args*)
 
     /**
-     * Constructs a new instance of `COM` with the given COM object to wrap
+     * Constructs a new instance of `Com` with the given Com object to wrap
      * around.
      * 
      * ---
      * 
-     * **Custom Event Sinks Must Extend `COM.EventSink`**
+     * **Custom Event Sinks Must Extend `Com.EventSink`**
      * 
-     * Under the hood, `COM` uses a specialized helper class `COM.EventSink` to
-     * intercept and rewrite COM events.
+     * Under the hood, `Com` uses a specialized helper class `Com.EventSink` to
+     * intercept and rewrite Com events.
      * 
      * If you provide your own event sink class, it **should** inherit from
-     * `COM.EventSink`. Otherwise, it'll be automatically forced to do so.
+     * `Com.EventSink`. Otherwise, it'll be automatically forced to do so.
      * 
      * ---
      * @example
@@ -298,20 +330,25 @@ class COM {
      * ie := ComObject("InternetExplorer.Application")
      * ie := InternetExplorer.FromObj(ie)
      * 
-     * @param   {ComObject}  ComObj  the COM object to wrap around
+     * @param   {ComObject}  ComObj  the Com object to wrap around
      * @param   {Any*}       Args    arguments passed to `.New()`
-     * @return  {COM}
+     * @return  {Com}
      */
     static FromObj(ComObj, Args*) {
-        ; create a new `COM` object
+        ; create a new `Com` object
         Obj := Object()
         ObjSetBase(Obj, this.Prototype)
 
         ; define internal `ComObject` to wrap around
         Obj.DefineProp("_", { Get: (Instance) => ComObj })
 
-        if (!ObjHasOwnProp(this, "EventSink") || !this.EventSink) {
+        ; construct the new object
+        Obj.__Init()
+        if (HasMethod(Obj, "__New")) {
             Obj.__New(Args*)
+        }
+
+        if (!ObjHasOwnProp(this, "EventSink") || !this.EventSink) {
             return Obj
         }
 
@@ -320,41 +357,33 @@ class COM {
             throw TypeError("Expected a Class object",, Type(this.EventSink))
         }
 
-        ; if the event sink doesn't derive from `COM.EventSink`, we force it to.
-        if (!HasBase(this.EventSink, COM.EventSink))
+        ; if the event sink doesn't derive from `Com.EventSink`, we force it to.
+        if (!HasBase(this.EventSink, Com.EventSink))
         {
-            ; ensure that `COM.EventSink.Prototype.__New` is called.
-            this.EventSink.DeleteProp("__New")
+            ; ensure that `Com.EventSink.Prototype.__New` is called.
+            (Object.Prototype.DeleteProp)(this.EventSink, "__New")
 
-            ObjSetBase(this.EventSink,           COM.EventSink)
-            ObjSetBase(this.EventSink.Prototype, COM.EventSink.Prototype)
+            ObjSetBase(this.EventSink,           Com.EventSink)
+            ObjSetBase(this.EventSink.Prototype, Com.EventSink.Prototype)
 
             ; call `static __New()`, which sets up its smart event handling.
-            (COM.EventSink.__New)(this.EventSink)
+            (Com.EventSink.__New)(this.EventSink)
         }
 
         EventSink := (this.EventSink)(Obj)
         ComObjConnect(Obj._, EventSink)
-
-        ; construct and return the new object
-        if (HasProp(Obj, "__Init") && HasMethod(Obj.__Init)) {
-            Obj.__Init()
-        }
-        if (HasProp(Obj, "__New") && HasMethod(Obj.__New)) {
-            Obj.__New(Args*)
-        }
         return Obj
     }
 
     /**
-     * Returns the pointer to the COM object.
+     * Returns the pointer to the Com object.
      * 
      * @return  {Integer}
      */
     Ptr => ComObjValue(this)
 
     /**
-     * Gets a property from the COM object.
+     * Gets a property from the Com object.
      * 
      * @param   {String}  PropertyName  name of the property to get
      * @param   {Array}   Args          zero or more arguments
@@ -364,11 +393,11 @@ class COM {
         if (HasProp(this, "_")) {
             return this._.%PropertyName%[Args*]
         }
-        throw UnsetError("no internal COM object")
+        throw UnsetError("no internal Com object")
     }
 
     /**
-     * Sets a property of the COM object.
+     * Sets a property of the Com object.
      * 
      * @param   {String}  PropertyName  name of the property to set
      * @param   {Array}   Args          zero or more arguments
@@ -379,11 +408,11 @@ class COM {
         if (HasProp(this, "_")) {
             return this._.%PropertyName%[Args*] := Value
         }
-        throw UnsetError("no internal COM object")
+        throw UnsetError("no internal Com object")
     }
 
     /**
-     * Calls a method of the COM object.
+     * Calls a method of the Com object.
      * 
      * @param   {String}  MethodName  name of the method to call
      * @param   {Array}   Args        zero or more arguments
@@ -393,11 +422,11 @@ class COM {
         if (HasProp(this, "_")) {
             return this._.%MethodName%(Args*)
         }
-        throw UnsetError("no internal COM object")
+        throw UnsetError("no internal Com object")
     }
 
     /**
-     * Calls a native interface method of this COM object by index.
+     * Calls a native interface method of this Com object by index.
      * 
      * @example
      * ComObj(3, "Int", 0, "UInt", 1)
@@ -409,13 +438,13 @@ class COM {
     Call(Index, Args*) => ComCall(Index, this._, Args*)
 
     /**
-     * Returns the name of the COM object's default interface.
+     * Returns the name of the Com object's default interface.
      * @return  {String}
      */
     __Name  => ComObjType(this._, "Name")
 
     /**
-     * Returns the IID of the COM object.
+     * Returns the IID of the Com object.
      * @return  {String}
      */
     __IID   => ComObjType(this._, "IID")
@@ -428,13 +457,13 @@ class COM {
 
 
     /**
-     * `COM.EventSink` is a class that handles events thrown by the `COM`
+     * `Com.EventSink` is a class that handles events thrown by the `Com`
      * object.
      * 
-     * **COM Event Binding Made Clean**:
+     * **Com Event Binding Made Clean**:
      * 
      * - Events are handled in such a way that the `this`-keyword inside of
-     *   methods refers to the **calling instance of `COM`, not the event sink
+     *   methods refers to the **calling instance of `Com`, not the event sink
      *   itself.**
      * 
      * - This change makes event handling feel a lot more natural and
@@ -446,17 +475,17 @@ class COM {
      * **Display Events**:
      * 
      * If a non-static property `ShowEvents` is set to true, the event sink
-     * displays a feed of all undefined events raised by the COM object in
+     * displays a feed of all undefined events raised by the Com object in
      * the form of a tool tip.
      */
     class EventSink {
         /**
          * Class initialization. This methods sets up special method handling
-         * which involves using the original event source (the COM class
+         * which involves using the original event source (the Com class
          * instance) as `this`.
          */
         static __New() {
-            if (this == COM.EventSink) {
+            if (this == Com.EventSink) {
                 return
             }
 
@@ -485,7 +514,7 @@ class COM {
 
             /**
              * Wraps the original callback to remove the final `ComObject`
-             * argument and rebind `this` to the `COM` wrapper.
+             * argument and rebind `this` to the `Com` wrapper.
              */
             EventHandler(Instance, Args*) {
                 Args.Pop()
@@ -494,10 +523,10 @@ class COM {
         }
 
         /**
-         * Constructs a new `COM.EventSink` from the given `COM` source.
+         * Constructs a new `Com.EventSink` from the given `Com` source.
          * 
-         * @param   {COM}  Source  COM instance that throws events
-         * @return  {COM.EventSink}
+         * @param   {Com}  Source  Com instance that throws events
+         * @return  {Com.EventSink}
          */
         __New(Source) {
             this.DefineProp("Source", { Get: (Instance) => Source })
@@ -512,7 +541,7 @@ class COM {
 
         /**
          * If `ShowEvents` is enabled, shows the name and type signature of
-         * undefined events thrown by the COM object. Otherwise, does nothing.
+         * undefined events thrown by the Com object. Otherwise, does nothing.
          * 
          * @param   {String}  MethodName  name of the undefined event
          * @param   {Any*}    Args        zero or more arguments
@@ -576,4 +605,13 @@ class COM {
             }
         }
     }
+}
+
+/**
+ * Marker class for non-instantiable COM wrappers.
+ * 
+ * Used as a base for classes that represent COM objects returned
+ * by method calls, rather than directly created via CLSID.
+ */
+class AbstractCom extends Com {
 }
