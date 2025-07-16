@@ -26,3 +26,9 @@ Range(5).Stream().Gather(  G.WindowSliding(3)  )
 ; <1, 3, 6, 10, 15>
 Array(1, 2, 3, 4, 5).Gather(  G.Scan(Combiner.Sum)  )
 ```
+
+## Implement Your Own Gatherers
+
+Have a look at [Gatherer.ahk](../../src/Extensions/Gatherer.ahk) if you're
+curious about how this class exactly works and how to make your own custom
+gatherers.

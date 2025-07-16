@@ -109,4 +109,6 @@ class Debug extends AquaHotkey {
     }
 }
 
+ControlClick.Signature.ToString().MsgBox()
+
 ExitApp()

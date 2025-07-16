@@ -56,11 +56,9 @@
  * ```
  *
  * The returned state is passed to `.Integrator()` for each input element,
- * and should generally be an object (otherwise it will be immutable).
+ * and should generally be an object.
  * 
- * If needed, you can wrap strings an numbers into VarRefs (e.g., `&Str`).
- * This is also the most convenient way make gather operations using primitive
- * types (see below).
+ * Otherwise, you can wrap strings and numbers into VarRefs (e.g., `&Str`).
  *
  * ---
  *
@@ -88,7 +86,7 @@
  * ```
  * 
  * A convenient way to write gatherers for primitive types is to box/unbox them
- * into VarRefs.
+ * as VarRefs.
  * 
  * ```ahk
  * Integrator(&Str, Next, Args*) { ... }
@@ -187,6 +185,7 @@
  *     static Finisher(State, Next) { ... }
  * }
  * 
+ * ; use the class itself as gatherer.
  * ... MyStream.Collect(MyGatherer)
  * ```
  */

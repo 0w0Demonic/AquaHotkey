@@ -33,6 +33,12 @@ refer to the instance of `COM` that raised the event.
 Due to this change, methods of the event sink no longer accept the original COM
 object as last parameter.
 
+### `(optional) static ReturnTypes => Object`
+
+An object that maps method or property names to their corresponding COM wrapper
+class. This can be used to automaticaly wrap returned COM objects to the given
+type.
+
 ## Example
 
 ```ahk

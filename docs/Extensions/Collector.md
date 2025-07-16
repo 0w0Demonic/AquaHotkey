@@ -64,3 +64,9 @@ MyStream.Collect(C.Partition(IsEven, C.Partition(GreaterThan100)))
 
 This is what makes collectors so declarative and fun to use - just keep nesting
 and it'll *just work*.
+
+## Building Your Own Collectors
+
+If you're curious about how you can create your own custom collectors, it's
+surprisingly easy. Have a look at [Collector.ahk](../../src/Extensions/Collector.ahk)
+for a quick guide on what to do.

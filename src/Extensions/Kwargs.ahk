@@ -107,7 +107,39 @@ class AquaHotkey_Kwargs extends AquaHotkey {
                     }
                 }
                 Sig := ArgMap
+
+                ; define a custom string representation
+                Sig.DefineProp("ToString", { Call: Signature_ToString })
                 this.DefineProp("Signature", { Get: (_) => Sig })
+
+                /**
+                 * Returns a custom string representation.
+                 * 
+                 * @param   {Map}  _ the map that contains parameter names + aliases
+                 * @return  {String}
+                 */
+                static Signature_ToString(Sig) {
+                    if (!(Sig is Map)) {
+                        throw TypeError("Expected a Map",, Type(Sig))
+                    }
+                    M := Array()
+                    M.Length := Sig.MaxParams
+                    for ParameterName, Index in Sig {
+                        if (M.Has(Index)) {
+                            M[Index] .= "/" . ParameterName
+                        } else {
+                            M[Index] := Index . ": " . ParameterName
+                        }
+                    }
+                    for Index, Str in M {
+                        if (IsSet(Result)) {
+                            Result .= ",`r`n" . Str
+                        } else {
+                            Result := Str
+                        }
+                    }
+                    return Result
+                }
             }
         }
     }
@@ -118,13 +150,25 @@ class AquaHotkey_Kwargs extends AquaHotkey {
         }
         super.__New()
 
+        /**
+         * the actual code of InitConfig is offloaded into a separate file
+         * (KwargsConfig.ahk). To use your own configs, simply redirect the
+         * `#Include` statement to elsewhere.
+         */
+
+        ; TODO improve by making this lazy-init instead of `static __New()`
         Config := InitConfig()
+
         if (!(Config is Array)) {
             throw TypeError("Expected an Array",, Type(Config))
         }
         ; retrieve enumerator and yield key + value the easy way
         Enumer := Config.__Enum(1)
         while (Enumer(&Function) && Enumer(&Signature)) {
+            ; this might apply to functions only present in the alpha releases.
+            ; hence the reason we're using arrays: you can always fall back
+            ; with the help of `?`, if the function doesn't exist in that version.
+            ; ex.: `WinGetAlwaysOnTop?` -> either `Func` or `unset`
             if (!IsSet(Function)) {
                 continue
             }

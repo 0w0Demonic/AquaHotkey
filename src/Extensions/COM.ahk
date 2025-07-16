@@ -148,6 +148,9 @@ class Com {
 
         if (this.ReturnTypes) {
             Types := this.ReturnTypes
+            if (ObjGetBase(Types) != Object.Prototype) {
+                throw TypeError("Expected an Object literal",, Type(Types))
+            }
             for PropName, ReturnType in Types.OwnProps() {
                 if (!HasBase(ReturnType, Com)) {
                     throw TypeError("Expected a Com class", Type(ReturnType))

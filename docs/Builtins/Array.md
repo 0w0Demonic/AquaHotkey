@@ -10,9 +10,9 @@ list comprehensions, or Clojure & Haskell `map`.
 ArrayObj.Map(TimesTwo).RetainIf(GreaterThan10).ForEach()
 ```
 
-Use [Stream](./stream.md) to support lazy evaluation and complicated
-[collect](./collector.md) and [gather operations](./gatherer.md) (side note:
-*definitely* check these out, they're absolutely bonkers).
+Use [Stream](../Extensions/stream.md) to support lazy evaluation and complicated
+[collect](../Extensions/collector.md) and [gather operations](../Extensions/gatherer.md)
+(side note: *definitely* check these out, they're absolutely bonkers).
 
 ```ahk
 C := Collector
