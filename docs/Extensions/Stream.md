@@ -13,18 +13,40 @@ Array(1, 2, 3, 4, 5, 6)
 
 ## What's a Stream?
 
-Streams are like a conveyor belt for your data. You push stuff on, bolt on some
-operations, and pull off exactly what you want at the end — all without
-mutating anything. Inspired by Java’s stream API, but tailored to AutoHotkey’s
-quirks and strengths.
+Streams are *sequences* of data, not data containers. You push stuff on,
+bolt on some operations, and pull off exactly what you want at the end in a
+declarative manner, using mapper and predicate functions. Inspired by Java’s
+stream API, but tailored to AutoHotkey’s quirks and strengths.
 
 They're lazily evaluated, i.e., nothing happens until you hit something like
-`.ToArray()` or `.ForEach().` That means fewer temporary arrays, less memory
-churn, and a cleaner mental model.
+`.ToArray()` or `.ForEach().`. That means fewer less operations done overall
+(if you know what you're doing), and a much cleaner mental model.
+
+### Lazy Eval - Example
+
+A very interesting quirk of streams is that they can be *infinite* in size,
+because the element need not necessarily exist before you start iterating.
+
+The following stream is infinite. Whenever a new element is requested,
+it calls the given *supplier function* and gives back its return value as
+new element.
+
+```ahk
+; <"foo", "foo", "foo", "foo", "foo", "foo", "foo", ...>
+Stream.Generate(() => "foo")
+```
+
+You can turn infinite streams into finite ones, e.g. by using `.Limit(x)`
+or `.TakeWhile(Condition)`.
+
+```ahk
+; <1, 2, 3, 4, ..., 99>
+Stream.Iterate(1, PlusOne).TakeWhile(LessThan100)
+```
 
 ### Works With Anything
 
-You can create a stream on anything you can enumerate using a for-loop. In
+You can create a stream on anything that you can enumerate with a for-loop. In
 AquaHotkeyX, that's also strings and files.
 
 ```ahk
@@ -34,7 +56,7 @@ Array(1, 2, 3, 4, 5).Stream()
 ; <("foo", "bar"), ("hotel", "trivago"), ...>
 MyMap.Stream(2)
 
-; <"this is line 1", "foo", "this is line 3>
+; <"this is line 1", "foo", "this is line 3">
 "litany.txt".FileOpen().Stream()
 
 ; <"S", "t", "r", "i", "n", "g">

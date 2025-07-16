@@ -689,6 +689,9 @@ class Stream {
      * ; <"foo">
      * Array("foo", "Foo", "FOO").Distinct(StrLower)
      * 
+     * ; <{ x: 23 }, { x: 35 }>
+     * Array({ x: 23 }, { x: 35 }, { x: 23 }).Distinct(obj -> obj.x)
+     * 
      * @param   {Func?}                  Hasher    function to create map keys
      * @param   {Map?/Func?/Primitive?}  MapParam  internal map options
      * @return  {Stream}
@@ -777,20 +780,15 @@ class Stream {
     }
 
     /**
-     * Returns a new stream which applies the given function `Action` on every
-     * element set as intermediate stream operation.
+     * Applies the given `Action` on each element as intermediate operation.
      * 
-     * - The parameter length of the new stream remains the same.
+     * The parameter length of the new stream remains the same.
      * 
      * @example
-     * Foo(Value) {
-     *     MsgBox("Intermediate stream operation: " . Value)
-     * }
+     * Foo(x) => MsgBox("Foo(" . x . ")")
+     * Bar(x) => MsgBox("Bar(" . x . ")")
      * 
-     * Bar(Value) {
-     *     MsgBox("Terminal stream operation: " . Value)
-     * }
-     * 
+     * ; "Foo(1)", "Bar(1)"; "Foo(2)", "Bar(2)"; ...
      * Array(1, 2, 3, 4).Stream().Peek(Foo).ForEach(Bar)
      * 
      * @param   {Func}  Action  the function to be called
@@ -848,7 +846,6 @@ class Stream {
      * Array(1, 2, 3, 4).Stream().ForEach(MsgBox)
      * 
      * @param   {Func}  Action  the function to be called
-     * @return  (none)
      */
     ForEach(Action) {
         n := this.ArgSize(Action)
@@ -882,7 +879,7 @@ class Stream {
      * is a truthy value).
      * 
      * @example
-     * Match := Array(1, 2, 3, 8, 4).Stream().AnyMatch(x => x < 5)
+     * Match := Array(1, 2, 3, 8, 4).Stream().AnyMatch(x => x > 5)
      * if (Match) {
      *     MsgBox(Match[1]) ; 8
      * }
