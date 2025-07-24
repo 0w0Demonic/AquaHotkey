@@ -130,13 +130,34 @@ Now that we've covered the very basics, I encourage you to try it out yourself:
 
 ## Conventions
 
-These are only *recommendations*, but some very useful considerations:
+These are only *recommendations*, but some very reasonable ones:
 
-- Consider writing each extension class into its own file. That way,
-  you only have to define it *once* and reuse it across all your scripts.
-- Stick to the pattern: *one extension per file*. This keeps things tidy and
-  maintainable.
-- Since the classes are meant to be reused in many contexts (and the fact that
-  they're visible in your scripts), don't be afraid to given them clear, even
-  slightly verbose names that makes their purpose obvious. It'll save you
-  lots of work in the long run.
+- *Consider creating new separate files for your extensions.*
+
+  This way, you only have to define them *once*, after that you
+  can reuse them elsewhere.
+
+  ```ahk
+  #Include <StringUtil>
+  ```
+
+- *Don't be afraid to give your classes clear, verbose names.*
+
+  The extensions that you write are *global classes*, which are visible
+  across the scripts you use. Giving clear names will save you lots
+  of work in the long run.
+
+  ```ahk
+  class DefaultEmptyString extends AquaHotkey {
+    class Array {
+      Default := ""
+    }
+    class Map {
+      Default := ""
+    }
+  }
+
+  ...
+
+  #Include <DefaultEmptyString>
+  ```

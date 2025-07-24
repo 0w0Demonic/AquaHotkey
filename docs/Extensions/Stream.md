@@ -19,7 +19,7 @@ declarative manner, using mapper and predicate functions. Inspired by Java’s
 stream API, but tailored to AutoHotkey’s quirks and strengths.
 
 They're lazily evaluated, i.e., nothing happens until you hit something like
-`.ToArray()` or `.ForEach().`. That means fewer less operations done overall
+`.ToArray()` or `.ForEach()`. That means fewer less operations done overall
 (if you know what you're doing), and a much cleaner mental model.
 
 ### Lazy Eval - Example

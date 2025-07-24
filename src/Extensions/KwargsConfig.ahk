@@ -175,7 +175,7 @@ return Array(
     FileDelete, FilePattern,
     FileEncoding, "Encoding",
     FileExist, FilePattern,
-    FileInstall, "Source/Src/From, Dest/To, Overwrite",
+    %"FileInstall"%, "Source/Src/From, Dest/To, Overwrite",
     FileGetAttrib, SingleFile,
     FileGetShortcut, "LinkFile, Target, Dir, Args, Description,"
                     . "Icon, IconNum, RunState",

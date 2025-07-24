@@ -14,7 +14,7 @@
 ## What is AquaHotkey?
 
 AquaHotkey is a *class prototyping library* for AutoHotkey v2 that lets you
-rewrite built-in types like `Array`, `String` and `Map` to match our own
+rewrite built-in types like `Array`, `String` and `Map` to match your own
 style and preferences. Think of it as a meta-programming toolkit to improve
 your overall AHK experience and make it more elegant and personalized.
 
@@ -134,9 +134,11 @@ Str := "Hello, world!".Rep("l,", "p").Rep("d", "m").Rep("!", "?")
 
 ## AquaHotkeyX - Batteries-Included
 
-AquaHotkeyX is a wide collection of extensions built on AquaHotkey. It
-adds many general-use extensions designed for clarity, conciseness and
-elegance. Stream ops, array utilities, comparators, optionals, and much more.
+AquaHotkeyX is a wide collection of extensions built on top of AquaHotkey.
+
+It consists of many extensions for built-in types, as well as many other
+features designed for clarity, conciseness and elegance. Stream ops,
+array utilities, comparators, optionals, and much more.
 
 ```ahk
 #Include <AquaHotkeyX>
