@@ -1,13 +1,13 @@
 #Requires AutoHotkey >=v2.0.5
-#Include "%A_LineFile%/../../../AquaHotkey.ahk"
+#Include "%A_LineFile%/../../AquaHotkey.ahk"
 
-class DefaultFalse extends AquaHotkey {
+class DefaultValues extends AquaHotkey {
     class Array {
         Default := false
     }
 
     class Map {
-        Default := false
+        Default := "(empty)"
     }
 }
 
@@ -23,7 +23,4 @@ MapObj := Map()
 
 ArrayObj[3] == {1}
 MapObj["foo"] == {2}
-
-For more information, see:
-    docs/02-class-prototyping.md#instance-variable-declarations
 )", ArrayItem, MapItem))
