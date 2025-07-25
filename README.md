@@ -22,6 +22,23 @@ your overall AHK experience and make it more elegant and personalized.
 - Use clean and modular `#Include` files to organize your code
 - Make AutoHotkey match your style and needs. Clean, elegant, awesome.
 
+---
+
+### How it Works - Very Quick Overview
+
+```ahk
+class StringLength extends AquaHotkey {
+    class String {
+        Length => StrLen(this)
+    }
+}
+
+"foo".Length ; 3
+```
+
+As soon as the `StringLength` class is loaded, `String` is injected with a new
+`.Length` property. More on that in the [beginner's guide.](./docs/basics.md)
+
 ## Documentation
 
 - [Beginner's Guide](./docs/basics.md)
@@ -37,18 +54,29 @@ your overall AHK experience and make it more elegant and personalized.
 
 ### Advanced Installation
 
+With this special setup, both AquaHotkey and any dependant packages can be
+referenced using the very convenient angle brackets syntax. Like this:
+
+```ahk
+#Include <AquaHotkey>
+#Include <StringUtils>
+#Include <ArrayUtils>
+```
+
 If you use this library a lot, this setup will save lots of work in the long
-run:
+run. Here's how to do it:
 
 1. Create stub files `AquaHotkey.ahk` and `AquaHotkeyX.ahk` that each contain a
    single `#Include` pointing to the real source inside the repository folder:
 
     ```ahk
-    ; AquaHotkey.ahk (stub)
+    ; ------------- AquaHotkey.ahk (stub)
     #Include "%A_LineFile%/../AquaHotkey/AquaHotkey.ahk"
+    ; -------------
   
-    ; AquaHotkeyX.ahk (stub)
+    ; ------------- AquaHotkeyX.ahk (stub)
     #Include "%A_LineFile%/../AquaHotkey/AquaHotkeyX.ahk"
+    ; -------------
     ```
 
 2. Structure your files like this:
@@ -65,15 +93,6 @@ run:
     |- StringUtils.ahk    // your custom packages
     `- ArrayUtils.ahk
     ```
-
-With this layout, both AquaHotkey and any dependant packages can be referenced
-using the standard angle brackets syntax:
-
-```ahk
-#Include <AquaHotkey>
-#Include <StringUtils>
-#Include <ArrayUtils>
-```
 
 ## Why This Matters
 
