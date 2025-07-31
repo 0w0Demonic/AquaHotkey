@@ -727,7 +727,7 @@ class Array {
      * ```
      * 
      * @example
-     * Array(1, 2, 3, 4).AnyMatch(  (x) => (x > 2)  ) ; { Value: 3}
+     * Array(1, 2, 3, 4).AnyMatch(  (x) => (x > 2)  ) ; { Value: 3 }
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments

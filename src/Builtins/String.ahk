@@ -114,8 +114,8 @@ class String {
     /**
      * Returns a substring that ends just before the first match of a
      * regex `Pattern`.
-     * @example
      * 
+     * @example
      * "Test123Hello".BeforeRegex("\d++") ; "Test"
      * 
      * @param   {String}    Pattern       regular expression to search for
@@ -139,8 +139,8 @@ class String {
     /**
      * Returns a substring from the beginning to the end of a specified
      * occurrence of `Pattern`.
-     * @example
      * 
+     * @example
      * "Hello, world!".Until(", ") ; "Hello, "
      * 
      * @param   {String}      Pattern      substring to search for
@@ -160,8 +160,8 @@ class String {
     /**
      * Returns a substring that ends on the end of the first match of a
      * regex `Pattern`.
-     * @example
      * 
+     * @example
      * "Test123Hello".UntilRegex("\d++") ; "Test123"
      * 
      * @param   {String}    Pattern      regular expression to search for
@@ -769,8 +769,8 @@ class String {
 
     /**
      * Trims characters `OmitChars` from the beginning and end of the string.
-     * @example
      * 
+     * @example
      * " foo ".Trim() ; "foo"
      * 
      * @param   {String?}  OmitChars  characters to trim
@@ -781,6 +781,9 @@ class String {
     /**
      * Trims characters `OmitChars` from the beginning of the string.
      * 
+     * @example
+     * " foo ".LTrim() ; "foo "
+     * 
      * @param   {String?}  OmitChars  characters to trim
      * @return  {String}
      */
@@ -788,6 +791,9 @@ class String {
 
     /**
      * Trims characters `OmitChars` from the end of the string.
+     * 
+     * @example
+     * " foo ".RTrim() ; " foo"
      * 
      * @param   {String?}  OmitChars  characters to trim
      * @return  {String}
