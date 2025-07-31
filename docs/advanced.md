@@ -123,6 +123,27 @@ class GuiExtensions extends AquaHotkey {
 You can force classes to initialize by referencing them (i.e.,
 `(MyClass1 [  , MyClass2, ...  ])`) and then finally calling `super.__New()`.
 
+## Overriding Functions
+
+You don’t need to mess with `AquaHotkey_Backup` to tweak the behavior of
+global functions like `FileOpen()`. There's a nice trick for that:
+
+```ahk
+class FileOpen_DefaultRead extends AquaHotkey {
+    class FileOpen {
+        static Call(FileName, Flags := "r", Encoding?) {
+            return (Func.Prototype.Call)(this, FileName, Flags, Encoding?)
+        }
+    }
+}
+```
+
+Why does this work? Essentially: a call like `MsgBox("Hello, world!")` is just
+syntactic sugar for `(Func.Prototype.Call)(MsgBox, "Hello, world!")`. Even if
+you override `FileOpen.Call`, the actual function was never lost. You can
+always call the previous implementation using `Func.Prototype.Call` directly.
+We've merely intercepted the call on the way there.
+
 ## Sharing Behavior Across Multiple Classes with `AquaHotkey_MultiApply`
 
 If you want to extend multiple unrelated classes to share behavior without
