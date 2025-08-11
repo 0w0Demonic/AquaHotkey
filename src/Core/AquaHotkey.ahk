@@ -198,7 +198,9 @@ static __New() {
         }
 
         ; Ignore primitive classes, as its instances cannot have any fields.
-        if (!HasBase(Receiver, Primitive)) {
+        ; Also skip whenever both `__Init()` methods are the same, which is most
+        ; of the time; we avoid calling the same method twice.
+        if (!HasBase(Receiver, Primitive) && (ReceiverInit != SupplierInit)) {
             ; Rename the new `__Init()` method to something useful
             InitMethodName := SupplierProto.__Class . ".Prototype.__Init"
             Define(__Init, "Name", { Get: (Instance) => InitMethodName })
