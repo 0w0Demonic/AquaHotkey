@@ -26,6 +26,8 @@ your overall AHK experience and make it more elegant and personalized.
 
 ### How it Works - Very Quick Overview
 
+AquaHotkey is a system that copies members into existing classes at runtime.
+
 ```ahk
 class StringLength extends AquaHotkey {
     class String {
