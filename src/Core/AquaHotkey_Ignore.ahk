@@ -2,6 +2,8 @@
  * AquaHotkey - AquaHotkey_Ignore.ahk
  * 
  * Author: 0w0Demonic
+ * 
+ * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Core/AquaHotkey_Ignore.ahk
  * 
  * `AquaHotkey_Ignore` is a special marker class used to indicate that a class

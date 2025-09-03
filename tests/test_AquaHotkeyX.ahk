@@ -90,25 +90,4 @@ class TestSuite {
     }
 }
 
-class Debug extends AquaHotkey {
-    class Object {
-        ListAllProperties() {
-            return ObjOwnProps(this).Stream()
-                        .FlatMap(GetNames).ToArray().Sort(Comparator.Alphabetic)
-
-            GetNames(PropName) {
-                PropDesc := (Object.Prototype.GetOwnPropDesc)(this, PropName)
-                if (PropDesc.HasOwnProp("Value")) {
-                    return Array(PropName)
-                }
-                return "Get, Set, Call".StrSplit(", ")
-                    .RetainIf(PropName => PropDesc.HasProp(PropName))
-                    .Map(PropName => PropDesc.%PropName%.Name)
-            }
-        }
-    }
-}
-
-ControlClick.Signature.ToString().MsgBox()
-
 ExitApp()

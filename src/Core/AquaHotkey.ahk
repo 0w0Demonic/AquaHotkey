@@ -80,6 +80,17 @@ static __New() {
     }
 
     /**
+     * `Object`'s implementation of `GetOwnPropDesc()`.
+     * 
+     * @param   {Object}  Obj           object to retrieve property from
+     * @param   {String}  PropertyName  name of property
+     * @return  {Object}
+     */
+    static GetProp(Obj, PropertyName) {
+        return (Object.Prototype.GetOwnPropDesc)(Obj, PropertyName)
+    }
+
+    /**
      * After properties have been successfully transferred to the target,
      * classes are erased.
      * 
@@ -94,6 +105,16 @@ static __New() {
      * ]
      */
     static DeletionQueue := Array()
+
+    /**
+     * Outputs useful information to the debugger.
+     * 
+     * @param   {String}   FormatStr  format string to be used
+     * @param   {String*}  Args       zero or more arguments
+     */
+    static Debug(FormatStr, Args*) {
+        OutputDebug("[Aqua] " . Format(FormatStr, Args*))
+    }
 
     /**
      * Main method responsible for transferring properties.
@@ -113,7 +134,7 @@ static __New() {
 
         ; ignore classes that extend `AquaHotkey_Ignore`
         if (HasBase(Supplier, AquaHotkey_Ignore)) {
-            OutputDebug("[Aqua] ignoring: " . Supplier.Prototype.__Class)
+            Debug("ignoring: {1}", Supplier.Prototype.__Class)
             return
         }
         
@@ -123,8 +144,9 @@ static __New() {
         ; Try to find a property receiver (usually a built-in class)
         try
         {
-            ; These two methods find variables in global namespace. `Deref2()`
-            ; avoids the edge case `class this`.
+            ; These two methods explicitly search for global variables and
+            ; avoid accidentally capturing variables local to this method.
+            ; `Deref2()` is used for the edge case `class this`.
             static Deref1(this)    => %this%
             static Deref2(VarName) => %VarName%
 
@@ -132,12 +154,10 @@ static __New() {
             ; scope by name dereference. Otherwise, `Namespace` refers to
             ; the root class in which the property receiver resides
             ; (e.g. `Gui.Edit`, which is found in `Gui`).
-            if (IsSet(Namespace)) {
-                Receiver := Namespace.%ClassName%
-            } else if (ClassName != "this") {
-                Receiver := Deref1(ClassName)
-            } else {
-                Receiver := Deref2(ClassName)
+            switch {
+                case (IsSet(Namespace)):    Receiver := Namespace.%ClassName%
+                case (ClassName != "this"): Receiver := Deref1(ClassName)
+                default:                    Receiver := Deref2(ClassName)
             }
 
             SupplierName := Supplier.Prototype.__Class
@@ -149,8 +169,7 @@ static __New() {
                 ReceiverProtoName := ReceiverName . ".Prototype"
             }
 
-            FormatString := "[Aqua] {1:-40} -> {2}"
-            OutputDebug(Format(FormatString, SupplierName, ReceiverName))
+            Debug("{1:-40} -> {2}", SupplierName, ReceiverName)
         }
         catch
         {
@@ -203,7 +222,7 @@ static __New() {
         if (!HasBase(Receiver, Primitive) && (ReceiverInit != SupplierInit)) {
             ; Rename the new `__Init()` method to something useful
             InitMethodName := SupplierProto.__Class . ".Prototype.__Init"
-            Define(__Init, "Name", { Get: (Instance) => InitMethodName })
+            Define(__Init, "Name", { Get: (_) => InitMethodName })
 
             ; Finally, overwrite the old `__Init()` property with ours
             Define(ReceiverProto, "__Init", { Call: __Init })
@@ -233,20 +252,21 @@ static __New() {
             if (DoRecursion(Supplier, Receiver, PropertyName)) {
                 Overwrite(Supplier, PropertyName, DeletionQueue, Receiver)
             } else {
-                PropDesc := Supplier.GetOwnPropDesc(PropertyName)
+                PropDesc := GetProp(Supplier, PropertyName)
                 Define(Receiver, PropertyName, PropDesc)
             }
         }
         
         ; Transfer all non-static properties
         for PropertyName in ObjOwnProps(SupplierProto) {
-            PropDesc := SupplierProto.GetOwnPropDesc(PropertyName)
+            PropDesc := GetProp(SupplierProto, PropertyName)
             Define(ReceiverProto, PropertyName, PropDesc)
         }
     }
     
-    FormatString := "`n[Aqua] ######## Extension Class: {1} ########`n"
-    OutputDebug(Format(FormatString, this.Prototype.__Class))
+    Debug("")
+    Debug("######## Extension Class: {1} ########", this.Prototype.__Class)
+    Debug("")
 
     ; Loop through all properties of AquaHotkey and modify classes
     for PropertyName in ObjOwnProps(this) {

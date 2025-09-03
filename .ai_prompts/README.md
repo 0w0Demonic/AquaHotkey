@@ -1,10 +1,10 @@
 # AI Prompts for AquaHotkey
 
-This directly contains prompts that can be used with custom AI agents to provide
+This directory contains prompts that can be used with custom AI agents to provide
 specialized knowledge about this library.
 
 These files are meant to be used as prompts so that an AI assistant can
-understand and use the AquaHotkey library effectively.
+understand and AquaHotkey effectively.
 
 ## How to Use
 
