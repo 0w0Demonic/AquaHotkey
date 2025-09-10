@@ -111,16 +111,7 @@
  * Kernel32.Sleep(1000)
  * ```
  */
-class DLL {
-    /** Constructor that throws an error. */
-    static Call(*) {
-        if (ObjGetBase(this) != DLL) {
-            return
-        }
-        throw ValueError("this class is not instantiable",,
-                        this.Prototype.__Class)
-    }
-
+class DLL extends Any {
     /**
      * Static class constructor that loads the DLL file and dynamically creates
      * properties.
@@ -154,23 +145,11 @@ class DLL {
          * Deletes all properties from a class and from its prototype.
          */
         static DeleteAllProperties(DllClass) {
-            static Delete(Obj, PropertyName) {
-                (Object.Prototype.DeleteProp)(Obj, PropertyName)
-            }
-
-            Proto         := DllClass.Prototype
-            DeletionQueue := Array()
-
-            for PropertyName in ObjOwnProps(DllClass) {
-                DeletionQueue.Push(Delete.Bind(DllClass, PropertyName))
-            }
-
-            for PropertyName in ObjOwnProps(Proto) {
-                DeletionQueue.Push(Delete.Bind(Proto, PropertyName))
-            }
-
-            for DeletionFunction in DeletionQueue {
-                DeletionFunction()
+            static Delete := (Object.Prototype.DeleteProp)
+            for Target in Array(DllClass, DllClass.Prototype) {
+                for PropertyName in Array(ObjOwnProps(Target)*) {
+                    Delete(Target, PropertyName)
+                }
             }
         }
 
@@ -413,12 +392,36 @@ class DLL {
         }
         Mask := Array()
         Mask.Capacity := Types.Length * 2
+
         for T in Types {
+            if (IsObject(T) && !(T is Class)) {
+                throw TypeError("Expected a String or Class",, Type(T))
+            }
+            if (!IsStruct(T)) {
+                T := "Ptr"
+            }
             Mask.Push(T, unset)
         }
         if (Mask.Length) {
             Mask.Pop()
         }
-        return DllCall.Bind(Function, Mask*)
+        return ObjBindMethod(DllCall,, Function, Mask*)
+
+        static IsStruct(Cls) {
+            static GetProp := (Object.Prototype.GetOwnPropDesc)
+            if (VerCompare(A_AhkVersion, "2.1-alpha.3") < 0) {
+                return false
+            }
+            if (!(Cls is Class)) {
+                return false
+            }
+            for PropertyName in ObjOwnProps(Cls.Prototype) {
+                PropDesc := GetProp(Cls.Prototype, PropertyName)
+                if (ObjHasOwnProp(PropDesc, "Type")) {
+                    return true
+                }
+            }
+            return false
+        }
     }
 }
