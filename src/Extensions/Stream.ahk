@@ -120,14 +120,16 @@ class Stream {
      * @return  {Integer}
      */
     ArgSize(Function) {
-        Function := GetMethod(Function, "Call")
+        if (!(Function is Func)) {
+            Function := GetMethod(Function, "Call")
+        }
         if (Function.IsVariadic) {
             return (this.MaxParams || 1)
         }
         if (!Function.MaxParams) {
             throw ValueError("invalid parameter length: 0",, Function.Name)
         }
-        return Min(this.MaxParams, Function.MaxParams)
+        return (Min(this.MaxParams, Function.MaxParams) || 1)
     }
 
     /**
@@ -1296,6 +1298,53 @@ class AquaHotkey_Stream extends AquaHotkey {
                 return Stream(GetMethod(this))
             }
             throw UnsetError("this variable is not enumerable",, Type(this))
+        }
+    }
+
+    class Object {
+        static __New() {
+            if (VerCompare(A_AhkVersion, "2.1-alpha.18") < 0) {
+                this.DeleteProp("PropsStream")
+            }
+        }
+
+        /**
+         * Returns a stream of the object's own properties. Use this method
+         * instead of `.OwnProps().Stream()` to support property values.
+         * 
+         * @example
+         * class Example {
+         *     a := 1
+         *     b := 2
+         * }
+         * 
+         * Example().OwnPropsStream() ; <("a", 1), ("b", 2)>
+         * 
+         * @return  {Stream}
+         */
+        OwnPropsStream() {
+            f := this.OwnProps()
+            return Stream((&K, &V) => f(&K, &v))
+        }
+
+        /**
+         * - (v2.1-alpha.18+)
+         * 
+         * Returns a stream of an object's properties. Use this method instead
+         * of `.Props().Stream()` to support property values.
+         * 
+         * @example
+         * class Example extends Buffer {
+         *     a := 1
+         * }
+         * 
+         * Example(16, 0).PropsStream() ; <("a", 1), ("Size", 16), ...>
+         * 
+         * @return  {Stream}
+         */
+        PropsStream() {
+            f := this.Props()
+            return Stream((&K, &V) => f(&K, &V))
         }
     }
 }

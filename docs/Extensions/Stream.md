@@ -83,19 +83,6 @@ for Value in Stream {
 }
 ```
 
-### Sneak peek: Tuple Streams
-
-You know `ZipArray`? The stream version is coming. Expect something like
-`ZipStream` or tuple-aware mappers where `.ForEach()` can auto-spread multiple
-values. Until then, try this to get a rough approximate:
-
-```ahk
-MyZippedArray.Stream().Map(Mapper.Spread(MyFunc))
-```
-
-Drop them into for loops, `.Reduce()` each element into a single value,
-or just use `.Collect()` if you're feeling fancy.
-
 ### Stream parameters and arity
 
 Streams can handle up to 4 arguments and automatically match them to the
@@ -111,7 +98,7 @@ want to preserve structure, make use of maps, arrays, and other objects.
 
 ### Quick heads-up on naming
 
-You're used to `.Filter()` in most languages — here, we split it:
+Instead of `.Filter()`, there's two separate methods:
 
 - `.RetainIf()` keeps elements that match
 - `.RemoveIf()` removes those that do
