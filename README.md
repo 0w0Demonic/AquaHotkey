@@ -49,24 +49,25 @@ As soon as the `StringLength` class is loaded, `String` is injected with a new
 
 ## Installation
 
+To get started, clone this repository and (preferably) put it in one of the
+AutoHotkey [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib).
+
 ```ahk
 #Requires AutoHotkey >=v2.0.5 <v2.2
 #Include <AquaHotkey>
 ```
 
-### Advanced Installation
+### Advanced Setup
 
-With this special setup, both AquaHotkey and any dependant packages can be
-referenced using the very convenient angle brackets syntax. Like this:
+This is optional, but will probably save you lots of work in the long run.
+With this setup, both AquaHotkey and anything else that depends on it can
+be imported with `<library>` syntax.
 
 ```ahk
 #Include <AquaHotkey>
 #Include <StringUtils>
 #Include <ArrayUtils>
 ```
-
-If you use this library a lot, this setup will save lots of work in the long
-run. Here's how to do it:
 
 1. Create stub files `AquaHotkey.ahk` and `AquaHotkeyX.ahk` that each contain a
    single `#Include` pointing to the real source inside the repository folder:
@@ -84,15 +85,18 @@ run. Here's how to do it:
 2. Structure your files like this:
 
     ```txt
-    %A_Documents%/AutoHotkey/lib
+    lib/
+    |
     |- AquaHotkey/
-    |  |- AquaHotkey.ahk  // the actual source (#Include these)
+    |  |- AquaHotkey.ahk  <-- the actual source (#Include these)
     |  `- AquaHotkeyX.ahk
     |
-    |- AquaHotkey.ahk     // your stub files (step 1)
+    |
+    |- AquaHotkey.ahk     <-- stub files (see above)
     |- AquaHotkeyX.ahk
     |
-    |- StringUtils.ahk    // your custom packages
+    |
+    |- StringUtils.ahk    <-- other libs
     `- ArrayUtils.ahk
     ```
 
@@ -143,7 +147,6 @@ class StringUtils extends AquaHotkey {
         }
     }
 }
-
 ```
 
 **MyScript.ahk**:
@@ -155,11 +158,13 @@ Str := "Hello, world!".Rep("l,", "p").Rep("d", "m").Rep("!", "?")
 
 ## AquaHotkeyX - Batteries-Included
 
-AquaHotkeyX is a wide collection of extensions built on top of AquaHotkey.
+On top of this new functionality, I've built a kind of standard library.
+It consists of lots of new extensions for the built-in types, and features
+that are designed for clary, conciseness and elegance.
 
-It consists of many extensions for built-in types, as well as many other
-features designed for clarity, conciseness and elegance. Stream ops,
-array utilities, comparators, optionals, and much more.
+There's lots of functionality programming patterns in here, and I think it
+works extremely well for this language. Stream ops, array utilities,
+comparators, optionals, and much more.
 
 ```ahk
 #Include <AquaHotkeyX>
@@ -172,6 +177,31 @@ Range(5).Stream().Gather(Gatherer.WindowSliding(3))
 ```
 
 For a quick overview, see [API Overview](./docs/api-overview.md).
+
+## Design Philosophy
+
+My opinionated belief:
+> *A perfect tool is one you don't even notice you're using.*
+
+### Goals
+
+1. **Simplicity**
+
+   The framework should be intuitive and easy to grasp conceptually.
+
+2. **Universal**
+
+   Handles anything that you throw at it, without having to think too
+   much about what's going on below the hood.
+
+3. **Bulletproof Reliability**
+
+   No wiggle room for unexpected behavior. Writing this at first was very
+   painful, so you can trust I won't let any weird bugs slip through again.
+
+4. **Elegance**
+
+   Designed to be highly concise, composable and elegant.
 
 ## About
 
