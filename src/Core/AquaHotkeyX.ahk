@@ -2,6 +2,7 @@
 #Include %A_LineFile%/../AquaHotkey.ahk
 
 #Include %A_LineFile%/../../Builtins/Any.ahk
+#Include %A_LineFile%/../../Builtins/Assertions.ahk
 #Include %A_LineFile%/../../Builtins/Array.ahk
 #Include %A_LineFile%/../../Builtins/Buffer.ahk
 #Include %A_LineFile%/../../Builtins/Class.ahk

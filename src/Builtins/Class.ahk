@@ -20,7 +20,6 @@ class Class {
      * 
      * @param   {String}  MethodName  the name of the undefined method
      * @param   {Array}   Args        zero or more additional arguments
-     * @returns (none)
      */
     __Call(MethodName, *) {
         throw MethodError("undefined static method: " . MethodName,, Type(this))

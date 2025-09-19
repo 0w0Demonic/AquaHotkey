@@ -13,6 +13,8 @@ class Buffer {
      * methods.
      */
     static __New() {
+        static Define := (Object.Prototype.DefineProp)
+
         for NumType in Array("Char", "UChar", "Short", "UShort", "Int", "UInt",
                         "Int64", "UInt64", "Ptr", "UPtr", "Float", "Double")
         {
@@ -27,7 +29,7 @@ class Buffer {
         
         static CreateGetter(Cls, NumType) {
             FunctionName := Cls.Prototype.__Class . ".Prototype.Get" . NumType
-            Getter.DefineProp("Name", { Get: (Instance) => FunctionName })
+            Define(Getter, "Name", { Get: (*) => FunctionName })
             return Getter
             /**
              * Gets a number from this buffer at offset `Offset`.
@@ -45,7 +47,7 @@ class Buffer {
         
         static CreateSetter(Cls, NumType) {
             FunctionName := Cls.Prototype.__Class . ".Prototype.Put" . NumType
-            Setter.DefineProp("Name", { Get: (Instance) => FunctionName })
+            Define(Setter, "Name", { Get: (*) => FunctionName })
             return Setter
             /**
              * Puts a number `Value` into this buffer at offset `Offset`, and
