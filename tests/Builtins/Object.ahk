@@ -7,6 +7,17 @@
  * - tests/Builtins/Object.ahk
  */
 class Object {
+    static BindMethod() {
+        Arr      := Array()
+        ArrPush1 := Arr.BindMethod("Push", 1)
+
+        Loop 5 {
+            ArrPush1()
+        }
+
+        Arr.Join(" ").AssertEquals("1 1 1 1 1")
+    }
+
     static DefineConstant() {
         Obj := Object()
         Obj.DefineConstant("Value", 42)

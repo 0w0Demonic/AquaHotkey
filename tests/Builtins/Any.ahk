@@ -16,17 +16,6 @@ class Any {
         65.o0(Chr).AssertEquals("A")
     }
 
-    static BindMethod() {
-        Arr      := Array()
-        ArrPush1 := Arr.BindMethod("Push", 1)
-
-        Loop 5 {
-            ArrPush1()
-        }
-
-        Arr.Join(" ").AssertEquals("1 1 1 1 1")
-    }
-
     static Type() {
         "Hello world!".Type.AssertEquals("String")
     }

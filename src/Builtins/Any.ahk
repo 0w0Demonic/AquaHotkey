@@ -141,22 +141,7 @@ class Any {
             return (Cache[ClassName] := ClassObj)
         }
     }
-
-    /**
-     * Creates a `BoundFunc` which calls a method `MethodName` bound to this
-     * particular instance, followed by zero or more arguments `Args*`.
-     * 
-     * @example
-     * Arr       := Array()
-     * PushToArr := Arr.BindMethod("Push")
-     * PushToArr("Hello, world!")
-     * 
-     * @param   {String}  MethodName  the name of a method
-     * @param   {Any*}    Args        zero or more additional arguments
-     * @return  {BoundFunc}
-     */
-    BindMethod(MethodName, Args*) => ObjBindMethod(this, MethodName, Args*)
-
+    
     /**
      * Returns the type of this variable in the same way as built-in `Type()`.
      * 

@@ -9,6 +9,21 @@ class AquaHotkey_Object extends AquaHotkey {
  */
 class Object {
     /**
+     * Creates a `BoundFunc` which calls a method `MethodName` bound to this
+     * particular instance, followed by zero or more arguments `Args*`.
+     * 
+     * @example
+     * Arr       := Array()
+     * PushToArr := Arr.BindMethod("Push")
+     * PushToArr("Hello, world!")
+     * 
+     * @param   {String}  MethodName  the name of a method
+     * @param   {Any*}    Args        zero or more additional arguments
+     * @return  {BoundFunc}
+     */
+    BindMethod(MethodName, Args*) => ObjBindMethod(this, MethodName, Args*)
+
+    /**
      * Defines a new read-only property by the name of `PropertyName` for this
      * object, which returns a constant `Value`.
      * 
