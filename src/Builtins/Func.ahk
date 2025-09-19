@@ -10,14 +10,14 @@ class AquaHotkey_Func extends AquaHotkey {
 class Func {
     /**
      * Returns a function that always returns its input argument.
-     * @return  {Func}
+     * @returns {Func}
      */
     static Self => ((x) => x)
 
     /**
      * Returns a function that always returns the given input `x`
      * @param   {Any}  x  the value to return
-     * @return  {Func}
+     * @returns {Func}
      */
     static Constantly(x) => ((*) => x)
 
@@ -26,7 +26,7 @@ class Func {
      * is an object, a fresh copy is returned each time.
      * 
      * @param   {Any}  x  the value to return (and optionally clone)
-     * @return  {Func}
+     * @returns {Func}
      */
     static Replicate(x) {
         if (IsObject(x)) {
@@ -50,7 +50,7 @@ class Func {
      * 
      * @param   {Func}  After     function to apply after this function
      * @param   {Any*}  NextArgs  zero or more additional arguments
-     * @return  {Func}
+     * @returns {Func}
      */
     AndThen(After, NextArgs*) {
         GetMethod(After)
@@ -71,7 +71,7 @@ class Func {
      * 
      * @param   {Func}  Before    function to apply before this function
      * @param   {Any*}  NextArgs  zero or more additional arguments
-     * @return  {Func}
+     * @returns {Func}
      */
     Compose(Before, NextArgs*) {
         GetMethod(Before)
@@ -91,7 +91,7 @@ class Func {
      * Condition(23) ; true
      * 
      * @param   {Func}  Other  function that evaluates a condition
-     * @return  {Func}
+     * @returns {Func}
      */
     And(Other) {
         GetMethod(Other)
@@ -111,7 +111,7 @@ class Func {
      * Condition(56) ; true
      * 
      * @param   {Func}  Other  function that evaluates a condition
-     * @return  {Func}
+     * @returns {Func}
      */
     AndNot(Other) {
         GetMethod(Other)
@@ -131,7 +131,7 @@ class Func {
      * Condition(1) ; true
      * 
      * @param   {Func}  Other  function that evaluates a condition
-     * @return  {Func}
+     * @returns {Func}
      */
     Or(Other) {
         GetMethod(Other)
@@ -151,7 +151,7 @@ class Func {
      * Condition(-3) ; true
      * 
      * @param   {Func}  Other  function that evaluates a condition
-     * @return  {Func}
+     * @returns {Func}
      */
     OrNot(Other) {
         GetMethod(Other)
@@ -167,7 +167,7 @@ class Func {
      * 
      * IsNotAdult({ Age: 17 }) ; true
      * 
-     * @return  {Predicate}
+     * @returns {Predicate}
      */
     Negate() => ((Args*) => !this(Args*))
 
@@ -197,7 +197,7 @@ class Func {
      * 
      * @param   {Func?}                  Hasher    function creating map keys
      * @param   {Map?/Func?/Primitive?}  MapParam  specifies map options
-     * @return  {Func}
+     * @returns {Func}
      */
     Memoized(Hasher?, MapParam := Map()) {
         switch {
@@ -235,7 +235,7 @@ class Func {
      * @example
      * MsgBox.ToString() ; "Func MsgBox"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     ToString() {
         if (this.Name == "") {

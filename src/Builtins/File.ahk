@@ -21,7 +21,7 @@ class File {
      * FileOpen("message.txt", "r").Stream().ForEach(MsgBox)
      * 
      * @param   {Integer}  n  argument size of the enumerator
-     * @return  {Enumerator}
+     * @returns {Enumerator}
      */
     __Enum(n) {
         if (n == 1) {
@@ -58,7 +58,7 @@ class File {
      * ; "File { Name: C:\...\foo.txt, Pos: 0, Encoding: UTF-8, Handle: 362 }"
      * MyFile.ToString()
      * 
-     * @return  {String}
+     * @returns {String}
      */
     ToString() {
         Pattern := "File{{} Name: {}, Pos: {}, Encoding: {}, Handle: {} {}}"
@@ -71,7 +71,7 @@ class File {
      * @example
      * FileObj.Name ; "C:\...\hello.txt"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     Name {
         Get {

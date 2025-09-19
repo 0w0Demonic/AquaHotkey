@@ -17,7 +17,7 @@ class Any {
      * 
      * @param   {String}  FunctionName  name of the global function
      * @param   {Any*}    Args          additional arguments
-     * @return  {Any}
+     * @returns {Any}
      */
     __Call(FunctionName, Args) {
         ; dereferences a variable in global namespace
@@ -103,7 +103,7 @@ class Any {
      * 
      * @param   {Func}  Callback  a function to forward to
      * @param   {Any*}  Args      zero or more additional arguments
-     * @return  {Any}
+     * @returns {Any}
      */
     o0(Callback, Args*) {
         Callback := GetMethod(Callback)
@@ -141,14 +141,14 @@ class Any {
             return (Cache[ClassName] := ClassObj)
         }
     }
-    
+
     /**
      * Returns the type of this variable in the same way as built-in `Type()`.
      * 
      * @example
      * "Hello, world!".Type ; "String"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     Type => Type(this)
 
@@ -158,7 +158,7 @@ class Any {
      * @example
      * "Hello, world!".Class ; String
      * 
-     * @return  {Class}
+     * @returns {Class}
      */
     Class {
         Get {
@@ -185,7 +185,7 @@ class Any {
      * 
      * @param   {Func}     Condition  the condition to assert
      * @param   {String?}  Msg        custom error message
-     * @return  {this}
+     * @returns {this}
      */
     Assert(Condition, Msg?) {
         if (Condition(this)) {
@@ -203,7 +203,7 @@ class Any {
      * 
      * @param   {Class}    T    expected type
      * @param   {String?}  Msg  custom error message
-     * @return  {this}
+     * @returns {this}
      */
     AssertType(T, Msg?) {
         if (this is T) {
@@ -223,7 +223,7 @@ class Any {
      * 
      * @param   {Any}      Other  expected value
      * @param   {String?}  Msg    custom error message
-     * @return  {this}
+     * @returns {this}
      */
     AssertEquals(Other, Msg?) {
         if (this = Other) {
@@ -247,7 +247,7 @@ class Any {
      * 
      * @param   {Any}      Other  expected value
      * @param   {String?}  Msg    custom error message
-     * @return  {this}
+     * @returns {this}
      */
     AssertStrictEquals(Other) {
         if (this == Other) {
@@ -271,7 +271,7 @@ class Any {
      * 
      * @param   {Any}      Other  unexpected value
      * @param   {String?}  Msg    custom error message
-     * @return  {this}
+     * @returns {this}
      */
     AssertNotEquals(Other, Msg?) {
         if (this != Other) {
@@ -295,7 +295,7 @@ class Any {
      * 
      * @param   {Any}      Other  unexpected value
      * @param   {String?}  Msg    custom error message
-     * @return  {this}
+     * @returns {this}
      */
     AssertStrictNotEquals(Other, Msg?) {
         if (this !== Other) {

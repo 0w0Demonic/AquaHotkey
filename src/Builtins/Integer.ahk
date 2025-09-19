@@ -14,7 +14,7 @@ class Integer {
      * @example
      * (255).ToHexString() ; "FF"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     ToHexString() => Format("{:x}", this)
 
@@ -24,7 +24,7 @@ class Integer {
      * @example
      * (32).ToBinaryString() ; "100000"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     ToBinaryString() {
         Buf := Buffer(64)
@@ -45,7 +45,7 @@ class Integer {
      * (0).Signum()    ; 0
      * (-863).Signum() ; -1
      * 
-     * @return  {Integer}
+     * @returns {Integer}
      */
     Signum() => (this >> 63) | (-this >>> 63)
 } ; class Integer

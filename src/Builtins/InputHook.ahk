@@ -14,7 +14,7 @@ class InputHook {
      * 
      * @param   {Integer}  VK  virtual key code
      * @param   {Integer}  SC  scan code
-     * @return  {String}
+     * @returns {String}
      */
     static GetKeyName(VK, SC) {
         return GetKeyName(Format("vk{:x}sc{:x}", VK, SC))

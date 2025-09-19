@@ -73,7 +73,7 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
          * 
          * @param   {Object}  Obj           the target object
          * @param   {String}  PropertyName  name of existing property
-         * @return  {Object}
+         * @returns {Object}
          */
         static GetPropDesc(Obj, PropertyName) {
             return (Object.Prototype.GetOwnPropDesc)(Obj, PropertyName)
@@ -83,7 +83,7 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
          * Returns a getter property that always returns `Value`.
          * 
          * @param   {Any}  Value  the value to return
-         * @return  {Object}
+         * @returns {Object}
          */
         static CreateGetter(Value) => { Get: (Instance) => Value }
         
@@ -91,7 +91,7 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
          * Creates a property descriptor for a nested class.
          * 
          * @param   {Class}  Cls  the target nested class
-         * @return  {Object}
+         * @returns {Object}
          */
         static CreateNestedClassProp(Cls) {
             return {

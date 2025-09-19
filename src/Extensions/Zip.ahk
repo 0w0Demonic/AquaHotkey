@@ -21,7 +21,7 @@ class ZipArray extends Array {
      * ZipArray.Of([1, 2], [3, 4], [5, 6, 7]) ; [(1, 3, 5), (2, 4, 6)]
      * 
      * @param   {Array*}  Arrays  the arrays to be zipped
-     * @return  {ZipArray}
+     * @returns {ZipArray}
      */
     static Of(Arrays*) {
         if (Arrays.Length < 2) {
@@ -54,7 +54,7 @@ class ZipArray extends Array {
      * Create a new ZipArray consisting of the given Tuple values.
      * 
      * @param   {Tuple*}  Elements  the elements to be added
-     * @return  {ZipArray}
+     * @returns {ZipArray}
      */
     __New(Elements*) {
         for Element in Elements {
@@ -121,7 +121,7 @@ class ZipArray extends Array {
      * ZipArray(Tuple(1, 2, 3), Tuple(4, 5, 6)).Map((L, R) => Tuple(R, L))
      * 
      * @param   {Func}  TupleMapper  the mapper to apply
-     * @return  {ZipArray}
+     * @returns {ZipArray}
      */
     Map(TupleMapper) {
         GetMethod(TupleMapper)
@@ -148,7 +148,7 @@ class ZipArray extends Array {
      * ; [[1, 3], [2, 4]]
      * Z := ZipArray(Tuple(1, 2), Tuple(3, 4)).Unzip()
      * 
-     * @return  {Array}
+     * @returns {Array}
      */
     Unzip() {
         Count := 0
@@ -209,7 +209,7 @@ class ZipArray extends Array {
      * ZipArray(Tuple(1, 2), Tuple(3, 4)).RetainIf((L, R) => (L + R > 5))
      * 
      * @param   {Func}  Condition  the given condition
-     * @return  {ZipArray}
+     * @returns {ZipArray}
      */
     RetainIf(Condition) {
         GetMethod(Condition)
@@ -232,7 +232,7 @@ class ZipArray extends Array {
      * ZipArray(Tuple(1, 2), Tuple(3, 4)).RemoveIf((L, R) => (L + R > 5))
      * 
      * @param   {Func}  Condition  the given condition
-     * @return  {ZipArray}
+     * @returns {ZipArray}
      */
     RemoveIf(Condition) {
         GetMethod(Condition)
@@ -254,7 +254,7 @@ class ZipArray extends Array {
      * ZipArray(Tuple(1, 2), Tuple(3, 4)).ForEach((L, R) => MsgBox(L + R))
      * 
      * @param   {Func}  Action  the given action
-     * @return  {this}
+     * @returns {this}
      */
     ForEach(Action) {
         GetMethod(Action)
@@ -288,7 +288,7 @@ class ZipArray extends Array {
      * 
      * @param   {Func?}                  Hasher    function to create map keys
      * @param   {Map?/Func?/Primitive?}  MapParam  internal map options
-     * @return  {ZipArray}
+     * @returns {ZipArray}
      */
     Distinct(Hasher?, MapParam := Map()) {
         switch {
@@ -352,7 +352,7 @@ class ZipArray extends Array {
      * ZipArray(Tuple("Hello")).FlatMap(StrSplit)
      * 
      * @param   {Func?}  Mapper  function to convert and flatten elements
-     * @return  {Array}
+     * @returns {Array}
      */
     FlatMap(Mapper?) {
         Result := Array()
@@ -405,7 +405,7 @@ class AquaHotkey_Zip extends AquaHotkey {
          * Combines the array with `Arr` by merging each value.
          * 
          * @param   {Array}  Arr  the array to zip with
-         * @return  {ZippedArray}
+         * @returns {ZippedArray}
          */
         ZipWith(Arr) => ZipArray.Of(this, Arr)
 
@@ -418,7 +418,7 @@ class AquaHotkey_Zip extends AquaHotkey {
          * Array("apple", "banana", "kiwi").Zip(Str => Tuple(Str, StrLen(Str)))
          * 
          * @param   {Func}  TupleMapper  the function to create tuples with
-         * @return  {ZippedArray}
+         * @returns {ZippedArray}
          */
         Zip(TupleMapper) {
             GetMethod(TupleMapper)
@@ -440,7 +440,7 @@ class AquaHotkey_Zip extends AquaHotkey {
          * Array("apple", "banana", "kiwi").Spread(Func.Self, StrLen)
          * 
          * @param   {Func*}  Mappers  the mappers to apply
-         * @return  {ZippedArray}
+         * @returns {ZippedArray}
          */
         Spread(Mappers*) {
             if (!Mappers.Length) {

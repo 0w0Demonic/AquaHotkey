@@ -16,7 +16,7 @@ class Map {
      * MapObj["foo"] ; "(empty)"
      * 
      * @param   {Any}  Default  new default return value
-     * @return  {this}
+     * @returns {this}
      */
     SetDefault(Default) {
         this.Default := Default
@@ -30,7 +30,7 @@ class Map {
      * MapObj := Map().SetCapacity(128)
      * 
      * @param   {Integer}  Capacity  new capacity
-     * @return  {this}
+     * @returns {this}
      */
     SetCapacity(Capacity) {
         this.Capacity := Capacity
@@ -44,7 +44,7 @@ class Map {
      * MapObj := Map().SetCaseSense(false)
      * 
      * @param   {Primitive}  CaseSense  new case-sensitivity
-     * @return  {this}
+     * @returns {this}
      */
     SetCaseSense(CaseSense) {
         this.CaseSense := CaseSense
@@ -57,7 +57,7 @@ class Map {
      * @example
      * Map(1, 2, "foo", "bar").Keys() ; [1, "foo"]
      * 
-     * @return  {Array}
+     * @returns {Array}
      */
     Keys() => Array(this*)
 
@@ -67,7 +67,7 @@ class Map {
      * @example
      * Map(1, 2, "foo", "bar").Values() ; [2, "bar"]
      * 
-     * @return  {Array}
+     * @returns {Array}
      */
     Values() => Array(this.__Enum(2).Bind(&Ignore)*)
 
@@ -78,7 +78,7 @@ class Map {
      * Map().IsEmpty ; true
      * Map(1, 2, "foo", "bar").IsEmpty ; false
      * 
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     IsEmpty  => (!this.Count)
 
@@ -95,7 +95,7 @@ class Map {
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
-     * @return  {Map}
+     * @returns {Map}
      */
     RetainIf(Condition, Args*) {
         GetMethod(Condition)
@@ -125,7 +125,7 @@ class Map {
      * 
      * @param   {Func}  Condition  function that evaluates a condition
      * @param   {Any*}  Args       zero or more additional arguments
-     * @return  {this}
+     * @returns {this}
      */
     RemoveIf(Condition, Args*) {
         GetMethod(Condition)
@@ -154,7 +154,7 @@ class Map {
      * 
      * @param   {Func}  Mapper  function that returns a new value
      * @param   {Any*}  Args    zero or more additional arguments
-     * @return  {this}
+     * @returns {this}
      */
     ReplaceAll(Mapper, Args*) {
         GetMethod(Mapper)
@@ -183,7 +183,7 @@ class Map {
      * 
      * @param   {Func}  Mapper  function that returns a new value
      * @param   {Any*}  Args    zero or more additional arguments
-     * @return  {Map}
+     * @returns {Map}
      */
     Map(Mapper, Args*) {
         GetMethod(Mapper)
@@ -216,7 +216,7 @@ class Map {
      * 
      * @param   {Func}  Action  the function to be called
      * @param   {Any*}  Args    zero or more additional arguments
-     * @return  {this}
+     * @returns {this}
      */
     ForEach(Action, Args*) {
         GetMethod(Action)
@@ -234,7 +234,7 @@ class Map {
      * 
      * @param   {Any}  Key    map key
      * @param   {Any}  Value  value associated with map key
-     * @return  {this}
+     * @returns {this}
      */
     PutIfAbsent(Key, Value) {
         (this.Has(Key) || this[Key] := Value)
@@ -255,7 +255,7 @@ class Map {
      * 
      * @param   {Any}   Key     key of the map entry
      * @param   {Func}  Mapper  function that creates a new value
-     * @return  {this}
+     * @returns {this}
      */
     ComputeIfAbsent(Key, Mapper) {
         GetMethod(Mapper)
@@ -277,7 +277,7 @@ class Map {
      * 
      * @param   {Any}   Key     key of the map entry
      * @param   {Func}  Mapper  function that creates a new value
-     * @return  {this}
+     * @returns {this}
      */
     ComputeIfPresent(Key, Mapper) {
         GetMethod(Mapper)
@@ -306,7 +306,7 @@ class Map {
      * 
      * @param   {Any}   Key     key of the map entry
      * @param   {Func}  Mapper  function that creates a new value
-     * @return  {this}
+     * @returns {this}
      */
     Compute(Key, Mapper) {
         GetMethod(Mapper)
@@ -332,7 +332,7 @@ class Map {
      * @param   {Any}   Key       map key
      * @param   {Any}   Value     the new value
      * @param   {Func}  Combiner  function to merge both values with
-     * @return  {this}
+     * @returns {this}
      */
     Merge(Key, Value, Combiner) {
         GetMethod(Combiner)
@@ -366,7 +366,7 @@ class Map {
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
-     * @return  {Boolean/Object}
+     * @returns {Boolean/Object}
      */
     AnyMatch(Condition, Args*) {
         GetMethod(Condition)
@@ -390,7 +390,7 @@ class Map {
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     AllMatch(Condition, Args*) {
         GetMethod(Condition)
@@ -414,7 +414,7 @@ class Map {
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     NoneMatch(Condition, Args*) {
         GetMethod(Condition)

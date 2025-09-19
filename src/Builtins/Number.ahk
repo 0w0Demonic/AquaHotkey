@@ -36,7 +36,7 @@ class Number {
      * (32).Log(2) ; 5.0
      * 
      * @param   {Number}  BaseN  logarithm base
-     * @return  {Float}
+     * @returns {Float}
      */
     Log(BaseN := 10) => (Log(this) / Log(BaseN))
 
@@ -49,7 +49,7 @@ class Number {
      * 
      * @param   {Number}   x    any number
      * @param   {String?}  Msg  error message
-     * @return  {this}
+     * @returns {this}
      */
     AssertGreater(x, Msg?) {
         if (this > x) {
@@ -67,7 +67,7 @@ class Number {
      * 
      * @param   {Number}   x    any number
      * @param   {String?}  Msg  error message
-     * @return  {this}
+     * @returns {this}
      */
     AssertGreaterOrEqual(x, Msg?) {
         if (this >= x) {
@@ -85,7 +85,7 @@ class Number {
      * 
      * @param   {Number}   x    any number
      * @param   {String?}  Msg  error message
-     * @return  {this}
+     * @returns {this}
      */
     AssertLess(x, Msg?) {
         if (this < x) {
@@ -103,7 +103,7 @@ class Number {
      * 
      * @param   {Number}   x    any number
      * @param   {String?}  Msg  error message
-     * @return  {this}
+     * @returns {this}
      */
     AssertLessOrEqual(x, Msg?) {
         if (this <= x) {
@@ -121,7 +121,7 @@ class Number {
      * @param   {Number}   x    lower limit
      * @param   {Number}   y    upper limit
      * @param   {String?}  Msg  error message
-     * @return  {this}
+     * @returns {this}
      */
     AssertInRange(x, y, Msg?) {
         Hi := Max(x, y)

@@ -84,7 +84,7 @@ static __New() {
      * 
      * @param   {Object}  Obj           object to retrieve property from
      * @param   {String}  PropertyName  name of property
-     * @return  {Object}
+     * @returns {Object}
      */
     static GetProp(Obj, PropertyName) {
         return (Object.Prototype.GetOwnPropDesc)(Obj, PropertyName)

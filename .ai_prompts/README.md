@@ -4,7 +4,7 @@ This directory contains prompts that can be used with custom AI agents to provid
 specialized knowledge about this library.
 
 These files are meant to be used as prompts so that an AI assistant can
-understand and AquaHotkey effectively.
+understand and use AquaHotkey effectively.
 
 ## How to Use
 

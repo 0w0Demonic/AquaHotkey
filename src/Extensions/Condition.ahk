@@ -18,46 +18,46 @@
 class Condition {
     /**
      * Always returns true.
-     * @return  {Func}
+     * @returns {Func}
      */
     static True => (Args*) => true
 
     /**
      * Always returns false.
-     * @return  {Func}
+     * @returns {Func}
      */
     static False => (Args*) => false
 
     /**
      * Determines whether the element has a value.
-     * @return  {Func}
+     * @returns {Func}
      */
     static IsNull => (Arg?) => (!IsSet(Arg))
 
     /**
      * Determines whether the element has no value.
-     * @return  {Func}
+     * @returns {Func}
      */
     static IsNotNull => (Arg?) => (IsSet(Arg))
 
     /**
      * Returns a condition that checks equality with the given `Target`.
      * @param   {Any}  Target  value to compare with
-     * @return  {Func}
+     * @returns {Func}
      */
     static Equals(Target) => (Arg) => (Arg = Target)
 
     /**
      * Returns a condition that checks strict equality with the given `Target`.
      * @param   {Any}  Target  value to compare with
-     * @return  {Func}
+     * @returns {Func}
      */
     static StrictEquals(Target) => (Arg) => (Arg == Target)
 
     /**
      * Returns a condition that checks inequality with the given `Target`.
      * @param   {Any}  Target  value to compare with
-     * @return  {Func}
+     * @returns {Func}
      */
     static NotEquals(Target) => (Arg) => (Arg != Target)
 
@@ -65,14 +65,14 @@ class Condition {
      * Returns a condition that checks strict inequality with the given
      * `Target`.
      * @param   {Any}  Target  value to compare with
-     * @return  {Func}
+     * @returns {Func}
      */
     static StrictNotEquals(Target) => (Arg) => (Arg !== Target)
 
     /**
      * Evaluates whether the input argument is greater than `Num`.
      * @param   {Number}  Num  number to compare with
-     * @return  {Func}
+     * @returns {Func}
      */
     static Greater(Num) {
         Num += 0
@@ -82,7 +82,7 @@ class Condition {
     /**
      * Evaluates whether the input argument is greater than or equal to `Num`.
      * @param   {Number}  Num  number to compare with
-     * @return  {Func}
+     * @returns {Func}
      */
     static GreaterOrEqual(Num) {
         Num += 0
@@ -92,7 +92,7 @@ class Condition {
     /**
      * Evaluates whether the input argument is less than `Num`.
      * @param   {Number}  Num  number to compare with
-     * @return  {Func}
+     * @returns {Func}
      */
     static Less(Num) {
         Num += 0
@@ -102,7 +102,7 @@ class Condition {
     /**
      * Evaluates whether the input argument is less than or equal to `Num`.
      * @param   {Number}  Num  number to compare with
-     * @return  {Func}
+     * @returns {Func}
      */
     static LessOrEqual(Num) {
         Num += 0
@@ -113,7 +113,7 @@ class Condition {
      * Evaluates whether the input argument is `>= Low` and `<= High`.
      * @param   {Number}  Low   lower limit
      * @param   {Number}  High  upper limit
-     * @return  {Func}
+     * @returns {Func}
      */
     static Between(Low, High) {
         Low += 0
@@ -126,7 +126,7 @@ class Condition {
     /**
      * Evaluates whether a string contains the given `Pattern`.
      * @param   {String}  Pattern  substring to search for
-     * @return  {Func}
+     * @returns {Func}
      */
     static InStr(Pattern) {
         Pattern .= ""
@@ -136,7 +136,7 @@ class Condition {
     /**
      * Evaluates whether a string matches with the given regex `Pattern`.
      * @param   {String}  Pattern  regular expression to match with
-     * @return  {Func}
+     * @returns {Func}
      */
     static Matches(Pattern) {
         Pattern .= ""
@@ -146,7 +146,7 @@ class Condition {
     /**
      * Returns whether a number is divisible by the given `Num`.
      * @param   {Integer}  Num  the number to divide with
-     * @return  {Func}
+     * @returns {Func}
      */
     static DivisibleBy(Num) {
         if (!IsInteger(Num)) {

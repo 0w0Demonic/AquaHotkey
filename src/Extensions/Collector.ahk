@@ -139,7 +139,7 @@ class Collector {
      * @param   {Func?}  Supplier     initializes data
      * @param   {Func?}  Accumulator  accumulates input elements
      * @param   {Func?}  Finisher     creates final result from collected values
-     * @return  {Collector}
+     * @returns {Collector}
      */
     __New(Supplier?, Accumulator?, Finisher?) {
         Define("Supplier",    Supplier?)
@@ -173,7 +173,7 @@ class Collector {
      * 
      * @param   {Func}       Mapper  function to transform elements
      * @param   {Collector}  Next    the next collector stage to apply
-     * @return  {Collector}
+     * @returns {Collector}
      */
     static Map(Mapper, Next) {
         NextAcc := Next.Accumulator
@@ -194,7 +194,7 @@ class Collector {
      * 
      * @param   {Func}       Mapper  function to transform and flatten elements
      * @param   {Collector}  Next    the next collector stage to apply
-     * @return  {Collector}
+     * @returns {Collector}
      */
     static FlatMap(Mapper, Next) {
         NextAcc := Next.Accumulator
@@ -222,7 +222,7 @@ class Collector {
      * 
      * @param   {Func}       Condition  function to filter elements with
      * @param   {Collector}  Next       the next collector stage to apply
-     * @return  {Collector}
+     * @returns {Collector}
      */
     static RetainIf(Condition, Next) {
         NextAcc := Next.Accumulator
@@ -241,7 +241,7 @@ class Collector {
      * 
      * @param   {Func}       Condition  function to filter elements with
      * @param   {Collector}  Next       the next collector stage to apply
-     * @return  {Collector}
+     * @returns {Collector}
      */
     static RemoveIf(Condition, Next) {
         NextAcc := Next.Accumulator
@@ -258,7 +258,7 @@ class Collector {
      * Range(5).Collect(C.ToArray.AndThen(  (Arr) => Arr.Join(", ")  ))
      * 
      * @param   {Func}  Finisher  the function to be called
-     * @return  {Collector}
+     * @returns {Collector}
      */
     AndThen(Finisher) {
         thisFin := this.Finisher
@@ -279,7 +279,7 @@ class Collector {
      * "Hello, world!".Collect(C.ToArray(Ord))
      * 
      * @param   {Func?}  Mapper  retrieves the value to be pushed to the array
-     * @return  {Collector}
+     * @returns {Collector}
      */
     class ToArray extends Collector {
         static Supplier()             => Array()
@@ -316,7 +316,7 @@ class Collector {
      * 
      * @param   {Func?}                  Classifier  retrieves unique map keys
      * @param   {Map?/Func?/Primitive?}  MapParam    internal map options
-     * @return  {Collector}
+     * @returns {Collector}
      */
     class Frequency extends Collector {
         static Supplier() => Map()
@@ -364,7 +364,7 @@ class Collector {
      * @example
      * Range(4).Collect(C.Count) ; 4
      * 
-     * @return  {Collector}
+     * @returns {Collector}
      */
     class Count extends Collector {
         static Supplier()             => &(x := 0)
@@ -431,7 +431,7 @@ class Collector {
      * FileRead("foo.txt").StrSplit(" ").Collect(C.Min(StrCompare))
      * 
      * @param   {Func?}  Comparator  function that orders two elements
-     * @return  {Collector}
+     * @returns {Collector}
      */
     class Min extends Collector {
         static Supplier() => &x
@@ -477,7 +477,7 @@ class Collector {
      * FileRead("foo.txt").StrSplit(" ").Collect(C.Max(StrCompare))
      * 
      * @param   {Func?}  Comparator  function that orders two elements
-     * @return  {Collector}
+     * @returns {Collector}
      */
     class Max extends Collector {
         static Supplier() => &x
@@ -524,7 +524,7 @@ class Collector {
      * ))
      * 
      * @param   {Func?}  Mapper  function to retrieve numeric values
-     * @return  {Comparator}
+     * @returns {Comparator}
      */
     class Sum extends Collector {
         static Supplier()                => &(x := 0)
@@ -553,7 +553,7 @@ class Collector {
      * Array({ x: 10 }, { x: 15 }, { x: 20 }).Collect(C.Sum(Obj => Obj.x))
      * 
      * @param   {Func?}  Mapper  function to retrieve numeric values
-     * @return  {Collector}
+     * @returns {Collector}
      */
     class Average extends Collector {
         static Supplier() => Array(Float(0), 0)
@@ -597,7 +597,7 @@ class Collector {
      * 
      * @param   {Func?}  Merger    function two merger two values
      * @param   {Any?}   Identity  initial starting value
-     * @return  {Collector}
+     * @returns {Collector}
      */
     static Reduce(Merger?, Identity?) {
         return this(Sup, Acc, Fin)
@@ -687,7 +687,7 @@ class Collector {
      * 
      * @param   {Func}        Condition  the given condition to partition with
      * @param   {Collector?}  Next       next collector stage to apply
-     * @return  {Collector}
+     * @returns {Collector}
      */
     static Partition(Condition, Next := Collector.ToArray) {
         NextSup := Next.Supplier
@@ -724,7 +724,7 @@ class Collector {
      * @param   {Func?}                  KeyMapper    returns map key
      * @param   {Func?}                  ValueMapper  returns value
      * @param   {Map?/Func?/Primitive?}  MapParam     internal map options
-     * @return  {Collector}
+     * @returns {Collector}
      */
     class ToMap extends Collector {
         static Supplier()                  => Map()
@@ -793,7 +793,7 @@ class Collector {
      * @param   {Collector}  Left    first collector
      * @param   {Collector}  Right   second collector
      * @param   {Func}       Merger  merging function
-     * @return  {Collector}
+     * @returns {Collector}
      */
     static Tee(Left, Right, Merger) {
         LeftSup  := Left.Supplier
@@ -837,7 +837,7 @@ class AquaHotkey_Collector extends AquaHotkey {
          * Array(1, 2, 3, 4).Collect(C.Join(", "))
          * 
          * @param   {Collector}  Coll  the collector to apply
-         * @return  {Any}
+         * @returns {Any}
          */
         Collect(Coll) {
             if (!(Coll is Collector) && !HasBase(Coll, Collector)) {

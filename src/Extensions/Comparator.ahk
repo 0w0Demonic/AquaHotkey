@@ -42,7 +42,7 @@ class Comparator {
      * NumericalComparator := Comparator(Callback)
      * 
      * @param   {Func}  Comp  function that compares two elements
-     * @return  {Comparator}
+     * @returns {Comparator}
      */
     __New(Comp) {
         GetMethod(Comp)
@@ -61,7 +61,7 @@ class Comparator {
      * Array("foo", "bar", "hello", "").Sort(ByStringLength.AndThen(Alphabetic))
      * 
      * @param   {Comparator}  Other  second comparator to be used
-     * @return  {Comparator}
+     * @returns {Comparator}
      */
     AndThen(Other) {
         GetMethod(Other)
@@ -81,7 +81,7 @@ class Comparator {
      * Comparator.Alphabetic(FirstLetter).AndThenNumeric()
      * 
      * @param   {Any*}  Args  arguments passed to numeric comparator
-     * @return  {Func}
+     * @returns {Func}
      */
     AndThenNumeric(Args*) => this.AndThen(Comparator.Numeric(Args*))
 
@@ -93,7 +93,7 @@ class Comparator {
      * ByStrLen := Comparator.Numeric(StrLen).AndThenAlphabetic()
      * 
      * @param   {Any*}  Args  arguments passed to alphabetic comparator
-     * @return  {Func}
+     * @returns {Func}
      */
     AndThenAlphabetic(Args*) => this.AndThen(Comparator.Alphabetic(Args*))
 
@@ -113,7 +113,7 @@ class Comparator {
      * 
      * @param   {Func}  Mapper  key extractor function
      * @param   {Any*}  Args    zero or more additional arguments
-     * @return  {Comparator}
+     * @returns {Comparator}
      */
     Compose(Mapper, Args*) {
         GetMethod(Mapper)
@@ -134,7 +134,7 @@ class Comparator {
      * ; [4, 3, 2, 1]
      * Array(4, 2, 3, 1).Sort(Comparator.Numeric().Reversed())
      * 
-     * @return  {Comparator}
+     * @returns {Comparator}
      */
     Reversed() {
         Obj := Object()
@@ -162,7 +162,7 @@ class Comparator {
      * ; [unset, unset, 1, 2, 3, 4]
      * Array(3, 2, 4, unset, 1, unset).Sort(NullsFirst)
      * 
-     * @return  {Comparator}
+     * @returns {Comparator}
      */
     NullsFirst() {
         Comp := Object()
@@ -194,7 +194,7 @@ class Comparator {
      * ; [1, 2, 3, 4, unset, unset]
      * Array(3, 4, unset, 1, 2, unset).Sort(NullsLast)
      * 
-     * @return  {Comparator}
+     * @returns {Comparator}
      */
     NullsLast() {
         Comp := Object()
@@ -219,7 +219,7 @@ class Comparator {
     /**
      * Returns a default numerical comparator.
      * 
-     * @return  {Comparator}
+     * @returns {Comparator}
      */
     static Numeric => this.Numeric()
 
@@ -237,7 +237,7 @@ class Comparator {
      * 
      * @param   {Func?}  Mapper  key extractor function
      * @param   {Any*}   Args    zero or more additional arguments
-     * @return  {Comparator}
+     * @returns {Comparator}
      */
     static Numeric(Mapper?, Args*) {
         Comp := Comparator((A, B) => (A > B) - (B > A))
@@ -250,7 +250,7 @@ class Comparator {
     /**
      * Returns a default lexicographical comparator.
      * 
-     * @return  {Comparator}
+     * @returns {Comparator}
      */
     static Alphabetic => this.Alphabetic()
 
@@ -270,7 +270,7 @@ class Comparator {
      * @param   {Boolean/String}  CaseSense  case sensitivity
      * @param   {Func?}           Mapper     key extractor function
      * @param   {Any*}            Args       zero or more additional arguments
-     * @return  {Comparator}
+     * @returns {Comparator}
      */
     static Alphabetic(CaseSense := false, Mapper?, Args*) {
         Comp := Comparator(StrCompare.Bind(unset, unset, CaseSense))

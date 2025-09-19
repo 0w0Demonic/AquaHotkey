@@ -59,7 +59,7 @@ class Stream {
      * 
      * ---
      * @param   {Func}  Source  the function used as stream source
-     * @return  {Stream}
+     * @returns {Stream}
      */
     __New(Source) {
         if (Source.IsVariadic) {
@@ -73,31 +73,31 @@ class Stream {
 
     /**
      * The maximum parameter size currently supported.
-     * @return  {Integer}
+     * @returns {Integer}
      */
     static MaxSupportedParams => 4
 
     /**
      * Returns the minimum parameter length of the underlying stream source.
-     * @return  {Integer}
+     * @returns {Integer}
      */
     MinParams => this.Call.MinParams
 
     /**
      * Returns the maximum parameter length of the underlying stream source.
-     * @return  {Integer}
+     * @returns {Integer}
      */
     MaxParams => this.Call.MaxParams
 
     /**
      * Returns the name of the underlying stream source.
-     * @return  {String}
+     * @returns {String}
      */
     Name => this.Call.Name
 
     /**
      * Returns the stream as enumerator object used in for-loops.
-     * @return  {Enumerator}
+     * @returns {Enumerator}
      */
     __Enum(n) => this.Call
 
@@ -117,7 +117,7 @@ class Stream {
      * 
      * ---
      * @param   {Func}  Function  function used for an intermediate operation
-     * @return  {Integer}
+     * @returns {Integer}
      */
     ArgSize(Function) {
         if (!(Function is Func)) {
@@ -142,7 +142,7 @@ class Stream {
      * Array(1, 2, 3, 4).Stream().RetainIf(x => (x > 2)) ; <3, 4>
      * 
      * @param   {Func}  Condition  the given condition
-     * @return  {Stream}
+     * @returns {Stream}
      */
     RetainIf(Condition) {
         n := this.ArgSize(Condition)
@@ -326,7 +326,7 @@ class Stream {
      * Array("foo", "bar").Stream(2).FlatMap(Array)
      * 
      * @param   {Func?}  Mapper  function that maps and flattens elements
-     * @return  {Stream}
+     * @returns {Stream}
      */
     FlatMap(Mapper) {
         Enumer := (*) => false
@@ -421,7 +421,7 @@ class Stream {
      * Array("foo", "bar").Stream(2).MapByRef(MutateValues)
      * 
      * @param   {Func}  Mapper  function that mutates elements by reference
-     * @return  {Stream}
+     * @returns {Stream}
      */
     MapByRef(Mapper) {
         f := this.Call
@@ -476,7 +476,7 @@ class Stream {
      * Array(1, 2, 3, 4, 5).Stream().Limit(2) ; <1, 2>
      * 
      * @param   {Integer}  n  maximum amount of elements to be returned
-     * @return  {Stream}
+     * @returns {Stream}
      */
     Limit(n) {
         if (!IsInteger(n)) {
@@ -518,7 +518,7 @@ class Stream {
      * Array(1, 2, 3, 4).Stream().Skip() ; <3, 4>
      * 
      * @param   {Integer}  x  amount of elements to be skipped
-     * @return  {Stream}
+     * @returns {Stream}
      */
     Skip(n) {
         if (!IsInteger(n)) {
@@ -584,7 +584,7 @@ class Stream {
      * Array(1, -2, 4, 6, 2, 1).Stream().TakeWhile(x => x < 5) ; <1, -2, 4>
      * 
      * @param   {Func}  Condition  the given condition
-     * @return  {Stream}
+     * @returns {Stream}
      */
     TakeWhile(Condition) {
         n := this.ArgSize(Condition)
@@ -620,7 +620,7 @@ class Stream {
      * Array(1, 2, 3, 4, 2, 1).Stream().DropWhile(x => x < 3) ; <4, 2, 1>
      * 
      * @param   {Func}  Condition  the given condition
-     * @return  {Stream}
+     * @returns {Stream}
      */
     DropWhile(Condition) {
         NoDrop := false
@@ -696,7 +696,7 @@ class Stream {
      * 
      * @param   {Func?}                  Hasher    function to create map keys
      * @param   {Map?/Func?/Primitive?}  MapParam  internal map options
-     * @return  {Stream}
+     * @returns {Stream}
      */
     Distinct(Hasher?, MapParam := Map()) {
         switch {
@@ -794,7 +794,7 @@ class Stream {
      * Array(1, 2, 3, 4).Stream().Peek(Foo).ForEach(Bar)
      * 
      * @param   {Func}  Action  the function to be called
-     * @return  {Stream}
+     * @returns {Stream}
      */
     Peek(Action) {
         n := this.ArgSize(Action)
@@ -887,7 +887,7 @@ class Stream {
      * }
      * 
      * @param   {Func}     Condition  the given condition
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     AnyMatch(Condition) {
         n := this.ArgSize(Condition)
@@ -930,7 +930,7 @@ class Stream {
      * Array(1, 2, 3, 4).Stream().AllMatch(x => x < 10) ; true
      * 
      * @param   {Func}  Condition  the given condition
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     AllMatch(Condition) {
         n := this.ArgSize(Condition)
@@ -973,7 +973,7 @@ class Stream {
      * Array(1, 2, 3, 4, 5, 92).Stream().NoneMatch(x => x > 10) ; false
      * 
      * @param   {Func}  Condition  the given condition
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     NoneMatch(Condition) {
         n := this.ArgSize(Condition)
@@ -1021,7 +1021,7 @@ class Stream {
      * Array("banana", "zigzag").Stream().Max(StrCompare) ; "zigzag"
      * 
      * @param   {Func?}  Comp  the comparator to apply
-     * @return  {Any}
+     * @returns {Any}
      */
     Max(Comp := (a, b) => (a > b) - (b - a)) {
         GetMethod(Comp)
@@ -1050,7 +1050,7 @@ class Stream {
      * Array("banana", "zigzag").Stream().Max(StrCompare) ; "banana"
      * 
      * @param   {Func?}  Comp  the compator to apply
-     * @return  {Any}
+     * @returns {Any}
      */
     Min(Comp := (a, b) => (a > b) - (b > a)) {
         GetMethod(Comp)
@@ -1075,7 +1075,7 @@ class Stream {
      * @example
      * Array("foo", 3, "4", unset).Stream().Sum() ; 7
      * 
-     * @return  {Float}
+     * @returns {Float}
      */
     Sum() {
         Result := Float(0)
@@ -1095,7 +1095,7 @@ class Stream {
      * Array(1, 2, 3, 4).Stream().Map(x => x * 2).ToArray() ; [2, 4, 6, 8]
      * 
      * @param   {Integer?}  n  index of the parameter to push into array
-     * @return  {Array}
+     * @returns {Array}
      */
     ToArray(n := 1) {
         if (!IsInteger(n)) {
@@ -1140,7 +1140,7 @@ class Stream {
      * 
      * @param   {Combiner}  Combiner  function that combines two elements
      * @param   {Any?}      Identity  initial starting value
-     * @return  {Any}
+     * @returns {Any}
      */
     Reduce(Combiner, Identity?) {
         Result := Identity ?? unset
@@ -1173,7 +1173,7 @@ class Stream {
      * 
      * @param   {String?}   Delimiter   separator string
      * @param   {Integer?}  InitialCap  initial string capacity
-     * @return  {String}
+     * @returns {String}
      */
     Join(Delimiter := "", InitialCap := 0) {
         if (IsObject(Delimiter)) {
@@ -1207,7 +1207,7 @@ class Stream {
      * Array(1, 2, 3).Stream().JoinLine()
      * 
      * @param   {Integer?}  InitialCap  initial string capacity
-     * @return  {String}
+     * @returns {String}
      */
     JoinLine(InitialCap := 0) {
         return this.Join("`n", InitialCap)
@@ -1224,7 +1224,7 @@ class Stream {
      * Stream.Generate(() => Random(0, 9)).Limit(6).ToArray()
      * 
      * @param   {Func}    Supplier   function that supplies stream elements
-     * @return  {Stream}
+     * @returns {Stream}
      */
     static Generate(Supplier) {
         GetMethod(Supplier)
@@ -1250,7 +1250,7 @@ class Stream {
      * 
      * @param   {Any}   Seed    the starting value
      * @param   {Func}  Mapper  a function that computes the next value
-     * @return  {Stream}
+     * @returns {Stream}
      */
     static Iterate(Seed, Mapper) {
         GetMethod(Mapper)
@@ -1282,7 +1282,7 @@ class AquaHotkey_Stream extends AquaHotkey {
          * Stream := Arr.Stream(2) ; for Index, Value in Arr {...}
          * 
          * @param   {Integer?}  n  parameter length of the stream
-         * @return  {Stream}
+         * @returns {Stream}
          */
         Stream(n := 1) {
             if (!IsInteger(n)) {
@@ -1320,7 +1320,7 @@ class AquaHotkey_Stream extends AquaHotkey {
          * 
          * Example().OwnPropsStream() ; <("a", 1), ("b", 2)>
          * 
-         * @return  {Stream}
+         * @returns {Stream}
          */
         OwnPropsStream() {
             f := this.OwnProps()
@@ -1340,7 +1340,7 @@ class AquaHotkey_Stream extends AquaHotkey {
          * 
          * Example(16, 0).PropsStream() ; <("a", 1), ("Size", 16), ...>
          * 
-         * @return  {Stream}
+         * @returns {Stream}
          */
         PropsStream() {
             f := this.Props()

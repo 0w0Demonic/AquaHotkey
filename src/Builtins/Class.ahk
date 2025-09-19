@@ -20,7 +20,7 @@ class Class {
      * 
      * @param   {String}  MethodName  the name of the undefined method
      * @param   {Array}   Args        zero or more additional arguments
-     * @return  (none)
+     * @returns (none)
      */
     __Call(MethodName, *) {
         throw MethodError("undefined static method: " . MethodName,, Type(this))
@@ -33,7 +33,7 @@ class Class {
      * (Class.ForName("Gui.ActiveX") == Gui.ActiveX) ; true
      * 
      * @param   {String}  ClassName  name of a class
-     * @return  {Class}
+     * @returns {Class}
      */
     static ForName(ClassName) {
         static Deref1(this)    => %this%
@@ -68,7 +68,7 @@ class Class {
      * @example
      * Gui.ToString() ; "Class Gui"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     ToString() => "Class " . this.Prototype.__Class
 } ; class Class

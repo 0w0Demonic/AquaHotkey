@@ -53,7 +53,7 @@ class AquaHotkey_Kwargs extends AquaHotkey {
          * })
          * 
          * @param   {Object}  ArgObj  object containing all arguments
-         * @return  {Any}
+         * @returns {Any}
          */
         With(ArgObj) {
             GetMethod(this)
@@ -116,7 +116,7 @@ class AquaHotkey_Kwargs extends AquaHotkey {
                  * Returns a custom string representation.
                  * 
                  * @param   {Map}  _ the map that contains parameter names + aliases
-                 * @return  {String}
+                 * @returns {String}
                  */
                 static Signature_ToString(Sig) {
                     if (!(Sig is Map)) {

@@ -10,7 +10,7 @@ class AquaHotkey_String extends AquaHotkey {
 class String {
     /**
      * Is-functions (see AHK docs).
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     IsDigit  => IsDigit(this)
     IsXDigit => IsXDigit(this)
@@ -28,7 +28,7 @@ class String {
      * "Hello, world!".IsEmpty ; false
      * "".IsEmpty              ; true
      * 
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     IsEmpty => (this == "")
 
@@ -45,7 +45,7 @@ class String {
      * }
      * 
      * @param   {Integer}  n  parameter length of the for-loop
-     * @return  {Enumerator}
+     * @returns {Enumerator}
      */
     __Enum(n) {
         Position := 0
@@ -85,7 +85,7 @@ class String {
      * world!
      * )".Lines() ; ["Hello,", "world!"]
      * 
-     * @return   {Array}
+     * @returns  {Array}
      */
     Lines() => StrSplit(this, "`n", "`r")
 
@@ -101,7 +101,7 @@ class String {
      * @param   {Primitive?}  CaseSense     case-sensitivity
      * @param   {Integer?}    StartingPos   position to start from
      * @param   {Integer?}    Occurrence    n-th occurrence to find
-     * @return  {String?}
+     * @returns {String?}
      */
     Before(Pattern, CaseSense := false, StartingPos := 1, Occurrence := 1) {
         FoundPos := InStr(this, Pattern, CaseSense, StartingPos, Occurrence)
@@ -120,7 +120,7 @@ class String {
      * 
      * @param   {String}    Pattern       regular expression to search for
      * @param   {Integer?}  StartingPos   position to start from
-     * @return  {String}
+     * @returns {String}
      */
     BeforeRegex(Pattern, StartingPos := 1) {
         if (IsObject(Pattern)) {
@@ -166,7 +166,7 @@ class String {
      * 
      * @param   {String}    Pattern      regular expression to search for
      * @param   {Integer?}  StartingPos  position to start from
-     * @return  {String}
+     * @returns {String}
      */
     UntilRegex(Pattern, StartingPos := 1) {
         if (IsObject(Pattern)) {
@@ -210,7 +210,7 @@ class String {
      * 
      * @param   {String}    Pattern      regular expression to search for
      * @param   {Integer?}  StartingPos  position to start from
-     * @return  {String}
+     * @returns {String}
      */
     FromRegex(Pattern, StartingPos := 1) {
         if (IsObject(Pattern)) {
@@ -256,7 +256,7 @@ class String {
      * 
      * @param   {String}    Pattern      regular expression to search for
      * @param   {Integer?}  StartingPos  position to start from
-     * @return  {String}
+     * @returns {String}
      */
     AfterRegex(Pattern, StartingPos := 1) {
         if (IsObject(Pattern)) {
@@ -279,7 +279,7 @@ class String {
      * "world!".Prepend("Hello, ") ; "Hello, world!"
      * 
      * @param   {String}  Before  string to prepend
-     * @return  {String}
+     * @returns {String}
      */ 
     Prepend(Before) => (Before . this)
 
@@ -290,7 +290,7 @@ class String {
      * "Hello, ".Append("world!") ; "Hello, world!"
      * 
      * @param   {String}  After  string to append
-     * @return  {String}
+     * @returns {String}
      */
     Append(After) => (this . After)
     
@@ -303,7 +303,7 @@ class String {
      * 
      * @param   {String}   Before  string to prepend
      * @param   {String?}  After   string to append
-     * @return  {String}
+     * @returns {String}
      */
     Surround(Before, After := Before) => (Before . this . After)
 
@@ -314,7 +314,7 @@ class String {
      * "foo".Repeat(3) ; "foofoofoo"
      * 
      * @param   {Integer}  n  amount of times to repeat the string
-     * @return  {String}
+     * @returns {String}
      */
     Repeat(n) {
         if (!IsInteger(n)) {
@@ -333,7 +333,7 @@ class String {
      * @example
      * "foo".Reversed() ; "oof"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     Reversed() {
         DllCall("msvcrt.dll\_wcsrev", "Str", Str := this, "CDecl Str")
@@ -347,7 +347,7 @@ class String {
      * "message.txt".FileRead()
      * 
      * @param   {String?}  Options  additional `FileRead()` options
-     * @return  {String}
+     * @returns {String}
      */ 
     FileRead(Options?) => FileRead(this, Options?)
 
@@ -359,7 +359,7 @@ class String {
      * 
      * @param   {String?}  FileName  name of the file
      * @param   {String?}  Options   additional `FileAppend()` options
-     * @return  {this}
+     * @returns {this}
      */
     FileAppend(FileName?, Options?) {
         FileAppend(this, FileName?, Options?)
@@ -374,7 +374,7 @@ class String {
      * "Hello, world!".FileOverwrite("message.txt")
      * 
      * @param   {String}  FileName  name of the file
-     * @return  {this}
+     * @returns {this}
      */
     FileOverwrite(FileName) {
         OutputFile := FileOpen(FileName, "w")
@@ -391,7 +391,7 @@ class String {
      * 
      * @param   {Primitive?}  Flags     desired access mode
      * @param   {Primitive?}  Encoding  file encoding
-     * @return  {File}
+     * @returns {File}
      */
     FileOpen(Flags := "r", Encoding?) => FileOpen(this, Flags, Encoding?)
 
@@ -409,7 +409,7 @@ class String {
      * ; }
      * "C:\My Documents\Address List.txt".SplitPath()
      * 
-     * @return  {Object}
+     * @returns {Object}
      */
     SplitPath() {
         SplitPath(this, &Name, &Dir, &Ext, &NameNoExt, &Drive)
@@ -450,7 +450,7 @@ class String {
      * @param   {String?}  Mode       file-loop mode
      * @param   {Func?}    Condition  the given condition
      * @param   {Func?}    Mapper     function that retrieves a value
-     * @return  {Array}
+     * @returns {Array}
      */
     FindFiles(Mode := "FR", Condition?, Mapper?) {
         Condition := Condition ?? () => true
@@ -473,7 +473,7 @@ class String {
      * @param   {String}    Pattern      regular expression
      * @param   {VarRef?}   MatchObj     output match object
      * @param   {Integer?}  StartingPos  position to start searching from
-     * @return  {Integer} 
+     * @returns {Integer} 
      */
     RegExMatch(Pattern, &MatchObj?, StartingPos := 1) {
         return RegExMatch(this, Pattern, &MatchObj, StartingPos)
@@ -490,7 +490,7 @@ class String {
      * @param   {VarRef?}   Count    output count
      * @param   {Integer?}  Limit    maximum number of replacements
      * @param   {Integer?}  Start    position to start searching from
-     * @return  {String}
+     * @returns {String}
      */
     RegExReplace(Pattern, Replace?, &Count?, Limit?, Start?) {
         return RegExReplace(this, Pattern, Replace?, &Count, Limit?, Start?)
@@ -505,7 +505,7 @@ class String {
      * 
      * @param   {String}    Pattern      regular expression
      * @param   {Integer?}  StartingPos  position to start searching from
-     * @return  {RegExMatchInfo}
+     * @returns {RegExMatchInfo}
      */
     Match(Pattern, StartingPos := 1) {
         if (RegExMatch(this, Pattern, &MatchObj, StartingPos)) {
@@ -527,7 +527,7 @@ class String {
      * 
      * @param   {String}    Pattern      regular expression
      * @param   {Integer?}  StartingPos  position to start searching from
-     * @return  {Array}
+     * @returns {Array}
      */
     MatchAll(Pattern, StartingPos := 1) {
         Result := Array()
@@ -547,7 +547,7 @@ class String {
      * 
      * @param   {String}    Pattern      regular expression
      * @param   {Integer?}  StartingPos  position to start searching from
-     * @return  {String}
+     * @returns {String}
      */
     Capture(Pattern, StartingPos := 1) {
         if (RegExMatch(this, Pattern, &MatchObj, StartingPos)) {
@@ -565,7 +565,7 @@ class String {
      * 
      * @param   {String}    Pattern      regular expression
      * @param   {Integer?}  StartingPos  position to start searching from
-     * @return  {String}
+     * @returns {String}
      */
     CaptureAll(Pattern, StartingPos := 1) {
         Result := Array()
@@ -618,7 +618,7 @@ class String {
      * 
      * @param   {String}    Str       string to overwrite with
      * @param   {Integer?}  Position  index to place the new string
-     * @return  {String}
+     * @returns {String}
      */
     Overwrite(Str, Position := 1) {
         if (IsObject(Str)) {
@@ -651,7 +651,7 @@ class String {
      * 
      * @param   {Integer}   Position  section start
      * @param   {Integer?}  Length    section length
-     * @return  {String}
+     * @returns {String}
      */
     Delete(Position, Length := 1) {
         if (!IsInteger(Position) || !IsInteger(Length)) {
@@ -687,7 +687,7 @@ class String {
      * 
      * @param   {String?}   PaddingStr  padding string
      * @param   {Integer?}  n           amount of padding
-     * @return  {String}
+     * @returns {String}
      */ 
     LPad(PaddingStr := " ", n := 1) {
         if (!IsInteger(n)) {
@@ -713,7 +713,7 @@ class String {
      * 
      * @param   {String?}   PaddingStr  padding string
      * @param   {Integer?}  n           amount of padding
-     * @return  {String}
+     * @returns {String}
      */
     RPad(PaddingStr := " ", n := 1) {
         if (!IsInteger(n)) {
@@ -741,7 +741,7 @@ class String {
      * "hello, world!".WordWrap(3)
      * 
      * @param   {Integer?}  n  maximum line length
-     * @return  {String}
+     * @returns {String}
      */ 
     WordWrap(n := 80) {
         if (!IsInteger(n)) {
@@ -774,7 +774,7 @@ class String {
      * " foo ".Trim() ; "foo"
      * 
      * @param   {String?}  OmitChars  characters to trim
-     * @return  {String}
+     * @returns {String}
      */
     Trim(OmitChars?) => Trim(this, OmitChars?)
 
@@ -785,7 +785,7 @@ class String {
      * " foo ".LTrim() ; "foo "
      * 
      * @param   {String?}  OmitChars  characters to trim
-     * @return  {String}
+     * @returns {String}
      */
     LTrim(OmitChars?) => LTrim(this, OmitChars?)
 
@@ -796,7 +796,7 @@ class String {
      * " foo ".RTrim() ; " foo"
      * 
      * @param   {String?}  OmitChars  characters to trim
-     * @return  {String}
+     * @returns {String}
      */
     RTrim(OmitChars?) => RTrim(this, OmitChars?)
 
@@ -810,7 +810,7 @@ class String {
      * "a: {}, b: {}".FormatWith(2, 42) ; "a: 2, b: 42"
      * 
      * @param   {Any*}  Args  zero or more additional arguments
-     * @return  {String}
+     * @returns {String}
      */ 
     Format(Args*) {
         Input := Array()
@@ -833,7 +833,7 @@ class String {
      * @example
      * "FOO".ToLower() ; "foo"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     StrLower() => StrLower(this)
     ToLower()  => StrLower(this)
@@ -844,7 +844,7 @@ class String {
      * @example
      * "foo".ToUpper() ; "FOO"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     StrUpper() => StrUpper(this)
     ToUpper()  => StrUpper(this)
@@ -855,7 +855,7 @@ class String {
      * @example
      * "foo".ToTitle() ; "Foo"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     StrTitle() => StrTitle(this)
     ToTitle()  => StrTitle(this)
@@ -871,7 +871,7 @@ class String {
      * @param   {Primitive?}  CaseSense  case-sensitivity
      * @param   {VarRef?}     Out        output of replacements that occurred
      * @param   {Integer?}    Limit      replacement limit
-     * @return  {String}
+     * @returns {String}
      */
     StrReplace(Pattern, Rep := "", CaseSense := false, &Out?, Limit := -1) {
         return StrReplace(this, Pattern, Rep, CaseSense, &Out, Limit)
@@ -889,7 +889,7 @@ class String {
      * @param   {String?/Array?}  Delimiters  boundaries between substrings
      * @param   {String?}         OmitChars   list of characters to trim
      * @param   {Integer}         MaxParts    maximum number of substrings
-     * @return  {Array}
+     * @returns {Array}
      */
     StrSplit(Delimiters := "", OmitChars?, MaxParts?) {
         return StrSplit(this, Delimiters?, OmitChars?, MaxParts?)
@@ -908,7 +908,7 @@ class String {
      * @param   {Primitive?}  CaseSense    case-sensitivity
      * @param   {Integer?}    StartingPos  position to start searching from
      * @param   {Integer?}    Occurrence   n-th occurrence to search for
-     * @return  {Integer}
+     * @returns {Integer}
      */
     InStr(Pattern, CaseSense := false, StartingPos := 1, Occurrence := 1) {
         return InStr(this, Pattern, CaseSense, StartingPos, Occurrence)
@@ -925,7 +925,7 @@ class String {
      * 
      * @param   {Integer}   Start   starting index
      * @param   {Integer?}  Length  length in characters
-     * @return  {String}
+     * @returns {String}
      */
     SubStr(Start, Length?) => SubStr(this, Start, Length?)
 
@@ -938,7 +938,7 @@ class String {
      * 
      * @param   {Integer}   Start   starting index
      * @param   {Integer?}  Length  length in characters
-     * @return  {String}
+     * @returns {String}
      */
     __Item[Start, Length := 1] {
         Get {
@@ -956,7 +956,7 @@ class String {
      * "Hello".StrLen() ; 5
      * "Hello".Length   ; 5
      * 
-     * @return  {Integer}
+     * @returns {Integer}
      */
     StrLen() => StrLen(this)
     Length   => StrLen(this)
@@ -969,7 +969,7 @@ class String {
      * "foo".Size["UTF-8"]  ; 4
      * 
      * @param   {String?/Integer?}  Encoding  target string encoding
-     * @return  {Integer}
+     * @returns {Integer}
      */
     Size[Encoding?] {
         Get {
@@ -991,7 +991,7 @@ class String {
      * 
      * @param   {String}      Other      string to be compared
      * @param   {Primitive?}  CaseSense  case-sensitivity of the comparison
-     * @return  {Integer}
+     * @returns {Integer}
      */
     StrCompare(Other, CaseSense := false) => StrCompare(this, Other, CaseSense)
     Compare(Other, CaseSense := false)    => StrCompare(this, Other, CaseSense)

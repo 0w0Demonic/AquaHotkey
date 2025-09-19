@@ -17,20 +17,20 @@
 class Mapper {
     /**
      * Mapper which increments numbers.
-     * @return  {Func}
+     * @returns {Func}
      */
     static Increment => ((x) => (x + 1))
 
     /**
      * Mapper which decrements numbers.
-     * @return  {Func}
+     * @returns {Func}
      */
     static Decrement => ((x) => (x - 1))
 
     /**
      * Mapper which prepends the given prefix.
      * @param   {String}  P  prefix to prepend with
-     * @return  {Func}
+     * @returns {Func}
      */
     static Prefix(P) {
         P .= ""
@@ -40,7 +40,7 @@ class Mapper {
     /**
      * Mapper which appends the given suffix.
      * @param   {String}  S  suffix to append
-     * @return  {Func}
+     * @returns {Func}
      */
     static Suffix(S) {
         S .= ""
@@ -50,7 +50,7 @@ class Mapper {
     /**
      * Mapper which formats values using the given `Pattern`.
      * @param   {String}  Pattern  format pattern to apply
-     * @return  {Func}
+     * @returns {Func}
      */
     static Format(Pattern) {
         Pattern .= ""
@@ -63,7 +63,7 @@ class Mapper {
      * @param   {String?}     Rep        string to replace with
      * @param   {Primitive?}  CaseSense  case sensitivity
      * @param   {Integer?}    Limit      max amount of replacements
-     * @return  {Func}
+     * @returns {Func}
      */
     static StrReplace(Pat, Rep := "", CaseSense?, Lim?) {
         return (Str) => StrReplace(Str, Pat, Rep, CaseSense?, unset, Lim?)
@@ -75,7 +75,7 @@ class Mapper {
      * @param   {String?}   Rep       string to replace with
      * @param   {Integer?}  Lim       max amount of replacements
      * @param   {Integer?}  StartPos  index to start searching on
-     * @return  {Func}
+     * @returns {Func}
      */
     static RegExReplace(Pat, Rep := "", Lim?, StartPos?) {
         return (Str) => RegExReplace(Str, Pat, Rep, unset, Lim?, StartPos?)
@@ -83,7 +83,7 @@ class Mapper {
 
     /**
      * Mapper that separates a string into its characters.
-     * @return  {Func}
+     * @returns {Func}
      */
     static Split => this.Split()
 
@@ -92,7 +92,7 @@ class Mapper {
      * @param   {String?/Array?}  Delim      delimiter to determine boundaries
      * @param   {String}          OmitChars  characters to omit
      * @param   {Integer}         Lim        max amount of output strings
-     * @return  {Func}
+     * @returns {Func}
      */
     static Split(Delim?, OmitChars?, Lim?) {
         return (Str) => StrSplit(Str, Delim?, OmitChars?, Lim?)
@@ -100,7 +100,7 @@ class Mapper {
 
     /**
      * Mapper that parses a CSV line into an array.
-     * @return  {Func}
+     * @returns {Func}
      */
     static ParseCSV {
         get {
@@ -120,7 +120,7 @@ class Mapper {
      * Mapper that returns a substring.
      * @param   {Integer}   StartIndex  starting index of the substring
      * @param   {Integer?}  Length      length of the substring
-     * @return  {Func}
+     * @returns {Func}
      */
     static SubStr(StartIndex, Length?) {
         if (!IsInteger(StartIndex)) {
@@ -143,7 +143,7 @@ class Mapper {
     /**
      * Mapper that first collects each variadic argument value into an array.
      * @param   {Func}  Mapper  the mapper to be called
-     * @return  {Func}
+     * @returns {Func}
      */
     static Pack(Mapper) {
         GetMethod(Mapper)
@@ -154,7 +154,7 @@ class Mapper {
      * Mapper that expands its input argument into separate elements by using
      * a variadic call.
      * @param   {Func}  Mapper  the mapper to be called
-     * @return  {Func}
+     * @returns {Func}
      */
     static Spread(Mapper) {
         GetMethod(Mapper)
@@ -164,7 +164,7 @@ class Mapper {
     /**
      * Mapper that returns the `n`-th input argument.
      * @param   {Integer}  n  index of the argument to retrieve
-     * @return  {Func}
+     * @returns {Func}
      */
     static Arg(n) {
         if (!IsInteger(n)) {
@@ -176,7 +176,7 @@ class Mapper {
     /**
      * Mapper that accesses the property of an object.
      * @param   {String}  PropertyName  name of the property to retrieve
-     * @return  {Func}
+     * @returns {Func}
      */
     static Property(PropertyName) {
         PropertyName .= ""
@@ -195,7 +195,7 @@ class Mapper {
     /**
      * Mapper that returns a default value if the input element is unset.
      * @param   {Any}  DefaultValue  value to be used as default
-     * @return  {Func}
+     * @returns {Func}
      */
     static IfAbsent(DefaultValue) {
         return ((Val?) => Val ?? DefaultValue)
@@ -205,7 +205,7 @@ class Mapper {
      * Mapper that returns a default value if the input element is unset,
      * supplied by calling the given `Supplier`.
      * @param   {Func}  Supplier  function to be called if value is unset
-     * @return  {Func}
+     * @returns {Func}
      */
     static IfAbsentGet(Supplier) {
         GetMethod(Supplier)
@@ -218,7 +218,7 @@ class Mapper {
      * @param   {Func}  Left      first function to apply
      * @param   {Func}  Right     second function to apply
      * @param   {Func}  Combiner  function to combine two values
-     * @return  {Func}
+     * @returns {Func}
      */
     static Tee(Left, Right, Combiner) {
         (GetMethod(Left) && GetMethod(Right) && GetMethod(Combiner))

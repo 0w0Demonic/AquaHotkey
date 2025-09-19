@@ -233,7 +233,7 @@ class Com {
      * ie := InternetExplorer("https://www.autohotkey.com")
      * 
      * @param   {Any*}  Args  arguments passed to `__New()`
-     * @return  {Com}
+     * @returns {Com}
      */
     static Call(Args*) {
         return this.FromObj(ComObject(this.CLSID, this.IID), Args*)
@@ -244,7 +244,7 @@ class Com {
      * 
      * @param   {String}   IID  the interface identifier to query
      * @param   {String?}  SID  the service identifier to query
-     * @return  {ComValue}
+     * @returns {ComValue}
      */
     __Query(Arg1, Arg2?) {
         return ComObjQuery(this._, Arg1, Arg?)
@@ -257,7 +257,7 @@ class Com {
      * `Com.EventSink`. Otherwise, it'll be automatically forced to do so.
      * 
      * @param   {Class}  EventSink  event sink that handles events
-     * @return  {this}
+     * @returns {this}
      */
     __Connect(EventSink) {
         if (EventSink is Class) {
@@ -279,7 +279,7 @@ class Com {
     /**
      * Disconnects the Com object from its current event sink.
      * 
-     * @return  {this}
+     * @returns {this}
      */
     __Disconnect() {
         ComObjConnect(this._)
@@ -297,7 +297,7 @@ class Com {
      * 
      * @param   {Integer}  Ptr   pointer to the Com object
      * @param   {Any*}     Args  arguments passed to `.New()`
-     * @return  {Com}
+     * @returns {Com}
      */
     static FromPtr(Ptr, Args*) => this.FromObj(ComObjFromPtr(Ptr), Args*)
 
@@ -309,7 +309,7 @@ class Com {
      * ie := InternetExplorer.FromActive()
      * 
      * @param   {Any*}  Args  arguments passed to the `.New()` constructor
-     * @return  {Com}
+     * @returns {Com}
      */
     static FromActive(Args*) => this.FromObj(ComObjActive(this.CLSID), Args*)
 
@@ -335,7 +335,7 @@ class Com {
      * 
      * @param   {ComObject}  ComObj  the Com object to wrap around
      * @param   {Any*}       Args    arguments passed to `.New()`
-     * @return  {Com}
+     * @returns {Com}
      */
     static FromObj(ComObj, Args*) {
         ; create a new `Com` object
@@ -381,7 +381,7 @@ class Com {
     /**
      * Returns the pointer to the Com object.
      * 
-     * @return  {Integer}
+     * @returns {Integer}
      */
     Ptr => ComObjValue(this)
 
@@ -390,7 +390,7 @@ class Com {
      * 
      * @param   {String}  PropertyName  name of the property to get
      * @param   {Array}   Args          zero or more arguments
-     * @return  {Any}
+     * @returns {Any}
      */
     __Get(PropertyName, Args) {
         if (HasProp(this, "_")) {
@@ -405,7 +405,7 @@ class Com {
      * @param   {String}  PropertyName  name of the property to set
      * @param   {Array}   Args          zero or more arguments
      * @param   {Any}     Value         the new value of the property
-     * @return  {Any}
+     * @returns {Any}
      */
     __Set(PropertyName, Args, Value) {
         if (HasProp(this, "_")) {
@@ -419,7 +419,7 @@ class Com {
      * 
      * @param   {String}  MethodName  name of the method to call
      * @param   {Array}   Args        zero or more arguments
-     * @return  {Any}
+     * @returns {Any}
      */
     __Call(MethodName, Args) {
         if (HasProp(this, "_")) {
@@ -436,25 +436,25 @@ class Com {
      * 
      * @param   {Integer}  Index  zero-based index of the method
      * @param   {Any*}     Args   zero or more arguments
-     * @return  {Any}
+     * @returns {Any}
      */
     Call(Index, Args*) => ComCall(Index, this._, Args*)
 
     /**
      * Returns the name of the Com object's default interface.
-     * @return  {String}
+     * @returns {String}
      */
     __Name  => ComObjType(this._, "Name")
 
     /**
      * Returns the IID of the Com object.
-     * @return  {String}
+     * @returns {String}
      */
     __IID   => ComObjType(this._, "IID")
 
     /**
      * Returns the object's class name. 
-     * @return  {String}
+     * @returns {String}
      */
     __Class => ComObjType(this._, "Class")
 
@@ -529,7 +529,7 @@ class Com {
          * Constructs a new `Com.EventSink` from the given `Com` source.
          * 
          * @param   {Com}  Source  Com instance that throws events
-         * @return  {Com.EventSink}
+         * @returns {Com.EventSink}
          */
         __New(Source) {
             this.DefineProp("Source", { Get: (Instance) => Source })
@@ -538,7 +538,7 @@ class Com {
         /**
          * Determines if `__Call()` should display events on a tooltip.
          * 
-         * @return  {Boolean}
+         * @returns {Boolean}
          */
         ShowEvents => false
 
@@ -548,7 +548,7 @@ class Com {
          * 
          * @param   {String}  MethodName  name of the undefined event
          * @param   {Any*}    Args        zero or more arguments
-         * @return  {Any}
+         * @returns {Any}
          */
         __Call(MethodName, Args) {
             static Events := Array()

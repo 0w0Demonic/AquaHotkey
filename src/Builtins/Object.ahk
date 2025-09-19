@@ -19,7 +19,7 @@ class Object {
      * 
      * @param   {String}  MethodName  the name of a method
      * @param   {Any*}    Args        zero or more additional arguments
-     * @return  {BoundFunc}
+     * @returns {BoundFunc}
      */
     BindMethod(MethodName, Args*) => ObjBindMethod(this, MethodName, Args*)
 
@@ -35,7 +35,7 @@ class Object {
      * 
      * @param   {String}  PropertyName  name of the new property
      * @param   {Any}     Value         value that is returned by this property
-     * @return  {Any}
+     * @returns {Any}
      */
     DefineConstant(PropertyName, Value) {
         return this.DefineProp(PropertyName, { Get: (Instance) => Value })
@@ -56,7 +56,7 @@ class Object {
      * 
      * @param   {String}  PropertyName  name of the property
      * @param   {Func}    Getter        the function to be called
-     * @return  {this}
+     * @returns {this}
      */
     DefineGetter(PropertyName, Getter) {
         GetMethod(Getter)
@@ -87,7 +87,7 @@ class Object {
      * @param   {String}  PropertyName  name of the new property
      * @param   {Func}    Getter        getter function
      * @param   {Func}    Setter        setter function
-     * @return  {this}
+     * @returns {this}
      */
     DefineGetterSetter(PropertyName, Getter, Setter) {
         (GetMethod(Getter) && GetMethod(Setter))
@@ -109,7 +109,7 @@ class Object {
      * 
      * @param   {String}  PropertyName  name of the new property
      * @param   {Func}    Setter        setter function
-     * @return  {this}
+     * @returns {this}
      */
     DefineSetter(PropertyName, Setter) {
         GetMethod(Setter)
@@ -127,7 +127,7 @@ class Object {
      * 
      * @param   {String}  PropertyName  name of property
      * @param   {Func}    Method        the function to be called
-     * @return  {this}
+     * @returns {this}
      */
     DefineMethod(PropertyName, Method) {
         GetMethod(Method)
@@ -146,7 +146,7 @@ class Object {
      * MsgBox(Obj is Foo) ; true
      * 
      * @param   {Any}  BaseObj  the new base of this object
-     * @return  {this}
+     * @returns {this}
      */
     SetBase(BaseObj) {
         ObjSetBase(this, BaseObj)
@@ -162,7 +162,7 @@ class Object {
      * @example
      * ({ Foo: 45, Bar: 123 }) ; "Object {Bar: 123, Foo: 45}"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     ToString() {
         static KeyValueMapper(Key, Value?) {

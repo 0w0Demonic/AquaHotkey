@@ -213,7 +213,7 @@ class Gatherer {
      * @param   {Func?}  Initializer  initializes data
      * @param   {Func?}  Integrator   processes input elements
      * @param   {Func?}  Finisher     final action after stream terminates
-     * @return  {Gatherer}
+     * @returns {Gatherer}
      */
     __New(Initializer?, Integrator?, Finisher?) {
         Define("Initializer", Initializer?)
@@ -246,7 +246,7 @@ class Gatherer {
      * Range(10).Gather(_.WindowFixed(3))
      * 
      * @param   {Integer}  Size  window size
-     * @return  {Gatherer}
+     * @returns {Gatherer}
      */
     class WindowFixed extends Gatherer {
         __New(Size) {
@@ -286,7 +286,7 @@ class Gatherer {
      * Range(5).Gather(_.WindowSliding(3))
      * 
      * @param   {Integer}  Size  window size
-     * @return  {Gatherer}
+     * @returns {Gatherer}
      */
     class WindowSliding extends Gatherer {
         __New(Size) {
@@ -332,7 +332,7 @@ class Gatherer {
      * 
      * @param   {Func}  Supplier  function to produce initial value
      * @param   {Func}  Combiner  function to merge values with
-     * @return  {Gatherer}
+     * @returns {Gatherer}
      */
     class Scan extends Gatherer {
         __New(Supplier, Merger) {
@@ -378,7 +378,7 @@ class AquaHotkey_Gatherer extends AquaHotkey {
          * Applies the given Gatherer to process the elements of the stream.
          * 
          * @param   {Gatherer}  Gath  the gatherer to apply
-         * @return  {Stream}
+         * @returns {Stream}
          */
         Gather(Gath) => this.Stream().Gather(Gath)
     }
@@ -388,7 +388,7 @@ class AquaHotkey_Gatherer extends AquaHotkey {
          * Applies the given Gatherer to process the elements of the stream.
          * 
          * @param   {Gatherer}  Gath  the gatherer to apply
-         * @return  {Stream}
+         * @returns {Stream}
          */
         Gather(Gath) {
             static S := Stream ?? ""

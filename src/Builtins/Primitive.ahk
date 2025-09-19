@@ -12,7 +12,7 @@ class Primitive {
      * Returns itself. This method allows you to call `.Clone()` on every
      * single type (except for e.g. `ComObject`).
      * 
-     * @return  {Primitive}
+     * @returns {Primitive}
      */
     Clone() => this
 
@@ -24,7 +24,7 @@ class Primitive {
      * 
      * @param   {String?}     Title    message box title
      * @param   {Primitive?}  Options  additional `MsgBox` options
-     * @return  {this}
+     * @returns {this}
      */
     MsgBox(Title?, Options?) {
         MsgBox(this, Title?, Options?)
@@ -40,7 +40,7 @@ class Primitive {
      * @param   {Integer?}  x             x-coordinate
      * @param   {Integer?}  y             y-coordinate
      * @param   {Integer?}  WhichToolTip  which tooltip to operate on
-     * @return  {this}
+     * @returns {this}
      */
     ToolTip(x?, y?, WhichToolTip?) {
         ToolTip(this, x?, y?, WhichToolTip?)
@@ -53,7 +53,7 @@ class Primitive {
      * @example
      * "Four score and seven years ago".Send()
      * 
-     * @return  {this}
+     * @returns {this}
      */
     Send() {
         Send(this)
@@ -66,7 +66,7 @@ class Primitive {
      * @example
      * "Four score and seven years ago".SendText()
      * 
-     * @return  {this}
+     * @returns {this}
      */
     SendText() {
         SendText(this)
@@ -79,7 +79,7 @@ class Primitive {
      * @example
      * "Four score and seven years ago".SendPlay()
      * 
-     * @return  {this}
+     * @returns {this}
      */
     SendPlay() {
         SendPlay(this)
@@ -92,7 +92,7 @@ class Primitive {
      * @example
      * "Four score and seven years ago".SendEvent()
      * 
-     * @return  {this}
+     * @returns {this}
      */
     SendEvent() {
         SendEvent(this)
@@ -105,7 +105,7 @@ class Primitive {
      * @example
      * (1).ToFloat() ; 1.0
      * 
-     * @return  {Float}
+     * @returns {Float}
      */
     ToFloat() => Float(this)
 
@@ -116,7 +116,7 @@ class Primitive {
      * "912".ToNumber() ; 912
      * "8.2".ToNumber() ; 8.2
      * 
-     * @return  {Number}
+     * @returns {Number}
      */
     ToNumber() => Number(this)
 
@@ -126,7 +126,7 @@ class Primitive {
      * @example
      * (8.34).ToInteger() ; 8
      * 
-     * @return  {Integer}
+     * @returns {Integer}
      */
     ToInteger() => Integer(this)
 
@@ -136,7 +136,7 @@ class Primitive {
      * @example
      * (12).ToString() ; "12"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     ToString() => String(this)
 
@@ -146,7 +146,7 @@ class Primitive {
      * @example
      * "This is the new clipboard content".ToClipboard()
      * 
-     * @return  {this}
+     * @returns {this}
      */
     ToClipboard() => (A_Clipboard := this)
 
@@ -159,7 +159,7 @@ class Primitive {
      * 
      * @param   {String}  Pattern  format pattern to use
      * @param   {Any*}    Args     zero or more additional arguments
-     * @return  {String}
+     * @returns {String}
      */
     FormatTo(Pattern, Args*) {
         StringReprs := Array()

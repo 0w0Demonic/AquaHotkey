@@ -16,7 +16,7 @@ class Array {
      * Arr := Array().SetDefault(false)
      * 
      * @param   {Any}  Default  new array default value
-     * @return  {this}
+     * @returns {this}
      */
     SetDefault(Default) {
         this.Default := Default
@@ -30,7 +30,7 @@ class Array {
      * Arr := Array().SetLength(16)
      * 
      * @param   {Integer}  Length  new array length
-     * @return  {this}
+     * @returns {this}
      */
     SetLength(Length) {
         this.Length := Length
@@ -44,7 +44,7 @@ class Array {
      * Arr := Array().SetCapacity(16)
      * 
      * @param   {Integer}  Capacity  new array capacity
-     * @return  {this}
+     * @returns {this}
      */
     SetCapacity(Capacity) {
         this.Capacity := Capacity
@@ -121,7 +121,7 @@ class Array {
      * Array().IsEmpty   ; true
      * Array(42).IsEmpty ; false
      *  
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     IsEmpty => (!this.Length)
 
@@ -132,7 +132,7 @@ class Array {
      * Array(unset, 42).HasElements ; true
      * Array(unset, unset).HasElements ; false
      * 
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     HasElements {
         Get {
@@ -157,7 +157,7 @@ class Array {
      * 
      * @param   {Integer}  a  first index
      * @param   {Integer}  b  second index
-     * @return  {this}
+     * @returns {this}
      */
     Swap(a, b) {
         (this.Has(a) && Temp := this[a])
@@ -180,7 +180,7 @@ class Array {
      * @example
      * Array(1, 2, 3, 4).Reverse() ; [4, 3, 2, 1]
      * 
-     * @return  {this}
+     * @returns {this}
      */
     Reverse() {
         EndIndex := this.Length + 1
@@ -201,7 +201,7 @@ class Array {
      * 
      * @param   {Func?}     Comp        function that orders two values
      * @param   {Boolean?}  Reversed    sort in reverse order
-     * @return  {this}
+     * @returns {this}
      */
     Sort(Comp?, Reversed := false) {
         static SizeOfField := 16
@@ -280,7 +280,7 @@ class Array {
      * Array("banana", "zigzag").Max(StrCompare) ; "zigzag"
      * 
      * @param   {Func?}  Comp  function that orders two values
-     * @return  {Any}
+     * @returns {Any}
      */
     Max(Comp?) {
         if (!this.Length) {
@@ -311,7 +311,7 @@ class Array {
      * Array("apple", "banana", "foo").Min(StrCompare) ; "apple"
      * 
      * @param   {Func?}  Comp  function that orders two values
-     * @return  {Any}
+     * @returns {Any}
      */
     Min(Comp?) {
         if (!this.Length) {
@@ -339,7 +339,7 @@ class Array {
      * @example
      * Array("foo", 3, "4", unset).Sum() ; 7
      * 
-     * @return  {Float}
+     * @returns {Float}
      */
     Sum() {
         Result := Float(0)
@@ -357,7 +357,7 @@ class Array {
      * @example
      * Array("foo", 3, "4", unset) ; 3.5 (total sum 7, 2 numerical values)
      * 
-     * @return  {Float}
+     * @returns {Float}
      */
     Average() {
         Sum := Float(0)
@@ -382,7 +382,7 @@ class Array {
      * 
      * @param   {Func}  Mapper  function that returns a new element
      * @param   {Any*}  Args    zero or more additional arguments
-     * @return  {Array}
+     * @returns {Array}
      */
     Map(Mapper, Args*) {
         GetMethod(Mapper)
@@ -414,7 +414,7 @@ class Array {
      * 
      * @param   {Func}  Mapper  function that returns a new element
      * @param   {Any*}  Args    zero or more additional arguments
-     * @return  {this}
+     * @returns {this}
      */
     ReplaceAll(Mapper, Args*) {
         GetMethod(Mapper)
@@ -450,7 +450,7 @@ class Array {
      * 
      * @param   {Func?}  Mapper  function to convert and flatten elements
      * @param   {Any*}   Args    zero or more additional arguments
-     * @return  {Array}
+     * @returns {Array}
      */
     FlatMap(Mapper?, Args*) {
         Result := Array()
@@ -496,7 +496,7 @@ class Array {
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
-     * @return  {Array}
+     * @returns {Array}
      */
     RetainIf(Condition, Args*) {
         GetMethod(Condition)
@@ -525,7 +525,7 @@ class Array {
      * 
      * @param   {Predicate}  Condition  the given condition
      * @param   {Any*}       Args       zero or more additional arguments
-     * @return  {Array}
+     * @returns {Array}
      */
     RemoveIf(Condition, Args*) {
         GetMethod(Condition)
@@ -568,7 +568,7 @@ class Array {
      * 
      * @param   {Func?}                  Hasher    function to create map keys
      * @param   {Map?/Func?/Primitive?}  MapParam  internal map options
-     * @return  {Array}
+     * @returns {Array}
      */
     Distinct(Hasher?, MapParam := Map()) {
         switch {
@@ -623,7 +623,7 @@ class Array {
      * 
      * @param   {String?}   Delimiter   separator string
      * @param   {Integer?}  InitialCap  initial string capacity
-     * @return  {String}
+     * @returns {String}
      */
     Join(Delimiter := "", InitialCap := 0) {
         Delimiter .= ""
@@ -652,7 +652,7 @@ class Array {
      * Array(1, 2, 3, 4).JoinLine() ; "1`n2`n3`n4"
      * 
      * @param   {Integer?}  InitialCap  initial string capacity
-     * @return  {String}
+     * @returns {String}
      */
     JoinLine(InitialCap := 0) => this.Join("`n", InitialCap)
     
@@ -673,7 +673,7 @@ class Array {
      * 
      * @param   {Func}  Combiner  function to combine two values
      * @param   {Any?}  Identity  initial value
-     * @return  {Any}
+     * @returns {Any}
      */
     Reduce(Combiner, Identity?) {
         if (!this.Length && IsSet(Identity)) {
@@ -707,7 +707,7 @@ class Array {
      * 
      * @param   {Func}  Action  the function to call on each element
      * @param   {Any*}  Args    zero or more additional arguments
-     * @return  {this}
+     * @returns {this}
      */
     ForEach(Action, Args*) {
         GetMethod(Action)
@@ -731,7 +731,7 @@ class Array {
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
-     * @return  {Boolean/Object}
+     * @returns {Boolean/Object}
      */
     AnyMatch(Condition, Args*) {
         GetMethod(Condition)
@@ -756,7 +756,7 @@ class Array {
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     AllMatch(Condition, Args*) {
         GetMethod(Condition)
@@ -781,7 +781,7 @@ class Array {
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     NoneMatch(Condition, Args*) {
         GetMethod(Condition)
@@ -799,7 +799,7 @@ class Array {
      * @example
      * Array(1, 2, 3, 4).ToString() ; "[1, 2, 3, 4]" 
      * 
-     * @return  {String}
+     * @returns {String}
      */
     ToString() {
         static Mapper(Value?) {

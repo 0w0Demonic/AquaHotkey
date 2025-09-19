@@ -36,7 +36,7 @@ class Buffer {
              * MyBuffer.GetInt64(8) ; e.g. 12813612291
              * 
              * @param   {Integer?}  Offset  byte offset (default 0)
-             * @return  {Number}
+             * @returns {Number}
              */
             Getter(Instance, Offset := 0) {
                 return NumGet(Instance, Offset, NumType)
@@ -53,7 +53,7 @@ class Buffer {
              * 
              * @param   {Number}    Value   the new value to be stored
              * @param   {Integer?}  Offset  offset in bytes
-             * @return  {Number}
+             * @returns {Number}
              */
             Setter(Instance, Value, Offset := 0) {
                 PreviousValue := NumGet(Instance, Offset, NumType)
@@ -73,7 +73,7 @@ class Buffer {
      * 
      * @param   {String?}   Delimiter   separator string
      * @param   {Integer?}  LineLength  amount of bytes per line
-     * @return  {String}
+     * @returns {String}
      */
     HexDump(Delimiter := A_Space, LineLength := 16) {
         if (IsObject(Delimiter)) {
@@ -119,7 +119,7 @@ class Buffer {
      * 
      * @param   {String}      Str       any string
      * @param   {Primitive?}  Encoding  target encoding
-     * @return  {Buffer}
+     * @returns {Buffer}
      */
     static OfString(Str, Encoding?) {
         if (IsObject(Str)) {
@@ -144,7 +144,7 @@ class Buffer {
      * @example
      * Buffer(128).ToString() ; "Buffer { Ptr: 000000000024D080, Size: 128 }"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     ToString() {
         Ptr  := Format("{:p}", this.Ptr)

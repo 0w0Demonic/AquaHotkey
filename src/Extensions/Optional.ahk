@@ -26,7 +26,7 @@ class Optional {
      * Opt := Optional.Empty()
      * Opt.IsPresent ; false
      * 
-     * @return  {Optional}
+     * @returns {Optional}
      */
     static Empty() => Optional()
 
@@ -39,7 +39,7 @@ class Optional {
      * Empty := Optional()
      * 
      * @param   {Any?}  Value  the value contained in the optional
-     * @return  {Optional}
+     * @returns {Optional}
      */
     __New(Value?) {
         (IsSet(Value) && this.DefineProp("Value", { Get: (Instance) => Value }))
@@ -53,7 +53,7 @@ class Optional {
      * Optional("foo").Get()  ; "foo"
      * Optional.Empty().Get() ; Error!
      * 
-     * @return  {Any}
+     * @returns {Any}
      */
     Get() {
         if (HasProp(this, "Value")) {
@@ -69,7 +69,7 @@ class Optional {
      * Optional("foo").IsPresent ; true
      * Optional(unset).IsPresent ; false
      * 
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     IsPresent => HasProp(this, "Value")
 
@@ -80,7 +80,7 @@ class Optional {
      * Optional("foo").IsAbsent ; false
      * Optional(unset).IsAbsent ; true
      * 
-     * @return  {Boolean}
+     * @returns {Boolean}
      */
     IsAbsent => !HasProp(this, "Value")
 
@@ -95,7 +95,7 @@ class Optional {
      *
      * @param   {Func}  Action  the function to be called
      * @param   {Any*}  Args    zero or more additional arguments
-     * @return  {this}
+     * @returns {this}
      */
     IfPresent(Action, Args*) {
         (HasProp(this, "Value") && Action(this.Value, Args*))
@@ -112,7 +112,7 @@ class Optional {
      * 
      * @param   {Func}  EmptyAction  the function to be called
      * @param   {Any*}  Args         zero or more additional arguments
-     * @return  {this}
+     * @returns {this}
      */
     IfAbsent(EmptyAction, Args*) {
         (HasProp(this, "Value") || EmptyAction(Args*))
@@ -128,7 +128,7 @@ class Optional {
      *
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
-     * @return  {Optional}
+     * @returns {Optional}
      */
     RetainIf(Condition, Args*) {
         if (!HasProp(this, "Value")) {
@@ -148,7 +148,7 @@ class Optional {
      *
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
-     * @return  {Optional}
+     * @returns {Optional}
      */
     RemoveIf(Condition, Args*) {
         if (!HasProp(this, "Value")) {
@@ -177,7 +177,7 @@ class Optional {
      *
      * @param   {Func}  Mapper  function to transform the value
      * @param   {Any*}  Args    zero or more additional arguments
-     * @return  {Optional}
+     * @returns {Optional}
      */
     Map(Mapper, Args*) {
         if (!HasProp(this, "Value")) {
@@ -194,7 +194,7 @@ class Optional {
      * Optional.Empty().OrElse("") ; ""
      *
      * @param   {Any}  Default  default value to return if no value is present
-     * @return  {Any}
+     * @returns {Any}
      */
     OrElse(Default) {
         if (HasProp(this, "Value")) {
@@ -213,7 +213,7 @@ class Optional {
      *
      * @param   {Func}  Supplier  function to provide a default value
      * @param   {Any*}  Args      zero or more additional arguments
-     * @return  {Any}
+     * @returns {Any}
      */
     OrElseGet(Supplier, Args*) {
         if (HasProp(this, "Value")) {
@@ -233,7 +233,7 @@ class Optional {
      *
      * @param   {Func?}  ExceptionSupplier  function to provide an exception
      * @param   {Any*}   Args               zero or more arguments
-     * @return  {Any}
+     * @returns {Any}
      */
     OrElseThrow(ExceptionSupplier := Error, Args*) {
         if (HasProp(this, "Value")) {
@@ -252,7 +252,7 @@ class Optional {
      * @example
      * Array(1, 2, 3).Optional().ToString() ; "Optional{ [1, 2, 3] }"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     ToString() {
         if (!HasProp(this, "Value")) {
@@ -274,7 +274,7 @@ class AquaHotkey_Optional extends AquaHotkey {
          * @example
          * "Hello world!".Optional().IfPresent(MsgBox)
          * 
-         * @return  {Optional}
+         * @returns {Optional}
          */
         Optional() => Optional(this)
     }

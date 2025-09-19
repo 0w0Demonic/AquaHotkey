@@ -17,7 +17,7 @@ class VarRef {
      * Str := "Hello, world!"
      * DllCall("...", "Ptr", &Str)
      * 
-     * @return  {Integer}
+     * @returns {Integer}
      */
     Ptr {
         Get {
@@ -46,7 +46,7 @@ class VarRef {
      * Bar := &(Foo := 2)
      * Bar.ToString() ; "&Foo"
      * 
-     * @return  {String}
+     * @returns {String}
      */
     ToString() {
         pName := NumGet(ObjPtr(this) + 8 + 6 * A_PtrSize, "Ptr")

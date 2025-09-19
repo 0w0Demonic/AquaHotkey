@@ -14,26 +14,26 @@
 class Combiner {
     /**
      * Returns the sum of two values.
-     * @return  {Func}
+     * @returns {Func}
      */
     static Sum => (a, b) => (a + b)
 
     /**
      * Returns the product of two values.
-     * @return  {Func}
+     * @returns {Func}
      */
     static Product => (a, b) => (a * b)
 
     /**
      * Concatenates two strings.
-     * @return  {Func}
+     * @returns {Func}
      */
     static Concat => (a, b) => (a . b)
 
     /**
      * Concatenates two strings with a delimiter.
      * @param   {String}  Delim  separator string
-     * @return  {Func}
+     * @returns {Func}
      */
     static Concat(Delim) {
         Delim .= ""
@@ -42,14 +42,14 @@ class Combiner {
 
     /**
      * Returns the smaller of two numbers.
-     * @return  {Func}
+     * @returns {Func}
      */
     static Min => Min
 
     /**
      * Returns the smaller of two values through a custom comparator.
      * @param   {Comparator}  Comp  the comparator to use
-     * @return  {Func}
+     * @returns {Func}
      */
     static Min(Comp) {
         GetMethod(Comp)
@@ -65,7 +65,7 @@ class Combiner {
 
     /**
      * Returns the larger of two numbers.
-     * @return  {Func}
+     * @returns {Func}
      */
     static Max => Max
 
@@ -87,13 +87,13 @@ class Combiner {
 
     /**
      * Always returns the first value.
-     * @return  {Func}
+     * @returns {Func}
      */
     static First => (a, b) => (a)
 
     /**
      * Always returns the second value.
-     * @return  {Func}
+     * @returns {Func}
      */
     static Last  => (a, b) => (b)
 }

@@ -24,7 +24,7 @@
  * @param   {Number}   From  start of the sequence
  * @param   {Number?}  To    end of the sequence
  * @param   {Number?}  Step  interval between elements
- * @return  {Enumerator}
+ * @returns {Enumerator}
  */
 Range(Start, End?, Step := 1) {
     if (!IsSet(End)) {
