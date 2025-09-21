@@ -55,18 +55,3 @@ class that defines the object.
 
 MyObject.Class.StaticProp()
 ```
-
----
-
-## Assertions and Testing
-
-The `.Assert()` method (and related ones like `.AssertEquals()` and
-`.AssertType()`) make testing in one-liners more straightforward. They work
-great together with the `Mapper`, `Condition` utility classes for building
-test cases or error checks.
-
-```ahk
-MyArr.AssertType(Array)
-
-"foo".Assert(StrLen.AndThen(Condition.Greater(2)))
-```
