@@ -12,7 +12,6 @@
 #Include %A_LineFile%/../../Builtins/Error.ahk
 #Include %A_LineFile%/../../Builtins/File.ahk
 #Include %A_LineFile%/../../Builtins/Func.ahk
-#Include %A_LineFile%/../../Builtins/InputHook.ahk
 #Include %A_LineFile%/../../Builtins/Integer.ahk
 #Include %A_LineFile%/../../Builtins/Map.ahk
 #Include %A_LineFile%/../../Builtins/Number.ahk

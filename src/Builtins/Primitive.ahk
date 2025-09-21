@@ -149,29 +149,5 @@ class Primitive {
      * @returns {this}
      */
     ToClipboard() => (A_Clipboard := this)
-
-    /**
-     * Formats the variable by using the given `Pattern`, followed by zero or
-     * more additional `Args*`.
-     * 
-     * @example
-     * "world".FormatTo("{2}, {1}!", "Hello") ; "Hello, world!"
-     * 
-     * @param   {String}  Pattern  format pattern to use
-     * @param   {Any*}    Args     zero or more additional arguments
-     * @returns {String}
-     */
-    FormatTo(Pattern, Args*) {
-        StringReprs := Array()
-        StringReprs.Capacity := Args.Length
-        for Value in Args {
-            if (IsSet(Value)) {
-                StringReprs.Push(String(Value))
-            } else {
-                StringReprs.Length++
-            }
-        }
-        return Format(Pattern, this, StringReprs*)
-    }
 } ; class Primitive
 } ; class AquaHotkey_Primitive extends AquaHotkey
