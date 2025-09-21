@@ -38,7 +38,7 @@ class Object {
      * @returns {Any}
      */
     DefineConstant(PropertyName, Value) {
-        return this.DefineProp(PropertyName, { Get: (Instance) => Value })
+        return this.DefineProp(PropertyName, { Get: (*) => Value })
     }
 
     /**
@@ -100,7 +100,7 @@ class Object {
      * 
      * @example
      * Setter(this, Value) {
-     *     return this.Value := Value.AssertInteger("only integers allowed")
+     *     return this.Value := Value.Assert(IsInteger)
      * }
      * 
      * Obj     := ({ Value: 42 }).DefineSetter("Foo", Setter)

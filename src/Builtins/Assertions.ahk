@@ -67,13 +67,13 @@ class Any {
      * a `ValueError` is thrown with the error message `Msg`.
      * 
      * @example
-     * Str.AssertStrictEquals("foo", 'this string is not equal to "foo"')
+     * Str.AssertCsEquals("foo", 'this string is not equal to "foo"')
      * 
      * @param   {Any}      Other  expected value
      * @param   {String?}  Msg    custom error message
      * @returns {this}
      */
-    AssertStrictEquals(Other) {
+    AssertCsEquals(Other) {
         if (this == Other) {
             return this
         }
@@ -115,13 +115,13 @@ class Any {
      * Otherwise, a `ValueError` is thrown with the error message `Msg`.
      * 
      * @example
-     * Str.AssertStrictNotEquals("foo", 'this string is equal to "foo"')
+     * Str.AssertCsNotEquals("foo", 'this string is equal to "foo"')
      * 
      * @param   {Any}      Other  unexpected value
      * @param   {String?}  Msg    custom error message
      * @returns {this}
      */
-    AssertStrictNotEquals(Other, Msg?) {
+    AssertCsNotEquals(Other, Msg?) {
         if (this !== Other) {
             return this
         }
@@ -157,13 +157,13 @@ class Number {
      * is thrown with the error message `Msg`.
      * 
      * @example
-     * (12.23).AssertGreater(5, "number is not greater than 5")
+     * (12.23).AssertGt(5, "number is not greater than 5")
      * 
      * @param   {Number}   x    any number
      * @param   {String?}  Msg  error message
      * @returns {this}
      */
-    AssertGreater(x, Msg?) {
+    AssertGt(x, Msg?) {
         if (this > x) {
             return this
         }
@@ -175,13 +175,13 @@ class Number {
      * `ValueError` is thrown with the error message `Msg`.
      * 
      * @example
-     * (0).AssertGreaterOrEqual(0, "number is less than 0")
+     * (0).AssertGe(0, "number is less than 0")
      * 
      * @param   {Number}   x    any number
      * @param   {String?}  Msg  error message
      * @returns {this}
      */
-    AssertGreaterOrEqual(x, Msg?) {
+    AssertGe(x, Msg?) {
         if (this >= x) {
             return this
         }
@@ -193,13 +193,13 @@ class Number {
      * thrown with the error message `Msg`.
      * 
      * @example
-     * (23).AssertLess(65, "number is not less than 65")
+     * (23).AssertLt(65, "number is not less than 65")
      * 
      * @param   {Number}   x    any number
      * @param   {String?}  Msg  error message
      * @returns {this}
      */
-    AssertLess(x, Msg?) {
+    AssertLt(x, Msg?) {
         if (this < x) {
             return this
         }
@@ -211,13 +211,13 @@ class Number {
      * a `ValueError` is thrown with the error message `Msg`.
      * 
      * @example
-     * (23).AssertLessOrEqual(65, "number is greater than 65")
+     * (23).AssertLe(65, "number is greater than 65")
      * 
      * @param   {Number}   x    any number
      * @param   {String?}  Msg  error message
      * @returns {this}
      */
-    AssertLessOrEqual(x, Msg?) {
+    AssertLe(x, Msg?) {
         if (this <= x) {
             return this
         }

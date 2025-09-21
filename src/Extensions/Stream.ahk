@@ -1324,7 +1324,7 @@ class AquaHotkey_Stream extends AquaHotkey {
          */
         OwnPropsStream() {
             f := this.OwnProps()
-            return Stream((&K, &V) => f(&K, &v))
+            return Stream((&K, &V) => f(&K, &V))
         }
 
         /**

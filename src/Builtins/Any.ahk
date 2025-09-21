@@ -73,7 +73,6 @@ class Any {
         return Function(this, Args*)
     }
 
-    ; TODO performance
     /**
      * Explicitly forwards this variable as first parameter to the given
      * function `Callback`, followed by zero or more additional arguments
