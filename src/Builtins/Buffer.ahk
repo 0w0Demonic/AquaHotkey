@@ -138,19 +138,5 @@ class Buffer {
         StrPut(Str, Buf)
         return Buf
     }
-
-    /**
-     * Returns a string representation of this buffer consisting of
-     * its type, memory address pointer and size in bytes.
-     * 
-     * @example
-     * Buffer(128).ToString() ; "Buffer { Ptr: 000000000024D080, Size: 128 }"
-     * 
-     * @returns {String}
-     */
-    ToString() {
-        Ptr  := Format("{:p}", this.Ptr)
-        return Type(this) . "{ Ptr: " . Ptr . ", Size: " . this.Size . " }"
-    }
 } ; class Buffer
 } ; class AquaHotkey_Buffer extends AquaHotkey

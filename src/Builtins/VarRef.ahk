@@ -21,36 +21,20 @@ class VarRef {
      */
     Ptr {
         Get {
-            if (IsSetRef(this)) {
-                if (%this% is String) {
-                    return StrPtr(%this%)
-                }
-                if (%this% is Object) {
-                    if (HasProp(%this%, "Ptr")) {
-                        return %this%.Ptr
-                    }
-                    return ObjPtr(%this%)
-                }
-                Msg   := "invalid type: " . Type(%this%)
-                throw TypeError(Msg,, this.ToString())
+            if (!IsSetRef(this)) {
+                throw UnsetError("unset value")
             }
-            Msg   := "unset value"
-            throw UnsetError(Msg,, this.ToString())
+            if (%this% is String) {
+                return StrPtr(%this%)
+            }
+            if (IsObject(%this%)) {
+                if (HasProp(%this%, "Ptr")) {
+                    return %this%.Ptr
+                }
+                return ObjPtr(%this%)
+            }
+            throw TypeError("invalid type",, Type(%this%))
         }
-    }
-
-    /**
-     * Returns a string representation of the reference.
-     * 
-     * @example
-     * Bar := &(Foo := 2)
-     * Bar.ToString() ; "&Foo"
-     * 
-     * @returns {String}
-     */
-    ToString() {
-        pName := NumGet(ObjPtr(this) + 8 + 6 * A_PtrSize, "Ptr")
-        return "&" . StrGet(pName, "UTF-16") 
     }
 } ; class VarRef
 } ; class AquaHotkey_VarRef extends AquaHotkey

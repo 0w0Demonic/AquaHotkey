@@ -1,8 +1,10 @@
 #Requires AutoHotkey >=v2.0.5
 #Include %A_LineFile%/../AquaHotkey.ahk
 
-#Include %A_LineFile%/../../Builtins/Any.ahk
 #Include %A_LineFile%/../../Builtins/Assertions.ahk
+#Include %A_LineFile%/../../Builtins/ToString.ahk
+
+#Include %A_LineFile%/../../Builtins/Any.ahk
 #Include %A_LineFile%/../../Builtins/Array.ahk
 #Include %A_LineFile%/../../Builtins/Buffer.ahk
 #Include %A_LineFile%/../../Builtins/Class.ahk

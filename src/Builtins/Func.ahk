@@ -228,20 +228,5 @@ class Func {
                                   : Cache[Key] := this(Args*)
         }
     }
-
-    /**
-     * Returns the string representation of the function.
-     * 
-     * @example
-     * MsgBox.ToString() ; "Func MsgBox"
-     * 
-     * @returns {String}
-     */
-    ToString() {
-        if (this.Name == "") {
-            return Type(this) . " (unnamed)"
-        }
-        return Type(this) . " " . this.Name
-    }
 } ; class Func
 } ; class AquaHotkey_Func extends AquaHotkey

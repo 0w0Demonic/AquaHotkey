@@ -792,35 +792,5 @@ class Array {
         }
         return true
     }
-
-    /**
-     * Returns the string representation of the array.
-     * 
-     * @example
-     * Array(1, 2, 3, 4).ToString() ; "[1, 2, 3, 4]" 
-     * 
-     * @returns {String}
-     */
-    ToString() {
-        static Mapper(Value?) {
-            if (!IsSet(Value)) {
-                return "unset"
-            }
-            if (Value is String) {
-                return '"' . Value . '"'
-            }
-            return String(Value)
-        }
-
-        Result := "["
-        for Value in this {
-            if (A_Index != 1) {
-                Result .= ", "
-            }
-            Result .= Mapper(Value?)
-        }
-        Result .= "]"
-        return Result
-    }
 } ; class Array
 } ; class AquaHotkey_Array extends AquaHotkey

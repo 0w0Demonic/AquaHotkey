@@ -60,15 +60,5 @@ class Class {
         }
         return (Cache[ClassName] := ClassObj)
     }
-
-    /**
-     * Returns the string representation of the class.
-     * 
-     * @example
-     * Gui.ToString() ; "Class Gui"
-     * 
-     * @returns {String}
-     */
-    ToString() => "Class " . this.Prototype.__Class
 } ; class Class
 } ; class AquaHotkey_Class extends AquaHotkey

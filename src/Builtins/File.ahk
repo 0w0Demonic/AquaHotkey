@@ -51,21 +51,6 @@ class File {
     }
 
     /**
-     * Returns a string representation of this file, consisting of file name,
-     * position of file pointer, encoding and the system file handle.
-     * @example
-     * 
-     * ; "File { Name: C:\...\foo.txt, Pos: 0, Encoding: UTF-8, Handle: 362 }"
-     * MyFile.ToString()
-     * 
-     * @returns {String}
-     */
-    ToString() {
-        Pattern := "File{{} Name: {}, Pos: {}, Encoding: {}, Handle: {} {}}"
-        return Format(Pattern, this.Name, this.Pos, this.Encoding, this.Handle)
-    }
-
-    /**
      * Returns the file name of this file object.
      * 
      * @example

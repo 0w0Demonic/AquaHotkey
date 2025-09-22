@@ -68,7 +68,7 @@ class Stream {
         if (Source.MaxParams > Stream.MaxSupportedParams) {
             throw ValueError("invalid number of parameters",, Source.MaxParams)
         }
-        this.DefineProp("Call", { Get: (Instance) => Source })
+        this.DefineProp("Call", { Get: (_) => Source })
     }
 
     /**
@@ -1212,6 +1212,13 @@ class Stream {
     JoinLine(InitialCap := 0) {
         return this.Join("`n", InitialCap)
     }
+
+    /**
+     * Converts the stream into a string.
+     * 
+     * @returns {String}
+     */
+    ToString() => this.JoinLine()
 
     /**
      * Creates an infinite stream where each element is produced by the
