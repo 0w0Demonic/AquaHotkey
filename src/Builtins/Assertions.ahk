@@ -1,4 +1,12 @@
 class AquaHotkey_Assertions extends AquaHotkey {
+/**
+ * AquaHotkey - Assertions.ahk
+ * 
+ * Author: 0w0Demonic
+ * 
+ * https://www.github.com/0w0Demonic/AquaHotkey
+ * - src/Builtins/Assertions.ahk
+ */
 class Any {
     /**
      * Asserts that the given `Condition` is true for the value. Otherwise,

@@ -46,7 +46,7 @@ class Comparator {
      */
     __New(Comp) {
         GetMethod(Comp)
-        this.DefineProp("Call", { Call: (Instance, a?, b?) => Comp(a?, b?) })
+        this.DefineProp("Call", { Call: (_, a?, b?) => Comp(a?, b?) })
     }
 
     /**
@@ -68,7 +68,7 @@ class Comparator {
         Obj := Object()
         ObjSetBase(Obj, ObjGetBase(this))
         Obj.DefineProp("Call", {
-            Call: (Instance, a?, b?) => (this(a?, b?) || Other(a?, b?))
+            Call: (_, a?, b?) => (this(a?, b?) || Other(a?, b?))
         })
         return Obj
     }
@@ -120,7 +120,7 @@ class Comparator {
         Obj := Object()
         ObjSetBase(Obj, ObjGetBase(this))
         Obj.DefineProp("Call", {
-            Call: (Instance, a?, b?) => (
+            Call: (_, a?, b?) => (
                 this(Mapper(a?, Args*), Mapper(b?, Args*))
             )
         })
@@ -140,15 +140,9 @@ class Comparator {
         Obj := Object()
         ObjSetBase(Obj, ObjGetBase(this))
         Obj.DefineProp("Call", {
-            Call: (
-                (Instance, First?, Second?) => this(Second?, First?)
-            )
+            Call: (_, First?, Second?) => this(Second?, First?)
         })
-        Obj.DefineProp("Reversed", {
-            Call: (
-                (Instance) => this
-            )
-        })
+        Obj.DefineProp("Reversed", { Call: ((*) => this) })
         return Obj
     }
 

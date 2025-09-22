@@ -196,17 +196,15 @@ class DLL extends Any {
 
                 ; define getter and setter using the name and proc address
                 DllClass.DefineProp(Name, {
-                    Get: CreateGetter(DllClass, Name, Addr),
-                    Set: CreateSetter(DllClass, Name)
+                    Get: CreateGetter(Addr),
+                    Set: CreateSetter(Name)
                 })
             }
 
-            static CreateGetter(DllClass, Name, Addr) {
-                return (Instance) => Addr
-            }
+            static CreateGetter(Addr) => ((_) => Addr)
 
-            static CreateSetter(DllClass, Name) {
-                return (Instance, Value) => Instance.__Set(Name, [], Value)
+            static CreateSetter(Name) {
+                return (Cls, Value) => Cls.__Set(Name, [], Value)
             }
 
             if (!TypeSignatures) {

@@ -7,7 +7,7 @@ The stream-inspired methods like `.Map()`, `.RetainIf()`, `.RemoveIf()` and
 list comprehensions, or Clojure & Haskell `map`.
 
 ```ahk
-ArrayObj.Map(TimesTwo).RetainIf(GreaterThan10).ForEach()
+ArrayObj.Map(TimesTwo).RetainIf(GreaterThan10).ForEach(MsgBox)
 ```
 
 Use [Stream](../Extensions/stream.md) to support lazy evaluation and complicated
@@ -199,19 +199,3 @@ This lets you elegantly work with grouped data by:
   
   Zipped.ForEach((Left, Middle, Right) => MsgBox(Left + Middle + Right))
   ```
-
-### Zipped Streams?
-
-`ZipArray` works extremely well, there's a good chance the same concept will
-make it into streams. That'd open the door to some crazy new stream operations.
-
-For now though, you can emulate their behavior by using `Mapper.Spread()` to
-unpack values first.
-
-```ahk
-AsSpread := Mapper.Spread((v1, v2, v3) => ...)
-
-Array([1, 2, 3], [4, 5, 6]).Stream().Map(AsSpread)
-```
-
-Elegant, flexible, dangerously powerful.

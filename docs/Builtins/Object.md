@@ -34,16 +34,3 @@ composing new objects.
 ```ahk
 obj := Object().SetBase(BasePrototype).Define...
 ```
-
-## ToString()
-
-Calling `.ToString()` or `String(Obj)` returns a string representation useful
-for debugging. It's not meant to be consistent or pretty - just good enough
-to see what's going on.
-
-For simple objects, they're fine to use e.g. as map keys. Don't rely too much on
-them, though.
-
-```ahk
-Str := Obj.ToString()
-```

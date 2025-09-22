@@ -224,8 +224,8 @@ class Gatherer {
             if (IsSet(Function)) {
                 GetMethod(Function)
                 this.DefineProp(Name, {
-                    Get:  (Instance)        => Function,
-                    Call: (Instance, Args*) => Function(Args*)
+                    Get:  (_)        => Function,
+                    Call: (_, Args*) => Function(Args*)
                 })
                 return
             }
@@ -257,7 +257,7 @@ class Gatherer {
             if (Size <= 0) {
                 throw TypeError("Invalid window size",, Size)
             }
-            this.DefineProp("Size", { Get: (Instance) => Size })
+            this.DefineProp("Size", { Get: (_) => Size })
         }
 
         Initializer() {
@@ -297,7 +297,7 @@ class Gatherer {
             if (Size <= 0) {
                 throw TypeError("Invalid window size",, Size)
             }
-            this.DefineProp("Size", { Get: (Instance) => Size })
+            this.DefineProp("Size", { Get: (_) => Size })
         }
 
         Initializer() {

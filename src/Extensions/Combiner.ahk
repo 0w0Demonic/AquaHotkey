@@ -95,5 +95,5 @@ class Combiner {
      * Always returns the second value.
      * @returns {Func}
      */
-    static Last  => (a, b) => (b)
+    static Last => (a, b) => (b)
 }
