@@ -9,8 +9,8 @@ class AquaHotkey_Any extends AquaHotkey {
  */
 class Any {
     /**
-     * Forwards the variable to a global function as its first argument.
-     * The targeted function is named whatever undefined method you're calling.
+     * Whenever an undefined method is called, forwards the variable to a
+     * global function as its first parameter.
      * 
      * @example 
      * MyVariable.DoThis().DoThat(Arg3, Arg3).MsgBox()
@@ -74,72 +74,25 @@ class Any {
     }
 
     /**
-     * Explicitly forwards this variable as first parameter to the given
-     * function `Callback`, followed by zero or more additional arguments
-     * `Args*`.
+     * Explicitly forwards this variable to a function `f` as its first
+     * parameter, followed by zero or more additional arguments `Args*`.
      * 
-     * ---
-     * 
-     * **Note**:
-     * 
-     * This method relies on the `Name` property of to detect whether this
-     * function is a regular function, static method or non-static method (its
-     * name is being searched for strings `.` and `.Prototype.`).
-     * When dynamically creating new methods, they must be named according to
-     * the standard naming convention of AutoHotkey functions.
-     * 
-     * ```
-     * MyStaticMethod.DefineConstant("Name", "MyClass.MyMethod")
-     * MyNonStaticMethod.DefineConstant("Name", "MyClass.Prototype.MyMethod")
-     * ```
-     * 
-     * ---
+     * Make use of `BoundFunc`s when piping to methods.
      * 
      * @example
-     * MyVariable.o0(DoThis)
-     *           .o0(DoThat, Arg2, Arg3)
-     *           .o0(MsgBox)
+     * MyVariable.o0(DoSomething, Arg2, Arg3)
+     *           .o0(Foo.BindMethod("Bar"))
      * 
-     * @param   {Func}  Callback  a function to forward to
-     * @param   {Any*}  Args      zero or more additional arguments
+     * DoSomething(x, y, z) => ...
+     * class Foo {
+     *     static Bar(x) => ...
+     * }
+     * 
+     * @param   {Func}  f     a function to forward to
+     * @param   {Any*}  Args  zero or more additional arguments
      * @returns {Any}
      */
-    o0(Callback, Args*) {
-        Callback := GetMethod(Callback)
-        if (InStr(Callback.Name, ".") && !InStr(Callback.Name, ".Prototype.")) {
-            Index := InStr(Callback.Name, ".", false,, -1)
-            Cls   := Class_ForName(SubStr(Callback.Name, 1, Index - 1))
-            return Callback(Cls, this, Args*)
-        }
-        return Callback(this, Args*)
-
-        static Class_ForName(ClassName) {
-            static Deref1(this)    => %this%
-            static Deref2(VarName) => %VarName%
-            static Cache := (M := Map(), M.CaseSense := false, M)
-
-            if (IsObject(ClassName)) {
-                throw TypeError("Expected a String, but received an Object",,
-                                Type(ClassName))
-            }
-            if (ClassObj := Cache.Get(ClassName, false)) {
-                return ClassObj
-            }
-            Loop Parse ClassName, "." {
-                if (ClassObj) {
-                    ClassObj := ClassObj.%A_LoopField%
-                } else if (ClassName != "this") {
-                    ClassObj := Deref1(A_LoopField)
-                } else {
-                    ClassObj := Deref2(A_LoopField)
-                }
-                if (!(ClassObj is Class)) {
-                    throw TypeError("Expected a Class object",, Type(ClassObj))
-                }
-            }
-            return (Cache[ClassName] := ClassObj)
-        }
-    }
+    o0(f, Args*) => f(this, Args*)
 
     /**
      * Returns the type of this variable in the same way as built-in `Type()`.
@@ -162,16 +115,39 @@ class Any {
     Class {
         Get {
             ; Types: ClassName => Class
-            static Types := Map()
+            static Deref1(this) => %this%
+            static Deref2(VarName) => %VarName%
+            static Types := (
+                M := Map(),
+                M.CaseSense := false,
+                M.Default := false,
+                M)
+
             if (IsObject(this) && ObjHasOwnProp(this, "__Class")) {
+                ; prototype objects
                 ClassName := this.__Class
             } else {
+                ; everything else
                 ClassName := Type(this)
             }
+
             if (ClassObj := Types.Get(ClassName, false)) {
                 return ClassObj
             }
-            return Types[ClassName] := Class.ForName(ClassName)
+            Loop Parse ClassName, "." {
+                if (ClassObj) {
+                    ClassObj := ClassObj.%A_LoopField%
+                } else if (ClassName != "this") {
+                    ClassObj := Deref1(A_LoopField)
+                } else {
+                    ClassObj := Deref2(A_LoopField)
+                }
+                if (!(ClassObj is Class)) {
+                    throw TypeError("Expected a Class",, Type(ClassObj))
+                }
+            }
+            Types.Set(ClassName, ClassObj)
+            return ClassObj
         }
     }
 } ; class Any
