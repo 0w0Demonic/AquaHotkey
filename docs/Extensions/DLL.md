@@ -45,6 +45,12 @@ class User32 extends DLL {
 }
 ```
 
+### Supported Data Types
+
+- AHK number types (`"UInt"`, etc.)
+- Structures (v2.1-alpha.3+)
+- Buffer-like objects (really anything with `Ptr` and `Size`)
+
 ## Function Resolution Behavior
 
 - If a method is **directly defined**, it is used immediately.

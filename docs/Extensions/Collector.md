@@ -1,10 +1,10 @@
 # Collector
 
-Collectors are the powerhouse of the Stream ecosystem. They gather elements
-into something useful - whether it be an array, map, string, or some deeply
-nested structure. They're directly inspired and work similar to Java's
-`Collectors`, with some extra flair to work well with other parts of
-AquaHotkeyX.
+Collectors are the powerhouse of the [Stream](./Stream.md) ecosystem.
+They gather elements into something useful - whether it be an array, map,
+string, or some deeply nested structure. They're directly inspired and work
+similar to Java's `Collectors`, with some extra flair to work well with other
+parts of AquaHotkeyX.
 
 ## Works With Anything
 
@@ -12,11 +12,9 @@ Collectors are not a stream-only thing. You can call `.Collect()` on anything
 enumerable.
 
 ```ahk
-C := Collector
-
 ; Map{ " ": 1, "!": 1, ",": 1, "H": 1, "d": 1,
 ;      "e": 1, "l": 3, "o": 2, "r": 1, "w": 1 }
-"Hello, world1".Collect(C.Frequency)
+"Hello, world1".Collect(Collector.Frequency)
 ```
 
 ## Aliasing for sanity

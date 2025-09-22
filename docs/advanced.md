@@ -200,10 +200,14 @@ Object
 
 Here's where things get clever.
 
-Since extensions are just classes, you can check if a class has been included
-in your script using `IsSet()`.
+Since extensions are just classes (also the `AquaHotkey` class responsible for
+them), you can check if a class has been included in your script simply by using
+`IsSet()`.
 
-That means you can make your own extensions depend on other ones conditionally.
+In general, defining your own `static __New()` helps you gain much more
+control of how properties are being extended. It lets you check if other
+extensions are present, and to make extensions only be applied if `AquaHotkey`
+is present in the script.
 
 ```ahk
 class StreamExtensions extends AquaHotkey {
@@ -231,6 +235,37 @@ This is exactly what `Collector.ahk` and `Gatherer.ahk` do: if Streams aren't
 included, gatherers won't load at all, and collectors fall back to a smaller
 subset of features.
 
+---
+
+Modules such as `Optional.ahk` and `Stream.ahk` introduce their own extension
+properties (e.g. `Any#Optional()`), which are only applied if `AquaHotkey` is
+present in the script.
+
+That way, they can be used as standalone scripts that fall back to a smaller
+subset of features if `AquaHotkey` isn't present in the script.
+
+1. Create a class as you normally would, but *without* extending `AquaHotkey`.
+2. Inside `static __New()`, use `IsSet(AquaHotkey)` to check if it's
+   present in the script.
+3. Use `(AquaHotkey.__New)(this)` to add your extension properties.
+
+```ahk
+class Optional_Extension {
+    static __New() {
+        if (ObjGetBase(this) != Object) {
+            return
+        }
+        if (!IsSet(AquaHotkey) || !(AquaHotkey is Class)) {
+            ; do not apply extension properties 
+            return
+        }
+        (AquaHotkey.__New)(this)
+    }
+
+    ...
+}
+```
+
 ## Quick Summary
 
 - Overriding nested classes works exactly the same, just nest deeper.
@@ -243,4 +278,5 @@ subset of features.
   - Force classes to load by referencing them: `(MyClass, ...)`
 - `AquaHotkey_MultiApply` overrides the same properties into multiple classes.
 - `AquaHotkey_Ignore` marks classes to be ignored by the prototyping system.
-- You can check whether extensions are included via `IsSet(<defining class>)`.
+- You can check whether `AquaHotkey` or extension classes are present by
+  defining your own `static __New()`, and using `IsSet(<Class>)`

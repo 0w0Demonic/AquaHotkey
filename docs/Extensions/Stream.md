@@ -210,5 +210,10 @@ the previous enumerator. If there are elements left, `&Out` receives
 Streams are fast enough for most things - especially numbers and
 simple objects.
 
+To get the most performance out of streams, you should filter the results
+(e.g. with `.RetainIf()` and `.RemoveIf()`) as early as possible in the
+pipeline to remove elements quickly.
+
 Be careful with large strings - AHK copies strings around more than you'd think.
-Avoid streaming large strings unless you're using `&Str` (by reference).
+However, rule of thumb is that you'll be fine if you don't make your streams
+ridiculously long.

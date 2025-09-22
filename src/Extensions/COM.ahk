@@ -10,7 +10,7 @@
  * 
  * **Overview**:
  * 
- * `Com` is a user-friendly framework that wraps Com objects neatly
+ * `Com` is a user-friendly framework that wraps COM objects neatly
  * into clean and class-based interfaces.
  * 
  * **How to Use**:
@@ -21,13 +21,13 @@
  * 
  * - `(required) static CLSID => String`:
  * 
- *   CLSID or Prog ID of the Com object.
+ *   CLSID or Prog ID of the COM object.
  * 
  * ---
  * 
  * - `(optional) static IID => String`:
  * 
- *   IID of the interface (default IID_IDispatch).
+ *   IID of the interface (default `IID_IDispatch`).
  * 
  * ---
  * 
@@ -39,9 +39,9 @@
  * 
  * - `(optional) static EventSink => Class`:
  * 
- *   Class that handles events thrown by the Com object. Events contained
+ *   Class that handles events thrown by the COM object. Events contained
  *   in the event sink are modified in such a way that *the `this`-keyword
- *   refers to the original Com object*.
+ *   refers to the original COM object*.
  * 
  * ---
  * 
@@ -65,9 +65,11 @@
  *     }
  * 
  *     static MethodSignatures => {
- *         ; DoSomething(Arg1, Arg2) {
- *         ;     return ComCall(1, this, "Int", Arg1, "UInt", Arg2)
- *         ; }
+ *         ; converted to:
+ *         ; 
+ *         ;   DoSomething(Arg1, Arg2) {
+ *         ;       return ComCall(1, this, "Int", Arg1, "UInt", Arg2)
+ *         ;   }
  *         DoSomething: [1, "Int", "UInt"]
  *     }
  *     
@@ -91,7 +93,16 @@
  * 
  * **Notes**:
  * 
- * - To assign new fields, you must use `.DefineProp(..., { Value: ...})`.
+ * - To assign new fields, you must use `.DefineProp(..., { Value: ... })`.
+ * 
+ * ---
+ * 
+ * **`AbstractCom` class**:
+ * 
+ * `AbstractCom` is a marker class for non-instantiable COM wrappers. It's
+ * used as a base for classes that represent COM object with their own
+ * properties and methods, which have no CLSID and are usually returned
+ * by accessing other COM objects.
  * 
  * @example
  * class InternetExplorer extends Com {
@@ -100,6 +111,20 @@
  * 
  * IE := InternetExplorer()
  * IE.DefineProp("IsBoring", { Value: false })
+ * 
+ * @example
+ * class Word extends Com {
+ *     static CLSID => "Word.Application"
+ *     static ReturnTypes => { Documents: Word.Documents }
+ * 
+ *     class Documents extends AbstractCom {
+ *         ...
+ *     }
+ * }
+ * 
+ * Wd := Word()
+ * Docs := Wd.Documents
+ * Docs.Add()
  */
 class Com {
     /** (required) CLSID to wrap around. This property must be overwritten. */
@@ -122,12 +147,16 @@ class Com {
      * 3. Sets up `ComCall()`-methods declared in `static MethodSignatures`.
      */
     static __New() {
+        static GetProp := (Object.Prototype.GetOwnPropDesc)
+        static Define  := (Object.Prototype.DefineProp)
+        static Delete  := (Object.Prototype.DeleteProp)
+
         if (this == Com || this == AbstractCom) {
             return
         }
         ClassName := this.Prototype.__Class
         if (!HasBase(this, AbstractCom)) {
-            (Object.Prototype.DeleteProp)(this.Prototype, "__Class")
+            Delete(this.Prototype, "__Class")
             if (!this.CLSID) {
                 throw ValueError('Missing "static CLSID" property.',,
                                  ClassName)
@@ -151,12 +180,12 @@ class Com {
             if (ObjGetBase(Types) != Object.Prototype) {
                 throw TypeError("Expected an Object literal",, Type(Types))
             }
-            for PropName, ReturnType in Types.OwnProps() {
+            for PropName, ReturnType in ObjOwnProps(Types) {
                 if (!HasBase(ReturnType, Com)) {
                     throw TypeError("Expected a Com class", Type(ReturnType))
                 }
                 PropDesc := CreateMethod(PropName, ReturnType)
-                this.Prototype.DefineProp(PropName, PropDesc)
+                Define(this.Prototype, PropName, PropDesc)
 
                 static CreateMethod(PropName, T) {
                     return {
@@ -172,7 +201,7 @@ class Com {
         }
 
         Signatures := this.MethodSignatures
-        if (!ObjGetBase(Signatures) is Object) {
+        if (ObjGetBase(Signatures) != Object.Prototype) {
             Msg   := '"static MethodSignatures" must be an object literal'
             Extra := Type(Signatures)
             throw TypeError(Msg,, Extra)
@@ -209,14 +238,12 @@ class Com {
         }
 
         static CreateComMethod(Cls, MethodName, Index, Mask*) {
-            Callback := ComCall.Bind(Index, unset, Mask*)
+            Callback := ObjBindMethod(ComCall,, Index, unset, Mask*)
             try  {
                 Name := Cls.Prototype.__Class . ".Prototype." . MethodName
-                Callback.DefineProp("Name", {
-                    Get: (Instance) => Name
-                })
+                Define(Callback, "Name", { Get: (_) => Name })
             }
-            Cls.Prototype.DefineProp(MethodName, { Call: Callback })
+            Define(Cls.Prototype, MethodName, { Call: Callback })
         }
     }
 
@@ -615,6 +642,26 @@ class Com {
  * 
  * Used as a base for classes that represent COM objects returned
  * by method calls, rather than directly created via CLSID.
+ * 
+ * Use `static ReturnTypes` to specify the return type to use as wrapper when
+ * accessing a property.
+ * 
+ * @example
+ * class Word extends Com {
+ *     static CLSID => "Word.Application"
+ *     static ReturnTypes => { Documents: Word.Documents }
+ * 
+ *     class Documents extends AbstractCom {
+ *         ...
+ *     }
+ * }
+ * 
+ * Wd := Word()
+ * Docs := Wd.Documents
+ * MsgBox(Type(Docs)) ; Word.Documents
+ * MsgBox(Docs.Application)
+ * 
+ * Docs.Add()
  */
 class AbstractCom extends Com {
 }

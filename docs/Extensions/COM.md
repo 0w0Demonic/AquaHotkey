@@ -77,3 +77,33 @@ ie := InternetExplorer("https://www.autohotkey.com") ; create a new COM object
 ie.DoSomething(34, 9)                                ; predefined `ComCall()`
 ie(6, "Ptr", 0, "Ptr")                               ; undefined `ComCall()`
 ```
+
+## AbstractCom Class
+
+`AbstractCom` is used as a marker class to mark classes that should wrap around
+COM objects, but have no CLSID and are generally returned by other COM objects
+(for example Word.Documents, which is returned by Word.Application).
+
+Use `static ReturnTypes` to specify the return types of properties owned by the
+COM object.
+
+### Example
+
+```ahk
+class Word extends Com {
+    static CLSID => "Word.Application"
+    static ReturnTypes => { Documents: Word.Documents }
+
+    class Documents extends AbstractCom {
+        
+    }
+}
+Wd := Word()
+Docs := Wd.Documents
+MsgBox(Type(Docs)) ; "Word.Documents"
+
+MsgBox(Docs is AbstractCom) ; true
+MsgBox(Docs is Com)         ; true
+
+Docs.Add()
+```

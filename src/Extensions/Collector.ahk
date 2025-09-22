@@ -118,7 +118,9 @@
  *   ```
  */
 class Collector {
-    /** Initializes static collectors. */
+    /**
+     * Initializes static collectors.
+     */
     static __New() {
         for Name in Array("Supplier", "Accumulator", "Finisher") {
             if (!HasProp(this, Name)) {
