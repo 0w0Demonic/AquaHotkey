@@ -378,7 +378,9 @@ class ZipArray extends Array {
     }
 }
 
-/** An immutable array. */
+/**
+ * An immutable array.
+ */
 class Tuple extends Array {
     static __New() {
         if (this != Tuple) {
@@ -399,7 +401,17 @@ class Tuple extends Array {
     }
 }
 
-class AquaHotkey_Zip extends AquaHotkey {
+class AquaHotkey_Zip {
+    static __New() {
+        if (ObjGetBase(this) != Object) {
+            return
+        }
+        if (!IsSet(AquaHotkey) || !(AquaHotkey is Class)) {
+            return
+        }
+        (AquaHotkey.__New)(this)
+    }
+
     class Array {
         /**
          * Combines the array with `Arr` by merging each value.

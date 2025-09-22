@@ -42,7 +42,7 @@ class Optional {
      * @returns {Optional}
      */
     __New(Value?) {
-        (IsSet(Value) && this.DefineProp("Value", { Get: (Instance) => Value }))
+        (IsSet(Value) && this.DefineProp("Value", { Get: (_) => Value }))
     }
 
     /**
@@ -265,7 +265,17 @@ class Optional {
     }
 }
 
-class AquaHotkey_Optional extends AquaHotkey {
+class AquaHotkey_Optional {
+    static __New() {
+        if (ObjGetBase(this) != Object) {
+            return
+        }
+        if (!IsSet(AquaHotkey) || !(AquaHotkey is Class)) {
+            return
+        }
+        (AquaHotkey.__New)(this)
+    }
+
     class Any {
         /**
          * Returns a new optional that wraps arount the element.

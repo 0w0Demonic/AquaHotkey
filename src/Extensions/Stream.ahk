@@ -1278,7 +1278,17 @@ class Stream {
     }
 }
 
-class AquaHotkey_Stream extends AquaHotkey {
+class AquaHotkey_Stream {
+    static __New() {
+        if (ObjGetBase(this) != Object) {
+            return
+        }
+        if (!IsSet(AquaHotkey) || !(AquaHotkey is Class)) {
+            return
+        }
+        (AquaHotkey.__New)(this)
+    }
+
     class Any {
         /**
          * Returns a function stream with the current element as source.
