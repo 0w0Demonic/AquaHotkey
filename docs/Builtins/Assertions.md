@@ -18,7 +18,7 @@ General purpose checks that can take a predicate function.
 
 - Types
 
-Verify that a variables is a certain type.
+Verify that a variable derives from a certain type.
 
 ```ahk
 .AssertType(T, Msg?)

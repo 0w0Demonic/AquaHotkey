@@ -1,34 +1,38 @@
 # Any
 
-## Piping with `__Call()` and `.o0()`
+## Piping with `.__Call()` and `.o0()`
 
 One of the key features of AquaHotkeyX is that you can call undefined methods,
 and they'll be **assumed to be global functions**.
 
-```ahk
-"Hello".StrUpper()
+Inspired by Elixir's `|>` operator, this feature lets you write very
+streamlined code in the form of method chains.
 
-StrUpper("Hello")
-```
+### `.__Call()`
 
-It works because the `Any.__Call()` method is overwritten not to throw an
-error, but to search for a function to be piped to.
-
-This feature is directly inspired by Elixir's `|>` operator and lets you write
-code in the form of long method chains.
+Whenever a variable calls an unknown property, it searches for a global function
+to pipe to.
 
 ```ahk
-"Hello, world!".DoThis().DoThat("foo").StrUpper().MsgBox()
+"  Hello  ".Trim().StrUpper()
 
-MsgBox(StrUpper(DoThat(DoThis("Hello, world!"), "foo")))
+; same as...
+StrUpper(Trim("  Hello  "))
 ```
 
-The `.o0()` method is more explicit and directly accepts the function to be
-called. It is also marginally faster than `__Call()`.
+### `.o0()`
+
+The `.o0()` method is a more explicit version of `.__Call()`, and directly
+accepts the function to pipe to. It's also slightly faster because of that.
 
 ```ahk
-"Hello, world!".o0(StrUpper).o0(MsgBox)
+"  Hello, world!  ".o0(Trim).o0(StrUpper).o0(MsgBox)
 ```
+
+I recommend using this version over `.__Call()`, because you're not limited
+to global function and it performs better.
+
+<sub>(Note: `.o0()` kind of looks like water bubbles, hence the name)</sub>
 
 ### Performance
 
