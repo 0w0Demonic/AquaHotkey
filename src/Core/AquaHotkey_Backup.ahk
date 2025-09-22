@@ -160,7 +160,8 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
             ; If the receiving class is based on `Primitive`, this behavior
             ; is ignored (as they cannot own fields).
             if ((Supplier is Class) && (Receiver is Class)
-                        && !(HasBase(Receiver, Primitive)))
+                        && !(HasBase(Receiver, Primitive))
+                        && (ReceiverProto.__Init != SupplierProto.__Init))
             {
                 ReceiverInit := ReceiverProto.__Init
                 SupplierInit := SupplierProto.__Init
@@ -172,7 +173,7 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
 
                 ; Rename the new `__Init()` method to something useful
                 InitMethodName := SupplierProto.__Class . ".Prototype.__Init"
-                Define(__Init, "Name", { Get: (Instance) => InitMethodName })
+                Define(__Init, "Name", { Get: (_) => InitMethodName })
 
                 ; Finally, overwrite the old `__Init()` property with ours
                 Define(ReceiverProto, "__Init", { Call: __Init })
