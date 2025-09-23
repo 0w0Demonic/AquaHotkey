@@ -861,12 +861,12 @@ class AquaHotkey_Collector extends AquaHotkey {
     }
 
     static __New() {
-        if (!IsSet(AquaHotkey_Stream) || !(AquaHotkey_Stream is Class)) {
-            OutputDebug("[Aqua] Collector.ahk: support for stream disabled.")
-            this.DeleteProp("Stream")
-            Collector.DeleteProp("ToMap")
+        if (IsSet(AquaHotkey_Stream) && (AquaHotkey_Stream is Class)) {
+            return super.__New()
         }
-        super.__New()
+        OutputDebug("[Aqua] Collector.ahk: support for stream disabled.")
+        this.DeleteProp("Stream")
+        Collector.DeleteProp("ToMap")
     }
 
     class Stream {

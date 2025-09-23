@@ -360,17 +360,17 @@ class Gatherer {
 
 class AquaHotkey_Gatherer extends AquaHotkey {
     static __New() {
-        if (!IsSet(AquaHotkey_Stream)) {
-            MsgBox("
-            (
-            Stream support not found. `.Gather()` will be unavailable.
-            To enable, import the Stream module.
-
-            #Include .../Extensions/Stream.ahk
-            )", "AquaHotkey - Gatherer.ahk", 0x40)
-            return
+        if (IsSet(AquaHotkey_Stream) && (AquaHotkey_Stream is Class)) {
+            return super.__New()
         }
-        super.__New()
+
+        MsgBox("
+        (
+        Stream support not found. `.Gather()` will be unavailable.
+        To enable, import the Stream module.
+
+        #Include .../Extensions/Stream.ahk
+        )", "AquaHotkey - Gatherer.ahk", 0x40)
     }
 
     class Any {
