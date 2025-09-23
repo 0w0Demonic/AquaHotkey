@@ -1,17 +1,55 @@
 # Basics - Class Prototyping
 
-## Quick Crash Course
+This guide covers:
 
-This is how you write your own extensions:
+- How to include the library in your script.
+- How to write simple extension classes.
+
+If you're interested in the reasoning and history behind AquaHotkey, check out
+[About AquaHotkey](./docs/about.md). It covers some of the design choices and
+why the library evolved into its current form.
+
+## Including the Library
+
+First, go ahead and clone the library:
+
+```sh
+git clone https://www.github.com/0w0Demonic/AquaHotkey.git
+```
+
+I recommend putting it inside one of the [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib),
+it'll make your work much easier.
+
+You can now `#Include` it like this:
 
 ```ahk
-; 1. create a class that extends AquaHotkey
+#Include <AquaHotkey>
+```
+
+### AquaHotkeyX
+
+To include all of the additional extras, use `AquaHotkeyX.ahk` in your file
+instead:
+
+```ahk
+#Requires AutoHotkey >=v2.0.5
+#Include <AquaHotkeyX>
+```
+
+## Getting Started
+
+*Extension classes* are classes that derive from `AquaHotkey` and introduce
+new properties to the targeted classes.
+
+Here's how to write them:
+
+1. Create a class that derives from `AquaHotkey`.
+2. Define a nested class named after the thing to extend (e.g. "Array").
+3. Define things as if you're making changes to the actual class (`Array`).
+
+```ahk
 class ArrayUtils extends AquaHotkey {
-
-    ; 2. define a nested class `ArrayStuff.Array` to override `Array`
     class Array {
-
-        ; 3. define things as if you're dealing with the actual `Array` class
         IsEmpty => (!this.Length)
 
         Sum() {
@@ -21,15 +59,14 @@ class ArrayUtils extends AquaHotkey {
             }
             return Sum
         }
-        
-        ... ; here some more properties, if you like
     }
 }
 
-(  [1, 2, 3, 4]  ).Sum() ; 10
-
-(  []  ).IsEmpty ; true
+Array(1, 2, 3, 4).Sum() ; 10
+Array().IsEmpty         ; true
 ```
+
+## How This Works
 
 Okay. What just happened?
 
@@ -38,6 +75,8 @@ Okay. What just happened?
 - Everything defined in `ArrayUtils.Array` lands inside `Array`.
 
 Yup, that's it.
+
+---
 
 Always remember to follow this schema, and AquaHotkey will do the rest for you:
 
@@ -48,21 +87,6 @@ class CoolStuff extends AquaHotkey
         ... ; pretend that this here is the actual `Array` class.
     }
 }
-```
-
-And yes, this also works for functions, if you really want to:
-
-```ahk
-class MsgBoxUtil extends AquaHotkey
-{
-    class MsgBox {
-        ; note: you should prefer static properties whenever you're
-        ;       dealing with functions.
-        static Info(Text?, Title?) => this(Text?, Title?, 0x40)
-    }
-}
-
-MsgBox.Info("(insert very informative text here)", "Absolute Cinema")
 ```
 
 ## Exercises
@@ -128,14 +152,14 @@ Now that we've covered the very basics, I encourage you to try it out yourself:
   </pre>
 </details>
 
-## Conventions
+---
 
-These are only *recommendations*, but some very reasonable ones:
+## Best Practices
 
 - *Consider creating new separate files for your extensions.*
 
-  This way, you only have to define them *once*, after that you
-  can reuse them elsewhere.
+  Extension classes are highly reusable. If you define them in their own files,
+  you only have to define them once, and can reuse them elsewhere.
 
   ```ahk
   #Include <StringUtil>
@@ -143,9 +167,9 @@ These are only *recommendations*, but some very reasonable ones:
 
 - *Don't be afraid to give your classes clear, verbose names.*
 
-  The extensions that you write are *global classes*, which are visible
-  across the scripts you use. Giving clear names will save you lots
-  of work in the long run.
+  The extensions that you write are *global classes*, visible across the entire
+  script - or even worse, across multiple different scripts. It's a good idea
+  to give extension classes clear and verbose names.
 
   ```ahk
   class DefaultEmptyString extends AquaHotkey {
@@ -161,3 +185,5 @@ These are only *recommendations*, but some very reasonable ones:
 
   #Include <DefaultEmptyString>
   ```
+
+  Also, it makes sense to put them in lib folders. Much easier to `#Include`.

@@ -4,6 +4,7 @@
 
 - [Basics](./basics.md)
 - [Advanced](./advanced.md)
+- [Expert](./expert.md)
 
 ## AquaHotkeyX
 
@@ -11,12 +12,14 @@
 
 - [Any](./Builtins/Any.md)
 - [Array](./Builtins/Array.md)
+- [Assertions](./Builtins/Assertions.md)
 - [ComValue](./Builtins/ComValue.md)
 - [File](./Builtins/File.md)
 - [Func](./Builtins/Func.md)
 - [Map](./Builtins/Map.md)
 - [Object](./Builtins/Object.md)
 - [String](./Builtins/String.md)
+- [ToString](./Builtins.ToString.md)
 - [VarRef](./Builtins/VarRef.md)
 
 ### Other Features
