@@ -12,6 +12,28 @@ class Func {
                 .AssertEquals("15, 15, 15, 15, 15")
     }
 
+    static Loop() {
+        Arr := Array()
+        (() => Arr.Push(A_Index)).Loop(5).Call()
+
+        Arr.Join(", ").AssertEquals("1, 2, 3, 4, 5")
+    }
+
+    static WithCatch() {
+        static Divide(a, b) => (a / b)
+
+        Success := true
+        FinallyBlock := false
+
+        Divide.WithCatch(
+            (Err) => Success      := false,
+            ()    => FinallyBlock := true
+        ).Call(2, 0)
+
+        Success.AssertEquals(false)
+        FinallyBlock.AssertEquals(true)
+    }
+
     static AndThen() {
         ((x, y) => (x + y))
             .AndThen(Result => Result * 2)
