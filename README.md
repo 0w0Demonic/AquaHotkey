@@ -158,15 +158,15 @@ Str := "Hello, world!".Rep("l,", "p").Rep("d", "m").Rep("!", "?")
 
 ## AquaHotkeyX - Batteries-Included
 
-On top of this new functionality, I've built a kind of standard library.
-It consists of lots of new extensions for the built-in types, and features
-that are designed for clary, conciseness and elegance.
+A unique and modern standard library that builds on top of AquaHotkey.
 
-There's lots of functionality programming patterns in here, and I think it
-works extremely well for this language. Stream ops, array utilities,
-comparators, optionals, and much more.
+- Explores some patterns found in functional programming
+- Methods are designed to be heavily chainable
+- Designed for elegance and conciseness
+- Stream ops, sequences, functional composition, optionals, and much more.
 
 ```ahk
+#Requires AutoHotkey >=v2.0.5
 #Include <AquaHotkeyX>
 
 ; Map { 4: ["kiwi", "lime"], 5: ["apple"], 6: ["banana"] }
