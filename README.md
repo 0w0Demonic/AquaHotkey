@@ -203,6 +203,12 @@ My opinionated belief:
 
    Designed to be highly concise, composable and elegant.
 
+---
+
+Curious how AquaHotkey actually came to be? Check out
+[About AquaHotkey](./docs/about.md) for the background story, design decisions,
+and the evolution of the library.
+
 ## About
 
 Made with love and lots of caffeine.
