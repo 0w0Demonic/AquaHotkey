@@ -228,5 +228,64 @@ class Func {
                                   : Cache[Key] := this(Args*)
         }
     }
+
+    /**
+     * Wraps the function with `try/catch/finally` logic.
+     * 
+     * `OnCatch` accepts the error object as first parameter, while
+     * `OnFinally` runs with 0 parameters.
+     * 
+     * @example
+     * Divide(a, b) => (a / b)
+     * SafeDivide := Divide.WithCatch(
+     *     (Err) => MsgBox(Err.Message),
+     *     () => MsgBox("finished")
+     * )
+     * 
+     * @param   {Func?}  OnCatch    error handler called if error is thrown
+     * @param   {Func?}  OnFinally  callback that resembles `finally` block
+     * @returns {Func}
+     */
+    WithCatch(OnCatch := DefaultOnCatch, OnFinally := DefaultOnFinally) {
+        static DefaultOnCatch(*) {
+        } ; do nothing
+        static DefaultOnFinally() {
+        } ; do nothing
+
+        GetMethod(OnCatch)
+        GetMethod(OnFinally)
+        return WithCatch
+
+        WithCatch(Args*) {
+            try {
+                return this(Args*)
+            } catch as Err {
+                OnCatch(Err)
+            } finally {
+                OnFinally()
+            }
+        }
+    }
+
+    /**
+     * Wraps the function so that it executes multiple times in a loop.
+     * The resulting function gains access to `A_Index`.
+     * 
+     * @example
+     * Print() => MsgBox(A_Index)
+     * Print.Loop(100).Call()
+     * 
+     * @param   {Integer}  Amount  the number of times to invoke the function
+     * @returns {Func}
+     */
+    Loop(Amount) {
+        return WithLoop
+
+        WithLoop(Args*) {
+            Loop (Amount) {
+                this(Args*)
+            }
+        }
+    }
 } ; class Func
 } ; class AquaHotkey_Func extends AquaHotkey
