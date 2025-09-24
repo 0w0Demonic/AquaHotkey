@@ -25,6 +25,7 @@
  *             .NullsFirst())       ; 3. `unset` at the beginning
  */
 class Comparator {
+    ;@region Construction
     /**
      * Creates a new comparator using the given function for comparing
      * function.
@@ -49,6 +50,72 @@ class Comparator {
         this.DefineProp("Call", { Call: (_, a?, b?) => Comp(a?, b?) })
     }
 
+    /**
+     * Returns a default numerical comparator.
+     * 
+     * @returns {Comparator}
+     */
+    static Numeric => this.Numeric()
+
+    /**
+     * Returns a comparator that orders numbers by natural order.
+     * 
+     * If present, the comparator first extracts a sort key on the element by
+     * using the `Mapper` function and zero or more additional arguments.
+     * 
+     * @example
+     * Comp := Comparator.Numeric()
+     * 
+     * ; [1, 2, 3, 4]
+     * Array(4, 5, 2, 3, 1).Sort(Comp)
+     * 
+     * @param   {Func?}  Mapper  key extractor function
+     * @param   {Any*}   Args    zero or more additional arguments
+     * @returns {Comparator}
+     */
+    static Numeric(Mapper?, Args*) {
+        Comp := Comparator((A, B) => (A > B) - (B > A))
+        if (!IsSet(Mapper)) {
+            return Comp
+        }
+        return Comp.Compose(Mapper, Args*)
+    }
+
+    /**
+     * Returns a default lexicographical comparator.
+     * 
+     * @returns {Comparator}
+     */
+    static Alphabetic => this.Alphabetic()
+
+    /**
+     * Returns a comparator that lexicographically orders two strings using
+     * `StrCompare`.
+     * 
+     * If present, the comparator first extracts a sort key on the element by
+     * using the `Mapper` function and zero or more additional arguments.
+     * 
+     * @example
+     * Comp := Comparator.Alphabetic()
+     * 
+     * ; ["apple", "banana", "kiwi"]
+     * Array("kiwi", "apple", "banana").Sort(Comp)
+     * 
+     * @param   {Boolean/String}  CaseSense  case sensitivity
+     * @param   {Func?}           Mapper     key extractor function
+     * @param   {Any*}            Args       zero or more additional arguments
+     * @returns {Comparator}
+     */
+    static Alphabetic(CaseSense := false, Mapper?, Args*) {
+        Comp := Comparator(StrCompare.Bind(unset, unset, CaseSense))
+        if (!IsSet(Mapper)) {
+            return Comp
+        }
+        return Comp.Compose(Mapper, Args*)
+    }
+    ;@endregion
+
+    ;@region Composition
     /**
      * Returns a new comparator which specifies a second comparator to use
      * whenever two elements as equal in value.
@@ -145,7 +212,9 @@ class Comparator {
         Obj.DefineProp("Reversed", { Call: ((*) => this) })
         return Obj
     }
+    ;@endregion
 
+    ;@region Unset Handling
     /**
      * Returns a new comparator that considers `unset` to be lesser than the
      * non-null elements.
@@ -209,68 +278,5 @@ class Comparator {
             return 0
         }
     }
-
-    /**
-     * Returns a default numerical comparator.
-     * 
-     * @returns {Comparator}
-     */
-    static Numeric => this.Numeric()
-
-    /**
-     * Returns a comparator that orders numbers by natural order.
-     * 
-     * If present, the comparator first extracts a sort key on the element by
-     * using the `Mapper` function and zero or more additional arguments.
-     * 
-     * @example
-     * Comp := Comparator.Numeric()
-     * 
-     * ; [1, 2, 3, 4]
-     * Array(4, 5, 2, 3, 1).Sort(Comp)
-     * 
-     * @param   {Func?}  Mapper  key extractor function
-     * @param   {Any*}   Args    zero or more additional arguments
-     * @returns {Comparator}
-     */
-    static Numeric(Mapper?, Args*) {
-        Comp := Comparator((A, B) => (A > B) - (B > A))
-        if (!IsSet(Mapper)) {
-            return Comp
-        }
-        return Comp.Compose(Mapper, Args*)
-    }
-
-    /**
-     * Returns a default lexicographical comparator.
-     * 
-     * @returns {Comparator}
-     */
-    static Alphabetic => this.Alphabetic()
-
-    /**
-     * Returns a comparator that lexicographically orders two strings using
-     * `StrCompare`.
-     * 
-     * If present, the comparator first extracts a sort key on the element by
-     * using the `Mapper` function and zero or more additional arguments.
-     * 
-     * @example
-     * Comp := Comparator.Alphabetic()
-     * 
-     * ; ["apple", "banana", "kiwi"]
-     * Array("kiwi", "apple", "banana").Sort(Comp)
-     * 
-     * @param   {Boolean/String}  CaseSense  case sensitivity
-     * @param   {Func?}           Mapper     key extractor function
-     * @param   {Any*}            Args       zero or more additional arguments
-     * @returns {Comparator}
-     */
-    static Alphabetic(CaseSense := false, Mapper?, Args*) {
-        Comp := Comparator(StrCompare.Bind(unset, unset, CaseSense))
-        if (!IsSet(Mapper)) {
-            return Comp
-        }
-        return Comp.Compose(Mapper, Args*)
-    }
+    ;@endregion
 }

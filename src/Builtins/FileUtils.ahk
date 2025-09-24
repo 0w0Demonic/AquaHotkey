@@ -1,10 +1,10 @@
 /**
- * AquaHotkey - ComValue.ahk
+ * AquaHotkey - FileUtils.ahk
  * 
  * Author: 0w0Demonic
  * 
  * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/ComValue.ahk
+ * - src/Builtins/FileUtils.ahk
  */
 class AquaHotkey_FileUtils extends AquaHotkey {
 ;@region String

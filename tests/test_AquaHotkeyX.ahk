@@ -1,4 +1,5 @@
 #Requires AutoHotkey >=v2.0.5
+
 #Include %A_LineFile%/../../AquaHotkeyX.ahk
 #Include %A_LineFile%/../../Src/Builtins/StringFormatting.ahk
 #Include %A_LineFile%/../../Src/Extensions/Kwargs.ahk

@@ -1,10 +1,10 @@
 /**
- * AquaHotkey - Number.ahk
+ * AquaHotkey - Pipes.ahk
  * 
  * Author: 0w0Demonic
  * 
  * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/Number.ahk
+ * - src/Builtins/Pipes.ahk
  */
 class AquaHotkey_Pipes extends AquaHotkey {
 ;@region Any

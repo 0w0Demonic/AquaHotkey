@@ -7,7 +7,7 @@
  * @description
  * Demonstrates how to add custom array utilities.
  */
-class ArrayFind extends AquaHotkey {
+class ArrayUtils extends AquaHotkey {
     class Array {
         /**
          * Finds and returns the first element to match the given condition.
