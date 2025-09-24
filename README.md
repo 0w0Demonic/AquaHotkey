@@ -132,6 +132,34 @@ Array(1, 2, 3, 4).Sum() ; 10
 
 Feels much better, right?
 
+### Not Convinced Yet?
+
+While you *can* do this manually (and it's reasonably easy with `DefineProp`
+after enough digging through the docs), this library aims to have a kind
+of "fire and forget" approach.
+
+Drop a new extension class into your script, and the rest is done for you
+automatically.
+
+With this, you don't need to think about property descs and obscure edge cases
+all the time.
+
+Also, things like field declarations and overwriting properties are extremely
+laborious when done manually. In AquaHotkey, you just do this:
+
+```ahk
+class ArrayDefaultFalse extends AquaHotkey {
+    class Array {
+        Default := false
+    }
+}
+```
+
+For more insight on how this library evolved over time, and some reasoning
+behind my design choices, you can check out [About AquaHotkey](./docs/about.md).
+
+---
+
 ### Reuse Your Extensions
 
 Move your classes into separate files and include them in your standard
@@ -206,7 +234,7 @@ My opinionated belief:
 ---
 
 Curious how AquaHotkey actually came to be? Check out
-[About AquaHotkey](./docs/about.md) for the background story, design decisions,
+[About AquaHotkey](./about.md) for the background story, design decisions,
 and the evolution of the library.
 
 ## About
