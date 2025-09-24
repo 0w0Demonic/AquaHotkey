@@ -75,13 +75,8 @@ class Condition {
      */
     static StrictNotEquals(Target) => (Arg) => (Arg !== Target)
     ;@endregion
-}
-;@endregion
 
-;@region Extensions
-class AquaHotkey_Condition extends AquaHotkey {
-;@region Number
-class Number {
+    ;@region Numeric
     /**
      * Evaluates whether the input argument is greater than `Num`.
      * @param   {Number}  Num  number to compare with
@@ -149,11 +144,9 @@ class Number {
 
         return (x) => !Mod(x, Num)
     }
-} ; class Number
-;@endregion
+    ;@endregion
 
-;@region String
-class String {
+    ;@region String
     /**
      * Evaluates whether a string contains the given `Pattern`.
      * @param   {String}  Pattern  substring to search for
@@ -173,7 +166,6 @@ class String {
         Pattern .= ""
         return ((Str) => (Str ~= Pattern))
     }
-} ; class String
-;@endregion
-} ; class AquaHotkey_Condition extends AquaHotkey
+    ;@endregion
+}
 ;@endregion

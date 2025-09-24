@@ -48,42 +48,42 @@ class Condition {
     }
 
     static Greater() {
-        Array(1, 2, 3, 4).RetainIf(  Number.Gt(2)  )
+        Array(1, 2, 3, 4).RetainIf(  Condition.Gt(2)  )
             .Join().AssertEquals("34")
     }
 
     static GreaterOrEqual() {
-        Array(1, 2, 3, 4).RetainIf(  Number.Ge(2)  )
+        Array(1, 2, 3, 4).RetainIf(  Condition.Ge(2)  )
             .Join().AssertEquals("234")
     }
 
     static Less() {
-        Array(1, 2, 3, 4).RetainIf(  Number.Lt(3)  )
+        Array(1, 2, 3, 4).RetainIf(  Condition.Lt(3)  )
             .Join().AssertEquals("12")
     }
 
     static LessOrEqual() {
-        Array(1, 2, 3, 4).RetainIf(  Number.Le(2)  )
+        Array(1, 2, 3, 4).RetainIf(  Condition.Le(2)  )
             .Join().AssertEquals("12")
     }
 
     static Between() {
-        Array(1, 2, 3, 4, 5, 6).RetainIf(  Number.Between(2, 4)  )
+        Array(1, 2, 3, 4, 5, 6).RetainIf(  Condition.Between(2, 4)  )
             .Join().AssertEquals("234")
     }
 
     static InStr() {
-        Array("Hello", "world!").RetainIf(  String.Contains("e")  )
+        Array("Hello", "world!").RetainIf(  Condition.Contains("e")  )
             .Join().AssertEquals("Hello")
     }
 
     static Matches() {
-        Array("Hello", "world!").RetainIf(  String.Matches("^\w++$")  )
+        Array("Hello", "world!").RetainIf(  Condition.Matches("^\w++$")  )
             .Join().AssertEquals("Hello")
     }
 
     static DivisibleBy() {
-        Range(5).Stream().RetainIf(  Number.DivisibleBy(2)  )
+        Range(5).Stream().RetainIf(  Condition.DivisibleBy(2)  )
             .Join().AssertEquals("24")
     }
 }

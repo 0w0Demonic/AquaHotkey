@@ -8,19 +8,19 @@
  */
 class Combiner {
     static Sum() {
-        Array(1, 2, 3, 4).Reduce(  Number.Sum  ).AssertEquals(10)
+        Array(1, 2, 3, 4).Reduce(  Combiner.Sum  ).AssertEquals(10)
     }
 
     static Product() {
-        Array(1, 2, 3, 4).Reduce(  Number.Product  ).AssertEquals(24)
+        Array(1, 2, 3, 4).Reduce(  Combiner.Product  ).AssertEquals(24)
     }
 
     static Concat1() {
-        Array(1, 2, 3, 4).Reduce(  String.Concat  ).AssertEquals("1234")
+        Array(1, 2, 3, 4).Reduce(  Combiner.Concat  ).AssertEquals("1234")
     }
 
     static Concat2() {
-        Array(1, 2, 3, 4).Reduce(  String.Concat("_")  )
+        Array(1, 2, 3, 4).Reduce(  Combiner.Concat("_")  )
                 .AssertEquals("1_2_3_4")
     }
 

@@ -13,6 +13,7 @@
  * Suitable for reducers and custom stream-like logic.
  */
 class Combiner {
+    ;@region General
     /**
      * Returns the smaller of two values through a custom comparator.
      * @param   {Comparator}  Comp  the comparator to use
@@ -57,13 +58,9 @@ class Combiner {
      * @returns {Func}
      */
     static Last => (a, b) => (b)
-}
-;@endregion
+    ;@endregion
 
-;@region Extensions
-class AquaHotkey_Combiner extends AquaHotkey {
-;@region Number
-class Number {
+    ;@region Numeric
     /**
      * Returns the sum of two values.
      * @returns {Func}
@@ -75,11 +72,9 @@ class Number {
      * @returns {Func}
      */
     static Product => (a, b) => (a * b)
-} ; class Integer
-;@endregion
+    ;@endregion
 
-;@region String
-class String {
+    ;@region Strings
     /**
      * Concatenates two strings.
      * @returns {Func}
@@ -95,7 +90,5 @@ class String {
         Delim .= ""
         return (a, b) => (a . Delim . b)
     }
-} ; class String
-;@endregion
-} ; class AquaHotkey_Combiner extends AquaHotkey
-;@endregion
+    ;@endregion
+}
