@@ -1,4 +1,3 @@
-class AquaHotkey_ComValue extends AquaHotkey {
 /**
  * AquaHotkey - ComValue.ahk
  * 
@@ -7,6 +6,8 @@ class AquaHotkey_ComValue extends AquaHotkey {
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Builtins/ComValue.ahk
  */
+class AquaHotkey_ComValue extends AquaHotkey {
+;@region ComValue
 class ComValue {
     static __New() {
         static Define(Obj, PropertyName, PropertyDesc) {
@@ -104,4 +105,18 @@ class ComValue {
         }
     }
 } ; class ComValue
+;@endregion
+
+;@region ComValueRef
+class ComValueRef {
+    Get() {
+        return this[]
+    }
+
+    Set(Value) {
+        this[] := Value
+        return this
+    }
+} ; class ComValueRef
+;@endregion
 } ; class AquaHotkey_ComValue extends AquaHotkey

@@ -1,3 +1,4 @@
+;@region Zip
 /**
  * AquaHotkey - Zip.ahk
  * 
@@ -13,6 +14,7 @@
  * each value in the tuple is passed as separate value.
  */
 class ZipArray extends Array {
+    ;@region Construction
     /**
      * Creates a new ZipArray from the given arrays to zip.
      * The resulting array is truncated to the smallest element used.
@@ -64,6 +66,7 @@ class ZipArray extends Array {
         }
         super.__New(Elements*)
     }
+    ;@endregion
 
     /**
      * Inserts `Values*` at the given `Index`.
@@ -80,6 +83,7 @@ class ZipArray extends Array {
         return super.InsertAt(Index, Values*)
     }
 
+    ;@region Accessing Values
     /**
      * Inserts `Values*` into the back of the ZipArray.
      * 
@@ -108,39 +112,9 @@ class ZipArray extends Array {
             super[Index] := value
         }
     }
+    ;@endregion
 
-    /**
-     * Returns a new ZipArray by transforming each element using the given
-     * `TupleMapper` to create a new Tuple.
-     * 
-     * To convert back to a regular array, use `.Unzip()` or `.Narrow()
-     * `instead.
-     * 
-     * @example
-     * ; [(4, 1), (5, 2), (6, 3)]
-     * ZipArray(Tuple(1, 2, 3), Tuple(4, 5, 6)).Map((L, R) => Tuple(R, L))
-     * 
-     * @param   {Func}  TupleMapper  the mapper to apply
-     * @returns {ZipArray}
-     */
-    Map(TupleMapper) {
-        GetMethod(TupleMapper)
-        Result := ZipArray()
-        Result.Capacity := this.Length
-        if (HasProp(this, "Default")) {
-            Result.Default := this.Default
-        }
-
-        for Values in this {
-            Element := TupleMapper(Values*)
-            if (!(Element is Tuple)) {
-                throw TypeError("Expected a Tuple",, Type(Element))
-            }
-            Result.Push(Element)
-        }
-        return Result
-    }
-
+    ;@region Conversion
     /**
      * Unzips the array into arrays of separate components.
      * 
@@ -199,6 +173,40 @@ class ZipArray extends Array {
         }
         return Result
     }
+    ;@endregion
+
+    ;@region Stream Ops
+    /**
+     * Returns a new ZipArray by transforming each element using the given
+     * `TupleMapper` to create a new Tuple.
+     * 
+     * To convert back to a regular array, use `.Unzip()` or `.Narrow()
+     * `instead.
+     * 
+     * @example
+     * ; [(4, 1), (5, 2), (6, 3)]
+     * ZipArray(Tuple(1, 2, 3), Tuple(4, 5, 6)).Map((L, R) => Tuple(R, L))
+     * 
+     * @param   {Func}  TupleMapper  the mapper to apply
+     * @returns {ZipArray}
+     */
+    Map(TupleMapper) {
+        GetMethod(TupleMapper)
+        Result := ZipArray()
+        Result.Capacity := this.Length
+        if (HasProp(this, "Default")) {
+            Result.Default := this.Default
+        }
+
+        for Values in this {
+            Element := TupleMapper(Values*)
+            if (!(Element is Tuple)) {
+                throw TypeError("Expected a Tuple",, Type(Element))
+            }
+            Result.Push(Element)
+        }
+        return Result
+    }
 
     /**
      * Returns a ZipArray of all elements that fulfill the given
@@ -244,24 +252,6 @@ class ZipArray extends Array {
             (Condition(Values*) || Result.Push(Values))
         }
         return Result
-    }
-
-    /**
-     * Performs the given `Action` on each element in the ZipArray.
-     * 
-     * @example
-     * ; displays 3, then 7
-     * ZipArray(Tuple(1, 2), Tuple(3, 4)).ForEach((L, R) => MsgBox(L + R))
-     * 
-     * @param   {Func}  Action  the given action
-     * @returns {this}
-     */
-    ForEach(Action) {
-        GetMethod(Action)
-        for Values in this {
-            Action(Values*)
-        }
-        return this
     }
 
     /**
@@ -376,8 +366,29 @@ class ZipArray extends Array {
         }
         return Result
     }
-}
 
+    /**
+     * Performs the given `Action` on each element in the ZipArray.
+     * 
+     * @example
+     * ; displays 3, then 7
+     * ZipArray(Tuple(1, 2), Tuple(3, 4)).ForEach((L, R) => MsgBox(L + R))
+     * 
+     * @param   {Func}  Action  the given action
+     * @returns {this}
+     */
+    ForEach(Action) {
+        GetMethod(Action)
+        for Values in this {
+            Action(Values*)
+        }
+        return this
+    }
+    ;@endregion
+}
+;@endregion
+
+;@region Tuple
 /**
  * An immutable array.
  */
@@ -400,79 +411,84 @@ class Tuple extends Array {
         }
     }
 }
+;@endregion
 
+;@region Extensions
 class AquaHotkey_Zip {
-    static __New() {
-        if (ObjGetBase(this) != Object) {
-            return
-        }
-        if (!IsSet(AquaHotkey) || !(AquaHotkey is Class)) {
-            return
-        }
-        (AquaHotkey.__New)(this)
+static __New() {
+    if (ObjGetBase(this) != Object) {
+        return
     }
-
-    class Array {
-        /**
-         * Combines the array with `Arr` by merging each value.
-         * 
-         * @param   {Array}  Arr  the array to zip with
-         * @returns {ZippedArray}
-         */
-        ZipWith(Arr) => ZipArray.Of(this, Arr)
-
-        /**
-         * Returns a zipped array by converting each element to a tuple
-         * using the given `TupleMapper`.
-         * 
-         * @example
-         * ; [("apple", 5), ("banana", 6), ("kiwi", 4)]
-         * Array("apple", "banana", "kiwi").Zip(Str => Tuple(Str, StrLen(Str)))
-         * 
-         * @param   {Func}  TupleMapper  the function to create tuples with
-         * @returns {ZippedArray}
-         */
-        Zip(TupleMapper) {
-            GetMethod(TupleMapper)
-
-            Result := ZipArray()
-            Result.Capacity := this.Length
-            for Value in this {
-                Result.Push(TupleMapper(Value?))
-            }
-            return Result
-        }
-
-        /**
-         * Returns a zipped array by "spreading" each element into multiple
-         * values using `Mappers`.
-         * 
-         * @example
-         * ; [("apple", 5), ("banana", 6), ("kiwi", 4)]
-         * Array("apple", "banana", "kiwi").Spread(Func.Self, StrLen)
-         * 
-         * @param   {Func*}  Mappers  the mappers to apply
-         * @returns {ZippedArray}
-         */
-        Spread(Mappers*) {
-            if (!Mappers.Length) {
-                throw TypeError("No mappers specified")
-            }
-            for Mapper in Mappers {
-                GetMethod(Mapper)
-            }
-            Result := ZipArray()
-            Result.Capacity := this.Length
-
-            for Value in this {
-                Element := Array()
-                for Mapper in Mappers {
-                    Element.Push(Mapper(Value?))
-                }
-                ObjSetBase(Element, Tuple.Prototype)
-                Result.Push(Element)
-            }
-            return Result
-        }
+    if (!IsSet(AquaHotkey) || !(AquaHotkey is Class)) {
+        return
     }
+    (AquaHotkey.__New)(this)
 }
+
+;@region Array
+class Array {
+    /**
+     * Combines the array with `Arr` by merging each value.
+     * 
+     * @param   {Array}  Arr  the array to zip with
+     * @returns {ZippedArray}
+     */
+    ZipWith(Arr) => ZipArray.Of(this, Arr)
+
+    /**
+     * Returns a zipped array by converting each element to a tuple
+     * using the given `TupleMapper`.
+     * 
+     * @example
+     * ; [("apple", 5), ("banana", 6), ("kiwi", 4)]
+     * Array("apple", "banana", "kiwi").Zip(Str => Tuple(Str, StrLen(Str)))
+     * 
+     * @param   {Func}  TupleMapper  the function to create tuples with
+     * @returns {ZippedArray}
+     */
+    Zip(TupleMapper) {
+        GetMethod(TupleMapper)
+
+        Result := ZipArray()
+        Result.Capacity := this.Length
+        for Value in this {
+            Result.Push(TupleMapper(Value?))
+        }
+        return Result
+    }
+
+    /**
+     * Returns a zipped array by "spreading" each element into multiple
+     * values using `Mappers`.
+     * 
+     * @example
+     * ; [("apple", 5), ("banana", 6), ("kiwi", 4)]
+     * Array("apple", "banana", "kiwi").Spread(Func.Self, StrLen)
+     * 
+     * @param   {Func*}  Mappers  the mappers to apply
+     * @returns {ZippedArray}
+     */
+    Spread(Mappers*) {
+        if (!Mappers.Length) {
+            throw TypeError("No mappers specified")
+        }
+        for Mapper in Mappers {
+            GetMethod(Mapper)
+        }
+        Result := ZipArray()
+        Result.Capacity := this.Length
+
+        for Value in this {
+            Element := Array()
+            for Mapper in Mappers {
+                Element.Push(Mapper(Value?))
+            }
+            ObjSetBase(Element, Tuple.Prototype)
+            Result.Push(Element)
+        }
+        return Result
+    }
+} ; class Array
+;@endregion
+} ; class AquaHotkey_Zip
+;@endregion

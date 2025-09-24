@@ -1,4 +1,3 @@
-class AquaHotkey_Func extends AquaHotkey {
 /**
  * AquaHotkey - Func.ahk
  * 
@@ -7,6 +6,7 @@ class AquaHotkey_Func extends AquaHotkey {
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Builtins/Func.ahk
  */
+class AquaHotkey_Func extends AquaHotkey {
 class Func {
     /**
      * Returns a function that always returns its input argument.
@@ -36,6 +36,7 @@ class Func {
         return ((*) => x)
     }
 
+    ;@region Composition
     /**
      * Returns a composed function that first applies this function with the
      * given input, and then forwards the result to `After` as first parameter,
@@ -77,7 +78,9 @@ class Func {
         GetMethod(Before)
         return (Args*) => this( Before(Args*), NextArgs* )
     }
+    ;@endregion
 
+    ;@region Predicates
     /**
      * Returns a predicate function that represents a logical AND of this
      * predicate and `Other`. The resulting predicate short-circuits, if the
@@ -170,7 +173,9 @@ class Func {
      * @returns {Predicate}
      */
     Negate() => ((Args*) => !this(Args*))
+    ;@endregion
 
+    ;@region Decorations
     /**
      * Returns a memoized version of this function, caching previously computed
      * results in a Map to avoid redundant computation.
@@ -287,5 +292,6 @@ class Func {
             }
         }
     }
+    ;@endregion
 } ; class Func
 } ; class AquaHotkey_Func extends AquaHotkey

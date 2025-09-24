@@ -1,3 +1,4 @@
+;@region Combiner
 /**
  * AquaHotkey - Combiner.ahk
  * 
@@ -12,40 +13,6 @@
  * Suitable for reducers and custom stream-like logic.
  */
 class Combiner {
-    /**
-     * Returns the sum of two values.
-     * @returns {Func}
-     */
-    static Sum => (a, b) => (a + b)
-
-    /**
-     * Returns the product of two values.
-     * @returns {Func}
-     */
-    static Product => (a, b) => (a * b)
-
-    /**
-     * Concatenates two strings.
-     * @returns {Func}
-     */
-    static Concat => (a, b) => (a . b)
-
-    /**
-     * Concatenates two strings with a delimiter.
-     * @param   {String}  Delim  separator string
-     * @returns {Func}
-     */
-    static Concat(Delim) {
-        Delim .= ""
-        return (a, b) => (a . Delim . b)
-    }
-
-    /**
-     * Returns the smaller of two numbers.
-     * @returns {Func}
-     */
-    static Min => Min
-
     /**
      * Returns the smaller of two values through a custom comparator.
      * @param   {Comparator}  Comp  the comparator to use
@@ -62,12 +29,6 @@ class Combiner {
             return a
         }
     }
-
-    /**
-     * Returns the larger of two numbers.
-     * @returns {Func}
-     */
-    static Max => Max
 
     /**
      * Returns the larger of two values through a custom comparator.
@@ -97,3 +58,44 @@ class Combiner {
      */
     static Last => (a, b) => (b)
 }
+;@endregion
+
+;@region Extensions
+class AquaHotkey_Combiner extends AquaHotkey {
+;@region Number
+class Number {
+    /**
+     * Returns the sum of two values.
+     * @returns {Func}
+     */
+    static Sum => (a, b) => (a + b)
+
+    /**
+     * Returns the product of two values.
+     * @returns {Func}
+     */
+    static Product => (a, b) => (a * b)
+} ; class Integer
+;@endregion
+
+;@region String
+class String {
+    /**
+     * Concatenates two strings.
+     * @returns {Func}
+     */
+    static Concat => (a, b) => (a . b)
+
+    /**
+     * Concatenates two strings with a delimiter.
+     * @param   {String}  Delim  separator string
+     * @returns {Func}
+     */
+    static Concat(Delim) {
+        Delim .= ""
+        return (a, b) => (a . Delim . b)
+    }
+} ; class String
+;@endregion
+} ; class AquaHotkey_Combiner extends AquaHotkey
+;@endregion

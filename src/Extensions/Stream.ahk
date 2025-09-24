@@ -1,3 +1,4 @@
+;@region Stream
 /**
  * AquaHotkey - Stream.ahk
  * 
@@ -45,6 +46,7 @@
  * ```
  */
 class Stream {
+    ;@region Construction
     /**
      * Constructs a new stream with the given `Source` used for retrieving
      * elements.
@@ -71,6 +73,65 @@ class Stream {
         this.DefineProp("Call", { Get: (_) => Source })
     }
 
+    /**
+     * Creates an infinite stream where each element is produced by the
+     * given `Supplier` function.
+     * 
+     * The stream is infinite unless filtered or limited with other methods.
+     * 
+     * @example
+     * ; <4, 6, 1, 8, 2, 7>
+     * Stream.Generate(() => Random(0, 9)).Limit(6).ToArray()
+     * 
+     * @param   {Func}    Supplier   function that supplies stream elements
+     * @returns {Stream}
+     */
+    static Generate(Supplier) {
+        GetMethod(Supplier)
+        return Stream(Generate)
+
+        Generate(&Out) {
+            Out := Supplier()
+            return true
+        }
+    }
+
+    /**
+     * Creates a stream where each element is the result of applying `Mapper`
+     * to the previous one, starting from `Seed`.
+     * 
+     * The stream is infinite unless filtered or limited with other methods.
+     * 
+     * @example
+     * PlusTwo(x) => (x + 2)
+     * 
+     * ; <0, 2, 4, 6, 8, 10>
+     * Stream.Iterate(0, PlusTwo).Limit(6).ToArray()
+     * 
+     * @param   {Any}   Seed    the starting value
+     * @param   {Func}  Mapper  a function that computes the next value
+     * @returns {Stream}
+     */
+    static Iterate(Seed, Mapper) {
+        GetMethod(Mapper)
+        First := true
+        Value := unset
+        return Stream(Iterate)
+
+        Iterate(&Out) {
+            if (First) {
+                Value := Seed
+                First := false
+            } else {
+                Value := Mapper(Value)
+            }
+            Out := Value
+            return true
+        }
+    }
+    ;@endregion
+
+    ;@region Support
     /**
      * The maximum parameter size currently supported.
      * @returns {Integer}
@@ -131,7 +192,9 @@ class Stream {
         }
         return (Min(this.MaxParams, Function.MaxParams) || 1)
     }
+    ;@endregion
 
+    ;@region Filtering
     /**
      * Returns a new stream that retains elements only if they match the
      * given `Condition`.
@@ -251,7 +314,9 @@ class Stream {
             return false
         }
     }
+    ;@endregion
 
+    ;@region Transformation
     /**
      * Returns a new stream that transforms its elements by applying the given
      * `Mapper` function.
@@ -780,7 +845,9 @@ class Stream {
             return false
         }
     }
+    ;@endregion
 
+    ;@region Side Effects
     /**
      * Applies the given `Action` on each element as intermediate operation.
      * 
@@ -873,7 +940,9 @@ class Stream {
                 throw ValueError("invalid parameter length",, n)
         }
     }
+    ;@endregion
 
+    ;@region Matching
     /**
      * Returns whether any element set satisfies the given `Condition`.
      * 
@@ -1007,7 +1076,9 @@ class Stream {
         }
         return true
     }
+    ;@endregion
 
+    ;@region Aggregation
     /**
      * Returns the highest ordered element in the stream.
      * 
@@ -1219,149 +1290,100 @@ class Stream {
      * @returns {String}
      */
     ToString() => this.JoinLine()
-
-    /**
-     * Creates an infinite stream where each element is produced by the
-     * given `Supplier` function.
-     * 
-     * The stream is infinite unless filtered or limited with other methods.
-     * 
-     * @example
-     * ; <4, 6, 1, 8, 2, 7>
-     * Stream.Generate(() => Random(0, 9)).Limit(6).ToArray()
-     * 
-     * @param   {Func}    Supplier   function that supplies stream elements
-     * @returns {Stream}
-     */
-    static Generate(Supplier) {
-        GetMethod(Supplier)
-        return Stream(Generate)
-
-        Generate(&Out) {
-            Out := Supplier()
-            return true
-        }
-    }
-
-    /**
-     * Creates a stream where each element is the result of applying `Mapper`
-     * to the previous one, starting from `Seed`.
-     * 
-     * The stream is infinite unless filtered or limited with other methods.
-     * 
-     * @example
-     * PlusTwo(x) => (x + 2)
-     * 
-     * ; <0, 2, 4, 6, 8, 10>
-     * Stream.Iterate(0, PlusTwo).Limit(6).ToArray()
-     * 
-     * @param   {Any}   Seed    the starting value
-     * @param   {Func}  Mapper  a function that computes the next value
-     * @returns {Stream}
-     */
-    static Iterate(Seed, Mapper) {
-        GetMethod(Mapper)
-        First := true
-        Value := unset
-        return Stream(Iterate)
-
-        Iterate(&Out) {
-            if (First) {
-                Value := Seed
-                First := false
-            } else {
-                Value := Mapper(Value)
-            }
-            Out := Value
-            return true
-        }
-    }
+    ;@endregion
 }
+;@endregion
 
+;@region Extensions
 class AquaHotkey_Stream {
-    static __New() {
-        if (ObjGetBase(this) != Object) {
-            return
-        }
-        if (!IsSet(AquaHotkey) || !(AquaHotkey is Class)) {
-            return
-        }
-        (AquaHotkey.__New)(this)
+static __New() {
+    if (ObjGetBase(this) != Object) {
+        return
     }
-
-    class Any {
-        /**
-         * Returns a function stream with the current element as source.
-         * @see `Stream`
-         * 
-         * @example
-         * Arr    := [1, 2, 3, 4, 5]
-         * Stream := Arr.Stream(2) ; for Index, Value in Arr {...}
-         * 
-         * @param   {Integer?}  n  parameter length of the stream
-         * @returns {Stream}
-         */
-        Stream(n := 1) {
-            if (!IsInteger(n)) {
-                throw TypeError("Expected an Integer",, Type(n))
-            }
-            if (n < 1) {
-                throw ValueError("n < 1",, n)
-            }
-            if (HasProp(this, "__Enum")) {
-                return Stream(this.__Enum(n))
-            }
-            if (HasMethod(this)) {
-                return Stream(GetMethod(this))
-            }
-            throw UnsetError("this variable is not enumerable",, Type(this))
-        }
+    if (!IsSet(AquaHotkey) || !(AquaHotkey is Class)) {
+        return
     }
-
-    class Object {
-        static __New() {
-            if (VerCompare(A_AhkVersion, "2.1-alpha.18") < 0) {
-                this.DeleteProp("PropsStream")
-            }
-        }
-
-        /**
-         * Returns a stream of the object's own properties. Use this method
-         * instead of `.OwnProps().Stream()` to support property values.
-         * 
-         * @example
-         * class Example {
-         *     a := 1
-         *     b := 2
-         * }
-         * 
-         * Example().OwnPropsStream() ; <("a", 1), ("b", 2)>
-         * 
-         * @returns {Stream}
-         */
-        OwnPropsStream() {
-            f := this.OwnProps()
-            return Stream((&K, &V) => f(&K, &V))
-        }
-
-        /**
-         * - (v2.1-alpha.18+)
-         * 
-         * Returns a stream of an object's properties. Use this method instead
-         * of `.Props().Stream()` to support property values.
-         * 
-         * @example
-         * class Example extends Buffer {
-         *     a := 1
-         * }
-         * 
-         * Example(16, 0).PropsStream() ; <("a", 1), ("Size", 16), ...>
-         * 
-         * @returns {Stream}
-         */
-        PropsStream() {
-            f := this.Props()
-            return Stream((&K, &V) => f(&K, &V))
-        }
-    }
+    (AquaHotkey.__New)(this)
 }
+
+;@region Any
+class Any {
+    /**
+     * Returns a function stream with the current element as source.
+     * @see `Stream`
+     * 
+     * @example
+     * Arr    := [1, 2, 3, 4, 5]
+     * Stream := Arr.Stream(2) ; for Index, Value in Arr {...}
+     * 
+     * @param   {Integer?}  n  parameter length of the stream
+     * @returns {Stream}
+     */
+    Stream(n := 1) {
+        if (!IsInteger(n)) {
+            throw TypeError("Expected an Integer",, Type(n))
+        }
+        if (n < 1) {
+            throw ValueError("n < 1",, n)
+        }
+        if (HasProp(this, "__Enum")) {
+            return Stream(this.__Enum(n))
+        }
+        if (HasMethod(this)) {
+            return Stream(GetMethod(this))
+        }
+        throw UnsetError("this variable is not enumerable",, Type(this))
+    }
+} ; class Any
+;@endregion
+
+;@region Object
+class Object {
+    static __New() {
+        if (VerCompare(A_AhkVersion, "2.1-alpha.18") < 0) {
+            this.DeleteProp("PropsStream")
+        }
+    }
+
+    /**
+     * Returns a stream of the object's own properties. Use this method
+     * instead of `.OwnProps().Stream()` to support property values.
+     * 
+     * @example
+     * class Example {
+     *     a := 1
+     *     b := 2
+     * }
+     * 
+     * Example().OwnPropsStream() ; <("a", 1), ("b", 2)>
+     * 
+     * @returns {Stream}
+     */
+    OwnPropsStream() {
+        f := this.OwnProps()
+        return Stream((&K, &V) => f(&K, &V))
+    }
+
+    /**
+     * - (v2.1-alpha.18+)
+     * 
+     * Returns a stream of an object's properties. Use this method instead
+     * of `.Props().Stream()` to support property values.
+     * 
+     * @example
+     * class Example extends Buffer {
+     *     a := 1
+     * }
+     * 
+     * Example(16, 0).PropsStream() ; <("a", 1), ("Size", 16), ...>
+     * 
+     * @returns {Stream}
+     */
+    PropsStream() {
+        f := this.Props()
+        return Stream((&K, &V) => f(&K, &V))
+    }
+} ; class Object
+;@endregion
+} ; class AquaHotkey_Stream
+;@endregion

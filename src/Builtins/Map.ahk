@@ -1,4 +1,3 @@
-class AquaHotkey_Map extends AquaHotkey {
 /**
  * AquaHotkey - Map.ahk
  * 
@@ -7,7 +6,9 @@ class AquaHotkey_Map extends AquaHotkey {
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Builtins/Map.ahk
  */
+class AquaHotkey_Map extends AquaHotkey {
 class Map {
+    ;@region Configuration
     /**
      * Sets the `Default` property of the map.
      * 
@@ -50,7 +51,9 @@ class Map {
         this.CaseSense := CaseSense
         return this
     }
+    ;@endregion
 
+    ;@region General
     /**
      * Returns an array of all keys in the map.
      * 
@@ -81,150 +84,9 @@ class Map {
      * @returns {Boolean}
      */
     IsEmpty  => (!this.Count)
+    ;@endregion
 
-    /**
-     * Returns a new map of all elements that fulfill the given `Condition`.
-     * 
-     * ```ahk
-     * Condition(Key, Value, Args*)
-     * ```
-     * 
-     * @example
-     * ; Map { 1 => 2 }
-     * Map(1, 2, 3, 4).RetainIf((Key, Value) => (Key == 1))
-     * 
-     * @param   {Func}  Condition  the given condition
-     * @param   {Any*}  Args       zero or more additional arguments
-     * @returns {Map}
-     */
-    RetainIf(Condition, Args*) {
-        GetMethod(Condition)
-        Result := Map()
-        Result.CaseSense := this.CaseSense
-        if (HasProp(this, "Default")) {
-            Result.Default := this.Default
-        }
-
-        for Key, Value in this {
-            (Condition(Key, Value, Args*) && Result[Key] := Value)
-        }
-        return Result
-    }
-
-    /**
-     * Returns a new map of all elements that don't satisfy the given
-     * `Condition`.
-     * 
-     * ```ahk
-     * Condition(Key, Value, Args*)
-     * ```
-     * 
-     * @example
-     * ; Map { 3 => 4 }
-     * Map(1, 2, 3, 4).RemoveIf((Key, Value) => (Key == 1))
-     * 
-     * @param   {Func}  Condition  function that evaluates a condition
-     * @param   {Any*}  Args       zero or more additional arguments
-     * @returns {this}
-     */
-    RemoveIf(Condition, Args*) {
-        GetMethod(Condition)
-        Result := Map()
-        Result.CaseSense := this.CaseSense
-        if (HasProp(this, "Default")) {
-            Result.Default := this.Default
-        }
-        for Key, Value in this {
-            (Condition(Key, Value, Args*) || Result[Key] := Value)
-        }
-        return Result
-    }
-
-    /**
-     * Replaces all values in the map *in place* by applying `Mapper` to
-     * each element.
-     * 
-     * ```ahk
-     * Mapper(Key, Value, Args*)
-     * ```
-     * 
-     * @example
-     * ; Map { 1 => 4, 3 => 8 }
-     * Map(1, 2, 3, 4).ReplaceAll((Key, Value) => (Value * 2))
-     * 
-     * @param   {Func}  Mapper  function that returns a new value
-     * @param   {Any*}  Args    zero or more additional arguments
-     * @returns {this}
-     */
-    ReplaceAll(Mapper, Args*) {
-        GetMethod(Mapper)
-        Result := Map()
-        Result.Capacity := this.Count
-        for Key, Value in this {
-            Result[Key] := Mapper(Key, Value, Args*)
-        }
-        for Key, Value in this {
-            this[Key] := Result[Key]
-        }
-        return this
-    }
-
-    /**
-     * Returns a new map of elements transformed by applying `Mapper` to
-     * each element.
-     * 
-     * ```ahk
-     * Mapper(Key, Value, Args*)
-     * ```
-     * 
-     * @example
-     * ; Map { 1 => 4, 3 => 8 }
-     * Map(1, 2, 3, 4).Map((Key, Value) => (Value * 2))
-     * 
-     * @param   {Func}  Mapper  function that returns a new value
-     * @param   {Any*}  Args    zero or more additional arguments
-     * @returns {Map}
-     */
-    Map(Mapper, Args*) {
-        GetMethod(Mapper)
-        Result := Map()
-        Result.CaseSense := this.CaseSense
-        if (HasProp(this, "Default")) {
-            Result.Default := this.Default
-        }
-        for Key, Value in this {
-            Result[Key] := Mapper(Key, Value, Args*)
-        }
-        return Result
-    }
-
-    /**
-     * Calls the given `Action` for each map element.
-     * 
-     * `Action` is called using key and value as first two arguments, followed
-     * by zero or more additional arguments `Args*`.
-     * 
-     * ```ahk
-     * Action(Key, Value, Args*)
-     * ```
-     * 
-     * @example
-     * Print(Key, Value) {
-     *     MsgBox("key: " . Key . ", value: " . Value)
-     * }
-     * Map(1, 2, 3, 4).ForEach(Print)
-     * 
-     * @param   {Func}  Action  the function to be called
-     * @param   {Any*}  Args    zero or more additional arguments
-     * @returns {this}
-     */
-    ForEach(Action, Args*) {
-        GetMethod(Action)
-        for Key, Value in this {
-            Action(Key, Value, Args*)
-        }
-    }
-
+    ;@region Mutations
     /**
      * If absent, adds a new map element.
      * 
@@ -343,87 +205,6 @@ class Map {
         }
         return this
     }
-
-    /**
-     * Determines whether an element satisfies the given `Condition`,
-     * in which case the first matching element is returned in the form
-     * of an object with `Key` and `Value` properties.
-     * 
-     * ```ahk
-     * Condition(Key, Value, Args*)
-     * ```
-     * 
-     * @example
-     * KeyEquals1(Key, Value) {
-     *     return (Key == 1)
-     * }
-     * 
-     * Output := Map(1, 2, 3, 4).AnyMatch(KeyEquals1)
-     * if (Output) {
-     *     MsgBox(Output.Key)   ; 1
-     *     MsgBox(Output.Value) ; 2
-     * }
-     * 
-     * @param   {Func}  Condition  the given condition
-     * @param   {Any*}  Args       zero or more additional arguments
-     * @returns {Boolean/Object}
-     */
-    AnyMatch(Condition, Args*) {
-        GetMethod(Condition)
-        for Key, Value in this {
-            if (Condition(Key, Value, Args*)) {
-                return { Key: Key, Value: Value }
-            }
-        }
-        return false
-    }
-
-    /**
-     * Returns `true`, if all elements satisfy the given `Condition`.
-     * 
-     * ```ahk
-     * Condition(Key, Value, Args*)
-     * ```
-     * 
-     * @example
-     * Map(1, 2, 3, 4).AllMatch((Key, Value) => (Key != 6)) ; true
-     * 
-     * @param   {Func}  Condition  the given condition
-     * @param   {Any*}  Args       zero or more additional arguments
-     * @returns {Boolean}
-     */
-    AllMatch(Condition, Args*) {
-        GetMethod(Condition)
-        for Key, Value in this {
-            if (!Condition(Key, Value, Args*)) {
-                return false
-            }
-        }
-        return true
-    }
-
-    /**
-     * Returns `true`, if none of the elements satisfy the given `Condition`.
-     * 
-     * ```ahk
-     * Condition(Key, Value, Args*)
-     * ```
-     * 
-     * @example
-     * Map(1, 2, 3, 4).NoneMatch((Key, Value) => (Key == 3)) ; false
-     * 
-     * @param   {Func}  Condition  the given condition
-     * @param   {Any*}  Args       zero or more additional arguments
-     * @returns {Boolean}
-     */
-    NoneMatch(Condition, Args*) {
-        GetMethod(Condition)
-        for Key, Value in this {
-            if (Condition(Key, Value, Args*)) {
-                return false
-            }
-        }
-        return true
-    }
+    ;@endregion
 } ; class Map
 } ; class AquaHotkey_Map extends AquaHotkey

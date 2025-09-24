@@ -1,4 +1,3 @@
-class AquaHotkey_Error extends AquaHotkey {
 /**
  * AquaHotkey - Error.ahk
  * 
@@ -7,6 +6,7 @@ class AquaHotkey_Error extends AquaHotkey {
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Builtins/Error.ahk
  */
+class AquaHotkey_Error extends AquaHotkey {
 class Error {
     /**
      * Throws an error of the given error type.

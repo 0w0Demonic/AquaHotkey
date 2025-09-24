@@ -1,4 +1,3 @@
-class AquaHotkey_Integer extends AquaHotkey {
 /**
  * AquaHotkey - Integer.ahk
  * 
@@ -7,6 +6,7 @@ class AquaHotkey_Integer extends AquaHotkey {
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Builtins/Integer.ahk
  */
+class AquaHotkey_Integer extends AquaHotkey {
 class Integer {
     /**
      * Returns the hexadecimal representation of the string.

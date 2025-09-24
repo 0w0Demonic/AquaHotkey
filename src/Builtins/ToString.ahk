@@ -1,4 +1,3 @@
-class AquaHotkey_ToString extends AquaHotkey {
 /**
  * AquaHotkey - ToString.ahk
  * 
@@ -7,6 +6,8 @@ class AquaHotkey_ToString extends AquaHotkey {
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Builtins/ToString.ahk
  */
+class AquaHotkey_ToString extends AquaHotkey {
+;@region Array
 class Array {
     /**
      * Returns the string representation of the array.
@@ -38,7 +39,9 @@ class Array {
         return Result
     }
 }
+;@endregion
 
+;@region Buffer
 class Buffer {
     /**
      * Returns a string representation of this buffer consisting of
@@ -54,7 +57,9 @@ class Buffer {
         return Type(this) . "{ Ptr: " . Ptr . ", Size: " . this.Size . " }"
     }
 }
+;@endregion
 
+;@region Class
 class Class {
     /**
      * Returns the string representation of the class.
@@ -66,7 +71,9 @@ class Class {
      */
     ToString() => "Class " . this.Prototype.__Class
 }
+;@endregion
 
+;@region File
 class File {
     /**
      * Returns a string representation of this file, consisting of file name,
@@ -83,7 +90,9 @@ class File {
         return Format(Pattern, this.Name, this.Pos, this.Encoding, this.Handle)
     }
 }
+;@endregion
 
+;@region Func
 class Func {
     /**
      * Returns the string representation of the function.
@@ -100,7 +109,9 @@ class Func {
         return Type(this) . " " . this.Name
     }
 }
+;@endregion
 
+;@region Object
 class Object {
     /**
      * Converts this object into a string. `String(Obj)` implicitly calls this
@@ -160,7 +171,9 @@ class Object {
         return Type(this) . "{ " . (Result ?? "unset") . " }"
     }
 }
+;@endregion
 
+;@region VarRef
 class VarRef {
     /**
      * Returns a string representation of the reference.
@@ -176,4 +189,5 @@ class VarRef {
         return "&" . StrGet(pName, "UTF-16") 
     }
 } ; class VarRef
+;@endregion
 } ; class AquaHotkey_ToString extends AquaHotkey

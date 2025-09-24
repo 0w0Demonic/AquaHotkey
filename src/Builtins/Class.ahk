@@ -1,4 +1,3 @@
-class AquaHotkey_Class extends AquaHotkey {
 /**
  * AquaHotkey - Class.ahk
  * 
@@ -7,24 +6,8 @@ class AquaHotkey_Class extends AquaHotkey {
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Builtins/Class.ahk
  */
+class AquaHotkey_Class extends AquaHotkey {
 class Class {
-    /**
-     * Override of `Any.Prototype.__Call()` that throws an error.
-     * @override `Any.Prototype.__Call()`
-     * 
-     * @example
-     * Foo(Value) {
-     *     MsgBox(Type(Value))
-     * }
-     * String.Foo() ; Error!
-     * 
-     * @param   {String}  MethodName  the name of the undefined method
-     * @param   {Array}   Args        zero or more additional arguments
-     */
-    __Call(MethodName, *) {
-        throw MethodError("undefined static method: " . MethodName,, Type(this))
-    }
-
     /**
      * Returns a class by the given name.
      * 

@@ -1,4 +1,3 @@
-class AquaHotkey_Number extends AquaHotkey {
 /**
  * AquaHotkey - Number.ahk
  * 
@@ -7,6 +6,7 @@ class AquaHotkey_Number extends AquaHotkey {
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Builtins/Number.ahk
  */
+class AquaHotkey_Number extends AquaHotkey {
 class Number {
     /** Constants pi and e */
     static PI => 3.14159265358979

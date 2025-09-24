@@ -1,4 +1,3 @@
-class AquaHotkey_VarRef extends AquaHotkey {
 /**
  * AquaHotkey - VarRef.ahk
  * 
@@ -7,6 +6,7 @@ class AquaHotkey_VarRef extends AquaHotkey {
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Builtins/VarRef.ahk
  */
+class AquaHotkey_VarRef extends AquaHotkey {
 class VarRef {
     /**
      * Returns the pointer of the value behind the reference.

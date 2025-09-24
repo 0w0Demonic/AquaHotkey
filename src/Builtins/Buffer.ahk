@@ -1,4 +1,3 @@
-class AquaHotkey_Buffer extends AquaHotkey {
 /**
  * AquaHotkey - Buffer.ahk
  * 
@@ -7,6 +6,8 @@ class AquaHotkey_Buffer extends AquaHotkey {
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Builtins/Buffer.ahk
  */
+class AquaHotkey_Buffer extends AquaHotkey {
+;@region Buffer
 class Buffer {
     /**
      * Class initialization to set up all `Get<NumType>` and `Put<NumType>`
@@ -139,4 +140,17 @@ class Buffer {
         return Buf
     }
 } ; class Buffer
+;@endregion
+
+;@region ClipboardAll
+class ClipboardAll {
+    /**
+     * Assigns the contents of the `ClipboardAll` to the system clipboard.
+     */
+    ToClipboard() {
+        A_Clipboard := this
+        return this
+    }
+} ; class ClipboardAll
+;@endregion
 } ; class AquaHotkey_Buffer extends AquaHotkey

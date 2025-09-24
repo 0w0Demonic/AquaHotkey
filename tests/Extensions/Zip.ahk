@@ -74,7 +74,7 @@ class Zip {
 
     static Narrow() {
         ZipArray(Tuple(1, 2), Tuple(3, 4))
-            .Narrow(Combiner.Sum)
+            .Narrow(Number.Sum)
             .Join(", ")
             .AssertEquals("3, 7")
     }
@@ -82,8 +82,8 @@ class Zip {
     static Zip() {
         Array(1, 2)
             .Zip((x) => Tuple(x, x + 1))
-            .Narrow(Combiner.Sum)
-            .Reduce(Combiner.Sum)
+            .Narrow(Number.Sum)
+            .Reduce(Number.Sum)
             .AssertEquals(8)
     }
 
@@ -91,7 +91,7 @@ class Zip {
         Array("Hello", "world")
             .Spread(SubStr.Bind(unset, 1, 1),
                     SubStr.Bind(unset, -1, 1))
-            .Narrow(Combiner.Concat)
+            .Narrow(String.Concat)
             .Join(", ")
             .AssertEquals("Ho, wd")
     }
@@ -105,21 +105,21 @@ class Zip {
     static Map() {
         ZipArray.Of(Array(1, 2, 3), Array(4, 5, 6))
             .Map((a, b) => Tuple(a + 1, b - 1))
-            .Narrow(Combiner.Concat).Join(", ")
+            .Narrow(String.Concat).Join(", ")
             .AssertEquals("23, 34, 45")
     }
 
     static RetainIf() {
         ZipArray.Of(Array(1, 2, 3), Array(4, 5, 6))
             .RetainIf((a, b) => (a + b > 6))
-            .Narrow(Combiner.Concat).Join(", ")
+            .Narrow(String.Concat).Join(", ")
             .AssertEquals("25, 36")
     }
 
     static RemoveIf() {
         ZipArray.Of(Array(1, 2, 3), Array(4, 5, 6))
             .RemoveIf((a, b) => (a + b > 6))
-            .Narrow(Combiner.Concat).Join(", ")
+            .Narrow(String.Concat).Join(", ")
             .AssertEquals("14")
     }
 

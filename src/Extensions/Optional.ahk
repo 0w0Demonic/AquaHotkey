@@ -1,3 +1,4 @@
+;@region Optional
 /**
  * AquaHotkey - Optional.ahk
  * 
@@ -43,23 +44,6 @@ class Optional {
      */
     __New(Value?) {
         (IsSet(Value) && this.DefineProp("Value", { Get: (_) => Value }))
-    }
-
-    /**
-     * If present, returns the value of the optional, otherwise throws an
-     * `UnsetError`.
-     * 
-     * @example
-     * Optional("foo").Get()  ; "foo"
-     * Optional.Empty().Get() ; Error!
-     * 
-     * @returns {Any}
-     */
-    Get() {
-        if (HasProp(this, "Value")) {
-            return this.Value
-        }
-        throw UnsetError("value unset")
     }
 
     /**
@@ -187,6 +171,23 @@ class Optional {
     }
 
     /**
+     * If present, returns the value of the optional, otherwise throws an
+     * `UnsetError`.
+     * 
+     * @example
+     * Optional("foo").Get()  ; "foo"
+     * Optional.Empty().Get() ; Error!
+     * 
+     * @returns {Any}
+     */
+    Get() {
+        if (HasProp(this, "Value")) {
+            return this.Value
+        }
+        throw UnsetError("value unset")
+    }
+
+    /**
      * If present, returns the value, otherwise returns the given default value.
      * 
      * @example
@@ -264,7 +265,9 @@ class Optional {
         return Type(this) . "{ " . String(this.Value) . " }"
     }
 }
+;@endregion
 
+;@region Extensions
 class AquaHotkey_Optional {
     static __New() {
         if (ObjGetBase(this) != Object) {
@@ -276,6 +279,7 @@ class AquaHotkey_Optional {
         (AquaHotkey.__New)(this)
     }
 
+    ;@region Any
     class Any {
         /**
          * Returns a new optional that wraps arount the element.
@@ -288,4 +292,6 @@ class AquaHotkey_Optional {
          */
         Optional() => Optional(this)
     }
+    ;@endregion
 }
+;@endregion

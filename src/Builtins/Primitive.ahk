@@ -1,4 +1,3 @@
-class AquaHotkey_Primitive extends AquaHotkey {
 /**
  * AquaHotkey - Primitive.ahk
  * 
@@ -7,6 +6,7 @@ class AquaHotkey_Primitive extends AquaHotkey {
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Builtins/Primitive.ahk
  */
+class AquaHotkey_Primitive extends AquaHotkey {
 class Primitive {
     /**
      * Returns itself. This method allows you to call `.Clone()` on every

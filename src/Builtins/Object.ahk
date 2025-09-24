@@ -1,4 +1,3 @@
-class AquaHotkey_Object extends AquaHotkey {
 /**
  * AquaHotkey - Object.ahk
  * 
@@ -7,7 +6,9 @@ class AquaHotkey_Object extends AquaHotkey {
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Builtins/Object.ahk
  */
+class AquaHotkey_Object extends AquaHotkey {
 class Object {
+    ;@region General
     /**
      * Creates a `BoundFunc` which calls a method `MethodName` bound to this
      * particular instance, followed by zero or more arguments `Args*`.
@@ -23,6 +24,27 @@ class Object {
      */
     BindMethod(MethodName, Args*) => ObjBindMethod(this, MethodName, Args*)
 
+    /**
+     * Sets the base of this object.
+     * 
+     * @example
+     * class Foo {
+     * 
+     * }
+     * 
+     * Obj := Object().SetBase(Foo.Prototype)
+     * MsgBox(Obj is Foo) ; true
+     * 
+     * @param   {Any}  BaseObj  the new base of this object
+     * @returns {this}
+     */
+    SetBase(BaseObj) {
+        ObjSetBase(this, BaseObj)
+        return this
+    }
+    ;@endregion
+
+    ;@region DefineProp
     /**
      * Defines a new read-only property by the name of `PropertyName` for this
      * object, which returns a constant `Value`.
@@ -133,24 +155,6 @@ class Object {
         GetMethod(Method)
         return this.DefineProp(PropertyName, { Call: Method })
     }
-
-    /**
-     * Sets the base of this object.
-     * 
-     * @example
-     * class Foo {
-     * 
-     * }
-     * 
-     * Obj := Object().SetBase(Foo.Prototype)
-     * MsgBox(Obj is Foo) ; true
-     * 
-     * @param   {Any}  BaseObj  the new base of this object
-     * @returns {this}
-     */
-    SetBase(BaseObj) {
-        ObjSetBase(this, BaseObj)
-        return this
-    }
+    ;@endregion
 } ; class Object
 } ; class AquaHotkey_Object extends AquaHotkey

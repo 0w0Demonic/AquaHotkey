@@ -6,7 +6,7 @@
  * Author: 0w0Demonic
  * 
  * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/AquaHotkey.ahk
+ * - src/Core/AquaHotkey.ahk
  * @example
  * 
  * class StringExtensions extends AquaHotkey {
@@ -20,6 +20,7 @@
  */
 class AquaHotkey extends AquaHotkey_Ignore
 {
+;@region static __New()
 /**
  * **Overview**:
  * 
@@ -278,7 +279,9 @@ static __New() {
         DeletionQueue.Pop()()
     }
 } ; static __New()
+;@endregion
 
+;@region static ApplyMixin()
 /**
  * Applies one or more mixins to a given class.
  * 
@@ -311,6 +314,7 @@ static ApplyMixin(ReceiverClass, Mixin, Mixins*) {
     }
     (AquaHotkey_Backup.__New)(ReceiverClass, Mixin, Mixins*)
 } ; static ApplyMixin()
+;@endregion
 } ; class AquaHotkey
 
 #Include %A_LineFile%/../AquaHotkey_Backup.ahk

@@ -1,3 +1,4 @@
+;@region Condition
 /**
  * AquaHotkey - Condition.ahk
  * 
@@ -16,6 +17,7 @@
  * Array(1, 2, 3, 4, 5).RetainIf(  Condition.GreaterThan(3)  )
  */
 class Condition {
+    ;@region General
     /**
      * Always returns true.
      * @returns {Func}
@@ -27,7 +29,9 @@ class Condition {
      * @returns {Func}
      */
     static False => (Args*) => false
+    ;@endregion
 
+    ;@region Unset Values
     /**
      * Determines whether the element has a value.
      * @returns {Func}
@@ -39,7 +43,9 @@ class Condition {
      * @returns {Func}
      */
     static IsNotNull => (Arg?) => (IsSet(Arg))
+    ;@endregion
 
+    ;@region Equality
     /**
      * Returns a condition that checks equality with the given `Target`.
      * @param   {Any}  Target  value to compare with
@@ -68,13 +74,20 @@ class Condition {
      * @returns {Func}
      */
     static StrictNotEquals(Target) => (Arg) => (Arg !== Target)
+    ;@endregion
+}
+;@endregion
 
+;@region Extensions
+class AquaHotkey_Condition extends AquaHotkey {
+;@region Number
+class Number {
     /**
      * Evaluates whether the input argument is greater than `Num`.
      * @param   {Number}  Num  number to compare with
      * @returns {Func}
      */
-    static Greater(Num) {
+    static Gt(Num) {
         Num += 0
         return ((Arg) => (Arg > Num))
     }
@@ -84,7 +97,7 @@ class Condition {
      * @param   {Number}  Num  number to compare with
      * @returns {Func}
      */
-    static GreaterOrEqual(Num) {
+    static Ge(Num) {
         Num += 0
         return ((Arg) => (Arg >= Num))
     }
@@ -94,7 +107,7 @@ class Condition {
      * @param   {Number}  Num  number to compare with
      * @returns {Func}
      */
-    static Less(Num) {
+    static Lt(Num) {
         Num += 0
         return ((Arg) => (Arg < Num))
     }
@@ -104,7 +117,7 @@ class Condition {
      * @param   {Number}  Num  number to compare with
      * @returns {Func}
      */
-    static LessOrEqual(Num) {
+    static Le(Num) {
         Num += 0
         return ((Arg) => (Arg <= Num))
     }
@@ -124,11 +137,29 @@ class Condition {
     }
 
     /**
+     * Returns whether a number is divisible by the given `Num`.
+     * @param   {Integer}  Num  the number to divide with
+     * @returns {Func}
+     */
+    static DivisibleBy(Num) {
+        if (!IsInteger(Num)) {
+            throw TypeError("Expected an Integer",, Type(Num))
+        }
+        Num := Integer(Num)
+
+        return (x) => !Mod(x, Num)
+    }
+} ; class Number
+;@endregion
+
+;@region String
+class String {
+    /**
      * Evaluates whether a string contains the given `Pattern`.
      * @param   {String}  Pattern  substring to search for
      * @returns {Func}
      */
-    static InStr(Pattern) {
+    static Contains(Pattern) {
         Pattern .= ""
         return ((Str) => InStr(Str, Pattern))
     }
@@ -142,18 +173,7 @@ class Condition {
         Pattern .= ""
         return ((Str) => (Str ~= Pattern))
     }
-
-    /**
-     * Returns whether a number is divisible by the given `Num`.
-     * @param   {Integer}  Num  the number to divide with
-     * @returns {Func}
-     */
-    static DivisibleBy(Num) {
-        if (!IsInteger(Num)) {
-            throw TypeError("Expected an Integer",, Type(Num))
-        }
-        Num := Integer(Num)
-
-        return (x) => !Mod(x, Num)
-    }
-}
+} ; class String
+;@endregion
+} ; class AquaHotkey_Condition extends AquaHotkey
+;@endregion

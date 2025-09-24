@@ -1,3 +1,4 @@
+;@region Gatherer
 /**
  * AquaHotkey - Gatherer.ahk
  * 
@@ -357,155 +358,162 @@ class Gatherer {
         }
     }
 }
+;@endregion
 
+;@region Extensions
 class AquaHotkey_Gatherer extends AquaHotkey {
-    static __New() {
-        if (IsSet(AquaHotkey_Stream) && (AquaHotkey_Stream is Class)) {
-            return super.__New()
-        }
-
-        MsgBox("
-        (
-        Stream support not found. `.Gather()` will be unavailable.
-        To enable, import the Stream module.
-
-        #Include .../Extensions/Stream.ahk
-        )", "AquaHotkey - Gatherer.ahk", 0x40)
+static __New() {
+    if (IsSet(AquaHotkey_Stream) && (AquaHotkey_Stream is Class)) {
+        return super.__New()
     }
 
-    class Any {
-        /**
-         * Applies the given Gatherer to process the elements of the stream.
-         * 
-         * @param   {Gatherer}  Gath  the gatherer to apply
-         * @returns {Stream}
-         */
-        Gather(Gath) => this.Stream().Gather(Gath)
-    }
+    MsgBox("
+    (
+    Stream support not found. `.Gather()` will be unavailable.
+    To enable, import the Stream module.
 
-    class Stream {
-        /**
-         * Applies the given Gatherer to process the elements of the stream.
-         * 
-         * @param   {Gatherer}  Gath  the gatherer to apply
-         * @returns {Stream}
-         */
-        Gather(Gath) {
-            static S := Stream ?? ""
-            if (!(Gath is Gatherer) && !HasBase(Gath, Gatherer)) {
-                throw TypeError("Expected a Collector",, Type(Gath))
-            }
-            Initializer := Gath.Initializer
-            Integrator  := Gath.Integrator
-            Finisher    := Gath.Finisher
-
-            Downstream := Array()
-            Enumer     := Downstream.__Enum(1)
-            Consumer   := (Array.Prototype.Push).Bind(Downstream)
-
-            State    := Initializer()
-            Finished := false
-
-            f := this.Call
-            switch (this.MaxParams) {
-                case 1: return S(Gather1)
-                case 2: return S(Gather2)
-                case 3: return S(Gather3)
-                case 4: return S(Gather4)
-            }
-            throw ValueError("invalid parameter length",, this.MaxParams)
-
-            Gather1(&Out) {
-                Loop {
-                    if (Enumer(&Out)) {
-                        return true
-                    }
-                    Downstream.Length := 0
-                    if (!f(&A)) {
-                        break
-                    }
-                    if (!Integrator(State, Consumer, A?)) {
-                        break
-                    }
-                    Enumer := Downstream.__Enum(1)
-                }
-                if (!Finished) {
-                    Finished := true
-                    Finisher(State, Consumer)
-                    Enumer := Downstream.__Enum(1)
-                    return Enumer(&Out)
-                }
-                return false
-            }
-
-            Gather2(&Out) {
-                Loop {
-                    if (Enumer(&Out)) {
-                        return true
-                    }
-                    Downstream.Length := 0
-                    if (!f(&A, &B)) {
-                        break
-                    }
-                    if (!Integrator(State, Consumer, A?, B?)) {
-                        break
-                    }
-                    Enumer := Downstream.__Enum(1)
-                }
-                if (!Finished) {
-                    Finished := true 
-                    Finisher(State, Consumer)
-                    Enumer := Downstream.__Enum(1)
-                    return Enumer(&Out)
-                }
-                return false
-            }
-
-            Gather3(&Out) {
-                Loop {
-                    if (Enumer(&Out)) {
-                        return true
-                    }
-                    Downstream.Length := 0
-                    if (!f(&A, &B, &C)) {
-                        break
-                    }
-                    if (Integrator(State, Consumer, A?, B?, C?)) {
-                        break
-                    }
-                    Enumer := Downstream.__Enum(1)
-                }
-                if (!Finished) {
-                    Finished := true 
-                    Finisher(State, Consumer)
-                    Enumer := Downstream.__Enum(1)
-                    return Enumer(&Out)
-                }
-                return false
-            }
-
-            Gather4(&Out) {
-                Loop {
-                    if (Enumer(&Out)) {
-                        return true
-                    }
-                    Downstream.Length := 0
-                    if (!f(&A, &B, &C, &D)) {
-                        break
-                    }
-                    if (!Integrator(State, Consumer, A?, B?, C?, D?)) {
-                        break
-                    }
-                    Enumer := Downstream.__Enum(1)
-                }
-                if (!Finished) {
-                    Finished := true 
-                    Finisher(State, Consumer)
-                    Enumer := Downstream.__Enum(1)
-                    return Enumer(&Out)
-                }
-                return false
-            }
-        }
-    }
+    #Include .../Extensions/Stream.ahk
+    )", "AquaHotkey - Gatherer.ahk", 0x40)
 }
+
+;@region Any
+class Any {
+    /**
+     * Applies the given Gatherer to process the elements of the stream.
+     * 
+     * @param   {Gatherer}  Gath  the gatherer to apply
+     * @returns {Stream}
+     */
+    Gather(Gath) => this.Stream().Gather(Gath)
+} ; class Any
+;@endregion
+
+;@region Stream
+class Stream {
+    /**
+     * Applies the given Gatherer to process the elements of the stream.
+     * 
+     * @param   {Gatherer}  Gath  the gatherer to apply
+     * @returns {Stream}
+     */
+    Gather(Gath) {
+        static S := Stream ?? ""
+        if (!(Gath is Gatherer) && !HasBase(Gath, Gatherer)) {
+            throw TypeError("Expected a Collector",, Type(Gath))
+        }
+        Initializer := Gath.Initializer
+        Integrator  := Gath.Integrator
+        Finisher    := Gath.Finisher
+
+        Downstream := Array()
+        Enumer     := Downstream.__Enum(1)
+        Consumer   := (Array.Prototype.Push).Bind(Downstream)
+
+        State    := Initializer()
+        Finished := false
+
+        f := this.Call
+        switch (this.MaxParams) {
+            case 1: return S(Gather1)
+            case 2: return S(Gather2)
+            case 3: return S(Gather3)
+            case 4: return S(Gather4)
+        }
+        throw ValueError("invalid parameter length",, this.MaxParams)
+
+        Gather1(&Out) {
+            Loop {
+                if (Enumer(&Out)) {
+                    return true
+                }
+                Downstream.Length := 0
+                if (!f(&A)) {
+                    break
+                }
+                if (!Integrator(State, Consumer, A?)) {
+                    break
+                }
+                Enumer := Downstream.__Enum(1)
+            }
+            if (!Finished) {
+                Finished := true
+                Finisher(State, Consumer)
+                Enumer := Downstream.__Enum(1)
+                return Enumer(&Out)
+            }
+            return false
+        }
+
+        Gather2(&Out) {
+            Loop {
+                if (Enumer(&Out)) {
+                    return true
+                }
+                Downstream.Length := 0
+                if (!f(&A, &B)) {
+                    break
+                }
+                if (!Integrator(State, Consumer, A?, B?)) {
+                    break
+                }
+                Enumer := Downstream.__Enum(1)
+            }
+            if (!Finished) {
+                Finished := true 
+                Finisher(State, Consumer)
+                Enumer := Downstream.__Enum(1)
+                return Enumer(&Out)
+            }
+            return false
+        }
+
+        Gather3(&Out) {
+            Loop {
+                if (Enumer(&Out)) {
+                    return true
+                }
+                Downstream.Length := 0
+                if (!f(&A, &B, &C)) {
+                    break
+                }
+                if (Integrator(State, Consumer, A?, B?, C?)) {
+                    break
+                }
+                Enumer := Downstream.__Enum(1)
+            }
+            if (!Finished) {
+                Finished := true 
+                Finisher(State, Consumer)
+                Enumer := Downstream.__Enum(1)
+                return Enumer(&Out)
+            }
+            return false
+        }
+
+        Gather4(&Out) {
+            Loop {
+                if (Enumer(&Out)) {
+                    return true
+                }
+                Downstream.Length := 0
+                if (!f(&A, &B, &C, &D)) {
+                    break
+                }
+                if (!Integrator(State, Consumer, A?, B?, C?, D?)) {
+                    break
+                }
+                Enumer := Downstream.__Enum(1)
+            }
+            if (!Finished) {
+                Finished := true 
+                Finisher(State, Consumer)
+                Enumer := Downstream.__Enum(1)
+                return Enumer(&Out)
+            }
+            return false
+        }
+    }
+} ; class Stream
+;@endregion
+} ; class AquaHotkey_Gatherer extends AquaHotkey
+;@endregion
