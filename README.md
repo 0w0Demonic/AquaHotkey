@@ -45,6 +45,7 @@ As soon as the `StringLength` class is loaded, `String` is injected with a new
 
 - [Beginner's Guide](./docs/basics.md)
 - [Advanced Concepts](./docs/advanced.md)
+- [Expert Concepts](./docs/expert.md)
 - [AquaHotkeyX - Batteries Included](#aquahotkeyx---batteries-included)
 
 ## Installation
