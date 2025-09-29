@@ -30,7 +30,7 @@ class Any {
     Class {
         Get {
             ; Types: ClassName => Class
-            static Deref1(this) => %this%
+            static Deref1(this)    => %this%
             static Deref2(VarName) => %VarName%
             static Types := (
                 M := Map(),

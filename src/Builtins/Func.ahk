@@ -8,6 +8,7 @@
  */
 class AquaHotkey_Func extends AquaHotkey {
 class Func {
+    ;@region Suppliers
     /**
      * Returns a function that always returns its input argument.
      * @returns {Func}
@@ -35,6 +36,7 @@ class Func {
         }
         return ((*) => x)
     }
+    ;@endregion
 
     ;@region Composition
     /**

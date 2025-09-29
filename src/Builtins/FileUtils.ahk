@@ -201,7 +201,7 @@ class File {
             FileName := SubStr(StrGet(Buf), 5) ; remove "\\?\"-prefix
 
             ; memoize result, because it is immutable
-            this.DefineProp("Name", { Get: (Instance) => FileName })
+            this.DefineProp("Name", { Get: (_) => FileName })
             return FileName
         }
     }

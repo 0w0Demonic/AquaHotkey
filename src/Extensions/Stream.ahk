@@ -65,7 +65,7 @@ class Stream {
      */
     __New(Source) {
         if (Source.IsVariadic) {
-            throw ValueError("varargs parameter",, this.Name)
+            throw ValueError("varargs parameter",, Source.Name)
         }
         if (Source.MaxParams > Stream.MaxSupportedParams) {
             throw ValueError("invalid number of parameters",, Source.MaxParams)

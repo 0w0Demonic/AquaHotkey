@@ -8,11 +8,15 @@
  */
 class AquaHotkey_Number extends AquaHotkey {
 class Number {
-    /** Constants pi and e */
+    /**
+     * Constants pi and e
+     */
     static PI => 3.14159265358979
     static E  => 2.71828182845905
     
-    /** Built-in math functions. */
+    /**
+     * Built-in math functions.
+     */
     Abs()     => Abs(this)
     ASin()    => ASin(this)
     ACos()    => ACos(this)
