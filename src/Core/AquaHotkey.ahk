@@ -315,6 +315,37 @@ static ApplyMixin(ReceiverClass, Mixin, Mixins*) {
     (AquaHotkey_Backup.__New)(ReceiverClass, Mixin, Mixins*)
 } ; static ApplyMixin()
 ;@endregion
+
+;@region static CreateClass()
+/**
+ * Creates a new class.
+ * 
+ * @param   {Class?}   BaseClass  the base of the new class
+ * @param   {String?}  Name       name of the class
+ * @returns {Class}
+ */
+static CreateClass(BaseClass := Object, Name := "(unnamed)") {
+    static Define := (Object.Prototype.DefineProp)
+
+    if (VerCompare(A_AhkVersion, "2.1-alpha.3") >= 0) {
+        Cls := Class(BaseClass)
+        ClsProto := Cls.Prototype
+    } else {
+        Cls := Class()
+        ClsProto := Object()
+        Define(Cls, "Prototype", { Value: ClsProto })
+
+        ObjSetBase(Cls, BaseClass)
+        try {
+            ObjSetBase(ClsProto, BaseClass.Prototype)
+        } catch {
+            OutputDebug("[Aqua] Unable to assign " . Name . " as base.")
+        }
+    }
+    Define(ClsProto, "__Class", { Value: Name })
+    return Cls
+} ; static CreateClass()
+;@endregion
 } ; class AquaHotkey
 
 #Include %A_LineFile%/../AquaHotkey_Backup.ahk

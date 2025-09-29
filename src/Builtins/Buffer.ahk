@@ -80,11 +80,10 @@ class Buffer {
      */
     HexDump(Delimiter := A_Space, LineLength := 16) {
         if (IsObject(Delimiter)) {
-            throw TypeError("Expected a String but received an Object",,
-                            "Delimiter")
+            throw TypeError("Expected a String",, Delimiter)
         }
         if (!IsInteger(LineLength)) {
-            throw TypeError("LineLength is not an Integer",, Type(LineLength))
+            throw TypeError("Expected an Integer",, Type(LineLength))
         }
         if (LineLength < 0) {
             throw ValueError("LineLength < 0",, LineLength)

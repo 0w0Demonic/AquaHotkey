@@ -20,58 +20,21 @@ class Any {
      * @param   {Any*}    Args          additional arguments
      * @returns {Any}
      */
-    __Call(FunctionName, Args) {
-        ; dereferences a variable in global namespace
-        static Deref1(this) {
-            return %this%
-        }
-        ; edge case whenever `FunctionName == "this"`
-        static Deref2(VarName) {
-            return %VarName%
-        }
-
-        ; a map that keeps track of function objects
-        static Cache := (M := Map(), M.CaseSense := false, M)
-
-        ; lookup in cache
-        if (Function := Cache.Get(FunctionName, false)) {
-            return Function(this, Args*)
-        }
+    __Call(Name, Args) {
+        static Deref1(this) => %this%
+        static Deref2(VarName) => %VarName%
 
         ; try to do name-dereference
-        try
-        {
-            if (FunctionName != "this") {
-                Function := Deref1(FunctionName)
-            } else {
-                Function := Deref2(FunctionName)
-            }
+        try {
+            Fn := ((Name != "this") ? Deref1 : Deref2)(Name)
         }
         catch {
-            throw UnsetError("(__Call) variable not found: " . FunctionName,,
-                             FunctionName)
+            throw UnsetError("(__Call) not found",, Name)
         }
-
-        ; assert that this variable has a `Call` method
-        if (!HasMethod(Function)) {
-            throw TypeError("(__Call) variable not callable: " . FunctionName,,
-                            Type(Function))
+        if (HasMethod(Fn)) {
+            return Fn(this, Args*)
         }
-
-        ; make the function object delete the cache entry as soon as it
-        ; loses its last reference
-        try __DeletePrevious := Function.__Delete
-        ; define a `.__Delete()` method that removes the cache entry
-        Function.DefineProp("__Delete", { Call: __Delete })
-        __Delete(Instance) {
-            try __DeletePrevious(Instance)
-            try Cache.Delete(FunctionName)
-        }
-        ; add entry in cache
-        Cache[FunctionName] := Function
-
-        ; finally, call the function and return its result
-        return Function(this, Args*)
+        throw TypeError("(__Call) expected a function: " . Name,, Type(Fn))
     }
 
     /**

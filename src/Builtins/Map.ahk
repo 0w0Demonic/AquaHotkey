@@ -83,7 +83,7 @@ class Map {
      * 
      * @returns {Boolean}
      */
-    IsEmpty  => (!this.Count)
+    IsEmpty => (!this.Count)
     ;@endregion
 
     ;@region Mutations

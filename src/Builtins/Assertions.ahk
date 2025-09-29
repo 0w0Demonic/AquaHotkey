@@ -275,5 +275,22 @@ class Object {
         throw PropertyError(Msg ?? "object has no property called " . PropName)
     }
 } ; class Object
+
+;@region String
+class String {
+    /**
+     * Asserts that the string is not empty.
+     * 
+     * @param   {String?}  Msg  custom error message
+     * @returns {this}
+     */
+    AssertNotEmpty(Msg?) {
+        if (this == "") {
+            throw ValueError(Msg ?? "Empty string")
+        }
+    }
+} ; class String
+;@endregion
+
 ;@endregion
 } ; class AquaHotkey_Assertions extends AquaHotkey
