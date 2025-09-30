@@ -22,6 +22,9 @@ They're lazily evaluated, i.e., nothing happens until you hit something like
 `.ToArray()` or `.ForEach()`. That means fewer less operations done overall
 (if you know what you're doing), and a much cleaner mental model.
 
+To make the most use out of streams, you should try to "filter left". In other
+words, try to cut down on elements as soon as possible.
+
 ### Lazy Eval - Example
 
 A very interesting quirk of streams is that they can be *infinite* in size,
@@ -33,7 +36,7 @@ new element.
 
 ```ahk
 ; <"foo", "foo", "foo", "foo", "foo", "foo", "foo", ...>
-Stream.Generate(() => "foo")
+Stream.Repeat("foo")
 ```
 
 You can turn infinite streams into finite ones, e.g. by using `.Limit(x)`
@@ -85,9 +88,9 @@ for Value in Stream {
 
 ### Stream parameters and arity
 
-Streams can handle up to 4 arguments and automatically match them to the
-function you pass in. If your function only needs two, it only gets two.
-Want to keep the rest? Accept them.
+Streams can handle 2 parameters at once, and automatically match their "size"
+to the function you pass in. If you pass a 1-parameter function, the stream
+is "narrowed" to only the first parameter.
 
 ```ahk
 MyStream.Map((Index, Value) => Format("{} = {}", Index, Value))
@@ -95,6 +98,10 @@ MyStream.Map((Index, Value) => Format("{} = {}", Index, Value))
 
 The moment you call `.Map()` or `.FlatMap()`, you're down to 1-arity. If you
 want to preserve structure, make use of maps, arrays, and other objects.
+
+Bound functions (made through `ObjBindMethod()` or `Func.Bind()`) might cause
+some issues because they don't contain the correct `MinParams` and `MaxParams`
+arguments.
 
 ### Quick heads-up on naming
 
@@ -111,6 +118,7 @@ Same goes for `Array`, `Map`, and `Stream`. It’s just more expressive this way
 - After `.Map()` or `.FlatMap()`, you're always working with single values
 - `.ToArray(n)` extracts a specific param as output
 - Prefer composing with `Mapper`, `Combiner`, `Condition` for clarity
+- For optimal performance, cut down on elements quickly
 - Don’t stream giant strings unless you know what you’re doing
 
 ## Collector and Gatherer API

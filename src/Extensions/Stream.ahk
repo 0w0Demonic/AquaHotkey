@@ -57,7 +57,7 @@ class Stream {
      * 
      * 1. Only ByRef parameters `&ref`.
      * 2. No variadic parameters `args*`.
-     * 3. `MaxParams` is between `1` and `4`.
+     * 3. `MaxParams` is between `1` and `2`.
      * 
      * ---
      * @param   {Func}  Source  the function used as stream source
@@ -72,6 +72,17 @@ class Stream {
         }
         this.DefineProp("Call", { Get: (_) => Source })
     }
+
+    /**
+     * Creates an infinite stream of the given value.
+     * 
+     * @example
+     * Stream.Repeat(5) ; <5, 5, 5, 5, 5, ...>
+     * 
+     * @param   {Any}  Value  the value to be repeated
+     * @returns {Stream}
+     */
+    static Repeat(Value) => Stream((&Out) => ((Out := Value) || true))
 
     /**
      * Creates an infinite stream where each element is produced by the
@@ -92,6 +103,31 @@ class Stream {
 
         Generate(&Out) {
             Out := Supplier()
+            return true
+        }
+    }
+
+    /**
+     * Creates an infinite stream that cycles through a set of one or more
+     * given values.
+     * 
+     * @example
+     * Stream.Cycle(1, 3, 7) ; <1, 3, 7, 1, 3, 7, 1, 3, ...>
+     * 
+     * @param   {Any*}  Values  one or more values to be cycled through
+     * @returns {Stream}
+     */
+    static Cycle(Values*) {
+        if (!Values.Length) {
+            throw UnsetError("no values given", -2)
+        }
+        return Stream(Cycle)
+
+        Cycle(&Out) {
+            static Enumer := Values.__Enum(1)
+            while (!Enumer(&Out)) {
+                Enumer := Values.__Enum(1)
+            }
             return true
         }
     }
@@ -136,7 +172,7 @@ class Stream {
      * The maximum parameter size currently supported.
      * @returns {Integer}
      */
-    static MaxSupportedParams => 4
+    static MaxSupportedParams => 2
 
     /**
      * Returns the minimum parameter length of the underlying stream source.
@@ -213,8 +249,6 @@ class Stream {
         switch (n) {
             case 1: return Stream(RetainIf1)
             case 2: return Stream(RetainIf2)
-            case 3: return Stream(RetainIf3)
-            case 4: return Stream(RetainIf4)
         }
         throw ValueError("invalid parameter length",, n)
 
@@ -229,24 +263,6 @@ class Stream {
         
         RetainIf2(&A, &B?) {
             while (f(&A, &B)) {
-                if (Condition(A?, B?)) {
-                    return true
-                }
-            }
-            return false
-        }
-
-        RetainIf3(&A, &B?, &C?) {
-            while (f(&A, &B, &C)) {
-                if (Condition(A?, B?, C?)) {
-                    return true
-                }
-            }
-            return false
-        }
-
-        RetainIf4(&A, &B?, &C?, &D?) {
-            while (f(&A, &B, &C)) {
                 if (Condition(A?, B?)) {
                     return true
                 }
@@ -273,8 +289,6 @@ class Stream {
         switch (n) {
             case 1: return Stream(RemoveIf1)
             case 2: return Stream(RemoveIf2)
-            case 3: return Stream(RemoveIf3)
-            case 4: return Stream(RemoveIf4)
         }
         throw ValueError("invalid parameter length",, n)
 
@@ -290,24 +304,6 @@ class Stream {
         RemoveIf2(&A, &B?) {
             while (f(&A, &B)) {
                 if (!Condition(A?, B?)) {
-                    return true
-                }
-            }
-            return false
-        }
-        
-        RemoveIf3(&A, &B?, &C?) {
-            while (f(&A, &B, &C)) {
-                if (!Condition(A?, B?, C?)) {
-                    return true
-                }
-            }
-            return false
-        }
-
-        RemoveIf4(&A, &B?, &C?, &D?) {
-            while (f(&A, &B, &C, &D)) {
-                if (!Condition(A?, B?, C?, D?)) {
                     return true
                 }
             }
@@ -339,8 +335,6 @@ class Stream {
         switch (n) {       
             case 1: return Stream(Map1)
             case 2: return Stream(Map2)
-            case 3: return Stream(Map3)
-            case 4: return Stream(Map4)
         }
         throw ValueError("invalid parameter length",, n)
 
@@ -355,22 +349,6 @@ class Stream {
         Map2(&Out) {
             if (f(&A, &B)) {
                 Out := Mapper(A?, B?)
-                return true
-            }
-            return false
-        }
-
-        Map3(&Out) {
-            if (f(&A, &B, &C)) {
-                Out := Mapper(A?, B?, C?) 
-                return true
-            }
-            return false
-        }
-
-        Map4(&Out) {
-            if (f(&A, &B, &C, &D)) {
-                Out := Mapper(A?, B?, C?, D?)
                 return true
             }
             return false
@@ -400,8 +378,6 @@ class Stream {
         switch (n) {
             case 1: return Stream(FlatMap1)
             case 2: return Stream(FlatMap2)
-            case 3: return Stream(FlatMap3)
-            case 4: return Stream(FlatMap4)
         }
         throw ValueError("invalid parameter length",, n)
 
@@ -436,38 +412,6 @@ class Stream {
                 Enumer := A.__Enum(1)
             }
         }
-
-        FlatMap3(&Out) {
-            Loop {
-                if (Enumer(&Out)) {
-                    return true
-                }
-                if (!f(&A, &B, &C)) {
-                    return false
-                }
-                A := Mapper(A?, B?, C?)
-                if (!(A is Array)) {
-                    A := Array(A)
-                }
-                Enumer := A.__Enum(1)
-            }
-        }
-
-        FlatMap4(&Out) {
-            Loop {
-                if (Enumer(&Out)) {
-                    return true
-                }
-                if (!f(&A, &B, &C, &D)) {
-                    return false
-                }
-                A := Mapper(A?, B?, C?, D?)
-                if (!(A is Array)) {
-                    A := Array(A)
-                }
-                Enumer := A.__Enum(1)
-            }
-        }
     }
 
     /**
@@ -493,8 +437,6 @@ class Stream {
         switch (this.MaxParams) {
             case 1: return Stream(MapByRef1)
             case 2: return Stream(MapByRef2)
-            case 3: return Stream(MapByRef3)
-            case 4: return Stream(MapByRef4)
         }
         throw ValueError("invalid parameter length",, this.MaxParams)
 
@@ -509,22 +451,6 @@ class Stream {
         MapByRef2(&A, &B?) {
             while (f(&A, &B)) {
                 Mapper(&A, &B)
-                return true
-            }
-            return false
-        }
-
-        MapByRef3(&A, &B?, &C?) {
-            while (f(&A, &B, &C)) {
-                Mapper(&A, &B, &C)
-                return true
-            }
-            return false
-        }
-
-        MapByRef4(&A, &B?, &C?, &D?) {
-            while (f(&A, &B, &C, &D)) {
-                Mapper(&A, &B, &C, &D)
                 return true
             }
             return false
@@ -555,23 +481,11 @@ class Stream {
         switch (this.MaxParams) {
             case 1: return Stream(Limit1)
             case 2: return Stream(Limit2)
-            case 3: return Stream(Limit3)
-            case 4: return Stream(Limit4)
         }
         throw ValueError("invalid parameter length",, this.MaxParams)
 
-        Limit1(&A) {
-            return ((Count++) < n) && f(&A)
-        }
-        Limit2(&A, &B?) {
-            return ((Count++) < n) && f(&A, &B)
-        }
-        Limit3(&A, &B?, &C?) {
-            return ((Count++) < n) && f(&A, &B, &C)
-        }
-        Limit4(&A, &B?, &C?, &D?) {
-            return ((Count++) < n) && f(&A, &B, &C, &D)
-        }
+        Limit1(&A) => ((Count++) < n) && f(&A)
+        Limit2(&A, &B?) => ((Count++) < n) && f(&A, &B)
     }
 
     /**
@@ -597,8 +511,6 @@ class Stream {
         switch (this.MaxParams) {
             case 1: return Stream(Skip1)
             case 2: return Stream(Skip2)
-            case 3: return Stream(Skip3)
-            case 4: return Stream(Skip4)
         }
         throw ValueError("invalid parameter length",, this.MaxParams)
 
@@ -613,24 +525,6 @@ class Stream {
 
         Skip2(&A, &B?) {
             while (f(&A, &B)) {
-                if (++Count > n) {
-                    return true
-                }
-            }
-            return false
-        }
-
-        Skip3(&A, &B?, &C?) {
-            while (f(&A, &B, &C)) {
-                if (++Count > n) {
-                    return true
-                }
-            }
-            return false
-        }
-
-        Skip4(&A, &B?, &C?, &D?) {
-            while (f(&A, &B, &C, &D)) {
                 if (++Count > n) {
                     return true
                 }
@@ -657,22 +551,11 @@ class Stream {
         switch (n) {
             case 1: return Stream(TakeWhile1)
             case 2: return Stream(TakeWhile2)
-            case 3: return Stream(TakeWhile3)
-            case 4: return Stream(TakeWhile4)
         }
         throw ValueError("invalid parameter length",, n)
 
-        TakeWhile1(&A) => f(&A)
-                && Condition(A?)
-
-        TakeWhile2(&A, &B?) => f(&A, &B)
-                && Condition(A?, B?)
-
-        TakeWhile3(&A, &B?, &C?) => f(&A, &B, &C)
-                && Condition(A?, B?, C?)
-
-        TakeWhile4(&A, &B?, &C?, &D?) => f(&A, &B, &C, &D)
-                && Condition(A?, B?, C?, D?)
+        TakeWhile1(&A) => f(&A) && Condition(A?)
+        TakeWhile2(&A, &B?) => f(&A, &B) && Condition(A?, B?)
     }
 
     /**
@@ -694,8 +577,6 @@ class Stream {
         switch (n) {
             case 1: return Stream(DropWhile1)
             case 2: return Stream(DropWhile2)
-            case 3: return Stream(DropWhile3)
-            case 4: return Stream(DropWhile4)
         }
         throw ValueError("invalid parameter length",, n)
 
@@ -711,24 +592,6 @@ class Stream {
         DropWhile2(&A, &B?) {
             while (f(&A, &B)) {
                 if (NoDrop || (NoDrop |= !Condition(A?, B?))) {
-                    return true
-                }
-            }
-            return false
-        }
-
-        DropWhile3(&A, &B?, &C?) {
-            while (f(&A, &B, &C)) {
-                if (NoDrop || (NoDrop |= !Condition(A?, B?, C?))) {
-                    return true
-                }
-            }
-            return false
-        }
-
-        DropWhile4(&A, &B?, &C?, &D?) {
-            while (f(&A, &B, &C, &D)) {
-                if (NoDrop || (NoDrop |= !Condition(A?, B?, C?, D?))) {
                     return true
                 }
             }
@@ -786,8 +649,6 @@ class Stream {
         switch (this.MaxParams) {
             case 1: return Stream(Distinct1)
             case 2: return Stream(Distinct2)
-            case 3: return Stream(Distinct3)
-            case 4: return Stream(Distinct4)
         }
         throw ValueError("invalid parameter length",, this.MaxParams)
 
@@ -822,28 +683,6 @@ class Stream {
             }
             return false
         }
-
-        Distinct3(&A, &B?, &C?) {
-            while (f(&A, &B, &C)) {
-                Hash := Hasher(A?, B?, C?)
-                if (!Cache.Has(Hash)) {
-                    Cache[Hash] := true
-                    return true
-                }
-            }
-            return false
-        }
-
-        Distinct4(&A, &B?, &C?, &D?) {
-            while (f(&A, &B, &C, &D)) {
-                Hash := Hasher(A?, B?, C?, D?)
-                if (!Cache.Has(Hash)) {
-                    Cache[Hash] := true
-                    return true
-                }
-            }
-            return false
-        }
     }
     ;@endregion
 
@@ -869,8 +708,6 @@ class Stream {
         switch (n) {
             case 1: return Stream(Peek1)
             case 2: return Stream(Peek2)
-            case 3: return Stream(Peek3)
-            case 4: return Stream(Peek4)
         }
         throw ValueError("invalid parameter length",, n)
 
@@ -885,22 +722,6 @@ class Stream {
         Peek2(&A, &B?) {
             while (f(&A, &B)) {
                 Action(A?, B?)
-                return true
-            }
-            return false
-        }
-
-        Peek3(&A, &B?, &C?) {
-            while (f(&A, &B, &C)) {
-                Action(A?, B?, C?)
-                return true
-            }
-            return false
-        }
-
-        Peek4(&A, &B?, &C?, &D?) {
-            while (f(&A, &B, &C, &D)) {
-                Action(A?, B?, C?, D?)
                 return true
             }
             return false
@@ -927,14 +748,6 @@ class Stream {
             case 2:
                 for A, B in this {
                     Action(A?, B?)
-                }
-            case 3:
-                for A, B, C in this {
-                    Action(A?, B?, C?)
-                }
-            case 4:
-                for A, B, C, D in this {
-                    Action(A?, B?, C?, D?)
                 }
             default:
                 throw ValueError("invalid parameter length",, n)
@@ -973,18 +786,6 @@ class Stream {
                         return Array(A?, B?)
                     }
                 }
-            case 3:
-                for A, B, C in this {
-                    if (Condition(A?, B?, C?)) {
-                        return Array(A?, B?, C?)
-                    }
-                }
-            case 4:
-                for A, B, C, D in this {
-                    if (Condition(A?, B?, C?)) {
-                        return Array(A?, B?, C?, D?)
-                    }
-                }
             default:
                 throw ValueError("invalid parameter length",, n)
         }
@@ -1016,18 +817,6 @@ class Stream {
                         return false
                     }
                 }
-            case 3:
-                for A, B, C in this {
-                    if (!Condition(A?, B?, C?)) {
-                        return false
-                    }
-                }
-            case 4:
-                for A, B, C, D in this {
-                    if (!Condition(A?, B?, C?, D?)) {
-                        return false
-                    }
-                }
             default:
                 throw ValueError("invalid parameter length",, n)
         }
@@ -1056,18 +845,6 @@ class Stream {
             case 2:
                 for A, B in this {
                     if (Condition(A?, B?)) {
-                        return false
-                    }
-                }
-            case 3:
-                for A, B, C in this {
-                    if (Condition(A?, B?, C?)) {
-                        return false
-                    }
-                }
-            case 4:
-                for A, B, C, D in this {
-                    if (Condition(A?, B?, C?, D?)) {
                         return false
                     }
                 }
