@@ -168,7 +168,7 @@ elegant, and extremely powerful. A completely new way to write AutoHotkey.
 
 ## AquaHotkeyX
 
-Once the foundation was stable, I move on to building a standard library:
+Once the foundation was stable, I moved on to building a standard library:
 AquaHotkeyX. The focus here was on chaining properties together into expressive
 pipelines, and exploring how far AquaHotkey's extension model could be pushed.
 
@@ -180,7 +180,7 @@ into a unique library.
 
 ```ahk
 ; Map { "H": 1, "E": 1, "L": 2, "O": 1 }
-"  hello  ".Trim().StrUpper().Stream(2).Collect(Collector.Frequency)
+"  hello  ".Trim().StrUpper().Stream().Collect(Collector.Frequency)
 ```
 
 ## Backups
