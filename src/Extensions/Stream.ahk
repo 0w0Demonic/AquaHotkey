@@ -85,6 +85,18 @@ class Stream {
     static Repeat(Value) => Stream((&Out) => ((Out := Value) || true))
 
     /**
+     * Creates a new stream consisting of zero or more values `Args*`.
+     * 
+     * @example
+     * Stream.of("Hello", "world!") ; <"Hello", "world!">
+     * Stream.of() ; <>
+     * 
+     * @param   {Any*}  Args
+     * @returns {Stream}
+     */
+    static Of(Args*) => Stream(Args.__Enum(2))
+
+    /**
      * Creates an infinite stream where each element is produced by the
      * given `Supplier` function.
      * 
@@ -357,16 +369,16 @@ class Stream {
 
     /**
      * Returns a new stream that transforms, and then flattens resulting
-     * arrays each into separate elements.
+     * streams each into separate elements.
      * 
      * The resulting stream has a parameter size of 1.
      * 
      * @example
      * ; <"f", "o", "o", "b", "a", "r">
-     * Array("foo", "bar").Stream().FlatMap(StrSplit)
+     * Array("foo", "bar").Stream().FlatMap((Str) => Str.Stream())
      * 
      * ; <1, "foo", 2, "bar">
-     * Array("foo", "bar").Stream(2).FlatMap(Array)
+     * Array("foo", "bar").Stream(2).FlatMap((i, Str) => Stream.Of(i, Str))
      * 
      * @param   {Func?}  Mapper  function that maps and flattens elements
      * @returns {Stream}
@@ -390,7 +402,7 @@ class Stream {
                     return false
                 }
                 A := Mapper(A?)
-                if (!(A is Array)) {
+                if (!(A is Stream)) {
                     A := Array(A)
                 }
                 Enumer := A.__Enum(1)
@@ -406,7 +418,7 @@ class Stream {
                     return false
                 }
                 A := Mapper(A?, B?)
-                if (!(A is Array)) {
+                if (!(A is Stream)) {
                     A := Array(A)
                 }
                 Enumer := A.__Enum(1)

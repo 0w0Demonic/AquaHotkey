@@ -38,7 +38,7 @@ class Stream {
             [7, 8, 9]
         )
         .Stream()
-        .FlatMap(x => x)
+        .FlatMap(x => x.Stream())
         .Join(" ")
         .AssertEquals("1 2 3 4 5 6 7 8 9")
     }
@@ -46,9 +46,18 @@ class Stream {
     static FlatMap2() {
         Array("Hello, ", "world!")
             .Stream()
-            .FlatMap(StrSplit)
+            .FlatMap((Str) => Str.Stream())
             .Join(" ")
             .AssertEquals("H e l l o ,   w o r l d !")
+    }
+
+    static FlatMap3() {
+        Array(1).Stream().FlatMap((x) => Stream.Of(1, 2))
+                .Join(" ").AssertEquals("1 2")
+    }
+
+    static Of() {
+        Stream.Of(1, 2, 3).Join(" ").AssertEquals("1 2 3")
     }
 
     static MapByRef() {
