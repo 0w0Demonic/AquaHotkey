@@ -157,7 +157,7 @@ class ArrayDefaultFalse extends AquaHotkey {
 ```
 
 For more insight on how this library evolved over time, and some reasoning
-behind my design choices, you can check out [About AquaHotkey](./docs/about.md).
+behind my design choices, you can check out [About AquaHotkey](./about.md).
 
 ---
 
