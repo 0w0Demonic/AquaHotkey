@@ -122,8 +122,8 @@ Now that we've covered the very basics, I encourage you to try it out yourself:
       class Array {
           Count(Value) {
               Total := 0
-              for Value in this {
-                  if (Value == Total) {
+              for Elem in this {
+                  if (Elem == Value) {
                       Total++
                   }
               }
