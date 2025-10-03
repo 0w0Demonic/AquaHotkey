@@ -416,8 +416,6 @@ class Stream {
         switch (this.MaxParams) {
             case 1: return S(Gather1)
             case 2: return S(Gather2)
-            case 3: return S(Gather3)
-            case 4: return S(Gather4)
         }
         throw ValueError("invalid parameter length",, this.MaxParams)
 
@@ -454,52 +452,6 @@ class Stream {
                     break
                 }
                 if (!Integrator(State, Consumer, A?, B?)) {
-                    break
-                }
-                Enumer := Downstream.__Enum(1)
-            }
-            if (!Finished) {
-                Finished := true 
-                Finisher(State, Consumer)
-                Enumer := Downstream.__Enum(1)
-                return Enumer(&Out)
-            }
-            return false
-        }
-
-        Gather3(&Out) {
-            Loop {
-                if (Enumer(&Out)) {
-                    return true
-                }
-                Downstream.Length := 0
-                if (!f(&A, &B, &C)) {
-                    break
-                }
-                if (Integrator(State, Consumer, A?, B?, C?)) {
-                    break
-                }
-                Enumer := Downstream.__Enum(1)
-            }
-            if (!Finished) {
-                Finished := true 
-                Finisher(State, Consumer)
-                Enumer := Downstream.__Enum(1)
-                return Enumer(&Out)
-            }
-            return false
-        }
-
-        Gather4(&Out) {
-            Loop {
-                if (Enumer(&Out)) {
-                    return true
-                }
-                Downstream.Length := 0
-                if (!f(&A, &B, &C, &D)) {
-                    break
-                }
-                if (!Integrator(State, Consumer, A?, B?, C?, D?)) {
                     break
                 }
                 Enumer := Downstream.__Enum(1)

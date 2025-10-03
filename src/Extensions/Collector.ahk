@@ -900,14 +900,6 @@ class AquaHotkey_Collector extends AquaHotkey {
                     for A, B in this {
                         CollAcc(Obj, A?, B?)
                     }
-                case 3:
-                    for A, B, C in this {
-                        CollAcc(Obj, A?, B?, C?)
-                    }
-                case 4:
-                    for A, B, C, D in this {
-                        CollAcc(Obj, A?, B?, C?, D?)
-                    }
                 default: throw ValueError("invalid parameter length",
                                           this.MaxParams)
             }

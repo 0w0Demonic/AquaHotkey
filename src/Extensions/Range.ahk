@@ -61,6 +61,6 @@ Range(Start, End?, Step := 1) {
     RangeDown(&OutValue) {
         OutValue := Start
         Start += Step
-        return (OutValue <= End)
+        return (OutValue >= End)
     }
 }
