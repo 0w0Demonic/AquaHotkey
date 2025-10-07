@@ -187,7 +187,7 @@ class Stream extends BaseStream {
                 throw TypeError("Expected an Object", -2, Type(Val))
             }
             f := (Object.Prototype.Props)(Val)
-            return Stream((&K, &V) => f(&K, &V))
+            return DoubleStream((&K, &V) => f(&K, &V))
         }
     }
 
