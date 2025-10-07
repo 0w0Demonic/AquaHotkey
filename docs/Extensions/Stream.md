@@ -57,7 +57,7 @@ AquaHotkeyX, that's also strings and files.
 Array(1, 2, 3, 4, 5).Stream()
 
 ; <("foo", "bar"), ("hotel", "trivago"), ...>
-MyMap.Stream(2)
+MyMap.DoubleStream()
 
 ; <"this is line 1", "foo", "this is line 3">
 "litany.txt".FileOpen().Stream()
@@ -86,23 +86,6 @@ for Value in Stream {
 }
 ```
 
-### Stream parameters and arity
-
-Streams can handle 2 parameters at once, and automatically match their "size"
-to the function you pass in. If you pass a 1-parameter function, the stream
-is "narrowed" to only the first parameter.
-
-```ahk
-MyStream.Map((Index, Value) => Format("{} = {}", Index, Value))
-```
-
-The moment you call `.Map()` or `.FlatMap()`, you're down to 1-arity. If you
-want to preserve structure, make use of maps, arrays, and other objects.
-
-Bound functions (made through `ObjBindMethod()` or `Func.Bind()`) might cause
-some issues because they don't contain the correct `MinParams` and `MaxParams`
-arguments.
-
 ### Quick heads-up on naming
 
 Instead of `.Filter()`, there's two separate methods:
@@ -114,9 +97,9 @@ Same goes for `Array`, `Map`, and `Stream`. It’s just more expressive this way
 
 ### Recap: Some golden rules
 
-- Use `.Stream(n)` to define how many parameters are yielded
+- Use `.Stream()` to get a stream of size 1
+- Use `.DoubleStream()` get a stream of size 2
 - After `.Map()` or `.FlatMap()`, you're always working with single values
-- `.ToArray(n)` extracts a specific param as output
 - Prefer composing with `Mapper`, `Combiner`, `Condition` for clarity
 - For optimal performance, cut down on elements quickly
 - Don’t stream giant strings unless you know what you’re doing

@@ -33,7 +33,7 @@ class Any {
     }
 
     static Stream2() {
-        Array(1, 2, 3, 4, 5).Stream(2).AssertType(Stream)
+        Array(1, 2, 3, 4, 5).DoubleStream().AssertType(DoubleStream)
     }
     
     static Optional() {

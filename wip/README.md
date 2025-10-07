@@ -8,3 +8,4 @@ or just wacky stuff.
 - Fix clunkiness of Kwargs.ahk
 - Add a lot more `/examples` files
 - If possible, add more FP patterns
+- Add `#Include`s for all the packages that rely on Aqua

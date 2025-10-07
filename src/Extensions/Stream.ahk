@@ -42,37 +42,11 @@
  *                parameters. For example:
  * 
  * ```
- * Array("foo", "bar", "baz").Stream(2) ; <(1, "foo"), (2, "bar"), (3, "baz")>
+ * Array("foo", "bar").DoubleStream() ; <(1, "foo"), (2, "bar")>
  * ```
  */
-class Stream {
+class Stream extends BaseStream {
     ;@region Construction
-    /**
-     * Constructs a new stream with the given `Source` used for retrieving
-     * elements.
-     * 
-     * ---
-     * 
-     * **Requirements for a Valid Stream Source**:
-     * 
-     * 1. Only ByRef parameters `&ref`.
-     * 2. No variadic parameters `args*`.
-     * 3. `MaxParams` is between `1` and `2`.
-     * 
-     * ---
-     * @param   {Func}  Source  the function used as stream source
-     * @returns {Stream}
-     */
-    __New(Source) {
-        if (Source.IsVariadic) {
-            throw ValueError("varargs parameter",, Source.Name)
-        }
-        if (Source.MaxParams > Stream.MaxSupportedParams) {
-            throw ValueError("invalid number of parameters",, Source.MaxParams)
-        }
-        this.DefineProp("Call", { Get: (_) => Source })
-    }
-
     /**
      * Creates an infinite stream of the given value.
      * 
@@ -85,18 +59,6 @@ class Stream {
     static Repeat(Value) => Stream((&Out) => ((Out := Value) || true))
 
     /**
-     * Creates a new stream consisting of zero or more values `Args*`.
-     * 
-     * @example
-     * Stream.of("Hello", "world!") ; <"Hello", "world!">
-     * Stream.of() ; <>
-     * 
-     * @param   {Any*}  Args
-     * @returns {Stream}
-     */
-    static Of(Args*) => Stream(Args.__Enum(1))
-
-    /**
      * Creates an infinite stream where each element is produced by the
      * given `Supplier` function.
      * 
@@ -106,15 +68,16 @@ class Stream {
      * ; <4, 6, 1, 8, 2, 7>
      * Stream.Generate(() => Random(0, 9)).Limit(6).ToArray()
      * 
-     * @param   {Func}    Supplier   function that supplies stream elements
+     * @param   {Func}  Supplier  function that supplies stream elements
+     * @param   {Any*}  Args      zero or more arguments passed to the supplier
      * @returns {Stream}
      */
-    static Generate(Supplier) {
+    static Generate(Supplier, Args*) {
         GetMethod(Supplier)
         return Stream(Generate)
 
         Generate(&Out) {
-            Out := Supplier()
+            Out := Supplier(Args*)
             return true
         }
     }
@@ -178,15 +141,15 @@ class Stream {
         }
     }
 
+    ; TODO separate Stream.OfProps() and DoubleStream.OfProps() ?
     /**
      * (AutoHotkey v2.1-alpha.10+):
      * 
-     * Returns a stream of the object's own properties. Use this method
-     * instead of `.OwnProps().Stream()` to support property values.
+     * Returns a stream of the object's own properties.
      * 
      * (AutoHotkey v2.1-alpha.18+):
      * 
-     * This method allows any value to be passed instead of only objects.
+     * This method allows any value to be passed, instead of objects only.
      * 
      * @example
      * class ExampleBase {
@@ -201,7 +164,7 @@ class Stream {
      * Stream.OfProps(Example()) ; <("a", 1), ("b", 2), ("c", 3), ...>
      * 
      * @param   {Object/Any}  Val  the value whose properties to enumerate
-     * @returns {Stream}
+     * @returns {DoubleStream}
      */
     static OfProps(Val) {
         ; Choose one of the two possible implementations during the first
@@ -216,7 +179,7 @@ class Stream {
         static Post_v2_1_18(_, Val) {
             static p := (IsSet(Props) && Props)
             f := p(Val)
-            return Stream((&K, &V) => f(&K, &V))
+            return DoubleStream((&K, &V) => f(&K, &V))
         }
 
         static Pre_v2_1_18(_, Val) {
@@ -228,9 +191,9 @@ class Stream {
         }
     }
 
+    ; TODO use separate Stream.OfOwnProps() and DoubleStream.OfOwnProps() ?
     /**
-     * Returns a stream of the object's own properties. Use this method
-     * instead of `.OwnProps().Stream()` to support property values.
+     * Returns a stream of the object's own properties.
      * 
      * @example
      * class Example {
@@ -245,11 +208,18 @@ class Stream {
      */
     static OfOwnProps(Obj) {
         f := ObjOwnProps(Obj)
-        return Stream((&K, &V) => f(&K, &V))
+        return DoubleStream((&K, &V) => f(&K, &V))
     }
     ;@endregion
 
     ;@region Support
+    /**
+     * The argument size of the stream.
+     * 
+     * @returns {Integer}
+     */
+    static Size => 1
+
     /**
      * Static constructor that removes the `static OfProps()` on versions
      * below <v2.1-alpha.10.
@@ -259,67 +229,6 @@ class Stream {
             this.DeleteProp("OfProps")
         }
     }
-
-    /**
-     * The maximum parameter size currently supported.
-     * @returns {Integer}
-     */
-    static MaxSupportedParams => 2
-
-    /**
-     * Returns the minimum parameter length of the underlying stream source.
-     * @returns {Integer}
-     */
-    MinParams => this.Call.MinParams
-
-    /**
-     * Returns the maximum parameter length of the underlying stream source.
-     * @returns {Integer}
-     */
-    MaxParams => this.Call.MaxParams
-
-    /**
-     * Returns the name of the underlying stream source.
-     * @returns {String}
-     */
-    Name => this.Call.Name
-
-    /**
-     * Returns the stream as enumerator object used in for-loops.
-     * @returns {Enumerator}
-     */
-    __Enum(n) => this.Call
-
-    /**
-     * Calculates the parameter length of the new stream that is returned after
-     * adding an intermediate operation such as `.RetainIf()` to the stream.
-     * 
-     * ---
-     * 
-     * Streams always takes the longest possible length they can, depending on
-     * how many parameters `Function` supports. For example:
-     * 
-     * - A stream has 3 parameters.
-     * - The function passed in an intermediate operation (such as
-     *   `.RetainIf()`) accepts only 2 parameters.
-     * - **Result**: The new stream has only 2 parameters.
-     * 
-     * ---
-     * @param   {Func}  Function  function used for an intermediate operation
-     * @returns {Integer}
-     */
-    ArgSize(Function) {
-        if (!(Function is Func)) {
-            Function := GetMethod(Function, "Call")
-        }
-        if (Function.IsVariadic) {
-            return (this.MaxParams || 1)
-        }
-        if (!Function.MaxParams) {
-            throw ValueError("invalid parameter length: 0",, Function.Name)
-        }
-        return (Min(this.MaxParams, Function.MaxParams) || 1)
-    }
     ;@endregion
 
     ;@region Filtering
@@ -327,35 +236,19 @@ class Stream {
      * Returns a new stream that retains elements only if they match the
      * given `Condition`.
      * 
-     * The new parameter size is decided by `.ArgSize()`.
-     * 
      * @example
      * Array(1, 2, 3, 4).Stream().RetainIf(x => (x > 2)) ; <3, 4>
      * 
      * @param   {Func}  Condition  the given condition
      * @returns {Stream}
      */
-    RetainIf(Condition) {
-        n := this.ArgSize(Condition)
+    RetainIf(Condition, Args*) {
         f := this.Call
-        switch (n) {
-            case 1: return Stream(RetainIf1)
-            case 2: return Stream(RetainIf2)
-        }
-        throw ValueError("invalid parameter length",, n)
+        return Stream(RetainIf)
 
-        RetainIf1(&A) {
+        RetainIf(&A) {
             while (f(&A)) {
                 if (Condition(A?)) {
-                    return true
-                }
-            }
-            return false
-        }
-        
-        RetainIf2(&A, &B?) {
-            while (f(&A, &B)) {
-                if (Condition(A?, B?)) {
                     return true
                 }
             }
@@ -367,40 +260,28 @@ class Stream {
      * Returns a new stream that removes all elements that fulfill the
      * given `Condition`.
      * 
-     * The new paremeter size is decided by `.ArgSize()`.
-     * 
      * @example
-     * Array(1, 2, 3, 4).Stream().RemoveIf(x => (x > 2)) ; <1, 2>
+     * IsGreater(a, b) {
+     *     return (a > b)
+     * }
+     * Array(1, 2, 3, 4).Stream().RemoveIf(IsGreater, 2) ; <3, 4>
      * 
      * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for condition function
      * @param   {Stream}
      */
-    RemoveIf(Condition) {
-        n := this.ArgSize(Condition)
+    RemoveIf(Condition, Args*) {
         f := this.Call
-        switch (n) {
-            case 1: return Stream(RemoveIf1)
-            case 2: return Stream(RemoveIf2)
-        }
-        throw ValueError("invalid parameter length",, n)
+        return Stream(RemoveIf)
 
-        RemoveIf1(&A) {
+        RemoveIf(&A) {
             while (f(&A)) {
-                if (!Condition(A?)) {
+                if (!Condition(A?, Args*)) {
                     return true
                 }
             }
             return false
-        }
-        
-        RemoveIf2(&A, &B?) {
-            while (f(&A, &B)) {
-                if (!Condition(A?, B?)) {
-                    return true
-                }
-            }
-            return false
-        }
+        }   
     }
     ;@endregion
 
@@ -409,38 +290,23 @@ class Stream {
      * Returns a new stream that transforms its elements by applying the given
      * `Mapper` function.
      * 
-     * The resulting stream has a parameter size of 1.
-     * 
      * @example
-     * ; <2, 4, 6, 8>
-     * Array(1, 2, 3, 4).Stream().Map(x => x * 2).ToArray()
-     * 
-     * ; <(1, "foo"), (2, "bar"), (3, "baz")>
-     * Array("foo", "bar", "baz").Stream(2).Map(Array)
+     * Times(a, b) {
+     *     return (a * b)
+     * }
+     * Array(1, 2, 3, 4).Stream().Map(Times(2)).ToArray() ; <2, 4, 6, 8>
      * 
      * @param   {Func}  Mapper  function that maps all elements
+     * @param   {Any*}  Args    zero or more argument for mapper
      * @param   {Stream}
      */
-    Map(Mapper) {
-        n := this.ArgSize(Mapper)
+    Map(Mapper, Args*) {
         f := this.Call
-        switch (n) {       
-            case 1: return Stream(Map1)
-            case 2: return Stream(Map2)
-        }
-        throw ValueError("invalid parameter length",, n)
+        return Stream(Map)
 
-        Map1(&Out) {
+        Map(&Out) {
             if (f(&A)) {
-                Out := Mapper(A?)
-                return true
-            }
-            return false
-        }
-
-        Map2(&Out) {
-            if (f(&A, &B)) {
-                Out := Mapper(A?, B?)
+                Out := Mapper(A?, Args*)
                 return true
             }
             return false
@@ -451,29 +317,20 @@ class Stream {
      * Returns a new stream that transforms, and then flattens resulting
      * streams each into separate elements.
      * 
-     * The resulting stream has a parameter size of 1.
-     * 
      * @example
      * ; <"f", "o", "o", "b", "a", "r">
      * Array("foo", "bar").Stream().FlatMap((Str) => Str.Stream())
      * 
-     * ; <1, "foo", 2, "bar">
-     * Array("foo", "bar").Stream(2).FlatMap((i, Str) => Stream.Of(i, Str))
-     * 
      * @param   {Func?}  Mapper  function that maps and flattens elements
+     * @param   {Any*}   Args    zero or more arguments for the mapper function
      * @returns {Stream}
      */
-    FlatMap(Mapper) {
-        Enumer := (*) => false
-        n := this.ArgSize(Mapper)
+    FlatMap(Mapper := Stream, Args*) {
         f := this.Call
-        switch (n) {
-            case 1: return Stream(FlatMap1)
-            case 2: return Stream(FlatMap2)
-        }
-        throw ValueError("invalid parameter length",, n)
+        return Stream(FlatMap)
 
-        FlatMap1(&Out) {
+        FlatMap(&Out) {
+            static Enumer := (*) => false
             Loop {
                 if (Enumer(&Out)) {
                     return true
@@ -481,27 +338,44 @@ class Stream {
                 if (!f(&A)) {
                     return false
                 }
-                A := Mapper(A?)
+                A := Mapper(A?, Args*)
                 if (!(A is Stream)) {
                     A := Array(A)
                 }
                 Enumer := A.__Enum(1)
             }
         }
+    }
 
-        FlatMap2(&Out) {
+    /**
+     * Returns a new stream that transforms, and then flattens resulting double
+     * streams each into separate elements.
+     * 
+     * @example
+     * MsgBox(Array("foo", "bar").Stream().DoubleFlatMap().Join(" "))
+     * 
+     * @param   {Func?}  Mapper  function to maps and flattens elements
+     * @param   {Any*}   Any     zero or more arguments for the mapper function
+     * @returns {DoubleStream}
+     */
+    DoubleFlatMap(Mapper := DoubleStream, Args*) {
+        f := this.Call
+        return DoubleStream(DoubleFlatMap)
+
+        DoubleFlatMap(&Out1, &Out2) {
+            static Enumer := (*) => false
             Loop {
-                if (Enumer(&Out)) {
+                if (Enumer(&Out1, &Out2)) {
                     return true
                 }
-                if (!f(&A, &B)) {
+                if (!f(&A)) {
                     return false
                 }
-                A := Mapper(A?, B?)
-                if (!(A is Stream)) {
+                A := Mapper(A?, Args*)
+                if (!(A is DoubleStream)) {
                     A := Array(A)
                 }
-                Enumer := A.__Enum(1)
+                Enumer := A.__Enum(2)
             }
         }
     }
@@ -510,39 +384,24 @@ class Stream {
      * Returns a new stream which mutates the current elements by reference,
      * by applying the given `Mapper` function.
      * 
-     * The parameter length of the new stream remains the same.
-     * 
      * @example
-     * MutateValues(&Index, &Value) {
-     *     ++Index
-     *     Value .= "_"
+     * MutateValues(&Str) {
+     *     Str .= "_"
      * }
      * 
-     * ; <(2, "foo_"), (3, "bar_")>
-     * Array("foo", "bar").Stream(2).MapByRef(MutateValues)
+     * Array("foo", "bar").Stream().MapByRef(MutateValues) ; <"foo_", "bar_">
      * 
      * @param   {Func}  Mapper  function that mutates elements by reference
+     * @param   {Any*}  Args    zero or more arguments for the mapper function
      * @returns {Stream}
      */
-    MapByRef(Mapper) {
+    MapByRef(Mapper, Args*) {
         f := this.Call
-        switch (this.MaxParams) {
-            case 1: return Stream(MapByRef1)
-            case 2: return Stream(MapByRef2)
-        }
-        throw ValueError("invalid parameter length",, this.MaxParams)
+        return Stream(MapByRef)
 
-        MapByRef1(&A) {
-            while (f(&A)) {
-                Mapper(&A)
-                return true
-            }
-            return false
-        }
-
-        MapByRef2(&A, &B?) {
-            while (f(&A, &B)) {
-                Mapper(&A, &B)
+        MapByRef(&A) {
+            if (f(&A)) {
+                Mapper(&A, Args*)
                 return true
             }
             return false
@@ -550,10 +409,8 @@ class Stream {
     }
 
     /**
-     * Returns a new stream that returns not more than `x` elements before
+     * Returns a new stream that returns not more than `n` elements before
      * terminating.
-     * 
-     * The parameter length of the new stream remains the same.
      * 
      * @example
      * Array(1, 2, 3, 4, 5).Stream().Limit(2) ; <1, 2>
@@ -568,25 +425,20 @@ class Stream {
         if (n < 0) {
             throw ValueError("n < 0",, n)
         }
-        f := this.Call
         Count := 0
-        switch (this.MaxParams) {
-            case 1: return Stream(Limit1)
-            case 2: return Stream(Limit2)
-        }
-        throw ValueError("invalid parameter length",, this.MaxParams)
+        f := this.Call
+        return Stream(Limit)
 
-        Limit1(&A) => ((Count++) < n) && f(&A)
-        Limit2(&A, &B?) => ((Count++) < n) && f(&A, &B)
+        Limit(&A) {
+            return ((Count++) < n) && f(&A)
+        }
     }
 
     /**
-     * Returns a new stream that skips the first `x` elements.
-     * 
-     * The parameter length of the new stream remains the same.
+     * Returns a new stream that skips the first `n` elements.
      * 
      * @example
-     * Array(1, 2, 3, 4).Stream().Skip() ; <3, 4>
+     * Array(1, 2, 3, 4).Stream().Skip(2) ; <3, 4>
      * 
      * @param   {Integer}  x  amount of elements to be skipped
      * @returns {Stream}
@@ -599,24 +451,11 @@ class Stream {
             throw ValueError("n < 0",, n)
         }
         f := this.Call
-        Count := 0
-        switch (this.MaxParams) {
-            case 1: return Stream(Skip1)
-            case 2: return Stream(Skip2)
-        }
-        throw ValueError("invalid parameter length",, this.MaxParams)
+        return Stream(Skip)
 
-        Skip1(&A) {
+        Skip(&A) {
+            static Count := 0
             while (f(&A)) {
-                if (++Count > n) {
-                    return true
-                }
-            }
-            return false
-        }
-
-        Skip2(&A, &B?) {
-            while (f(&A, &B)) {
                 if (++Count > n) {
                     return true
                 }
@@ -629,8 +468,6 @@ class Stream {
      * Returns a new stream that terminates as soon as an element does
      * not fulfill the given `Condition`.
      * 
-     * The resulting parameter size is determined by `.ArgSize()`.
-     * 
      * @example
      * Array(1, -2, 4, 6, 2, 1).Stream().TakeWhile(x => x < 5) ; <1, -2, 4>
      * 
@@ -638,52 +475,33 @@ class Stream {
      * @returns {Stream}
      */
     TakeWhile(Condition) {
-        n := this.ArgSize(Condition)
         f := this.Call
-        switch (n) {
-            case 1: return Stream(TakeWhile1)
-            case 2: return Stream(TakeWhile2)
-        }
-        throw ValueError("invalid parameter length",, n)
+        return Stream(TakeWhile)
 
-        TakeWhile1(&A) => f(&A) && Condition(A?)
-        TakeWhile2(&A, &B?) => f(&A, &B) && Condition(A?, B?)
+        TakeWhile(&A) {
+            return f(&A) && Condition(A?)
+        }
     }
 
     /**
      * Returns a new stream that skips elements as long as its elements
      * fulfill the given `Condition`.
      * 
-     * The resulting parameter size is determined by `.ArgSize()`.
-     * 
      * @example
      * Array(1, 2, 3, 4, 2, 1).Stream().DropWhile(x => x < 3) ; <4, 2, 1>
      * 
      * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
      * @returns {Stream}
      */
-    DropWhile(Condition) {
-        NoDrop := false
-        n := this.ArgSize(Condition)
+    DropWhile(Condition, Args*) {
         f := this.Call
-        switch (n) {
-            case 1: return Stream(DropWhile1)
-            case 2: return Stream(DropWhile2)
-        }
-        throw ValueError("invalid parameter length",, n)
+        return Stream(DropWhile)
 
-        DropWhile1(&A) {
+        DropWhile(&A) {
+            static NoDrop := false
             while (f(&A)) {
-                if (NoDrop || (NoDrop |= !Condition(A?))) {
-                    return true
-                }
-            }
-            return false
-        }
-        
-        DropWhile2(&A, &B?) {
-            while (f(&A, &B)) {
-                if (NoDrop || (NoDrop |= !Condition(A?, B?))) {
+                if (NoDrop || (NoDrop |= !Condition(A?, Args*))) {
                     return true
                 }
             }
@@ -694,31 +512,26 @@ class Stream {
     /**
      * Returns a stream of unique elements by keeping track of them in a Map.
      * 
-     * A custom `Hasher` can be used to specify the map key to be used.
+     * A custom `KeyExtractor` can be used to specify the map key to be used.
      * 
-     * ```ahk
-     * Hasher(Value1?, Value2?, ...)
-     * ```
-     * 
-     * You can determine the behavior of the internal Map by passing either...
+     * You can determine the behavior of the internal Map by passing one of the
+     * following as `MapParam`:
      * - the map to be used;
      * - a function that returns the map to be used;
-     * - a case-sensitivity option
-     * 
-     * ...as value for the `MapParam` parameter.
+     * - a case-sensitivity option.
      * 
      * @example
      * ; <"foo">
      * Array("foo", "Foo", "FOO").Distinct(StrLower)
      * 
      * ; <{ x: 23 }, { x: 35 }>
-     * Array({ x: 23 }, { x: 35 }, { x: 23 }).Distinct(obj -> obj.x)
+     * Array({ x: 23 }, { x: 35 }, { x: 23 }).Distinct(obj => obj.x)
      * 
-     * @param   {Func?}                  Hasher    function to create map keys
-     * @param   {Map?/Func?/Primitive?}  MapParam  internal map options
+     * @param   {Func?}  KeyExtractor    function to create map keys
+     * @param   {Any?}   MapParam        internal map options
      * @returns {Stream}
      */
-    Distinct(Hasher?, MapParam := Map()) {
+    Distinct(KeyExtractor?, MapParam := Map()) {
         switch {
             case (MapParam is Map):
                 Cache := MapParam
@@ -733,18 +546,13 @@ class Stream {
         }
 
         f := this.Call
-        if (!IsSet(Hasher)) {
-            return Stream(DefaultDistinct)
+        if (!IsSet(KeyExtractor)) {
+            return Stream(Distinct)
         }
+        GetMethod(KeyExtractor)
+        return Stream(DistinctBy)
 
-        GetMethod(Hasher)
-        switch (this.MaxParams) {
-            case 1: return Stream(Distinct1)
-            case 2: return Stream(Distinct2)
-        }
-        throw ValueError("invalid parameter length",, this.MaxParams)
-
-        DefaultDistinct(&A) {
+        Distinct(&A) {
             while (f(&A)) {
                 if (!Cache.Has(A)) {
                     Cache[A] := true
@@ -754,22 +562,11 @@ class Stream {
             return false
         }
 
-        Distinct1(&A) {
+        DistinctBy(&A) {
             while (f(&A)) {
-                Hash := Hasher(A?)
-                if (!Cache.Has(Hash)) {
-                    Cache[Hash] := true
-                    return true
-                }
-            }
-            return false
-        }
-
-        Distinct2(&A, &B?) {
-            while (f(&A, &B)) {
-                Hash := Hasher(A?, B?)
-                if (!Cache.Has(Hash)) {
-                    Cache[Hash] := true
+                Key := KeyExtractor(A?)
+                if (!Cache.Has(Key)) {
+                    Cache[Key] := true
                     return true
                 }
             }
@@ -782,8 +579,6 @@ class Stream {
     /**
      * Applies the given `Action` on each element as intermediate operation.
      * 
-     * The parameter length of the new stream remains the same.
-     * 
      * @example
      * Foo(x) => MsgBox("Foo(" . x . ")")
      * Bar(x) => MsgBox("Bar(" . x . ")")
@@ -794,26 +589,13 @@ class Stream {
      * @param   {Func}  Action  the function to be called
      * @returns {Stream}
      */
-    Peek(Action) {
-        n := this.ArgSize(Action)
+    Peek(Action, Args*) {
         f := this.Call
-        switch (n) {
-            case 1: return Stream(Peek1)
-            case 2: return Stream(Peek2)
-        }
-        throw ValueError("invalid parameter length",, n)
+        return Stream(Peek)
 
-        Peek1(&A) {
-            while (f(&A)) {
-                Action(A?)
-                return true
-            }
-            return false
-        }
-
-        Peek2(&A, &B?) {
-            while (f(&A, &B)) {
-                Action(A?, B?)
+        Peek(&A) {
+            if (f(&A)) {
+                Action(A?, Args*)
                 return true
             }
             return false
@@ -823,26 +605,16 @@ class Stream {
     /**
      * Applies the given `Action` function on every element set as terminal
      * stream operation.
-     * @example
      * 
+     * @example
      * Array(1, 2, 3, 4).Stream().ForEach(MsgBox)
      * 
      * @param   {Func}  Action  the function to be called
+     * @param   {Any*}  Args    zero or more arguments for the function
      */
-    ForEach(Action) {
-        n := this.ArgSize(Action)
-        f := this.Call
-        switch (n) {
-            case 1:
-                for A in this {
-                    Action(A?)
-                }
-            case 2:
-                for A, B in this {
-                    Action(A?, B?)
-                }
-            default:
-                throw ValueError("invalid parameter length",, n)
+    ForEach(Action, Args*) {
+        for A in this {
+            Action(A?, Args*)
         }
     }
     ;@endregion
@@ -851,35 +623,20 @@ class Stream {
     /**
      * Returns whether any element set satisfies the given `Condition`.
      * 
-     * If a match it found, it'll be returned in the form of an array (which
-     * is a truthy value).
-     * 
      * @example
-     * Match := Array(1, 2, 3, 8, 4).Stream().AnyMatch(x => x > 5)
-     * if (Match) {
-     *     MsgBox(Match[1]) ; 8
-     * }
+     * Array(1, 2, 3, 8, 4).Stream().AnyMatch(&Val, x => (x > 5))
      * 
+     * @param   {VarRef}   Out        (output) the first match, if any
      * @param   {Func}     Condition  the given condition
      * @returns {Boolean}
      */
-    AnyMatch(Condition) {
-        n := this.ArgSize(Condition)
-        switch (n) {
-            case 1:
-                for A in this {
-                    if (Condition(A?)) {
-                        return Array(A?)
-                    }
-                }
-            case 2:
-                for A, B in this {
-                    if (Condition(A?, B?)) {
-                        return Array(A?, B?)
-                    }
-                }
-            default:
-                throw ValueError("invalid parameter length",, n)
+    AnyMatch(&Out, Condition, Args*) {
+        Out := unset
+        for A in this {
+            if (Condition(A?)) {
+                Out := A
+                return true
+            }
         }
         return false
     }
@@ -894,23 +651,11 @@ class Stream {
      * @param   {Func}  Condition  the given condition
      * @returns {Boolean}
      */
-    AllMatch(Condition) {
-        n := this.ArgSize(Condition)
-        switch (n) {
-            case 1:
-                for A in this {
-                    if (!Condition(A?)) {
-                        return false
-                    }
-                }
-            case 2:
-                for A, B in this {
-                    if (!Condition(A?, B?)) {
-                        return false
-                    }
-                }
-            default:
-                throw ValueError("invalid parameter length",, n)
+    AllMatch(Condition, Args*) {
+        for A in this {
+            if (!Condition(A?)) {
+                return false
+            }
         }
         return true
     }
@@ -925,23 +670,11 @@ class Stream {
      * @param   {Func}  Condition  the given condition
      * @returns {Boolean}
      */
-    NoneMatch(Condition) {
-        n := this.ArgSize(Condition)
-        switch (n) {
-            case 1:
-                for A in this {
-                    if (Condition(A?)) {
-                        return false
-                    }
-                }
-            case 2:
-                for A, B in this {
-                    if (Condition(A?, B?)) {
-                        return false
-                    }
-                }
-            default:
-                throw ValueError("invalid parameter length",, n)
+    NoneMatch(Condition, Args*) {
+        for A in this {
+            if (Condition(A?, Args*)) {
+                return false
+            }
         }
         return true
     }
@@ -1034,30 +767,9 @@ class Stream {
      * @example
      * Array(1, 2, 3, 4).Stream().Map(x => x * 2).ToArray() ; [2, 4, 6, 8]
      * 
-     * @param   {Integer?}  n  index of the parameter to push into array
      * @returns {Array}
      */
-    ToArray(n := 1) {
-        if (!IsInteger(n)) {
-            throw ValueError("Expected an Integer",, n)
-        }
-        if (n <= 0) {
-            throw ValueError("n <= 0",, n)
-        }
-        if (n == 1) {
-            return Array(this*)
-        }
-        DiscardedVars := []
-        Loop (n - 1) {
-            DiscardedVars.Push(CreateVarRef())
-        }
-        return Array(this.Call.Bind(DiscardedVars*)*)
-
-        static CreateVarRef() {
-            Ref := unset
-            return &Ref
-        }
-    }
+    ToArray() => Array(this*)
 
     /**
      * Reduces all elements in the stream into a single value, by repeatedly
@@ -1163,6 +875,627 @@ class Stream {
 }
 ;@endregion
 
+;@region BaseStream
+class BaseStream {
+    /**
+     * Constructs a new stream with the given `Source` used for retrieving
+     * elements.
+     * 
+     * ---
+     * 
+     * **Requirements for a Valid Stream Source**:
+     * 
+     * 1. Only ByRef parameters `&ref`.
+     * 2. No variadic parameters `args*`.
+     * 3. `MaxParams` is between `1` and `2`.
+     * 
+     * ---
+     * @param   {Any}  Source  the function used as stream source
+     * @returns {Stream}
+     */
+    static Call(Source) {
+        if (this == BaseStream) {
+            throw TypeError("This abstract class cannot be used directly.")
+        }
+        switch {
+            case HasMethod(Source):
+                Source := GetMethod(Source)
+            case HasProp(Source, "__Enum"):
+                Source := Source.__Enum(this.Size)
+            default:
+                throw UnsetError("value is not enumerable",, Type(Source))
+        }
+        if (Source.IsVariadic) {
+            throw ValueError("varargs parameter",, Source.Name)
+        }
+        if (Source.MaxParams > Stream.MaxSupportedParams) {
+            throw ValueError("invalid number of parameters",, Source.MaxParams)
+        }
+        return super().DefineProp("Call", { Get: (_) => Source })
+    }
+
+    /**
+     * Creates a new stream consisting of zero or more values `Args*`.
+     * 
+     * @example
+     * Stream.of("Hello", "world!") ; <"Hello", "world!">
+     * Stream.of() ; <>
+     * 
+     * @param   {Any*}  Args
+     * @returns {Stream}
+     */
+    static Of(Args*) => Stream(Args.__Enum(this.Size))
+
+    /**
+     * The maximum parameter size currently supported.
+     * @returns {Integer}
+     */
+    static MaxSupportedParams => 2
+
+    /**
+     * Returns the minimum parameter length of the underlying stream source.
+     * @returns {Integer}
+     */
+    MinParams => this.Call.MinParams
+
+    /**
+     * Returns the maximum parameter length of the underlying stream source.
+     * @returns {Integer}
+     */
+    MaxParams => this.Call.MaxParams
+
+    /**
+     * Returns the name of the underlying stream source.
+     * @returns {String}
+     */
+    Name => this.Call.Name
+
+    /**
+     * Returns the stream as enumerator object used in for-loops.
+     * @returns {Enumerator}
+     */
+    __Enum(n) => this.Call
+}
+;@endregion
+
+;@region DoubleStream
+/**
+ * A double-size stream.
+ */
+class DoubleStream extends BaseStream {
+    ;@region Construction
+    /**
+     * Creates an infinite stream of the given value.
+     * 
+     * - first value: index, starting from 1
+     * - second value: the repeated element
+     * 
+     * @example
+     * Stream.Repeat(5) ; <(1, 5), (2, 5), (3, 5), (4, 5), (5, 5), ...>
+     * 
+     * @param   {Any}  Value  the value to be repeated
+     * @returns {Stream}
+     */
+    static Repeat(Value) {
+        return DoubleStream(Repeat)
+
+        Repeat(&Out1, &Out2) {
+            static Counter := 0
+            Out1 := ++Counter
+            Out2 := Value
+            return true
+        }
+    }
+
+    ; TODO Generate()
+
+    /**
+     * Creates a new stream consisting of zero or more values `Args*`.
+     * 
+     * - first value: index, starting from 1
+     * - second value: an element
+     * 
+     * @example
+     * Stream.of("Hello", "world!") ; <(1, "Hello"), (2, "world!")>
+     * Stream.of() ; <>
+     * 
+     * @param   {Any*}  Args
+     * @returns {Stream}
+     */
+    static Of(Args*) => DoubleStream(Args.__Enum(2))
+
+    /**
+     * Creates an infinite stream that cycles through a set of one or more
+     * given values.
+     * 
+     * - first value: index, starting from 1
+     * - second value: an element
+     * 
+     * @example
+     * Stream.Cycle(1, 3, 7) ; <1, 3, 7, 1, 3, 7, 1, 3, ...>
+     * 
+     * @param   {Any*}  Values  one or more values to be cycled through
+     * @returns {Stream}
+     */
+    static Cycle(Values*) {
+        if (!Values.Length) {
+            throw UnsetError("no values given", -2)
+        }
+        return DoubleStream(Cycle)
+
+        Cycle(&Out1, &Out2) {
+            static Counter := 0
+            static Enumer := Values.__Enum(1)
+            while (!Enumer(&Out2)) {
+                Enumer := Values.__Enum(1)
+            }
+            Out1 := ++Counter
+            return true
+        }
+    }
+    ;@endregion
+
+    ;@region Support
+    /**
+     * The argument size of the stream.
+     * 
+     * @returns {Integer}
+     */
+    static Size => 2
+    ;@endregion
+
+    ;@region Filtering
+
+    ; TODO interop between Single / Double streams, e.g. "Narrow" or "Expand"
+
+    /**
+     * Returns a new double stream that retains elements only if they match the
+     * given `Condition`.
+     * 
+     * @example
+     * Array("foo", "bar", "baz").DoubleStream()
+     *         .RetainIf((Idx, Val) => (Idx != 1)) ; <(2, "bar"), (3, "baz")>
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
+     * @returns {DoubleStream}
+     */
+    RetainIf(Condition, Args*) {
+        f := this.Call
+        return DoubleStream(RetainIf)
+
+        RetainIf(&A, &B) {
+            while (f(&A, &B)) {
+                if (Condition(A?, B?, Args*)) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
+
+    /**
+     * Returns a new double stream that filter out elements that match the given
+     * `Condition`.
+     * 
+     * @example
+     * Array("foo", "bar", "baz").DoubleStream()
+     *         .RemoveIf((i, v) => (i == 1) || (v == "bar")) ; <(1, "foo")>
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
+     * @returns {DoubleStream}
+     */
+    RemoveIf(Condition) {
+        f := this.Call
+        return DoubleStream(RemoveIf)
+
+        RemoveIf(&A, &B?) {
+            while (f(&A, &B)) {
+                if (!Condition(A?, B?)) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
+    ;@endregion
+
+    ;@region Transformation
+    /**
+     * Returns a new double stream that transforms its elements by applying the
+     * given `Mapper` function.
+     * 
+     * This method returns a stream of size 1.
+     * 
+     * @example
+     * Times(a, b) {
+     *     return (a * b)
+     * }
+     * ; <"1 == foo", "2 == bar">
+     * Array("foo", "bar").DoubleStream().Map((i, str) => (i . " == " . str))
+     * 
+     * @param   {Func}  Mapper  function that maps all elements
+     * @param   {Any*}  Args    zero or more argument for mapper
+     * @param   {Stream}
+     */
+    Map(Mapper) {
+        f := this.Call
+        return Stream(Map)
+
+        Map(&Out) {
+            if (f(&A, &B)) {
+                Out := Mapper(A?, B?)
+                return true
+            }
+            return false
+        }
+    }
+
+    /**
+     * Returns a new double stream that transforms, and then flattens resulting
+     * streams each into separate elements.
+     * 
+     * This method returns a stream of size 1.
+     * 
+     * @param   {Func}  Mapper  function that maps and flattens elements
+     * @param   {Any*}  Args    zero or more arguments for the mapper function
+     * @returns {Stream}
+     */
+    FlatMap(Mapper) {
+        f := this.Call
+        return Stream(FlatMap)
+
+        FlatMap(&Out) {
+            static Enumer := (*) => false
+            Loop {
+                if (Enumer(&Out)) {
+                    return true
+                }
+                if (!f(&A, &B)) {
+                    return false
+                }
+                A := Mapper(A?, B?)
+                if (!(A is Stream)) {
+                    A := Array(A)
+                }
+                Enumer := A.__Enum(1)
+            }
+        }
+    }
+
+    /**
+     * Returns a new double stream that transforms, and then flattens resulting
+     * double streams each into separate elements.
+     * 
+     * @param   {Func}  Mapper  function to maps and flattens elements
+     * @param   {Any*}  Any     zero or more arguments for the mapper function
+     * @returns {DoubleStream}
+     */
+    DoubleFlatMap(Mapper, Args*) {
+        f := this.Call
+        return DoubleStream(DoubleFlatMap)
+
+        DoubleFlatMap(&Out1, &Out2) {
+            static Enumer := (*) => false
+            Loop {
+                if (Enumer(&Out1, &Out2)) {
+                    return true
+                }
+                if (!f(&a, &B)) {
+                    return false
+                }
+                A := Mapper(A?, B?, Args*)
+                if (!(A is Stream)) {
+                    A := Array(A)
+                }
+                Enumer := A.__Enum(2)
+            }
+        }
+    }
+
+    /**
+     * Returns a new double stream which mutates the current elements by
+     * reference, by applying the given `Mapper` function.
+     * 
+     * @example
+     * MutateValues(&Index, &Value) {
+     *     ++Index
+     *     Value .= "_"
+     * }
+     * 
+     * ; <(2, "foo_"), (3, "bar_")>
+     * Array("foo", "bar").DoubleStream().MapByRef(MutateValues)
+     * 
+     * @param   {Func}  Mapper  function that mutates elements by reference
+     * @param   {Any*}  Args    zero or more arguments for the mapper function
+     * @returns {DoubleStream}
+     */
+    MapByRef(Mapper) {
+        f := this.Call
+        return DoubleStream(MapByRef)
+
+        MapByRef(&A, &B) {
+            if (f(&A, &B)) {
+                Mapper(&A, &B)
+                return true
+            }
+            return false
+        }
+    }
+
+    /**
+     * Returns a new double stream that returns not more than `n` elements
+     * before terminating.
+     * 
+     * @example
+     * Array(1, 2, 3, 4, 5).Stream().Limit(2) ; <1, 2>
+     * 
+     * @param   {Integer}  n  maximum amount of elements to be returned
+     * @returns {Stream}
+     */
+    Limit(n) {
+        if (!IsInteger(n)) {
+            throw TypeError("Expected an Integer",, Type(n))
+        }
+        if (n < 0) {
+            throw ValueError("n < 0",, n)
+        }
+        f := this.Call
+        return DoubleStream(Limit)
+
+        Limit(&A, &B) {
+            static Count := 0
+            return ((Count++) < n) && f(&A, &B)
+        }
+    }
+
+    /**
+     * Returns a new stream that skips the first `n` elements.
+     * 
+     * @example
+     * Array("foo", "bar").DoubleStream().Skip(1) ; <(2, "bar")>
+     * 
+     * @param   {Integer}  x  amount of elements to be skipped
+     * @returns {DoubleStream}
+     */
+    Skip(n) {
+        if (!IsInteger(n)) {
+            throw TypeError("Expected an Integer",, Type(n))
+        }
+        if (n < 0) {
+            throw ValueError("n < 0",, n)
+        }
+        f := this.Call
+        return DoubleStream(Skip)
+
+        Skip(&A, &B) {
+            static Count := 0
+            while (f(&A, &B)) {
+                if (++Count > n) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
+
+    /**
+     * Returns a new double stream that terminates as soon as an element does
+     * not fulfill the given `Condition`.
+     * 
+     * @example
+     * Array(1, -2, 4, 6, 2, 1).DoubleStream().TakeWhile(
+     *         (i, x) => (x < 6)) ; <(1, 1), (2, -2), (3, 4)>
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
+     * @returns {DoubleStream}
+     */
+    TakeWhile(Condition) {
+        f := this.Call
+        return DoubleStream(TakeWhile)
+
+        TakeWhile(&A, &B) {
+            return f(&A, &B) && Condition(A?, B?)
+        }
+    }
+
+    /**
+     * Returns a new double stream that skips elements as long as its elements
+     * fulfill the given `Condition`.
+     * 
+     * @example
+     * ; <(4, 4), (5, 2), (6, 1)>
+     * Array(1, 2, 3, 4, 2, 1).DoubleStream().DropWhile((i, x) => (x < 4))
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
+     * @returns {DoubleStream}
+     */
+    DropWhile(Condition, Args*) {
+        f := this.Call
+        return DoubleStream(DropWhile)
+
+        DropWhile(&A, &B) {
+            static NoDrop := false
+            while (f(&A, &B)) {
+                if (NoDrop || (NoDrop |= !Condition(A?, B?, Args*))) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
+
+    /**
+     * Returns a stream of unique elements by keeping track of them in a Map.
+     * 
+     * You can determine the behavior of the internal Map by passing one of the
+     * following as `MapParam`:
+     * - the map to be used;
+     * - a function that returns the map to be used;
+     * - a case-sensitivity option.
+     * 
+     * @example
+     * ; <"foo">
+     * Array("foo", "Foo", "FOO").DoubleStream()
+     *         .Distinct((i, str) => StrLower(str))
+     * 
+     * ; <{ x: 23 }, { x: 35 }>
+     * Array({ x: 23 }, { x: 35 }, { x: 23 }).DoubleStream()
+     *         .Distinct((i, obj) => obj.x)
+     * 
+     * @param   {Func}  KeyExtractor    function to create map keys
+     * @param   {Any?}  MapParam        internal map options
+     * @returns {Stream}
+     */
+    Distinct(KeyExtractor, MapParam := Map()) {
+        switch {
+            case (MapParam is Map):
+                Cache := MapParam
+            case (HasMethod(MapParam)):
+                Cache := MapParam()
+                if (!(Cache is Map)) {
+                    throw TypeError("Expected a Map",, Type(Cache))
+                }
+            default:
+                Cache := Map()
+                Cache.CaseSense := MapParam
+        }
+
+        f := this.Call
+        GetMethod(KeyExtractor)
+        return DoubleStream(DistinctBy)
+
+        DistinctBy(&A, &B) {
+            while (f(&A)) {
+                Key := KeyExtractor(A?, B?)
+                if (!Cache.Has(Key)) {
+                    Cache[Key] := true
+                    return true
+                }
+            }
+            return false
+        }
+    }
+    ;@endregion
+
+    ;@region Matching
+    /**
+     * Returns whether any element set satisfies the given `Condition`.
+     * 
+     * @example
+     * Array(1, 2, 3, 8, 4).Stream2().AnyMatch(
+     *         &Index, &Value,
+     *         (Idx, Val) => ((Idx + Val) == 4)
+     * )
+     * 
+     * @param   {VarRef}   Key        (out) value 1 of the first match, if any
+     * @param   {VarRef}   Key        (out) value 2 of the first match, if any
+     * @param   {Func}     Condition  the given condition
+     * @param   {Any*}     Args       zero or more arguments for the condition
+     * @returns {Boolean}
+     */
+    AnyMatch(&Out1, &Out2, Condition, Args*) {
+        Out1 := unset
+        Out2 := unset
+        for A, B in this {
+            if (Condition(A?, B?)) {
+                Out1 := A
+                Out2 := B
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Returns `true`, if all elements in this map satisfy the given
+     * `Condition`.
+     * 
+     * @example
+     * Array(1, 2, 3, 4).Stream().AllMatch(x => x < 10) ; true
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @returns {Boolean}
+     */
+    AllMatch(Condition, Args*) {
+        for A in this {
+            if (!Condition(A?)) {
+                return false
+            }
+        }
+        return true
+    }
+
+    /**
+     * Returns `true`, if none of the element sets in the stream satisfy the
+     * given `Condition`.
+     * 
+     * @example
+     * Array(1, 2, 3, 4, 5, 92).Stream().NoneMatch(x => x > 10) ; false
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @returns {Boolean}
+     */
+    NoneMatch(Condition, Args*) {
+        for A in this {
+            if (Condition(A?, Args*)) {
+                return false
+            }
+        }
+        return true
+    }
+    ;@endregion
+
+    ;@region Side Effects
+    /**
+     * Applies the given `Action` on each element as intermediate operation.
+     * 
+     * @example
+     * Foo(i, x) => MsgBox("Foo(" . x . ")")
+     * Bar(i, x) => MsgBox("Bar(" . x . ")")
+     * 
+     * ; "Foo(1)", "Bar(1)"; "Foo(2)", "Bar(2)"; ...
+     * Array(1, 2, 3, 4).Stream().Peek(Foo).ForEach(Bar)
+     * 
+     * @param   {Func}  Action  the function to be called
+     * @returns {Stream}
+     */
+    Peek(Action, Args*) {
+        f := this.Call
+        return DoubleStream(Peek)
+
+        Peek(&A, &B) {
+            while (f(&A, &B)) {
+                Action(A?, B?, Args*)
+                return true
+            }
+            return false
+        }
+    }
+
+    /**
+     * Applies the given `Action` function on every element set as terminal
+     * stream operation.
+     * 
+     * @example
+     * Array(1, 2, 3, 4).Stream().ForEach(MsgBox)
+     * 
+     * @param   {Func}  Action  the function to be called
+     * @param   {Any*}  Args    zero or more arguments for the function
+     */
+    ForEach(Action, Args*) {
+        for A, B in this {
+            Action(A?, B?, Args*)
+        }
+    }
+
+    ;@endregion
+}
+;@endregion
+
 ;@region Extensions
 class AquaHotkey_Stream {
 static __New() {
@@ -1184,31 +1517,22 @@ class Any {
     }
 
     /**
-     * Returns a function stream with the current element as source.
-     * @see `Stream`
-     * 
+     * Returns a stream for this value.
      * @example
      * Arr    := [1, 2, 3, 4, 5]
-     * Stream := Arr.Stream(2) ; for Index, Value in Arr {...}
-     * 
-     * @param   {Integer?}  n  parameter length of the stream
+     * Stream := Arr.Stream() ; for Index, Value in Arr {...}
      * @returns {Stream}
      */
-    Stream(n := 1) {
-        if (!IsInteger(n)) {
-            throw TypeError("Expected an Integer",, Type(n))
-        }
-        if (n < 1) {
-            throw ValueError("n < 1",, n)
-        }
-        if (HasProp(this, "__Enum")) {
-            return Stream(this.__Enum(n))
-        }
-        if (HasMethod(this)) {
-            return Stream(GetMethod(this))
-        }
-        throw UnsetError("this variable is not enumerable",, Type(this))
-    }
+    Stream() => Stream(this)
+
+    /**
+     * Returns a double stream for this value.
+     * @example
+     * Array("foo", "bar").DoubleStream() ; <(1, "foo"), (2, "bar")>
+     * 
+     * @returns {DoubleStream}
+     */
+    DoubleStream() => DoubleStream(this)
 
     /**
      * - (v2.1-alpha.18+)
@@ -1246,7 +1570,6 @@ class Object {
      *     a := 1
      *     b := 2
      * }
-     * 
      * Example().OwnPropsStream() ; <("a", 1), ("b", 2)>
      * 
      * @returns {Stream}
@@ -1263,7 +1586,6 @@ class Object {
      * class Example extends Buffer {
      *     a := 1
      * }
-     * 
      * Example(16, 0).PropsStream() ; <("a", 1), ("Size", 16), ...>
      * 
      * @returns {Stream}
@@ -1273,3 +1595,8 @@ class Object {
 ;@endregion
 } ; class AquaHotkey_Stream
 ;@endregion
+
+#Include <AquaHotkey>
+#Include <AquaHotkey\Src\Builtins\String>
+
+Array("foo", "bar").Stream().DoubleFlatMap().Map((A, B) => (A . " " . B)).JoinLine()

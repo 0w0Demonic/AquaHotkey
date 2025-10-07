@@ -166,15 +166,14 @@ class Collector {
     }
 
     static ToMap1() {
-        M := Array("Hello", "world").Stream(2)
-                   .Collect(C.ToMap)
+        M := Array("Hello", "world").DoubleStream().Collect(C.ToMap)
         
         M[1].AssertEquals("Hello")
         M[2].AssertEquals("world")
     }
 
     static ToMap2() {
-        M := Array("Hello", "world").Stream(2)
+        M := Array("Hello", "world").DoubleStream()
                    .Collect(C.ToMap(
                         (Index, Value, *) => SubStr(Value, 1, 1),
                         (Index, Value, *) => Value,

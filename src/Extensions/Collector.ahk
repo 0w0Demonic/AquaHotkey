@@ -891,25 +891,37 @@ class AquaHotkey_Collector extends AquaHotkey {
             CollFin := Coll.Finisher
 
             Obj := CollSup()
-            switch (this.MaxParams) {
-                case 1:
-                    for A in this {
-                        CollAcc(Obj, A?)
-                    }
-                case 2:
-                    for A, B in this {
-                        CollAcc(Obj, A?, B?)
-                    }
-                case 3:
-                    for A, B, C in this {
-                        CollAcc(Obj, A?, B?, C?)
-                    }
-                case 4:
-                    for A, B, C, D in this {
-                        CollAcc(Obj, A?, B?, C?, D?)
-                    }
-                default: throw ValueError("invalid parameter length",
-                                          this.MaxParams)
+            for A in this {
+                CollAcc(Obj, A?)
+            }
+            return CollFin(Obj)
+        }
+    }
+
+    class DoubleStream {
+        /**
+         * Applies the provided collector to the input sequence (anything
+         * enumerable, such as an Array or Map), which collects elements and
+         * processes them into a final result.
+         * 
+         * Use stream to support enumerating multiple parameters at once.
+         * @see {Collector}
+         * 
+         * @example
+         * ; Map { 1: "Apple", 2: "Banana", 3: "Kiwi" }
+         * Array("Apple", "Banana", "Kiwi").Stream(2).Collect(C.ToMap)
+         */
+        Collect(Coll) {
+            if (!(Coll is Collector) && !HasBase(Coll, Collector)) {
+                throw TypeError("Expected a Collector",, Type(Coll))
+            }
+            CollSup := Coll.Supplier
+            CollAcc := Coll.Accumulator
+            CollFin := Coll.Finisher
+
+            Obj := CollSup()
+            for A, B in this {
+                CollAcc(Obj, A?, B?)
             }
             return CollFin(Obj)
         }

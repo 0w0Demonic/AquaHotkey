@@ -69,7 +69,7 @@ class Stream {
             return Index . "=" . Value
         }
         StrSplit("banana")
-            .Stream(2)
+            .DoubleStream()
             .MapByRef(MapByRef)
             .Map(Mapper)
             .Join(", ")
@@ -159,13 +159,13 @@ class Stream {
     }
 
     static AnyMatch() {
-        Output := Array(1, 2, 3, 4, 5)
+        Array(1, 2, 3, 4, 5)
             .Stream()
-            .AnyMatch(Num => Num == 5)
+            .AnyMatch(&Out, Num => Num == 5)
             .AssertNotEquals(false)
-
-        Output.Length.AssertEquals(1)
-        Output[1].AssertEquals(5)
+        
+        IsSet(Out).AssertEquals(true)
+        Out.AssertEquals(5)
     }
 
     static AllMatch() {
@@ -238,7 +238,8 @@ class Stream {
     
     static ToArray2() {
         Array(3, 456, 23, 467, 234)
-            .Stream(2)
+            .DoubleStream()
+            .Map((Key, Value) => Key)
             .ToArray()
             .Join(" ")
             .AssertEquals("1 2 3 4 5")

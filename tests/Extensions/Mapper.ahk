@@ -54,7 +54,7 @@ class Mapper {
     }
 
     static Arg() {
-        Array("foo", "bar").Stream(2).Map(  Mapper.Arg(1)  )
+        Array("foo", "bar").DoubleStream().Map(  Mapper.Arg(1)  )
             .Join(", ").AssertEquals("1, 2")
     }
 
@@ -70,10 +70,10 @@ class Mapper {
     }
 
     static Integration1() {
-        Array("foo", "bar").Stream(2).Collect(Collector.ToMap(
+        Array("foo", "bar").DoubleStream().Collect(Collector.ToMap(
                 Mapper.Arg(2).AndThen(SubStr, 1, 1),
                 Mapper.Arg(2)))
-            .Stream(2)
+            .DoubleStream()
             .Map(Mapper.Format("{}: {}"))
             .Join(", ")
             .AssertEquals("b: bar, f: foo")
