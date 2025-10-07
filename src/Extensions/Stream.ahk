@@ -94,7 +94,7 @@ class Stream {
      * @param   {Any*}  Args
      * @returns {Stream}
      */
-    static Of(Args*) => Stream(Args.__Enum(2))
+    static Of(Args*) => Stream(Args.__Enum(1))
 
     /**
      * Creates an infinite stream where each element is produced by the
@@ -177,9 +177,89 @@ class Stream {
             return true
         }
     }
+
+    /**
+     * (AutoHotkey v2.1-alpha.10+):
+     * 
+     * Returns a stream of the object's own properties. Use this method
+     * instead of `.OwnProps().Stream()` to support property values.
+     * 
+     * (AutoHotkey v2.1-alpha.18+):
+     * 
+     * This method allows any value to be passed instead of only objects.
+     * 
+     * @example
+     * class ExampleBase {
+     *     a := 1
+     * }
+     * 
+     * class Example extends ExampleBase {
+     *     b := 2
+     *     c := 3
+     * }
+     * 
+     * Stream.OfProps(Example()) ; <("a", 1), ("b", 2), ("c", 3), ...>
+     * 
+     * @param   {Object/Any}  Val  the value whose properties to enumerate
+     * @returns {Stream}
+     */
+    static OfProps(Val) {
+        ; Choose one of the two possible implementations during the first
+        ; call to this method.
+        ({}.DefineProp)(Stream, "OfProps", {
+            Call: (IsSet(Props) && Props.IsBuiltIn)
+                    ? Post_v2_1_18
+                    : Pre_v2_1_18
+        })
+        return Stream.OfProps(Val)
+
+        static Post_v2_1_18(_, Val) {
+            static p := (IsSet(Props) && Props)
+            f := p(Val)
+            return Stream((&K, &V) => f(&K, &V))
+        }
+
+        static Pre_v2_1_18(_, Val) {
+            if (!IsObject(Val)) {
+                throw TypeError("Expected an Object", -2, Type(Val))
+            }
+            f := (Object.Prototype.Props)(Val)
+            return Stream((&K, &V) => f(&K, &V))
+        }
+    }
+
+    /**
+     * Returns a stream of the object's own properties. Use this method
+     * instead of `.OwnProps().Stream()` to support property values.
+     * 
+     * @example
+     * class Example {
+     *     a := 1
+     *     b := 2
+     * }
+     * 
+     * Stream.OfOwnProps(Example()) ; <("a", 1), ("b", 2)>
+     * 
+     * @param   {Object}  Obj  the object whose properties to enumerate
+     * @returns {Stream}
+     */
+    static OfOwnProps(Obj) {
+        f := ObjOwnProps(Obj)
+        return Stream((&K, &V) => f(&K, &V))
+    }
     ;@endregion
 
     ;@region Support
+    /**
+     * Static constructor that removes the `static OfProps()` on versions
+     * below <v2.1-alpha.10.
+     */
+    static __New() {
+        if (VerCompare(A_AhkVersion, "<v2.1-alpha.10")) {
+            this.DeleteProp("OfProps")
+        }
+    }
+
     /**
      * The maximum parameter size currently supported.
      * @returns {Integer}
@@ -1097,6 +1177,12 @@ static __New() {
 
 ;@region Any
 class Any {
+    static __New() {
+        if (VerCompare(A_AhkVersion, "<v2.1-alpha.18")) {
+            this.Prototype.DeleteProp("PropsStream")
+        }
+    }
+
     /**
      * Returns a function stream with the current element as source.
      * @see `Stream`
@@ -1123,14 +1209,31 @@ class Any {
         }
         throw UnsetError("this variable is not enumerable",, Type(this))
     }
+
+    /**
+     * - (v2.1-alpha.18+)
+     * 
+     * Returns a stream of an object's properties. Use this method instead
+     * of `.Props().Stream()` to support property values.
+     * 
+     * @example
+     * class Example extends Buffer {
+     *     a := 1
+     * }
+     * 
+     * Example(16, 0).PropsStream() ; <("a", 1), ("Size", 16), ...>
+     * 
+     * @returns {Stream}
+     */
+    PropsStream() => Stream.OfProps(this)
 } ; class Any
 ;@endregion
 
 ;@region Object
 class Object {
     static __New() {
-        if (VerCompare(A_AhkVersion, "2.1-alpha.18") < 0) {
-            this.DeleteProp("PropsStream")
+        if (VerCompare(A_AhkVersion, "<v2.1-alpha.10")) {
+            this.Prototype.DeleteProp("PropsStream")
         }
     }
 
@@ -1148,10 +1251,7 @@ class Object {
      * 
      * @returns {Stream}
      */
-    OwnPropsStream() {
-        f := this.OwnProps()
-        return Stream((&K, &V) => f(&K, &V))
-    }
+    OwnPropsStream() => Stream.OfOwnProps(this)
 
     /**
      * - (v2.1-alpha.18+)
@@ -1168,10 +1268,7 @@ class Object {
      * 
      * @returns {Stream}
      */
-    PropsStream() {
-        f := this.Props()
-        return Stream((&K, &V) => f(&K, &V))
-    }
+    PropsStream() => Stream.OfProps(this)
 } ; class Object
 ;@endregion
 } ; class AquaHotkey_Stream
