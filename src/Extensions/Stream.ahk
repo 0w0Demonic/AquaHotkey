@@ -1595,8 +1595,3 @@ class Object {
 ;@endregion
 } ; class AquaHotkey_Stream
 ;@endregion
-
-#Include <AquaHotkey>
-#Include <AquaHotkey\Src\Builtins\String>
-
-Array("foo", "bar").Stream().DoubleFlatMap().Map((A, B) => (A . " " . B)).JoinLine()
