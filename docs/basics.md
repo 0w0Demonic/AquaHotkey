@@ -6,7 +6,7 @@ This guide covers:
 - How to write simple extension classes.
 
 If you're interested in the reasoning and history behind AquaHotkey, check out
-[About AquaHotkey](../about.md). It covers some of the design choices and
+[About AquaHotkey](../rambling/00_about.md). It covers some of the design choices and
 why the library evolved into its current form.
 
 ## Including the Library
