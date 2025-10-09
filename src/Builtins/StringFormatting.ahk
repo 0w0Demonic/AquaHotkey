@@ -1,3 +1,4 @@
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 /**
  * AquaHotkey - StringFormatting.ahk
  * 

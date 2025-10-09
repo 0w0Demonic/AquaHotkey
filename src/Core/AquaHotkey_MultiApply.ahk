@@ -1,3 +1,4 @@
+#Include "%A_LineFile%\..\AquaHotkey_Backup.ahk"
 /**
  * AquaHotkey - AquaHotkey_MultiApply.ahk
  * 

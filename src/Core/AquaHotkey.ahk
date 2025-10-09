@@ -1,4 +1,7 @@
 #Requires AutoHotkey >=v2.0.5
+#Include %A_LineFile%/../AquaHotkey_Backup.ahk
+#Include %A_LineFile%/../AquaHotkey_MultiApply.ahk
+#Include %A_LineFile%/../AquaHotkey_Ignore.ahk
 
 /**
  * AquaHotkey - AquaHotkey.ahk
@@ -347,7 +350,3 @@ static CreateClass(BaseClass := Object, Name := "(unnamed)") {
 } ; static CreateClass()
 ;@endregion
 } ; class AquaHotkey
-
-#Include %A_LineFile%/../AquaHotkey_Backup.ahk
-#Include %A_LineFile%/../AquaHotkey_MultiApply.ahk
-#Include %A_LineFile%/../AquaHotkey_Ignore.ahk

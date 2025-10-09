@@ -1,3 +1,5 @@
+#Include "%A_LineFile%\..\AquaHotkey_Ignore.ahk"
+#Include "%A_LineFile%\..\AquaHotkey.ahk"
 /**
  * AquaHotkey - AquaHotkey_Backup.ahk
  * 
