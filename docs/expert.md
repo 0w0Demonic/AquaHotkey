@@ -88,7 +88,7 @@ This is also the base class of all core library classes, i.e. `AquaHotkey`,
 ## Class Hierarchy
 
 ```txt
-Object
+Any
 `- AquaHotkey_Ignore
    |- AquaHotkey
    |- AquaHotkey_Backup

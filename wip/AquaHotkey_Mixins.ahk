@@ -13,7 +13,12 @@
  * Provides mixin-style composition similar to Ruby's `include` and `extend`.
  */
 class AquaHotkey_Mixins extends AquaHotkey_MultiApply {
-    static __New() => super.__New(Class)
+    static __New() {
+        if (this != AquaHotkey_Mixins) {
+            throw Error("This class cannot be extended")
+        }
+        super.__New(Class)
+    }
 
     /**
      * Includes one or more mixin classes into the current class.
