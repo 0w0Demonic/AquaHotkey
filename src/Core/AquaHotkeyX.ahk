@@ -1,5 +1,13 @@
 #Requires AutoHotkey >=v2.0.5
 
+/**
+ * AquaHotkey - AquaHotkeyX.ahk
+ * 
+ * Author: 0w0Demonic
+ * 
+ * https://www.github.com/0w0Demonic/AquaHotkey
+ * - src/Core/AquaHotkeyX.ahk
+ */
 ;@region Core
 #Include "%A_LineFile%/../AquaHotkey.ahk"
 ;@endregion
