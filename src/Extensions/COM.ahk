@@ -468,6 +468,20 @@ class Com {
     Call(Index, Args*) => ComCall(Index, this._, Args*)
 
     /**
+     * Enumerates the contents of the underlying Com object.
+     * 
+     * @param   {Integer}  ArgSize  parameter length of the for-loop
+     * @returns {Enumerator}
+     */
+    __Enum(ArgSize) {
+        Result := Array()
+        for Value in this._ {
+            Result.Push(Value)
+        }
+        return Result.__Enum(ArgSize)
+    }
+
+    /**
      * Returns the name of the Com object's default interface.
      * @returns {String}
      */

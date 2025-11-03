@@ -879,9 +879,17 @@ class Stream extends BaseStream {
 class BaseStream {
     /**
      * Constructs a new stream with the given `Source` used for retrieving
-     * elements.
+     * elements. When retrieving the underlying Enumerator object, `__Enum`
+     * always takes precedence over `Call`, and goes down a chain of `__Enum`
+     * calls if necessary.
      * 
-     * ---
+     * For example:
+     * ```ahk
+     * class A { __Enum(ArgSize) => B()    }
+     * class B { __Enum(ArgSize) => MyFunc }
+     * 
+     * (A.Stream().Call == MyFunc) ; true
+     * ```
      * 
      * **Requirements for a Valid Stream Source**:
      * 
@@ -889,7 +897,6 @@ class BaseStream {
      * 2. No variadic parameters `args*`.
      * 3. `MaxParams` is between `1` and `2`.
      * 
-     * ---
      * @param   {Any}  Source  the function used as stream source
      * @returns {Stream}
      */
@@ -897,20 +904,28 @@ class BaseStream {
         if (this == BaseStream) {
             throw TypeError("This abstract class cannot be used directly.")
         }
-        switch {
-            case HasMethod(Source):
-                Source := GetMethod(Source)
-            case HasProp(Source, "__Enum"):
-                Source := Source.__Enum(this.Size)
-            default:
-                throw UnsetError("value is not enumerable",, Type(Source))
+
+        while (HasProp(Source, "__Enum")) {
+            Source := Source.__Enum(this.Size)
         }
-        if (Source.IsVariadic) {
-            throw ValueError("varargs parameter",, Source.Name)
+
+        ; At this point, `Source` must be callable
+        if (!HasMethod(Source)) {
+            throw UnsetError("value is not enumerable",, Type(Source))
         }
-        if (Source.MaxParams > Stream.MaxSupportedParams) {
-            throw ValueError("invalid number of parameters",, Source.MaxParams)
+
+        ; Do some assertions on the enumerator being used. If `Source` is an
+        ; object, get the actual `Call` function.
+        f := (Source is Func) ? Source : GetMethod(Source, "Call")
+        if (f.IsVariadic) {
+            throw ValueError("varargs parameter",, f.Name)
         }
+        if (f.MaxParams > Stream.MaxSupportedParams) {
+            throw ValueError("invalid number of parameters",, f.MaxParams)
+        }
+
+        ; initialize and set `Call` to return our enumerator. This is either
+        ; a function or an object with a `Call` method.
         return super().DefineProp("Call", { Get: (_) => Source })
     }
 

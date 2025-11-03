@@ -327,11 +327,11 @@ static ApplyMixin(ReceiverClass, Mixin, Mixins*) {
  * @param   {String?}  Name       name of the class
  * @returns {Class}
  */
-static CreateClass(BaseClass := Object, Name := "(unnamed)") {
+static CreateClass(BaseClass := Object, Name := "(unnamed)", Args*) {
     static Define := (Object.Prototype.DefineProp)
 
     if (VerCompare(A_AhkVersion, "2.1-alpha.3") >= 0) {
-        Cls := Class(BaseClass)
+        Cls := Class(Name, BaseClass, Args*)
         ClsProto := Cls.Prototype
     } else {
         Cls := Class()
@@ -343,6 +343,12 @@ static CreateClass(BaseClass := Object, Name := "(unnamed)") {
             ObjSetBase(ClsProto, BaseClass.Prototype)
         } catch {
             OutputDebug("[Aqua] Unable to assign " . Name . " as base.")
+        }
+        if (Cls.__Init != Object.Prototype.__Init) {
+            Cls.__Init()
+        }
+        if (Cls.__New != Object.Prototype.__New) {
+            Cls.__New(Args*)
         }
     }
     Define(ClsProto, "__Class", { Value: Name })

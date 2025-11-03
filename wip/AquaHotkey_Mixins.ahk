@@ -28,6 +28,7 @@ class AquaHotkey_Mixins extends AquaHotkey_MultiApply {
      * 
      * @param   {Class}   Mixin   the mixin to apply
      * @param   {Class*}  Mixins  zero or more mixins to apply
+     * @returns {this}
      * @example
      * Primitive.Include(HasStringRepr)
      * "Hello, world".Display()
@@ -36,13 +37,17 @@ class AquaHotkey_Mixins extends AquaHotkey_MultiApply {
      *     Display() => MsgBox(String(this))
      * }
      */
-    Include(Mixin, Mixins*) => AquaHotkey.ApplyMixin(this, Mixin, Mixins*)
+    Include(Mixin, Mixins*) {
+        AquaHotkey.ApplyMixin(this, Mixin, Mixins*)
+        return this
+    }
 
     /**
      * Extends one or more classes with the current class used as mixin.
      * 
      * @param   {Class}   Cls      the class on which to apply the mixin
      * @param   {Class*}  Classes  one or more classes to apply the mixin on
+     * @returns {this}
      * @example
      * Enumerable1.Extend(Array)
      * Array(1, 2, 3).ForEach(MsgBox)
@@ -56,5 +61,8 @@ class AquaHotkey_Mixins extends AquaHotkey_MultiApply {
      *     }
      * }
      */
-    Extend(Cls, Classes*) => (AquaHotkey_MultiApply.__New)(this, Cls, Classes*)
+    Extend(Cls, Classes*) {
+        (AquaHotkey_MultiApply.__New)(this, Cls, Classes*)
+        return this
+    }
 }
