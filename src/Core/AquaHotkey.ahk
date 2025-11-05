@@ -2,6 +2,7 @@
 #Include %A_LineFile%/../AquaHotkey_Backup.ahk
 #Include %A_LineFile%/../AquaHotkey_MultiApply.ahk
 #Include %A_LineFile%/../AquaHotkey_Ignore.ahk
+#Include %A_LineFile%/../AquaHotkey_Mixin.ahk
 
 /**
  * AquaHotkey - AquaHotkey.ahk

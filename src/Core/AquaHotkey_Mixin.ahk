@@ -1,25 +1,18 @@
-#Include "%A_LineFile%\..\..\Src\Core\AquaHotkey.ahk"
-; #Include "%A_LineFile%\..\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\AquaHotkey.ahk"
 
 /**
- * AquaHotkey - AquaHotkeyX.ahk
+ * AquaHotkey - AquaHotkey_Mixin.ahk
  * 
  * Author: 0w0Demonic
  * 
  * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Core/AquaHotkeyX.ahk
+ * - src/Core/AquaHotkey_Mixin.ahk
  * 
  * @description
  * Provides mixin-style composition similar to Ruby's `include` and `extend`.
  */
-class AquaHotkey_Mixins extends AquaHotkey_MultiApply {
-    static __New() {
-        if (this != AquaHotkey_Mixins) {
-            throw Error("This class cannot be extended")
-        }
-        super.__New(Class)
-    }
-
+class AquaHotkey_Mixin extends AquaHotkey {
+class Class {
     /**
      * Includes one or more mixin classes into the current class.
      * 
@@ -65,4 +58,5 @@ class AquaHotkey_Mixins extends AquaHotkey_MultiApply {
         (AquaHotkey_MultiApply.__New)(this, Cls, Classes*)
         return this
     }
-}
+} ; class Class
+} ; class AquaHotkey_Mixin extends AquaHotkey
