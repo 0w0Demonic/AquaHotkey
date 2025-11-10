@@ -19,8 +19,7 @@ class Class {
      * Each property defined in the mixin class will be attached to the
      * prototype of the target class.
      * 
-     * @param   {Class}   Mixin   the mixin to apply
-     * @param   {Class*}  Mixins  zero or more mixins to apply
+     * @param   {Class*}  Mixins  one or more mixins to apply
      * @returns {this}
      * @example
      * Primitive.Include(HasStringRepr)
@@ -30,15 +29,28 @@ class Class {
      *     Display() => MsgBox(String(this))
      * }
      */
-    Include(Mixin, Mixins*) {
-        AquaHotkey.ApplyMixin(this, Mixin, Mixins*)
+    Include(Mixins*) {
+        if (!Mixins.Length) {
+            throw ValueError("No mixins specified")
+        }
+        for M in Mixins {
+            BaseClass := ObjGetBase(this)
+            BaseProto := ObjGetBase(this.Prototype)
+
+            MixinProto := M.Prototype
+
+            ObjSetBase(MixinProto, BaseProto)
+            ObjSetBase(M, BaseClass)
+
+            ObjSetBase(this, M)
+            ObjSetBase(this.Prototype, M.Prototype)
+        }
         return this
     }
 
     /**
      * Extends one or more classes with the current class used as mixin.
      * 
-     * @param   {Class}   Cls      the class on which to apply the mixin
      * @param   {Class*}  Classes  one or more classes to apply the mixin on
      * @returns {this}
      * @example
@@ -54,8 +66,16 @@ class Class {
      *     }
      * }
      */
-    Extend(Cls, Classes*) {
-        (AquaHotkey_MultiApply.__New)(this, Cls, Classes*)
+    Extend(Classes*) {
+        if (!Classes.Length) {
+            throw ValueError("No classes specified")
+        }
+        for C in Classes {
+            if (!(C is Class)) {
+                throw TypeError("Expected a Class",, Type(C))
+            }
+            C.Include(this)
+        }
         return this
     }
 } ; class Class

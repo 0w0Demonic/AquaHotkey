@@ -285,41 +285,6 @@ static __New() {
 } ; static __New()
 ;@endregion
 
-;@region static ApplyMixin()
-/**
- * Applies one or more mixins to a given class.
- * 
- * @example
- * class Example {
- *     static __New() => AquaHotkey.ApplyMixin(this, Foo, Bar)
- * }
- * class Foo {
- *     Foo() => MsgBox("Foo!")
- * }
- * class Bar {
- *     Bar() => MsgBox("Bar!")
- * }
- * 
- * @param   {Class}   ReceiverClass  the targeted class
- * @param   {Class}   Mixin          a mixin to apply
- * @param   {Class*}  Mixins         more mixins to apply
- */
-static ApplyMixin(ReceiverClass, Mixin, Mixins*) {
-    if (!(ReceiverClass is Class)) {
-        throw TypeError("Expected a Class",, Type(ReceiverClass))
-    }
-    if (!(Mixin is Class)) {
-        throw TypeError("Expected a Class",, Type(Mixin))
-    }
-    for M in Mixins {
-        if (!(M is Class)) {
-            throw TypeError("Expected a Class",, Type(M))
-        }
-    }
-    (AquaHotkey_Backup.__New)(ReceiverClass, Mixin, Mixins*)
-} ; static ApplyMixin()
-;@endregion
-
 ;@region static CreateClass()
 /**
  * Creates a new class.
