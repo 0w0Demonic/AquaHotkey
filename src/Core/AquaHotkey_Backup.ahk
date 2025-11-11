@@ -39,7 +39,7 @@
  *     }
  * }
  */
-class AquaHotkey_Backup extends AquaHotkey_Ignore {
+class AquaHotkey_Backup extends AquaHotkey {
 ;@region static __New()
 /**
  * Static class initializer that copies properties and methods from one or
@@ -47,6 +47,7 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
  * passing any parameters.
  * 
  * @param   {Object*}  Suppliers  where to copy properties and methods from
+ * @returns {this}
  */
 static __New(Suppliers*) {
     /**
@@ -264,6 +265,7 @@ static __New(Suppliers*) {
     for Supplier in Suppliers {
         Transfer(Supplier, Receiver)
     }
+    return this
 } ; static __New()
 ;@endregion
 
@@ -288,4 +290,22 @@ static Of(Cls) {
     return Result
 }
 ;@endregion
+
+;@region Class#Backup()
+class Extensions extends AquaHotkey_MultiApply {
+    static __New() => super.__New(Class)
+
+    /**
+     * Copies properties and methods from one or more sources into the class.
+     * 
+     * @example
+     * Gui_Backup := AquaHotkey.CreateClass().Backup(Gui)
+     * 
+     * @param   {Object*}  Suppliers  where to copy properties and methods from
+     * @returns {this}
+     */
+    Backup(Suppliers*) => (AquaHotkey_Backup.__New)(this, Suppliers*)
+}
+;@endregion
+
 } ; class AquaHotkey_Backup

@@ -57,6 +57,7 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
      * ; }
      * 
      * @param   {Object*}  Targets  where to copy properties and methods into
+     * @returns {this}
      */
     static __New(Targets*) {
         if (this == AquaHotkey_MultiApply) {
@@ -71,5 +72,33 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
         for Target in Targets {
             (AquaHotkey_Backup.__New)(Target, this)
         }
+        return this
     }
+
+    ;@region Class#ApplyOnto()
+    class Extensions extends AquaHotkey_MultiApply {
+        static __New() => super.__New(Class)
+
+        /**
+         * Copies the properties and methods of the class into one or more
+         * specified targets.
+         * 
+         * @example
+         * class Enumerable1 {
+         *     static __New() => this.ApplyOnto(Array)
+         * 
+         *     ForEach(Action, Args*) {
+         *         for Value in this {
+         *             Action(Value, Args*)
+         *         }
+         *         return this
+         *     }
+         * }
+         * 
+         * @param   {Object*}  Targets  targets to copy properties into
+         * @returns {this}
+         */
+        ApplyOnto(Targets*) => (AquaHotkey_MultiApply.__New)(this, Targets*)
+    }
+    ;@endregion
 }
