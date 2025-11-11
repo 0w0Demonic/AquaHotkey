@@ -12,21 +12,21 @@ talked about prototyping in AutoHotkey:
 >The script defines a custom method "Contains" for arrays, allowing users to
 >check if a specific item is present. \[...\]
 >
->```ahk
->Array.Prototype.DefineProp("Contains", { Call: array_contains })
+> ```ahk
+> Array.Prototype.DefineProp("Contains", { Call: array_contains })
 >
->array_contains(arr, search, casesense := 0) {
->    for index, value in arr {
->        if !IsSet(value)
->            continue
->        else if (value == search)
->            return index
->        else if (value = search && !casesense)
->            return index
->    }
->    return 0
->}
->```
+> array_contains(arr, search, casesense := 0) {
+>     for index, value in arr {
+>         if !IsSet(value)
+>             continue
+>         else if (value == search)
+>             return index
+>         else if (value = search && !casesense)
+>             return index
+>     }
+>     return 0
+> }
+> ```
 
 I immediately had to test it out, and I was thrilled. Somehow, AutoHotkey didn't
 complain even when adding things to `Any.Prototype`.
