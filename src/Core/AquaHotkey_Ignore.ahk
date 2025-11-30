@@ -24,5 +24,5 @@
  *     }
  * }
  */
-class AquaHotkey_Ignore extends Any {
+class AquaHotkey_Ignore {
 }

@@ -1,40 +1,30 @@
 #Include "%A_LineFile%\..\AquaHotkey_Backup.ahk"
+
 /**
- * AquaHotkey - AquaHotkey_MultiApply.ahk
+ * @description
  * 
- * Author: 0w0Demonic
+ * `AquaHotkey_MultiApply` copies contents of one class into one or more
+ * specified target classes. This is useful both for simple changes made
+ * to a single class, or when changing multiple unrelated classes
+ * (like `Gui.Button` and `Gui.CheckBox`) which should share a common
+ * set of properties.
  * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Core/AquaHotkey_MultiApply.ahk
+ * The easiest way to use this class is to use `Class#ApplyOnto()`.
  * 
- * `AquaHotkey_MultiApply` is a special class that allows you to copy its
- * contents into multiple specified target classes.
- * 
- * This is especially useful when multiple unrelated classes (like `Gui.Button`
- * and `Gui.CheckBox`) should share a common set of methods or properties
- * defined only once in the script.
- * 
- * To use this class, create a subclass of `AquaHotkey_MultiApply` and call
+ * Alternatively, create a subclass of `AquaHotkey_MultiApply` and call
  * `super.__New()` within the static constructor, passing the class(es)
  * you want to copy into.
  * 
  * @example
- * class Tanuki extends AquaHotkey {
- *     class Gui {
- *         class Button {
- *             ButtonProp() => MsgBox("I'm a Button!")
- *         }
- *         class ButtonControlsCommon extends AquaHotkey_MultiApply {
- *             static __New() {
- *                 super.__New(Tanuki.Gui.Button, Tanuki.Gui.CheckBox)
- *             }
- *             CommonProp() => MsgBox("I'm a CheckBox or a Button!")
- *         }
- *         class CheckBox {
- *             CheckBoxProp() => MsgBox("I'm a CheckBox!")
- *         }
- *     }
+ * class Example {
+ *     static __New() => this.ApplyOnto(Gui.Button, Gui.CheckBox)
+ * 
+ *     CommonProp() => MsgBox("I'm a CheckBox or a Button!")
  * }
+ * 
+ * @exports Class#ApplyOnto()
+ * @see https://www.github.com/0w0Demonic/AquaHotkey
+ * @author 0w0Demonic
  */
 class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
     /**
@@ -43,18 +33,9 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
      * method without passing any parameters.
      * 
      * @example
-     * ; class Tanuki extends AquaHotkey {
-     * ; class Gui {
      * class CommonButtonControls extends AquaHotkey_MultiApply {
-     *     static __New() {
-     *         ; specify one or more sources to copy from
-     *         super.__New(Tanuki.Gui.Button, Tanuki.Gui.ComboBox)
-     *     }
+     *     static __New() => super.__New(Gui.Button, Gui.ComboBox)
      * }
-     * class Button   { ... }
-     * class ComboBox { ... }
-     * ; }
-     * ; }
      * 
      * @param   {Object*}  Targets  where to copy properties and methods into
      * @returns {this}
@@ -76,8 +57,15 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
     }
 
     ;@region Class#ApplyOnto()
-    class Extensions extends AquaHotkey_MultiApply {
-        static __New() => super.__New(Class)
+    class Extensions extends Any {
+        static __New() {
+            if (ObjGetBase(this) != Any) {
+                throw TypeError("This class cannot be extended",,
+                                this.Prototype.__Class)
+            }
+            AquaHotkey_MultiApply.DeleteProp("Extensions")
+            (AquaHotkey_MultiApply.__New)(this, Class)
+        }
 
         /**
          * Copies the properties and methods of the class into one or more

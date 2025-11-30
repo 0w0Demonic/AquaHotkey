@@ -1,60 +1,43 @@
-#Include "%A_LineFile%\..\AquaHotkey_Ignore.ahk"
 #Include "%A_LineFile%\..\AquaHotkey.ahk"
+
 /**
- * AquaHotkey - AquaHotkey_Backup.ahk
+ * @description
+ * `AquaHotkey_Backup` creates snapshots of all properties contained in
+ * one or more classes, allowing them to be safely overridden or
+ * extended later.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Core/AquaHotkey_Backup.ahk
- * 
- * ---
- * 
- * The `AquaHotkey_Backup` class creates a snapshot of all properties and
- * methods contained in one or more classes, allowing them to be safely
- * overridden or extended later.
- * 
- * ---
- * 
- * To use it, create a subclass of `AquaHotkey_Backup` and call
- * `super.__New()` within its static constructor, passing the class or classes
- * to copy from.
- *  
- * If you want your subclass to *actively apply* the collected methods to
- * multiple unrelated classes, use `AquaHotkey_MultiApply` instead.
- * 
- * This class extends `AquaHotkey_Ignore`, which means that it is skipped by
- * `AquaHotkey`'s automatic class prototyping mechanism.
+ * The easiest way to use this class is to create a class to be used as
+ * "container" of properties, and to call `this.Backup(Classes, ...)`
+ * during static initialization.
  * 
  * @example
- * class Gui_Backup extends AquaHotkey_Backup {
- *     static __New() {
- *         super.__New(Gui)
- *     }
+ * class Gui_Backup {
+ *     static __New() => this.Backup(Gui)
  * }
+ * Gui_Backup := AquaHotkey_Backup.Of(Gui)
  * 
- * class LotsOfStuff extends AquaHotkey_Backup {
- *     static __New() {
- *         super.__New(MyClass, MyOtherClass, String, Array, Buffer)
- *     }
- * }
+ * @exports Class#Backup()
+ * @see https://www.github.com/0w0Demonic/AquaHotkey
+ * @author 0w0Demonic
  */
-class AquaHotkey_Backup extends AquaHotkey {
+class AquaHotkey_Backup extends AquaHotkey
+{
 ;@region static __New()
 /**
- * Static class initializer that copies properties and methods from one or
- * more sources. An error is thrown if a subclass calls this method without
- * passing any parameters.
+ * Static class initializer that copies properties from one or more sources.
  * 
  * @param   {Object*}  Suppliers  where to copy properties and methods from
  * @returns {this}
  */
-static __New(Suppliers*) {
+static __New(Suppliers*)
+{
+    ;@region Helper Functions
+
     /**
      * `Object`'s implementation of `.DefineProp()`.
      * 
      * @param   {Object}  Obj           the target object
-     * @param   {String}  PropName  name of new property
+     * @param   {String}  PropName      name of new property
      * @param   {Object}  PropertyDesc  property descriptor
      */
     static Define(Obj, PropName, PropertyDesc) {
@@ -69,7 +52,7 @@ static __New(Suppliers*) {
     /**
      * `Object`'s implementation of `.GetPropDesc()`.
      * 
-     * @param   {Object}  Obj           the target object
+     * @param   {Object}  Obj       the target object
      * @param   {String}  PropName  name of existing property
      * @returns {Object}
      */
@@ -86,7 +69,7 @@ static __New(Suppliers*) {
     static CreateGetter(Value) => { Get: (_) => Value }
     
     /**
-     * Creates a property descriptor for a nested class.
+     * Creates a property descriptor typical for nested classes.
      * 
      * @param   {Class}  Cls  the target nested class
      * @returns {Object}
@@ -100,6 +83,8 @@ static __New(Suppliers*) {
 
     /**
      * Creates a method in which `Caller` is the calling object.
+     * This allows us to create full copies of functions by "imitating"
+     * built-in properties like `Name` or `MinParams`.
      * 
      * @param   {Func}  Callback  the method to call
      * @param   {Any}   Caller    value that calls the method
@@ -107,75 +92,101 @@ static __New(Suppliers*) {
     static CreateForwardingMethod(Callback, Caller) {
         return (_, Args*) => Callback(Caller, Args*)
     }
-    
+
+    /**
+     * Resolves the name and "prototype" of the given class or function.
+     * 
+     * @param   {Class/Func}      Target  any class/function
+     * @param   {VarRef<Object>}  Proto   class prototype / the function itself
+     * @param   {VarRef<String>}  Name    name of the class/function
+     */
+    static Resolve(Target, &Proto, &Name) {
+        switch {
+            case (Target is Class):
+                Proto := Target.Prototype
+                Name  := Target.Prototype.__Class
+            case (Target is Func):
+                Proto := Target
+                Name  := Target.Name
+            default:
+                throw TypeError("Unexpected type",, Type(Target))
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Transfer()
+
     /**
      * Copies all static and instance properties from Supplier to Receiver.
      * 
-     * @param   {Class/Func}  Supplier  
-     * @param   {Class/Func}  Receiver  
+     * @param   {Class/Func}  Supplier  source being copied from
+     * @param   {Class/Func}  Receiver  destination being copied into
      */
     static Transfer(Supplier, Receiver) {
+        ;@region Resolving
+
         ; find prototype and name of property supplier and property receiver
         Resolve(Supplier, &SupplierProto, &SupplierName)
         Resolve(Receiver, &ReceiverProto, &ReceiverName)
 
         ; debugger output
-        FormatString := "`n[Aqua] ######## {1} -> {2} ########`n"
-        OutputDebug(Format(FormatString, SupplierName, ReceiverName))
+        OutputDebug(Format("`n[Aqua] ######## {1} -> {2} ########`n",
+                SupplierName, ReceiverName))
 
-        ; If appropriate, we redefine the `__Init()` method which is
-        ; responsible for declaring new instance variables.
-        ; 
-        ; In this case, the object is initialized with declarations of
-        ; both the supplier and receiver class.
-        ; 
-        ; If the receiving class is based on `Primitive`, this behavior
-        ; is ignored (as they cannot own fields).
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region __Init() Method
+
+        ; If appropriate, we redefine the `__Init()` to declare the variables
+        ; of both classes.
         if ((Supplier is Class) && (Receiver is Class)
-                    && !(HasBase(Receiver, Primitive))
-                    && (ReceiverProto.__Init != SupplierProto.__Init))
+                && (HasBase(Receiver, Object)))
         {
             ReceiverInit := ReceiverProto.__Init
             SupplierInit := SupplierProto.__Init
 
-            __Init(Instance) {
-                ReceiverInit(Instance) ; previously defined `__Init()`
-                SupplierInit(Instance) ; user-defined `__Init()`
+            ; If both of these functions are the same, avoid creating a
+            ; property that needlessly slows down the code by initializing
+            ; multiple times.
+            if (ReceiverInit != SupplierInit) {
+                __Init(Instance) {
+                    ReceiverInit(Instance) ; previously defined `__Init()`
+                    SupplierInit(Instance) ; user-defined `__Init()`
+                }
+
+                ; Rename the new `__Init()` method to something useful
+                InitMethodName := SupplierProto.__Class . ".Prototype.__Init"
+                Define(__Init, "Name", { Get: (_) => InitMethodName })
+
+                ; Finally, overwrite the old `__Init()` property with ours
+                Define(ReceiverProto, "__Init", { Call: __Init })
             }
-
-            ; Rename the new `__Init()` method to something useful
-            InitMethodName := SupplierProto.__Class . ".Prototype.__Init"
-            Define(__Init, "Name", { Get: (_) => InitMethodName })
-
-            ; Finally, overwrite the old `__Init()` property with ours
-            Define(ReceiverProto, "__Init", { Call: __Init })
         }
 
-        ; If supplier is a function, we must create special methods and
-        ; getter properties that forward their arguments and return value
-        ; to whatever `Supplier.<some property>()` returns.
-        if (Supplier is Func) {
-            Caller := Supplier
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Impersonation
 
+        ; If supplier is a function, we must create special "impersonating"
+        ; properties as if they belong to the actual function.
+
+        if (Supplier is Func) {
             for PropName in ObjOwnProps(Func.Prototype) {
                 FuncProp := GetPropDesc(Func.Prototype, PropName)
-                if (ObjHasOwnProp(FuncProp, "Call")) {
-                    if (!FuncProp.Call.IsBuiltIn) {
+                for Name, Value in FuncProp.OwnProps() {
+                    if (Name == "Value" || !Value.IsBuiltIn) {
                         continue
                     }
-                    Define(Receiver, PropName, {
-                        Call: CreateForwardingMethod(FuncProp.Call, Caller)
-                    })
-                } else if (ObjHasOwnProp(FuncProp, "Get")) {
-                    if (!FuncProp.Get.IsBuiltIn) {
-                        continue
-                    }
-                    Define(Receiver, PropName, {
-                        Get: CreateForwardingMethod(FuncProp.Get, Caller)
-                    })
+                    FuncProp.%Name% := CreateForwardingMethod(Value, Supplier)
                 }
+                Define(Receiver, PropName, FuncProp)
             }
         }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Instance Properties
 
         ; Copy all non-static properties
         for PropName in ObjOwnProps(SupplierProto) {
@@ -188,8 +199,13 @@ static __New(Suppliers*) {
             Define(ReceiverProto, PropName, PropDesc)
         }
 
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Static Properties
+
         ; Copy all static properties
-        for PropName in ObjOwnProps(Supplier) {
+        for PropName in ObjOwnProps(Supplier)
+        {
             ; Very important - SKIP PROTOTYPE!
             if ((Supplier is Class) && (PropName = "Prototype")) {
                 continue
@@ -228,27 +244,12 @@ static __New(Suppliers*) {
             ; Keep going recursively into the new classes
             Transfer(NestedSupplier, NestedReceiver)
         }
+        ;@endregion
     }
 
-    /**
-     * Resolves the name and "prototype" of the given class or function.
-     * 
-     * @param   {Class/Func}      Target  any class/function
-     * @param   {VarRef<Object>}  Proto   class prototype / the function itself
-     * @param   {VarRef<String>}  Name    name of the class/function
-     */
-    static Resolve(Target, &Proto, &Name) {
-        switch {
-            case (Target is Class):
-                Proto := Target.Prototype
-                Name  := Target.Prototype.__Class
-            case (Target is Func):
-                Proto := Target
-                Name  := Target.Name
-            default:
-                throw TypeError("Unexpected type",, Type(Target))
-        }
-    }
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Execution
 
     ; If this is `AquaHotkey_Backup` and no derived type, do nothing.
     if (this == AquaHotkey_Backup) {
@@ -266,10 +267,14 @@ static __New(Suppliers*) {
         Transfer(Supplier, Receiver)
     }
     return this
-} ; static __New()
-;@endregion
 
+    ;@endregion
+} ; static __New()
+
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region static Of()
+
 /**
  * Creates a complete and useable copy of the given class.
  * 
@@ -280,20 +285,30 @@ static __New(Suppliers*) {
  * @returns {Class}
  */
 static Of(Cls) {
+    ; TODO also construct base classes recursively?
     if (!(Cls is Class)) {
         throw TypeError("Expected a Class",, Type(Cls))
     }
-    Name := Cls.Prototype.__Class
-    Result := AquaHotkey.CreateClass(Cls, Name)
-    ObjSetBase(Result, ObjGetBase(Cls))
-    (AquaHotkey_Backup.__New)(Result, Cls)
-    return Result
+    BaseClass := ObjGetBase(Cls)
+    ClassName := Cls.Prototype.__Class
+    Backup := AquaHotkey.CreateClass(BaseClass, ClassName).Backup(Cls)
+    ObjSetBase(Backup, ObjGetBase(Cls))
+    return Backup
 }
-;@endregion
 
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region Class#Backup()
-class Extensions extends AquaHotkey_MultiApply {
-    static __New() => super.__New(Class)
+
+class Extensions extends Any {
+    static __New() {
+        if (ObjGetBase(this) != Any) {
+            throw TypeError("This class cannot be extended",,
+                            this.Prototype.__Class)
+        }
+        AquaHotkey_Backup.DeleteProp("Extensions")
+        (AquaHotkey_MultiApply.__New)(this, Class)
+    }
 
     /**
      * Copies properties and methods from one or more sources into the class.

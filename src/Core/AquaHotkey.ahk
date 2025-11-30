@@ -1,3 +1,4 @@
+; 2.0.5: Fixed internal calls to `__Enum` to not call `__Call`.
 #Requires AutoHotkey >=v2.0.5
 #Include %A_LineFile%/../AquaHotkey_Backup.ahk
 #Include %A_LineFile%/../AquaHotkey_MultiApply.ahk
@@ -5,14 +6,19 @@
 #Include %A_LineFile%/../AquaHotkey_Mixin.ahk
 
 /**
- * AquaHotkey - AquaHotkey.ahk
+ * @description
+ * AquaHotkey is a class prototyping framework for AutoHotkey v2 that lets
+ * you very easily rewrite built-in classes like `Array`, `String` and `Map`
+ * to match your own style and preferences.
  * 
- * Author: 0w0Demonic
+ * To use this class, create a subclass of `AquaHotkey`. Then, create nested
+ * classes named after the targeted class or function to extend. Finally,
+ * write properties into the nested classes as if you were dealing with the
+ * actual target class.
  * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Core/AquaHotkey.ahk
+ * AquaHotkey will then transfer your custom properties into
+ * 
  * @example
- * 
  * class StringExtensions extends AquaHotkey {
  *     class String {
  *         FirstCharacter() {
@@ -21,6 +27,9 @@
  *     }
  * }
  * "foo".FirstCharacter() ; "f"
+ * 
+ * @author 0w0Demonic
+ * @see https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey extends AquaHotkey_Ignore
 {
@@ -57,7 +66,9 @@ class AquaHotkey extends AquaHotkey_Ignore
  *     }
  * }
  */
-static __New() {
+static __New()
+{
+    ;@region Helper Functions
     /**
      * `Object`'s implementation of `DefineProp()`.
      * 
@@ -120,7 +131,11 @@ static __New() {
     static Debug(FormatStr, Args*) {
         OutputDebug("[Aqua] " . Format(FormatStr, Args*))
     }
+    ;@endregion
 
+    ;---------------------------------------------------------------------------
+
+    ;@region Overwrite()
     /**
      * Main method responsible for transferring properties.
      * 
@@ -129,7 +144,10 @@ static __New() {
      * @param   {Array}   DeletionQueue  reference to `static DeletionQueue`
      * @param   {Class?}  Namespace      scope to find property receiver in
      */
-    static Overwrite(RootClass, ClassName, DeletionQueue, Namespace?) {
+    static Overwrite(RootClass, ClassName, Namespace?)
+    {
+        ;@region Resolving
+
         ; Get property from root class and check if it's a property supplier,
         ; otherwise return
         try Supplier := RootClass.%ClassName%
@@ -193,7 +211,7 @@ static __New() {
         ; Create a `BoundFunc` which deletes the reference to the property
         ; supplier when called, and push it to an array.
         DeletionQueue.Push(ObjBindMethod(Delete,, RootClass, Supplier))
-
+        
         ; Check type the property receiver (must be `Class` or `Func`). If the
         ; property receiver is a `Func`, all properties are seen as `static`, as
         ; functions cannot have instances.
@@ -204,41 +222,42 @@ static __New() {
                 throw TypeError("receiver must be a Class or a Func",,
                                 Type(Receiver))
         }
+        ;@endregion
 
-        ; Redefine `__Init()` method (which does instance variable declarations)
-        ; to call both the previous method and then the `__Init()` method of the
-        ; property supplier.
-        ReceiverInit := ReceiverProto.__Init
-        SupplierInit := SupplierProto.__Init
+        ;------------------------------------------------------------------------
 
-        /**
-         * The new `__Init()` method used during object construction. This
-         * method first calls the previously defined `__Init()`, followed by the
-         * new `__Init()` which was defined in the property supplier.
-         */
-        __Init(Instance) {
-            ReceiverInit(Instance) ; previously defined `__Init()`
-            SupplierInit(Instance) ; user-defined `__Init()`
+        ;@region __Init() Method
+        ; If both supplier and receiver are classes, redefine the `__Init()`
+        ; method which does declaration of instance variables.
+        if ((Supplier is Class) && (Receiver is Class)
+                && (HasBase(Receiver, Object)))
+        {
+            ReceiverInit := ReceiverProto.__Init
+            SupplierInit := SupplierProto.__Init
+
+            ; No need to redefine `__Init()` if both initializers are the same.
+            ; This would only slow down code.
+            if (ReceiverInit != ReceiverInit) {
+                __Init(It) {
+                    ReceiverInit(It) ; previously defined `__Init()`
+                    SupplierInit(It) ; user-defined `__Init()`
+                }
+
+                ; Rename the new `__Init()` method to something useful
+                InitMethodName := SupplierProto.__Class . ".Prototype.__Init"
+                Define(__Init, "Name", { Get: (_) => InitMethodName })
+
+                ; Finally, overwrite the old `__Init()` property with ours
+                Define(ReceiverProto, "__Init", { Call: __Init })
+            }
         }
+        ;@endregion
 
-        ; Ignore primitive classes, as its instances cannot have any fields.
-        ; Also skip whenever both `__Init()` methods are the same, which is most
-        ; of the time; we avoid calling the same method twice.
-        if (!HasBase(Receiver, Primitive) && (ReceiverInit != SupplierInit)) {
-            ; Rename the new `__Init()` method to something useful
-            InitMethodName := SupplierProto.__Class . ".Prototype.__Init"
-            Define(__Init, "Name", { Get: (_) => InitMethodName })
+        ;-----------------------------------------------------------------------
 
-            ; Finally, overwrite the old `__Init()` property with ours
-            Define(ReceiverProto, "__Init", { Call: __Init })
-        }
-
-        ; Remove special properties in the supplier class before starting to
-        ; transfer properties.
-        Delete(Supplier,      "Prototype")
-        Delete(Supplier,      "__Init")
-        Delete(SupplierProto, "__Init")
-        Delete(SupplierProto, "__Class")
+        ;@region Static Properties
+        Delete(Supplier, "__Init")    ; No need to transfer `static __Init()`
+        Delete(Supplier, "Prototype") ; Avoid replaying entire prototype object
 
         ; Checks if the property is a nested class that should be recursed into.
         ; e.g. `AquaHotkey.Gui`              | `Gui`
@@ -255,33 +274,48 @@ static __New() {
                 continue
             }
             if (DoRecursion(Supplier, Receiver, PropertyName)) {
-                Overwrite(Supplier, PropertyName, DeletionQueue, Receiver)
+                Overwrite(Supplier, PropertyName, Receiver)
             } else {
                 PropDesc := GetProp(Supplier, PropertyName)
                 Define(Receiver, PropertyName, PropDesc)
             }
         }
-        
+        ;@endregion
+
+        ;-----------------------------------------------------------------------
+
+        ;@region Instance Properties
+        Delete(SupplierProto, "__Init")  ; `__Init()` gets special treatment
+        Delete(SupplierProto, "__Class") ; Don't change the name of the class
+
         ; Transfer all non-static properties
-        for PropertyName in ObjOwnProps(SupplierProto) {
+        for PropertyName in ObjOwnProps(SupplierProto)
+        {
             PropDesc := GetProp(SupplierProto, PropertyName)
             Define(ReceiverProto, PropertyName, PropDesc)
         }
+        ;@endregion
     }
+    ;@endregion
+
+    ;---------------------------------------------------------------------------
     
+    ;@region Execution
     Debug("")
     Debug("######## Extension Class: {1} ########", this.Prototype.__Class)
     Debug("")
 
     ; Loop through all properties of AquaHotkey and modify classes
     for PropertyName in ObjOwnProps(this) {
-        Overwrite(this, PropertyName, DeletionQueue, unset)
+        Overwrite(this, PropertyName, unset)
     }
 
     ; Finally, erase all supplier classes.
     while (DeletionQueue.Length) {
         DeletionQueue.Pop()()
     }
+    ;@endregion
+
 } ; static __New()
 ;@endregion
 
@@ -293,7 +327,8 @@ static __New() {
  * @param   {String?}  Name       name of the class
  * @returns {Class}
  */
-static CreateClass(BaseClass := Object, Name := "(unnamed)", Args*) {
+static CreateClass(BaseClass := Object, Name := "(unnamed)", Args*)
+{
     static Define := (Object.Prototype.DefineProp)
 
     if (VerCompare(A_AhkVersion, "2.1-alpha.3") >= 0) {
