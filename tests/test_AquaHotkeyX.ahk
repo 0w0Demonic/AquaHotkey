@@ -74,6 +74,7 @@ class TestSuite {
     
     #Include %A_LineFile%/../Extensions/Stream.ahk
     #Include %A_LineFile%/../Extensions/Optional.ahk
+    #Include %A_LineFile%/../Extensions/TryOp.ahk
     #Include %A_LineFile%/../Extensions/Comparator.ahk
     
     #Include %A_LineFile%/../Extensions/Collector.ahk
