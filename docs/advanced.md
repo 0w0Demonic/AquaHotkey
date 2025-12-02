@@ -18,6 +18,14 @@ class GuiButton extends AquaHotkey
 }
 ```
 
+Alternatively, you can do this:
+
+```ahk
+class GuiButton {
+    static __New() => this.ApplyOnto(Gui.Button)
+}
+```
+
 ## Extending Functions
 
 Yep, you guessed right. This also works for global functions just like before.

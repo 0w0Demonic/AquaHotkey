@@ -7,46 +7,79 @@
         (_.'   l_    \ `-´\ `-´\     o
 ```
 
+## What is AquaHotkey?
+
+AquaHotkey is a *class prototyping library* for AutoHotkey v2 that lets you
+easily rewrite built-in types like `Array`, `String` and `Map` to match your
+own style and preferences.
+
 ```ahk
 "Hello, World!".SubStr(1, 7).Append("AquaHotkey!").MsgBox()
 ```
 
-## What is AquaHotkey?
-
-AquaHotkey is a *class prototyping library* for AutoHotkey v2 that lets you
-rewrite built-in types like `Array`, `String` and `Map` to match your own
-style and preferences. Think of it as a meta-programming toolkit to improve
-your overall AHK experience and make it more elegant and personalized.
-
-- Add methods directly into native types
-- Use clean and modular `#Include` files to organize your code
+- Declaratively add and rewrite properties of built-in types
 - Make AutoHotkey match your style and needs. Clean, elegant, awesome.
 
----
+### How it Works
 
-### How it Works - Very Quick Overview
+The overall concept behind class prototyping is simple: It involves adding
+or modifying properties of existing classes at runtime.
 
-AquaHotkey is a system that copies members into existing classes at runtime.
+```ahk
+; add a `.Length` property for strings
+({}.DefineProp)(String.Prototype, "Length", { Get: StrLen })
+```
+
+The hard part is making this *easy*. AquaHotkey's goal is to make class
+prototyping as straightforward and fun as possible.
+
+Write a new class, make a few changes, done. AquaHotkey will do the rest of
+the job, ensuring your changes land where they need to be.
 
 ```ahk
 class StringLength extends AquaHotkey {
     class String {
         Length => StrLen(this)
+
+        Contains(Pattern)   => InStr(this, Pattern)
+        Sub(Start, Length?) => SubStr(this, Start, Length?)
     }
 }
 
-"foo".Length ; 3
+"foo".Length        ; 3
+"foo".Contains("o") ; true
+"foo".Sub(2, 2)     ; "oo"
 ```
 
-As soon as the `StringLength` class is loaded, `String` is injected with a new
-`.Length` property. More on that in the [beginner's guide.](./docs/basics.md)
+For more insight on how this library evolved over time, check out
+[About AquaHotkey](./rambling/00_about.md).
 
-## Documentation
+### Massively Reusable
 
-- [Beginner's Guide](./docs/basics.md)
-- [Advanced Concepts](./docs/advanced.md)
-- [Expert Concepts](./docs/expert.md)
-- [AquaHotkeyX - Batteries Included](#aquahotkeyx---batteries-included)
+Once you're done making changes, you can move your AquaHotkey class into a
+separate file and `#Include` them across scripts whenever you need them.
+
+Write once, use everywhere.
+
+**StringUtils.ahk**:
+
+```ahk
+class StringUtils extends AquaHotkey {
+    class String {
+        Rep(Pat, Rep) => StrReplace(this, Pat, Rep)
+    }
+}
+```
+
+**MyScript.ahk**:
+
+```ahk
+#Include <StringUtils>
+
+Str := "Hello, world!".Rep("l,", "p").Rep("d", "m").Rep("!", "?")
+```
+
+---
 
 ## Installation
 
@@ -56,6 +89,7 @@ AutoHotkey [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib).
 ```ahk
 #Requires AutoHotkey >=v2.0.5 <v2.2
 #Include <AquaHotkey>
+; #Include path/to/AquaHotkey.ahk
 ```
 
 ### Advanced Setup
@@ -101,98 +135,21 @@ be imported with `<library>` syntax.
     `- ArrayUtils.ahk
     ```
 
-## Why This Matters
+## Documentation
 
-AutoHotkey's built-in classes are powerful, but you can't easily modify them.
+- [Beginner's Guide](./docs/basics.md)
+- [Advanced Concepts](./docs/advanced.md)
+- [Expert Concepts](./docs/expert.md)
+- [AquaHotkeyX](#aquahotkeyx)
 
-Want to add `.Sum()` to every array? You'll be stuck writing wrapper functions
-like this:
+## AquaHotkeyX
 
-```ahk
-Array_Sum(Arr) {
-    if (!(Arr is Array)) {
-        throw TypeError()
-    }
-    Result := 0
-    for Value in Arr {
-        Result += (Value ?? 0)
-    }
-    return Result
-}
+A unique and modern standard batteries-included library that builds on top
+of AquaHotkey.
 
-Array_Sum([1, 2, 3, 4]) ; 10
-```
-
-It works, but it's clunky.
-
-Wouldn't it be better to just write:
-
-```ahk
-Array(1, 2, 3, 4).Sum() ; 10
-```
-
-Feels much better, right?
-
-### Not Convinced Yet?
-
-While you *can* do this manually (and it's reasonably easy with `DefineProp`
-after enough digging through the docs), this library aims to have a kind
-of "fire and forget" approach.
-
-Drop a new extension class into your script, and the rest is done for you
-automatically.
-
-With this, you don't need to think about property descs and obscure edge cases
-all the time.
-
-Also, things like field declarations and overwriting properties are extremely
-laborious when done manually. In AquaHotkey, you just do this:
-
-```ahk
-class ArrayDefaultFalse extends AquaHotkey {
-    class Array {
-        Default := false
-    }
-}
-```
-
-For more insight on how this library evolved over time, and some reasoning
-behind my design choices, you can check out [About AquaHotkey](./rambling/00_about.md).
-
----
-
-### Reuse Your Extensions
-
-Move your classes into separate files and include them in your standard
-library path.
-
-**StringUtils.ahk**:
-
-```ahk
-class StringUtils extends AquaHotkey {
-    class String {
-        Rep(Pattern, Replacement) {
-            return StrReplace(this, Pattern, Replacement)
-        }
-    }
-}
-```
-
-**MyScript.ahk**:
-
-```ahk
-#Include <StringUtils>
-Str := "Hello, world!".Rep("l,", "p").Rep("d", "m").Rep("!", "?")
-```
-
-## AquaHotkeyX - Batteries-Included
-
-A unique and modern standard library that builds on top of AquaHotkey.
-
-- Explores some patterns found in functional programming
-- Methods are designed to be heavily chainable
-- Designed for elegance and conciseness
-- Stream ops, sequences, functional composition, optionals, and much more.
+- Heavily chainable method calls
+- Extensive use of functional programming patterns
+- Designed for maximal elegance and conciseness
 
 ```ahk
 #Requires AutoHotkey >=v2.0.5
@@ -235,8 +192,8 @@ My opinionated belief:
 ---
 
 Curious how AquaHotkey actually came to be? Check out
-[About AquaHotkey](./rambling/00_about.md) for the background story, design decisions,
-and the evolution of the library.
+[About AquaHotkey](./rambling/00_about.md) for the background story, design
+decisions, and the evolution of the library.
 
 ## About
 

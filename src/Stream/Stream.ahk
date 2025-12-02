@@ -45,8 +45,11 @@
  * Array("foo", "bar").DoubleStream() ; <(1, "foo"), (2, "bar")>
  * ```
  */
-class Stream extends BaseStream {
+class Stream extends BaseStream
+{
+    ;---------------------------------------------------------------------------
     ;@region Construction
+
     /**
      * Creates an infinite stream of the given value.
      * 
@@ -56,7 +59,14 @@ class Stream extends BaseStream {
      * @param   {Any}  Value  the value to be repeated
      * @returns {Stream}
      */
-    static Repeat(Value) => Stream((&Out) => ((Out := Value) || true))
+    static Repeat(Value) {
+        return Stream(Repeat)
+
+        Repeat(&Out) {
+            Out := Value
+            return true
+        }
+    }
 
     /**
      * Creates an infinite stream where each element is produced by the
@@ -210,9 +220,11 @@ class Stream extends BaseStream {
         f := ObjOwnProps(Obj)
         return DoubleStream((&K, &V) => f(&K, &V))
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Support
+
     /**
      * The argument size of the stream.
      * 
@@ -573,9 +585,11 @@ class Stream extends BaseStream {
             return false
         }
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Side Effects
+
     /**
      * Applies the given `Action` on each element as intermediate operation.
      * 
@@ -617,9 +631,11 @@ class Stream extends BaseStream {
             Action(A?, Args*)
         }
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Matching
+
     /**
      * Returns whether any element set satisfies the given `Condition`.
      * 
@@ -678,9 +694,11 @@ class Stream extends BaseStream {
         }
         return true
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Aggregation
+
     /**
      * Returns the highest ordered element in the stream.
      * 
@@ -873,9 +891,11 @@ class Stream extends BaseStream {
     ToString() => this.JoinLine()
     ;@endregion
 }
-;@endregion
 
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region BaseStream
+
 class BaseStream {
     /**
      * Constructs a new stream with the given `Source` used for retrieving
@@ -971,13 +991,17 @@ class BaseStream {
      */
     __Enum(n) => this.Call
 }
-;@endregion
 
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region DoubleStream
+
 /**
  * A double-size stream.
  */
-class DoubleStream extends BaseStream {
+class DoubleStream extends BaseStream
+{
+    ;---------------------------------------------------------------------------
     ;@region Construction
     /**
      * Creates an infinite stream of the given value.
@@ -1002,7 +1026,32 @@ class DoubleStream extends BaseStream {
         }
     }
 
-    ; TODO Generate()
+    /**
+     * Creates an infinite double stream where the first value is the index
+     * of the element, and the second value is produced by the given
+     * `Supplier` function.
+     * 
+     * The stream is infinite unless filtered or limited with other methods.
+     * 
+     * @example
+     * ; e.g.: <(1, 4), (2, 9), (3, 7), (4, 2), (5, 7), (6, 0)>
+     * DoubleStream.Generate(Random, 0, 9).Limit(6)
+     * 
+     * @param   {Func}  Supplier  function that supplies stream elements
+     * @param   {Any*}  Args      zero or more arguments passed to the supplier
+     * @returns {Stream}
+     */
+    static Generate(Supplier, Args*) {
+        GetMethod(Supplier)
+        return DoubleStream(Generate)
+
+        Generate(&Out, &Out2) {
+            static Counter := 0
+            Out1 := ++Counter
+            Out2 := Supplier(Args*)
+            return true
+        }
+    }
 
     /**
      * Creates a new stream consisting of zero or more values `Args*`.
@@ -1048,20 +1097,21 @@ class DoubleStream extends BaseStream {
             return true
         }
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Support
+
     /**
      * The argument size of the stream.
      * 
      * @returns {Integer}
      */
     static Size => 2
+
     ;@endregion
-
+    ;---------------------------------------------------------------------------
     ;@region Filtering
-
-    ; TODO interop between Single / Double streams, e.g. "Narrow" or "Expand"
 
     /**
      * Returns a new double stream that retains elements only if they match the
@@ -1114,9 +1164,11 @@ class DoubleStream extends BaseStream {
             return false
         }
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Transformation
+
     /**
      * Returns a new double stream that transforms its elements by applying the
      * given `Mapper` function.
@@ -1394,9 +1446,11 @@ class DoubleStream extends BaseStream {
             return false
         }
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Matching
+
     /**
      * Returns whether any element set satisfies the given `Condition`.
      * 
@@ -1462,9 +1516,11 @@ class DoubleStream extends BaseStream {
         }
         return true
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Side Effects
+
     /**
      * Applies the given `Action` on each element as intermediate operation.
      * 
@@ -1509,9 +1565,11 @@ class DoubleStream extends BaseStream {
 
     ;@endregion
 }
-;@endregion
 
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region Extensions
+
 class AquaHotkey_Stream {
 static __New() {
     if (ObjGetBase(this) != Object) {
@@ -1603,9 +1661,9 @@ class Object {
      * }
      * Example(16, 0).PropsStream() ; <("a", 1), ("Size", 16), ...>
      * 
-     * @returns {Stream}
+     * @returns {DoubleStream}
      */
-    PropsStream() => Stream.OfProps(this)
+    PropsStream() => DoubleStream.OfProps(this)
 } ; class Object
 ;@endregion
 } ; class AquaHotkey_Stream

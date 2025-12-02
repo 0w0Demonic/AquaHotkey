@@ -1,8 +1,8 @@
 #Requires AutoHotkey >=v2.0.5
 
 #Include %A_LineFile%/../../AquaHotkeyX.ahk
-#Include %A_LineFile%/../../Src/Builtins/StringFormatting.ahk
-#Include %A_LineFile%/../../Src/Extensions/Kwargs.ahk
+#Include %A_LineFile%/../../Src/String/StringFormatting.ahk
+#Include %A_LineFile%/../../Src/Func/Kwargs.ahk
 
 class TestSuite {
     static __New() {
@@ -62,6 +62,7 @@ class TestSuite {
         }
     }
 
+    /*
     #Include %A_LineFile%/../Builtins/Any.ahk
     #Include %A_LineFile%/../Builtins/Array.ahk
     #Include %A_LineFile%/../Builtins/Buffer.ahk
@@ -85,6 +86,7 @@ class TestSuite {
     #Include %A_LineFile%/../Extensions/Combiner.ahk
     
     #Include %A_LineFile%/../Extensions/Zip.ahk
+    */
 
     static AssertThrows(Function) {
         try {

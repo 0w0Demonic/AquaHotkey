@@ -8,48 +8,71 @@
  * https://www.github.com/0w0Demonic/AquaHotkey
  * - src/Core/AquaHotkeyX.ahk
  */
+
+;-------------------------------------------------------------------------------
 ;@region Core
+
 #Include "%A_LineFile%/../AquaHotkey.ahk"
-;@endregion
 
-;@region Builtins
-#Include "%A_LineFile%/../../Builtins/Any.ahk"
-#Include "%A_LineFile%/../../Builtins/Array.ahk"
-#Include "%A_LineFile%/../../Builtins/Buffer.ahk"
-#Include "%A_LineFile%/../../Builtins/Class.ahk"
-#Include "%A_LineFile%/../../Builtins/ComValue.ahk"
-#Include "%A_LineFile%/../../Builtins/Error.ahk"
-#Include "%A_LineFile%/../../Builtins/Func.ahk"
-#Include "%A_LineFile%/../../Builtins/Integer.ahk"
-#Include "%A_LineFile%/../../Builtins/Map.ahk"
-#Include "%A_LineFile%/../../Builtins/Number.ahk"
-#Include "%A_LineFile%/../../Builtins/Object.ahk"
-#Include "%A_LineFile%/../../Builtins/Primitive.ahk"
-#Include "%A_LineFile%/../../Builtins/String.ahk"
-#Include "%A_LineFile%/../../Builtins/VarRef.ahk"
 ;@endregion
+;-------------------------------------------------------------------------------
+;@region Base + Primitives
 
-;@region Builtins (advanced)
-#Include "%A_LineFile%/../../Builtins/Pipes.ahk"
-#Include "%A_LineFile%/../../Builtins/Assertions.ahk"
-#Include "%A_LineFile%/../../Builtins/ToString.ahk"
+#Include "%A_LineFile%/../../Base/Any.ahk"
+#Include "%A_LineFile%/../../Base/Buffer.ahk"
+#Include "%A_LineFile%/../../Base/Class.ahk"
+#Include "%A_LineFile%/../../Base/ComValue.ahk"
+#Include "%A_LineFile%/../../Base/Error.ahk"
+#Include "%A_LineFile%/../../Base/Object.ahk"
+#Include "%A_LineFile%/../../Base/VarRef.ahk"
 
-#Include "%A_LineFile%/../../Builtins/StringMatching.ahk"
-#Include "%A_LineFile%/../../Builtins/Substrings.ahk"
-#Include "%A_LineFile%/../../Builtins/FileUtils.ahk"
-#Include "%A_LineFile%/../../Builtins/StreamOps.ahk"
+#Include "%A_LineFile%/../../Base/Assertions.ahk"
+#Include "%A_LineFile%/../../Base/ToString.ahk"
+
+#Include "%A_LineFile%/../../Primitives/Integer.ahk"
+#Include "%A_LineFile%/../../Primitives/Number.ahk"
+#Include "%A_LineFile%/../../Primitives/Primitive.ahk"
+
+#Include "%A_LineFile%/../../String/String.ahk"
+#Include "%A_LineFile%/../../String/StringMatching.ahk"
+#Include "%A_LineFile%/../../String/Substrings.ahk"
+
+#Include "%A_LineFile%/../../Base/Eq.ahk"
+#Include "%A_LineFile%/../../Base/Ord.ahk"
+#Include "%A_LineFile%/../../Base/Hash.ahk"
+
+#Include "%A_LineFile%/../../Func/Func.ahk"
+#Include "%A_LineFile%/../../Func/Pipes.ahk"
+
+#Include "%A_LineFile%/../../IO/FileUtils.ahk"
+
 ;@endregion
+;-------------------------------------------------------------------------------
+;@region Collections
 
-;@region Extensions
-#Include "%A_LineFile%/../../Extensions/Optional.ahk"
-#Include "%A_LineFile%/../../Extensions/TryOp.ahk"
-#Include "%A_LineFile%/../../Extensions/Range.ahk"
-#Include "%A_LineFile%/../../Extensions/Stream.ahk"
-#Include "%A_LineFile%/../../Extensions/Collector.ahk"
-#Include "%A_LineFile%/../../Extensions/Gatherer.ahk"
-#Include "%A_LineFile%/../../Extensions/Condition.ahk"
-#Include "%A_LineFile%/../../Extensions/Mapper.ahk"
-#Include "%A_LineFile%/../../Extensions/Combiner.ahk"
-#Include "%A_LineFile%/../../Extensions/Comparator.ahk"
-#Include "%A_LineFile%/../../Extensions/Zip.ahk"
+
+#Include "%A_LineFile%/../../Collections/Array.ahk"
+#Include "%A_LineFile%/../../Collections/Map.ahk"
+
+#Include "%A_LineFile%/../../Collections/StreamOps.ahk"
+#Include "%A_LineFile%/../../Collections/Comparator.ahk"
+#Include "%A_LineFile%/../../Collections/Zip.ahk"
+
 ;@endregion
+;-------------------------------------------------------------------------------
+;@region Functional
+
+#Include "%A_LineFile%/../../Monads/Optional.ahk"
+#Include "%A_LineFile%/../../Monads/TryOp.ahk"
+
+#Include "%A_LineFile%/../../Stream/Range.ahk"
+#Include "%A_LineFile%/../../Stream/Stream.ahk"
+#Include "%A_LineFile%/../../Stream/Collector.ahk"
+#Include "%A_LineFile%/../../Stream/Gatherer.ahk"
+
+#Include "%A_LineFile%/../../Func/Condition.ahk"
+#Include "%A_LineFile%/../../Func/Mapper.ahk"
+#Include "%A_LineFile%/../../Func/Combiner.ahk"
+
+;@endregion
+;-------------------------------------------------------------------------------
