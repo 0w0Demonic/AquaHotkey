@@ -827,23 +827,18 @@ class Collector {
 class AquaHotkey_Collector extends AquaHotkey {
     class Any {
         /**
-         * Applies the provided collector to the input sequence (anything
-         * enumerable, such as an Array or Map), which collects elements and
-         * processes them into a final result.
-         * 
-         * Use `Stream.Prototype.Collect(Coll)`, if the sequence carries
-         * multiple parameters.
-         * @see {Collector}
+         * Collects all elements through `.__Enum(1)`, passing them to the
+         * given {@link Colletor} to produce a final result.
          * 
          * @example
-         * ; "1, 2, 3, 4"
-         * Array(1, 2, 3, 4).Collect(C.Join(", "))
+         * C := Collector
          * 
-         * @param   {Collector}  Coll  the collector to apply
-         * @returns {Any}
+         * ; "foo, bar, baz"
+         * Array("foo", "bar", "baz").Collect(C.Join(", "))
          */
         Collect(Coll) {
             if (!(Coll is Collector) && !HasBase(Coll, Collector)) {
+
                 throw TypeError("Expected a Collector",, Type(Coll))
             }
             if (!HasProp(this, "__Enum") && !HasProp(this, "Call")) {
@@ -872,20 +867,22 @@ class AquaHotkey_Collector extends AquaHotkey {
 
     class Stream {
         /**
-         * Applies the provided collector to the input sequence (anything
-         * enumerable, such as an Array or Map), which collects elements and
-         * processes them into a final result.
-         * 
-         * Use stream to support enumerating multiple parameters at once.
-         * @see {Collector}
+         * This method is an extension to {@link Stream#Collect} with custom
+         * logic for {@link Collector} objects.
          * 
          * @example
-         * ; Map { 1: "Apple", 2: "Banana", 3: "Kiwi" }
-         * Array("Apple", "Banana", "Kiwi").Stream(2).Collect(C.ToMap)
+         * C := Collector
+         * 
+         * ; "1, 2, 3, 4"
+         * Array(1, 2, 3, 4).Stream().Collect(C.Join(", "))
+         * 
+         * @param   {Collector}  Coll  the collector to apply
+         * @returns {Any}
          */
         Collect(Coll) {
             if (!(Coll is Collector) && !HasBase(Coll, Collector)) {
-                throw TypeError("Expected a Collector",, Type(Coll))
+                GetMethod(Coll)
+                return Coll(this*)
             }
             CollSup := Coll.Supplier
             CollAcc := Coll.Accumulator
@@ -901,20 +898,22 @@ class AquaHotkey_Collector extends AquaHotkey {
 
     class DoubleStream {
         /**
-         * Applies the provided collector to the input sequence (anything
-         * enumerable, such as an Array or Map), which collects elements and
-         * processes them into a final result.
-         * 
-         * Use stream to support enumerating multiple parameters at once.
-         * @see {Collector}
+         * This method is an extension to {@link Stream#Collect} with custom
+         * logic for {@link Collector} objects.
          * 
          * @example
-         * ; Map { 1: "Apple", 2: "Banana", 3: "Kiwi" }
-         * Array("Apple", "Banana", "Kiwi").Stream(2).Collect(C.ToMap)
+         * C := Collector
+         * 
+         * ; Map { 1: 2, 3: 4 }
+         * Array(1, 2, 3, 4).DoubleStream().Collect(C.ToMap)
+         * 
+         * @param   {Collector}  Coll  the collector to apply
+         * @returns {Any}
          */
         Collect(Coll) {
             if (!(Coll is Collector) && !HasBase(Coll, Collector)) {
-                throw TypeError("Expected a Collector",, Type(Coll))
+                GetMethod(Coll)
+                return Coll(this*)
             }
             CollSup := Coll.Supplier
             CollAcc := Coll.Accumulator

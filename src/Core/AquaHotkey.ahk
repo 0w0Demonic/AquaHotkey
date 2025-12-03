@@ -167,20 +167,17 @@ static __New()
         ; Try to find a property receiver (usually a built-in class)
         try
         {
-            ; These two methods explicitly search for global variables and
-            ; avoid accidentally capturing variables local to this method.
-            ; `Deref2()` is used for the edge case `class this`.
-            static Deref1(this)    => %this%
-            static Deref2(VarName) => %VarName%
-
             ; If `Namespace` is unset, search for a property receiver at global
             ; scope by name dereference. Otherwise, `Namespace` refers to
             ; the root class in which the property receiver resides
             ; (e.g. `Gui.Edit`, which is found in `Gui`).
             switch {
-                case (IsSet(Namespace)):    Receiver := Namespace.%ClassName%
-                case (ClassName != "this"): Receiver := Deref1(ClassName)
-                default:                    Receiver := Deref2(ClassName)
+                case (IsSet(Namespace)):
+                    Receiver := Namespace.%ClassName%
+                case (ClassName != "_"):
+                    Receiver := AquaHotkey.Deref1(ClassName)
+                default:
+                    Receiver := AquaHotkey.Deref2(ClassName)
             }
 
             SupplierName := Supplier.Prototype.__Class
@@ -317,6 +314,11 @@ static __New()
     ;@endregion
 
 } ; static __New()
+;@endregion
+
+;@region Dereference
+static Deref1(_)  => %_%
+static Deref2(__) => %__%
 ;@endregion
 
 ;@region static CreateClass()

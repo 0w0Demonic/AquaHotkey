@@ -158,27 +158,27 @@ class Stream {
         Arr.Join(" ").AssertEquals("1 2 3 4 5")
     }
 
-    static AnyMatch() {
+    static Any() {
         Array(1, 2, 3, 4, 5)
             .Stream()
-            .AnyMatch(&Out, Num => Num == 5)
+            .Any(&Out, Num => Num == 5)
             .AssertNotEquals(false)
         
         IsSet(Out).AssertEquals(true)
         Out.AssertEquals(5)
     }
 
-    static AllMatch() {
+    static All() {
         Array(1, 2, 3, 4, 5)
             .Stream()
-            .AllMatch(Num => Num < 10)
+            .All(Num => Num < 10)
             .AssertEquals(true)
     }
 
-    static NoneMatch() {
+    static None() {
         Array(1, 2, 3, 4, 5)
             .Stream()
-            .NoneMatch(Num => Num => 3)
+            .None(Num => Num => 3)
             .AssertEquals(false)
     }
 
@@ -245,10 +245,10 @@ class Stream {
             .AssertEquals("1 2 3 4 5")
     }
 
-    static Reduce() {
+    static Fold() {
         Array(1, 2, 3, 4, 5)
             .Stream()
-            .Reduce((a, b) => (a + b))
+            .Fold((a, b) => (a + b))
             .AssertEquals(15)
     }
 

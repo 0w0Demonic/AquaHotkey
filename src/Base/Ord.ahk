@@ -31,7 +31,7 @@ class AquaHotkey_Ord extends AquaHotkey {
     class Array {
         Compare(Other) {
             if (!(Other is Array)) {
-                throw TypeError("Expected an Arra",, Type(Other))
+                throw TypeError("Expected an Array",, Type(Other))
             }
             ThisEnumer := this.__Enum(1)
             OtherEnumer := Other.__Enum(1)
@@ -46,11 +46,11 @@ class AquaHotkey_Ord extends AquaHotkey {
         }
     }
 
-    class Class {
-        Compare => this.Prototype.Compare
+    class Any {
+        static Compare => ObjBindMethod(this, "Compare")
+
+        static Compare() {
+
+        }
     }
 }
-
-Comp := Integer.Compare
-
-MsgBox(Comp(2, 4))

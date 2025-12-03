@@ -13,8 +13,9 @@
  * 5. `A.Eq(B)` should **consistently** return either `true` or `false` when
  *    neither values are being changed.
  * 
- * @see https://www.github.com/0w0Demonic/AquaHotkey
- * @author 0w0Demonic
+ * @module  <Base/Eq>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Eq extends AquaHotkey
 {
@@ -43,10 +44,15 @@ class Any {
     Eq(Other?) => (IsSet(Other) && (this = Other))
 
     /**
-     * Returns the `.Eq()` method of the calling class.
+     * Returns a type-checked `.Eq()` method.
+     * 
+     * This method is type-checked, depending on the calling class. For example:
      * 
      * @example
      * NumberEq := Number.Eq
+     * 
+     * NumberEq(1, 1)         ; true
+     * NumberEq("foo", "bar") ; Error! expected a(n) Integer
      * 
      * @returns {Func}
      */
@@ -70,10 +76,21 @@ class Any {
      * @returns {Boolean}
      */
     static Eq(A?, B?) {
-        if (IsSet(A)) {
-            return (IsSet(B) && A.Eq(B))
+        if (!IsSet(A)) {
+            return !IsSet(B)
         }
-        return !IsSet(B)
+        if (!(A is this)) {
+            throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                            Type(A))
+        }
+        if (!IsSet(B)) {
+            return false
+        }
+        if (!(B is this)) {
+            throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                            Type(B))
+        }
+        return A.Eq(B)
     }
 }
 
@@ -182,6 +199,8 @@ class Object {
                 PropDesc := ({}.GetOwnPropDesc)(ThisObj, PropertyName)
                 if (ObjHasOwnProp(PropDesc, "Value")) {
                     ThisValue := PropDesc.Value
+                } else if (ObjHasOwnProp(PropDesc, "Get")) {
+                    try ThisValue := (PropDesc.Get)(this)
                 }
 
                 ; value of other property
@@ -191,6 +210,8 @@ class Object {
                 PropDesc := ({}.GetOwnPropDesc)(OtherObj, PropertyName)
                 if (ObjHasOwnProp(PropDesc, "Value")) {
                     OtherValue := PropDesc.Value
+                } else if (ObjHasOwnProp(PropDesc, "Get")) {
+                    try OtherValue := (PropDesc.Get)(Other)
                 }
 
                 ; equality check

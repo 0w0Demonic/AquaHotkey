@@ -1,34 +1,20 @@
 ;@region Stream
 /**
- * AquaHotkey - Stream.ahk
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Extensions/Stream.ahk
- * 
- * ---
- * 
- * **Overview**:
- * 
  * Streams are a powerful abstraction for processing sequences of data in a
- * declarative way. The primary purpose of streams is to enable cleaner and more
- * readable code by removing boilerplate iteration logic.
+ * declarative way.
+ * 
+ * They operate lazily, meaning that until the value is actually required on
+ * a *terminal* operation such as `.ToArray()` or `.ForEach()`, the stream
+ * is a pipeline of functions waiting to be executed.
  * 
  * ```
- * Array(1, 2, 3, 4, 5, 6).Stream().RetainIf(IsEven).ForEach(MsgBox) ; <2, 4, 6>
+ * Array(1, 2, 3, 4, 5, 6).Stream() ; <1, 2, 3, 4, 5, 6>
+ *     .RetainIf(IsEven)            ; <2, 4, 6>
+ *     .ForEach(MsgBox)
  * ```
  * 
- * ---
- * 
- * **Lazy evaluation**:
- * 
- * They operate lazily, meaning intermediate operations (like `.Map()`) are not
- * executed until a terminal operation (like `.ForEach()` or `.ToArray()`)
- * triggers the pipeline and returns a final result. This architecture allows
- * streams to efficiently handle both finite and infinite data sequences.
- * 
- * ---
+ * Streams being lazily evaluated means that they can be both finite and
+ * infinite in size.
  * 
  * **Notation Used in Examples**:
  * 
@@ -44,6 +30,10 @@
  * ```
  * Array("foo", "bar").DoubleStream() ; <(1, "foo"), (2, "bar")>
  * ```
+ * 
+ * @author  0w0Demonic
+ * @module  <Stream/Stream>
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class Stream extends BaseStream
 {
@@ -76,7 +66,7 @@ class Stream extends BaseStream
      * 
      * @example
      * ; <4, 6, 1, 8, 2, 7>
-     * Stream.Generate(() => Random(0, 9)).Limit(6).ToArray()
+     * Stream.Generate(Random, 0, 9).Limit(6).ToArray()
      * 
      * @param   {Func}  Supplier  function that supplies stream elements
      * @param   {Any*}  Args      zero or more arguments passed to the supplier
@@ -109,10 +99,13 @@ class Stream extends BaseStream
         return Stream(Cycle)
 
         Cycle(&Out) {
-            static Enumer := Values.__Enum(1)
-            while (!Enumer(&Out)) {
-                Enumer := Values.__Enum(1)
+            static Index := 0
+            if (!Values.Has(Index + 1)) {
+                Out := unset
+            } else {
+                Out := Values.Get(Index + 1)
             }
+            Index := Mod(Index + 1, Values.Length)
             return true
         }
     }
@@ -131,9 +124,10 @@ class Stream extends BaseStream
      * 
      * @param   {Any}   Seed    the starting value
      * @param   {Func}  Mapper  a function that computes the next value
+     * @param   {Any*}  Args    zero or more arguments for the mapper
      * @returns {Stream}
      */
-    static Iterate(Seed, Mapper) {
+    static Iterate(Seed, Mapper, Args*) {
         GetMethod(Mapper)
         First := true
         Value := unset
@@ -151,7 +145,6 @@ class Stream extends BaseStream
         }
     }
 
-    ; TODO separate Stream.OfProps() and DoubleStream.OfProps() ?
     /**
      * (AutoHotkey v2.1-alpha.10+):
      * 
@@ -201,7 +194,6 @@ class Stream extends BaseStream
         }
     }
 
-    ; TODO use separate Stream.OfOwnProps() and DoubleStream.OfOwnProps() ?
     /**
      * Returns a stream of the object's own properties.
      * 
@@ -233,6 +225,13 @@ class Stream extends BaseStream
     static Size => 1
 
     /**
+     * The argument size of the stream.
+     * 
+     * @returns {Integer}
+     */
+    Size => 1
+
+    /**
      * Static constructor that removes the `static OfProps()` on versions
      * below <v2.1-alpha.10.
      */
@@ -249,9 +248,10 @@ class Stream extends BaseStream
      * given `Condition`.
      * 
      * @example
-     * Array(1, 2, 3, 4).Stream().RetainIf(x => (x > 2)) ; <3, 4>
+     * Array(1, 2, 3, 4).Stream().RetainIf(Ge, 2) ; <3, 4>
      * 
      * @param   {Func}  Condition  the given condition
+     * @param   {Any?}  Args       zero or more arguments for the condition
      * @returns {Stream}
      */
     RetainIf(Condition, Args*) {
@@ -273,13 +273,10 @@ class Stream extends BaseStream
      * given `Condition`.
      * 
      * @example
-     * IsGreater(a, b) {
-     *     return (a > b)
-     * }
-     * Array(1, 2, 3, 4).Stream().RemoveIf(IsGreater, 2) ; <3, 4>
+     * Array(1, 2, 3, 4).Stream().RemoveIf(Ge, 2) ; <1, 2>
      * 
      * @param   {Func}  Condition  the given condition
-     * @param   {Any*}  Args       zero or more arguments for condition function
+     * @param   {Any*}  Args       zero or more arguments for condition
      * @param   {Stream}
      */
     RemoveIf(Condition, Args*) {
@@ -303,10 +300,9 @@ class Stream extends BaseStream
      * `Mapper` function.
      * 
      * @example
-     * Times(a, b) {
-     *     return (a * b)
-     * }
-     * Array(1, 2, 3, 4).Stream().Map(Times(2)).ToArray() ; <2, 4, 6, 8>
+     * Times(a, b) => (a * b)
+     * 
+     * Array(1, 2, 3, 4).Stream().Map(Times, 2).ToArray() ; <2, 4, 6, 8>
      * 
      * @param   {Func}  Mapper  function that maps all elements
      * @param   {Any*}  Args    zero or more argument for mapper
@@ -328,6 +324,9 @@ class Stream extends BaseStream
     /**
      * Returns a new stream that transforms, and then flattens resulting
      * streams each into separate elements.
+     * 
+     * If the mapper returns a value other than a `Stream`, this method will
+     * attempt to iterate through the 1-param enumerator (`.__Enum(1)`).
      * 
      * @example
      * ; <"f", "o", "o", "b", "a", "r">
@@ -362,6 +361,9 @@ class Stream extends BaseStream
     /**
      * Returns a new stream that transforms, and then flattens resulting double
      * streams each into separate elements.
+     * 
+     * If the mapper returns a value other than a `DoubleStream`, this method
+     * will attempt to iterate through the 2-param enumerator (`.__Enum(2)`).
      * 
      * @example
      * MsgBox(Array("foo", "bar").Stream().DoubleFlatMap().Join(" "))
@@ -439,11 +441,8 @@ class Stream extends BaseStream
         }
         Count := 0
         f := this.Call
-        return Stream(Limit)
 
-        Limit(&A) {
-            return ((Count++) < n) && f(&A)
-        }
+        return Stream((&A) => (  (Count++ < n) && !!f(&A)  ))
     }
 
     /**
@@ -484,15 +483,14 @@ class Stream extends BaseStream
      * Array(1, -2, 4, 6, 2, 1).Stream().TakeWhile(x => x < 5) ; <1, -2, 4>
      * 
      * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
      * @returns {Stream}
      */
-    TakeWhile(Condition) {
+    TakeWhile(Condition, Args*) {
         f := this.Call
         return Stream(TakeWhile)
 
-        TakeWhile(&A) {
-            return f(&A) && Condition(A?)
-        }
+        TakeWhile(&A) => (  f(&A) && !!Condition(A?, Args*)  )
     }
 
     /**
@@ -521,6 +519,7 @@ class Stream extends BaseStream
         }
     }
 
+    ; TODO integrate this into the new Eq() lib
     /**
      * Returns a stream of unique elements by keeping track of them in a Map.
      * 
@@ -601,6 +600,7 @@ class Stream extends BaseStream
      * Array(1, 2, 3, 4).Stream().Peek(Foo).ForEach(Bar)
      * 
      * @param   {Func}  Action  the function to be called
+     * @param   {Any*}  Args    zero or more arguments for the action
      * @returns {Stream}
      */
     Peek(Action, Args*) {
@@ -637,16 +637,18 @@ class Stream extends BaseStream
     ;@region Matching
 
     /**
-     * Returns whether any element set satisfies the given `Condition`.
+     * Returns `true`, if any element in this stream satisfies the given
+     * `Condition`, otherwise `false`.
      * 
      * @example
-     * Array(1, 2, 3, 8, 4).Stream().AnyMatch(&Val, x => (x > 5))
+     * Array(1, 2, 3, 8, 4).Stream().Any(&Val, (x) => (x > 5))
      * 
      * @param   {VarRef}   Out        (output) the first match, if any
      * @param   {Func}     Condition  the given condition
+     * @param   {Any*}     Args       zero or more arguments for the condition
      * @returns {Boolean}
      */
-    AnyMatch(&Out, Condition, Args*) {
+    Any(&Out, Condition, Args*) {
         Out := unset
         for A in this {
             if (Condition(A?)) {
@@ -662,12 +664,13 @@ class Stream extends BaseStream
      * `Condition`.
      * 
      * @example
-     * Array(1, 2, 3, 4).Stream().AllMatch(x => x < 10) ; true
+     * Array(1, 2, 3, 4).Stream().All(x => x < 10) ; true
      * 
      * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
      * @returns {Boolean}
      */
-    AllMatch(Condition, Args*) {
+    All(Condition, Args*) {
         for A in this {
             if (!Condition(A?)) {
                 return false
@@ -681,12 +684,13 @@ class Stream extends BaseStream
      * given `Condition`.
      * 
      * @example
-     * Array(1, 2, 3, 4, 5, 92).Stream().NoneMatch(x => x > 10) ; false
+     * Array(1, 2, 3, 4, 5, 92).Stream().None(x => x > 10) ; false
      * 
      * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
      * @returns {Boolean}
      */
-    NoneMatch(Condition, Args*) {
+    None(Condition, Args*) {
         for A in this {
             if (Condition(A?, Args*)) {
                 return false
@@ -699,11 +703,13 @@ class Stream extends BaseStream
     ;---------------------------------------------------------------------------
     ;@region Aggregation
 
+    ; TODO integrate this into new Ord() lib
+
     /**
      * Returns the highest ordered element in the stream.
      * 
-     * - If the stream is empty, this method throws an error.
-     * - Only the *first parameter* of each element set is compared.
+     * `unset` is not treated as a value. If none of the stream elements have
+     * a value, an error is thrown.
      * 
      * @see `Comparator`
      * @example
@@ -728,11 +734,13 @@ class Stream extends BaseStream
         return Result
     }
 
+    ; TODO integrate this into new Ord() lib
+
     /**
      * Returns the lowest element in the stream.
      * 
-     * - If the stream is empty, this method throws an error.
-     * - Only the *first parameter* of each element set is compared.
+     * `unset` is not treated as a value. If none of the stream elements have
+     * a value, an error is thrown.
      * 
      * @see `Comparator`
      * @example
@@ -758,7 +766,7 @@ class Stream extends BaseStream
     }
 
     /**
-     * Returns the total sum of numbers in the stream. Unset and non-numerical
+     * Returns the total sum of numbers in the stream. `unset` and non-numerical
      * values are ignored.
      *
      * - Only the first parameter of each element set is taken as argument.
@@ -778,41 +786,54 @@ class Stream extends BaseStream
 
     /**
      * Returns an array by collecting elements from the stream.
-     * 
-     * - `n` specifies the index of which parameter to collect from each
-     *   element set of the stream.
      *  
      * @example
-     * Array(1, 2, 3, 4).Stream().Map(x => x * 2).ToArray() ; [2, 4, 6, 8]
+     * Range(1, 4).Stream().Map(TimesTwo).ToArray() ; [2, 4, 6, 8]
      * 
      * @returns {Array}
      */
     ToArray() => Array(this*)
 
     /**
-     * Reduces all elements in the stream into a single value, by repeatedly
-     * "merging" values with the given `Combiner` function.
+     * Reduces the stream by passing all its elements to the given `Collector`
+     * function which returns the final result.
      * 
-     * ```ahk
-     * ; 10 (1 + 2 + 3 + 4)
-     * Array(1, 2, 3, 4).Stream().Reduce((a, b) => (a + b))
-     * ```
-     * 
-     * - If there is no value present in the stream, an error is thrown.
-     * - `Identity` can be used to give an initial value to merge with.
-     * - `unset` is ignored.
-     * - Only the *first parameter* of each element set is merged.
+     * An extended version of this method is available in `<Stream/Collector>`.
      * 
      * @example
-     * Array(1, 2, unset, 3, unset, 4)
-     *         .Stream()
-     *         .Reduce((a, b) => (a * b)) ; 24
+     * R() => Range(1, 1000).Stream()
+     * 
+     * R().Collect(Array) ; [1, 2, 3, ..., 1000]
+     * R().Collect(Map)   ; Map { 1: 2, ... , 999: 1000 }
+     * 
+     * R().Collect((Args*) => ...)
+     * 
+     * @param   {Func}  Collector  function that collects values
+     * @returns {Any}
+     */
+    Collect(Collector) {
+        GetMethod(Collector)
+        return Collector(this*)
+    }
+
+    /**
+     * Folds all elements in the stream into a single value, by repeatedly
+     * "merging" values with the given `Combiner` function.
+     * 
+     * `Identity` can be used to give an initial value to merge with. Otherwise,
+     * an error is thrown if none of the stream elements have a value
+     * (`IsSet()`).
+     * 
+     * @example
+     * Product(a, b) => (a * b)
+     * 
+     * Array(1, 2, unset, 3, unset, 4).Stream().Fold(Product)
      * 
      * @param   {Combiner}  Combiner  function that combines two elements
      * @param   {Any?}      Identity  initial starting value
      * @returns {Any}
      */
-    Reduce(Combiner, Identity?) {
+    Fold(Combiner, Identity?) {
         Result := Identity ?? unset
         f := this.Call
 
@@ -835,11 +856,9 @@ class Stream extends BaseStream
      * 
      * - `InitialCap` can be used to pre-allocate enough space for concatenating
      *   large strings.
-     *   
-     * - Only the *first parameter* of each element set is used.
      * 
      * @example
-     * Array(1, 2, 3, 4).Stream().Join() ; "1234"
+     * Array(1, 2, 3, 4).Stream().Join(", ") ; "1, 2, 3, 4"
      * 
      * @param   {String?}   Delimiter   separator string
      * @param   {Integer?}  InitialCap  initial string capacity
@@ -868,9 +887,8 @@ class Stream extends BaseStream
     /**
      * Concatenates the elements of the stream into a single string, each
      * element separated by `\n`.
-     * @see `Func.Join()`
-     * @example
      * 
+     * @example
      * ; 1
      * ; 2
      * ; 3
@@ -879,9 +897,7 @@ class Stream extends BaseStream
      * @param   {Integer?}  InitialCap  initial string capacity
      * @returns {String}
      */
-    JoinLine(InitialCap := 0) {
-        return this.Join("`n", InitialCap)
-    }
+    JoinLine(InitialCap := 0) => this.Join("`n", InitialCap)
 
     /**
      * Converts the stream into a string.
@@ -918,7 +934,7 @@ class BaseStream {
      * 3. `MaxParams` is between `1` and `2`.
      * 
      * @param   {Any}  Source  the function used as stream source
-     * @returns {Stream}
+     * @returns {BaseStream}
      */
     static Call(Source) {
         if (this == BaseStream) {
@@ -940,6 +956,9 @@ class BaseStream {
         if (f.IsVariadic) {
             throw ValueError("varargs parameter",, f.Name)
         }
+
+        ; `BoundFunc`s are broken in terms of `MinParams`/`MaxParams`,
+        ; but this doesn't affect this simple assertion.
         if (f.MaxParams > Stream.MaxSupportedParams) {
             throw ValueError("invalid number of parameters",, f.MaxParams)
         }
@@ -956,19 +975,21 @@ class BaseStream {
      * Stream.of("Hello", "world!") ; <"Hello", "world!">
      * Stream.of() ; <>
      * 
-     * @param   {Any*}  Args
+     * @param   {Any*}  Args  zero or more stream elements
      * @returns {Stream}
      */
     static Of(Args*) => Stream(Args.__Enum(this.Size))
 
     /**
      * The maximum parameter size currently supported.
+     * 
      * @returns {Integer}
      */
     static MaxSupportedParams => 2
 
     /**
      * Returns the minimum parameter length of the underlying stream source.
+     * 
      * @returns {Integer}
      */
     MinParams => this.Call.MinParams
@@ -987,9 +1008,16 @@ class BaseStream {
 
     /**
      * Returns the stream as enumerator object used in for-loops.
+     * 
+     * @param   {Integer}  n  parameter length of the enumerator
      * @returns {Enumerator}
      */
-    __Enum(n) => this.Call
+    __Enum(n) {
+        if (n > this.Size) {
+            Msg := "Unable to handle more than " . this.Size . " parameters."
+        }
+        return this.Call
+    }
 }
 
 ;@endregion
@@ -1089,11 +1117,16 @@ class DoubleStream extends BaseStream
 
         Cycle(&Out1, &Out2) {
             static Counter := 0
-            static Enumer := Values.__Enum(1)
-            while (!Enumer(&Out2)) {
-                Enumer := Values.__Enum(1)
-            }
+            static Index := 0
+
             Out1 := ++Counter
+
+            if (!Values.Has(Index + 1)) {
+                Out2 := unset
+            } else {
+                Out2 := Values.Get(Index + 1)
+            }
+            Index := Mod(Index + 1, Values.Length)
             return true
         }
     }
@@ -1108,6 +1141,11 @@ class DoubleStream extends BaseStream
      * @returns {Integer}
      */
     static Size => 2
+
+    /**
+     * The argument size of the stream.
+     */
+    Size => 2
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -1140,24 +1178,28 @@ class DoubleStream extends BaseStream
     }
 
     /**
-     * Returns a new double stream that filter out elements that match the given
-     * `Condition`.
+     * Returns a new double stream that filters out all elements that match the
+     * given `Condition`.
      * 
      * @example
-     * Array("foo", "bar", "baz").DoubleStream()
-     *         .RemoveIf((i, v) => (i == 1) || (v == "bar")) ; <(1, "foo")>
+     * ; <("apple", "banana")>
+     * Map("foo", "bar", "baz", "qux", "apple", "banana")
+     *         .DoubleStream()
+     *         .RemoveIf((Key, Value) {
+     *             return (Key == "foo") || (Value == "qux")
+     *         })
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more arguments for the condition
      * @returns {DoubleStream}
      */
-    RemoveIf(Condition) {
+    RemoveIf(Condition, Args*) {
         f := this.Call
         return DoubleStream(RemoveIf)
 
         RemoveIf(&A, &B?) {
             while (f(&A, &B)) {
-                if (!Condition(A?, B?)) {
+                if (!Condition(A?, B?, Args*)) {
                     return true
                 }
             }
@@ -1173,26 +1215,24 @@ class DoubleStream extends BaseStream
      * Returns a new double stream that transforms its elements by applying the
      * given `Mapper` function.
      * 
-     * This method returns a stream of size 1.
-     * 
      * @example
-     * Times(a, b) {
-     *     return (a * b)
-     * }
-     * ; <"1 == foo", "2 == bar">
-     * Array("foo", "bar").DoubleStream().Map((i, str) => (i . " == " . str))
+     * 
+     * ; <"Index 1: foo", "Index 2: bar">
+     * Array("foo", "bar").DoubleStream().Map((Index, Str) {
+     *     return Format("Index {}: {}", Index, Str)
+     * })
      * 
      * @param   {Func}  Mapper  function that maps all elements
      * @param   {Any*}  Args    zero or more argument for mapper
      * @param   {Stream}
      */
-    Map(Mapper) {
+    Map(Mapper, Args*) {
         f := this.Call
         return Stream(Map)
 
         Map(&Out) {
             if (f(&A, &B)) {
-                Out := Mapper(A?, B?)
+                Out := Mapper(A?, B?, Args*)
                 return true
             }
             return false
@@ -1200,16 +1240,18 @@ class DoubleStream extends BaseStream
     }
 
     /**
-     * Returns a new double stream that transforms, and then flattens resulting
-     * streams each into separate elements.
+     * Returns a stream that transforms the elements of this stream by applying
+     * the given `Mapper` function, flattening resulting streams into separate
+     * elements.
      * 
-     * This method returns a stream of size 1.
+     * If the mapper returns something other than a `Stream`, this method
+     * will attempt to traverse the 1-param enumerator (`.__Enum(1)`).
      * 
      * @param   {Func}  Mapper  function that maps and flattens elements
      * @param   {Any*}  Args    zero or more arguments for the mapper function
      * @returns {Stream}
      */
-    FlatMap(Mapper) {
+    FlatMap(Mapper, Args*) {
         f := this.Call
         return Stream(FlatMap)
 
@@ -1222,7 +1264,7 @@ class DoubleStream extends BaseStream
                 if (!f(&A, &B)) {
                     return false
                 }
-                A := Mapper(A?, B?)
+                A := Mapper(A?, B?, Args*)
                 if (!(A is Stream)) {
                     A := Array(A)
                 }
@@ -1232,8 +1274,12 @@ class DoubleStream extends BaseStream
     }
 
     /**
-     * Returns a new double stream that transforms, and then flattens resulting
-     * double streams each into separate elements.
+     * Returns a new double stream that transforms the elements of this stream
+     * by applying the given `Mapper` function, flattening resulting double
+     * stream into separate elements.
+     * 
+     * If the mapper returns something other than a `DoubleStream`, this method
+     * will attempt to traverse the 2-param enumerator (`.__Enum(2)`).
      * 
      * @param   {Func}  Mapper  function to maps and flattens elements
      * @param   {Any*}  Any     zero or more arguments for the mapper function
@@ -1278,13 +1324,13 @@ class DoubleStream extends BaseStream
      * @param   {Any*}  Args    zero or more arguments for the mapper function
      * @returns {DoubleStream}
      */
-    MapByRef(Mapper) {
+    MapByRef(Mapper, Args*) {
         f := this.Call
         return DoubleStream(MapByRef)
 
         MapByRef(&A, &B) {
             if (f(&A, &B)) {
-                Mapper(&A, &B)
+                Mapper(&A, &B, Args*)
                 return true
             }
             return false
@@ -1296,7 +1342,7 @@ class DoubleStream extends BaseStream
      * before terminating.
      * 
      * @example
-     * Array(1, 2, 3, 4, 5).Stream().Limit(2) ; <1, 2>
+     * Array(1, 2, 3, 4, 5).DoubleStream().Limit(2) ; <1, 2>
      * 
      * @param   {Integer}  n  maximum amount of elements to be returned
      * @returns {Stream}
@@ -1359,12 +1405,12 @@ class DoubleStream extends BaseStream
      * @param   {Any*}  Args       zero or more arguments for the condition
      * @returns {DoubleStream}
      */
-    TakeWhile(Condition) {
+    TakeWhile(Condition, Args*) {
         f := this.Call
         return DoubleStream(TakeWhile)
 
         TakeWhile(&A, &B) {
-            return f(&A, &B) && Condition(A?, B?)
+            return f(&A, &B) && !!Condition(A?, B?, Args*)
         }
     }
 
@@ -1395,6 +1441,7 @@ class DoubleStream extends BaseStream
         }
     }
 
+    ; TODO integrate this into new Eq() lib?
     /**
      * Returns a stream of unique elements by keeping track of them in a Map.
      * 
@@ -1452,12 +1499,13 @@ class DoubleStream extends BaseStream
     ;@region Matching
 
     /**
-     * Returns whether any element set satisfies the given `Condition`.
+     * Returns `true` if any element set in this stream satisfies the given
+     * `Condition`.
      * 
      * @example
-     * Array(1, 2, 3, 8, 4).Stream2().AnyMatch(
-     *         &Index, &Value,
-     *         (Idx, Val) => ((Idx + Val) == 4)
+     * Array(1, 2, 3, 8, 4).DoubleStream().Any(
+     *     &Index, &Value,
+     *     (Idx, Val) => ((Idx + Val) == 4)
      * )
      * 
      * @param   {VarRef}   Key        (out) value 1 of the first match, if any
@@ -1466,11 +1514,12 @@ class DoubleStream extends BaseStream
      * @param   {Any*}     Args       zero or more arguments for the condition
      * @returns {Boolean}
      */
-    AnyMatch(&Out1, &Out2, Condition, Args*) {
+    Any(&Out1, &Out2, Condition, Args*) {
+        GetMethod(Condition)
         Out1 := unset
         Out2 := unset
         for A, B in this {
-            if (Condition(A?, B?)) {
+            if (Condition(A?, B?, Args*)) {
                 Out1 := A
                 Out2 := B
                 return true
@@ -1484,14 +1533,16 @@ class DoubleStream extends BaseStream
      * `Condition`.
      * 
      * @example
-     * Array(1, 2, 3, 4).Stream().AllMatch(x => x < 10) ; true
+     * Array(1, 2, 3, 4).DoubleStream().All(x => x < 10) ; true
      * 
      * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
      * @returns {Boolean}
      */
-    AllMatch(Condition, Args*) {
+    All(Condition, Args*) {
+        GetMethod(Condition)
         for A in this {
-            if (!Condition(A?)) {
+            if (!Condition(A?, Args*)) {
                 return false
             }
         }
@@ -1503,12 +1554,14 @@ class DoubleStream extends BaseStream
      * given `Condition`.
      * 
      * @example
-     * Array(1, 2, 3, 4, 5, 92).Stream().NoneMatch(x => x > 10) ; false
+     * Array(1, 2, 3, 4, 5, 92).DoubleStream().NoneMatch(x => x > 10) ; false
      * 
      * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
      * @returns {Boolean}
      */
-    NoneMatch(Condition, Args*) {
+    None(Condition, Args*) {
+        GetMethod(Condition)
         for A in this {
             if (Condition(A?, Args*)) {
                 return false
@@ -1532,7 +1585,8 @@ class DoubleStream extends BaseStream
      * Array(1, 2, 3, 4).Stream().Peek(Foo).ForEach(Bar)
      * 
      * @param   {Func}  Action  the function to be called
-     * @returns {Stream}
+     * @param   {Any?}  Args    zero or more arguments for the action
+     * @returns {DoubleStream}
      */
     Peek(Action, Args*) {
         f := this.Call
@@ -1590,8 +1644,9 @@ class Any {
     }
 
     /**
-     * Returns a stream for this value.
+     * Returns a new {@link Stream} for this value.
      * @example
+     * 
      * Arr    := [1, 2, 3, 4, 5]
      * Stream := Arr.Stream() ; for Index, Value in Arr {...}
      * @returns {Stream}
@@ -1599,7 +1654,7 @@ class Any {
     Stream() => Stream(this)
 
     /**
-     * Returns a double stream for this value.
+     * Returns a {@link DoubleStream} for this value.
      * @example
      * Array("foo", "bar").DoubleStream() ; <(1, "foo"), (2, "bar")>
      * 
@@ -1610,8 +1665,8 @@ class Any {
     /**
      * - (v2.1-alpha.18+)
      * 
-     * Returns a stream of an object's properties. Use this method instead
-     * of `.Props().Stream()` to support property values.
+     * Returns a {@link Stream} of an object's properties. Use this method
+     * instead of `.Props().Stream()` to support property values.
      * 
      * @example
      * class Example extends Buffer {
@@ -1635,7 +1690,7 @@ class Object {
     }
 
     /**
-     * Returns a stream of the object's own properties. Use this method
+     * Returns a {@link Stream} of the object's own properties. Use this method
      * instead of `.OwnProps().Stream()` to support property values.
      * 
      * @example
@@ -1663,7 +1718,7 @@ class Object {
      * 
      * @returns {DoubleStream}
      */
-    PropsStream() => DoubleStream.OfProps(this)
+    PropsStream() => Stream.OfProps(this)
 } ; class Object
 ;@endregion
 } ; class AquaHotkey_Stream
