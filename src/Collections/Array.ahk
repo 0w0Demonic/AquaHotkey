@@ -1,4 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
  * AquaHotkey - Array.ahk
  * 

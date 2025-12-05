@@ -174,7 +174,9 @@ class AquaHotkey_Hash extends AquaHotkey
          * Returns a type-checked `.Hash()` method.
          * 
          * @example
-         * NumberHash := Number.Hash
+         * ObjHash := Object.Hash
+         * 
+         * ObjHash("Str") ; Error! Expected an Object.
          * 
          * @returns {Func}
          */

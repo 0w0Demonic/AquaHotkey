@@ -321,13 +321,13 @@ class Array {
      * ```
      * 
      * @example
-     * Array(1, 2, 3, 4).AnyMatch(  (x) => (x > 2)  ) ; { Value: 3 }
+     * Array(1, 2, 3, 4).Any(  (x) => (x > 2)  ) ; { Value: 3 }
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
      * @returns {Boolean/Object}
      */
-    AnyMatch(Condition, Args*) {
+    Any(Condition, Args*) {
         GetMethod(Condition)
         for Value in this {
             if (Condition(Value?, Args*)) {
@@ -346,13 +346,13 @@ class Array {
      * ```
      * 
      * @example
-     * Array(1, 2, 3, 4).AllMatch(  (x) => (x < 10)  ) ; true
+     * Array(1, 2, 3, 4).All(  (x) => (x < 10)  ) ; true
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
      * @returns {Boolean}
      */
-    AllMatch(Condition, Args*) {
+    All(Condition, Args*) {
         GetMethod(Condition)
         for Value in this {
             if (!Condition(Value?, Args*)) {
@@ -371,13 +371,13 @@ class Array {
      * ```
      * 
      * @example
-     * Array(1, 2, 3, 4).NoneMatch(  (x) => (x == 4)  ) ; false
+     * Array(1, 2, 3, 4).None(  (x) => (x == 4)  ) ; false
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
      * @returns {Boolean}
      */
-    NoneMatch(Condition, Args*) {
+    None(Condition, Args*) {
         GetMethod(Condition)
         for Value in this {
             if (Condition(Value?, Args*)) {
@@ -548,7 +548,7 @@ class Map {
      *     return (Key == 1)
      * }
      * 
-     * Output := Map(1, 2, 3, 4).AnyMatch(KeyEquals1)
+     * Output := Map(1, 2, 3, 4).Any(KeyEquals1)
      * if (Output) {
      *     MsgBox(Output.Key)   ; 1
      *     MsgBox(Output.Value) ; 2
@@ -558,7 +558,7 @@ class Map {
      * @param   {Any*}  Args       zero or more additional arguments
      * @returns {Boolean/Object}
      */
-    AnyMatch(Condition, Args*) {
+    Any(Condition, Args*) {
         GetMethod(Condition)
         for Key, Value in this {
             if (Condition(Key, Value, Args*)) {
@@ -576,13 +576,13 @@ class Map {
      * ```
      * 
      * @example
-     * Map(1, 2, 3, 4).AllMatch((Key, Value) => (Key != 6)) ; true
+     * Map(1, 2, 3, 4).All((Key, Value) => (Key != 6)) ; true
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
      * @returns {Boolean}
      */
-    AllMatch(Condition, Args*) {
+    All(Condition, Args*) {
         GetMethod(Condition)
         for Key, Value in this {
             if (!Condition(Key, Value, Args*)) {
@@ -600,13 +600,13 @@ class Map {
      * ```
      * 
      * @example
-     * Map(1, 2, 3, 4).NoneMatch((Key, Value) => (Key == 3)) ; false
+     * Map(1, 2, 3, 4).None((Key, Value) => (Key == 3)) ; false
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
      * @returns {Boolean}
      */
-    NoneMatch(Condition, Args*) {
+    None(Condition, Args*) {
         GetMethod(Condition)
         for Key, Value in this {
             if (Condition(Key, Value, Args*)) {

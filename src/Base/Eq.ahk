@@ -1,18 +1,47 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
- * Adds a universal `.Eq` property for checking whether two values are
+ * Adds a universal `.Eq()` method for checking whether two values are
  * equivalent.
  * 
- * In general:
+ * ---
  * 
- * 1. `A.Eq(A)` is always `true` (also `unset.Eq(unset)`)
+ * **How to Implement**:
+ * 
+ * In general, these rules should be followed for things to work correctly:
+ * 
+ * 1. `A.Eq(A)` is **always** `true` (also `unset.Eq(unset)`)
  * 2. If `A.Eq(B)`, then `B.Eq(A)`
  * 3. If `A.Eq(B)` and `B.Eq(C)`, then `A.Eq(C)`
  * 4. `A.Eq(unset)` is `false`, unless `!IsSet(A)`
  * 5. `A.Eq(B)` should **consistently** return either `true` or `false` when
  *    neither values are being changed.
- * 6. If `A.Eq(B)`, then `A.Hash() == B.Hash()`.
+ * 6. If `A.Hash() == B.Hash()`, it should be **extremely likely** that
+ *    `A.Eq(B)`, and vice versa.
+ * 
+ * ---
+ * 
+ * **`Any.Eq(A?, B?)`**:
+ * 
+ * This static method allows you to check two values for equality, even if
+ * both of them are `unset`.
+ * 
+ * Calling this method from a subclass (e.g. `Number.Eq()`) will perform
+ * additional type checking. For example `Object.Eq(12, 45)` throws an error
+ * because objects are expected instead of numbers.
+ * 
+ * ---
+ * 
+ * @example
+ * Obj1 := { foo: "bar" }
+ * Obj2 := { FOO: "bar" } ; property names are case-insensitive
+ * Obj1.Eq(Obj2) ; true (determined by the set of properties and their values)
+ * 
+ * ; (unset == unset)
+ * Any.Eq(unset, unset) ; true
+ * 
+ * ; <Class>.Eq() does type-checking.
+ * Object.Eq(123, 45) ; Error! Expected an Object.
  * 
  * @module  <Base/Eq>
  * @author  0w0Demonic
@@ -32,6 +61,9 @@ class Any {
      * ```ahk
      * (A = B)
      * ```
+     * 
+     * In other words, regular (case-insensitive) equality checks are used,
+     * unless specified otherwise.
      * 
      * @example
      * (1).Eq("1") ; true

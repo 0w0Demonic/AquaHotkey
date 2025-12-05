@@ -1,19 +1,35 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
- * AquaHotkey - ComValue.ahk
+ * Shorthand methods for `ComValue` types.
  * 
- * Author: 0w0Demonic
+ * @example
+ * ; VARIANT Types as Constants
+ * MsgBox(ComValue.BSTR)    ; 0x0008 (VT_BSTR)
+ * MsgBox(ComObjArray.BSTR) ; 0x2008 (VT_BSTR | VT_ARRAY)
+ * MsgBox(ComValueRef.BSTR) ; 0x4008 (VT_BSTR | VT_BYREF)
  * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/ComValue.ahk
+ * ; VARIANT Type Constructors
+ * Str := ComValue.BSTR("foo")
+ * Ref := ComValueRef.BSTR(Buffer.OfString("foo"))
+ * Arr := ComObjArray.BSTR(16, 2) ; ComObjArray(0x08, 16, 2)
+ * 
+ * ; `.Get()` and `.Set()` for `ComValueRef`
+ * Ref := ComValueRef.VARIANT(Buffer(24, 0)).Set("value")
+ * MsgBox(Ref.Get())
+ * 
+ * @module  <Base/ComValue>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class AquaHotkey_ComValue extends AquaHotkey {
+class AquaHotkey_ComValue extends AquaHotkey
+{
 ;@region ComValue
 class ComValue {
     static __New() {
-        static Define(Obj, PropertyName, PropertyDesc) {
-            (Object.Prototype.DefineProp)(Obj, PropertyName, PropertyDesc)
-        }
+        static Define := (Object.Prototype.DefineProp)
+        static ARRAY  := 0x2000
+        static BYREF  := 0x4000
 
         IndexLastDot     := InStr(this.Prototype.__Class, ".",,, -1)
         RootClass        := SubStr(this.Prototype.__Class, 1, IndexLastDot)
@@ -21,99 +37,119 @@ class ComValue {
         Name_ComValueRef := RootClass . "ComValueRef"
         Name_ComObjArray := RootClass . "ComObjArray"
 
-        Define(this, "ARRAY", {
-                Get: ComValueGet(Name_ComValue, "ARRAY", 0x2000)})
-        Define(this, "BYREF", {
-                Get: ComValueGet(Name_ComValue, "BYREF", 0x4000)})
+        ; ComValue.ARRAY { get => 0x2000 }
+        ; ComValue.BYREF { get => 0x4000 }
+        Define(this, "ARRAY", { Get: Constant(Name_ComValue, "ARRAY", ARRAY) })
+        Define(this, "BYREF", { Get: Constant(Name_ComValue, "BYREF", BYREF) })
 
         for Arr in [
-                ["EMPTY",    0x0],  ["NULL",     0x1],  ["INT16",    0x2],
-                ["INT32",    0x3],  ["FLOAT32",  0x4],  ["FLOAT64",  0x5],
-                ["CURRENCY", 0x6],  ["DATE",     0x7],  ["BSTR",     0x8],
-                ["DISPATCH", 0x9],  ["ERROR",    0xA],  ["BOOL",     0xB],
-                ["VARIANT",  0xC],  ["UNKNOWN",  0xD],  ["DECIMAL",  0xE],
+                ["EMPTY",    0x00], ["NULL",     0x01], ["INT16",    0x02],
+                ["INT32",    0x03], ["FLOAT32",  0x04], ["FLOAT64",  0x05],
+                ["CURRENCY", 0x06], ["DATE",     0x07], ["BSTR",     0x08],
+                ["DISPATCH", 0x09], ["ERROR",    0x0A], ["BOOL",     0x0B],
+                ["VARIANT",  0x0C], ["UNKNOWN",  0x0D], ["DECIMAL",  0x0E],
                 ["INT8",     0x10], ["UINT8",    0x11], ["UINT16",   0x12],
                 ["UINT32",   0x13], ["INT64",    0x14], ["UINT64",   0x15],
                 ["INT",      0x16], ["UINT",     0x17], ["RECORD",   0x24]]
         {
-            PropertyName := Arr[1]
-            Constant     := Arr[2]
-            
-            ; unlike in other classes, this method directly accesses classes
-            ; `ComValue`, `ComValueRef` and `ComObjArray` instead of relying on
-            ; `AquaHotkey.__New()` to define properties.
+            Name  := Arr[1]
+            Value := Arr[2]
 
-            Define(ComValue, PropertyName, {
-                Get:  ComValueGet(Name_ComValue, PropertyName, Constant),
-                Call: ComValueCall(Name_ComValue, PropertyName, Constant)})
+            ; e.g.:
+            ; - ComValue.BSTR        => 0x0008
+            ; - ComValue.BSTR("foo") => ComValue(0x0008, "foo")
+            Define(ComValue, Name, {
+                Get:  Constant(Name_ComValue, Name, Value),
+                Call: Constructor(Name_ComValue, Name, Value)})
 
-            Define(ComValueRef, PropertyName, {
-                Call: ComValueRefCall(Name_ComValueRef,
-                                      PropertyName, Constant | this.BYREF)})
+            ; e.g.:
+            ; - ComValueRef.BSTR      => (0x0008 | 0x4000)
+            ; - ComValueRef.BSTR(Ptr) => ComValue(0x0008 | 0x4000, Ptr)
+            Define(ComValueRef, Name, {
+                Get:  Constant(Name_ComValueRef, Name, Value | BYREF),
+                Call: RefConstructor(Name_ComValueRef, Name, Value | BYREF)})
 
-            Define(ComObjArray, PropertyName, {
-                Call: ComObjArrayCall(Name_ComObjArray,
-                                      PropertyName, Constant | this.ARRAY)})
+            ; e.g.:
+            ; - ComObjArray.BSTR    => (0x0008 | 0x2000)
+            ; - ComObjArray.BSTR(3) => ComObjArray(0x0008, 3)
+            Define(ComObjArray, Name, {
+                Get:  Constant(Name_ComObjArray, Name, Value | ARRAY),
+                Call: ArrConstructor(Name_ComObjArray, Name, Value | ARRAY)})
         }
 
-        static ComValueGet(ClassName, PropertyName, Constant) {
-            Name := ClassName . "." . PropertyName . ".Get"
-            Getter.DefineProp("Name", { Get: (Instance) => Name })
+        static Constant(ClassName, VarName, VarType) {
+            Name := ClassName . "." . VarName . ".Get"
+            Getter.DefineProp("Name", { Get: (_) => Name })
             return Getter
 
-            Getter(Instance) {
-                return Constant
+            Getter(Cls) {
+                if ((Cls == ComObject) || HasBase(Cls, ComObject)) {
+                    throw TypeError("invalid class",, Cls.Prototype.__Class)
+                }
+                return VarType
             }
         }
 
-        static ComValueCall(ClassName, PropertyName, Constant) {
-            Name := ClassName . "." . PropertyName
-            Constructor.DefineProp("Name", { Get: (Instance) => Name })
-            return Constructor
+        static Constructor(ClassName, VarName, VarType) {
+            Name := ClassName . "." . VarName
+            Cons.DefineProp("Name", { Get: (_) => Name })
+            return Cons
 
-            Constructor(Instance, Value, Flags?) {
-                if (Instance == ComObject) {
-                    throw TypeError("invalid class",, "ComObject")
+            Cons(Cls, Value, Flags?) {
+                if ((Cls == ComObject) || HasBase(Cls, ComObject)) {
+                    throw TypeError("invalid class",, Cls.Prototype.__Class)
                 }
-                return Instance(Constant, Value, Flags?)
+                return Cls(VarType, Value, Flags?)
             }
         }
 
-        static ComValueRefCall(ClassName, PropertyName, Constant) {
-            Name := ClassName . "." . PropertyName
-            Constructor.DefineProp("Name", { Get: (Instance) => Name })
-            return Constructor
+        static RefConstructor(ClassName, VarName, VarType) {
+            Name := ClassName . "." . VarName
+            Cons.DefineProp("Name", { Get: (_) => Name })
+            return Cons
 
-            Constructor(Instance, Value) {
-                if (Instance == ComObject) {
-                    throw TypeError("invalid class",, "ComObject")
-                }
+            Cons(Cls, Value) {
                 if (!IsInteger(Value)) {
+                    if (!(Value is Buffer) && !HasProp(Value, "Ptr")) {
+                        throw TypeError("Expected an Integer or a Buffer",,
+                                        Type(Value))
+                    }
                     Value := Value.Ptr
                 }
-                return Instance(Constant, Value)
+                return Cls(VarType, Value)
             }
         }
 
-        static ComObjArrayCall(ClassName, PropertyName, Constant) {
-            Name := ClassName . "." . PropertyName
-            Constructor.DefineProp("Name", { Get: (Instance) => Name })
-            return Constructor
+        static ArrConstructor(ClassName, VarName, VarType) {
+            Name := ClassName . "." . VarName
+            Cons.DefineProp("Name", { Get: (_) => Name })
+            return Cons
 
-            Constructor(Instance, Dimensions*) {
-                return Instance(Constant, Dimensions*)
+            Cons(Cls, Dimensions*) {
+                return Cls(VarType, Dimensions*)
             }
         }
     }
 } ; class ComValue
+
 ;@endregion
-
+;-------------------------------------------------------------------------------
 ;@region ComValueRef
-class ComValueRef {
-    Get() {
-        return this[]
-    }
 
+class ComValueRef {
+    /**
+     * Gets the value contained by this `ComValueRef`.
+     * 
+     * @returns {Any} the referenced value
+     */
+    Get() => this[]
+
+    /**
+     * Sets the value reference by this `ComValueRef`.
+     * 
+     * @param   {Value}  Value  the new value
+     * @returns {this}
+     */
     Set(Value) {
         this[] := Value
         return this

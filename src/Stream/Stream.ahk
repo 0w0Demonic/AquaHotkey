@@ -1626,7 +1626,7 @@ class DoubleStream extends BaseStream
 
 class AquaHotkey_Stream {
 static __New() {
-    if (ObjGetBase(this) != Object) {
+    if (this != AquaHotkey_Stream) {
         return
     }
     if (!IsSet(AquaHotkey) || !(AquaHotkey is Class)) {

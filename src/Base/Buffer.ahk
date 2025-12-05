@@ -1,4 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
  * Buffer utilities.
  * 
@@ -61,6 +62,8 @@ class Buffer {
         return Result
     }
 
+    ; TODO struct creation?
+
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Static Constructors
@@ -86,24 +89,20 @@ class Buffer {
      * @param   {Primitive?}  Encoding  string encoding
      * @returns {Buffer}
      */
-    static OfString(Str, Encoding?) {
+    static OfString(Str, Encoding := "UTF-16") {
         if (IsObject(Str)) {
             throw TypeError("Expected a String, but received an Object",,
                             Type(Str))
         }
         ; StrPut(Str, Encoding?) causes some weird issues, need to
         ; explicitly check `IsSet(Encoding)`.
-        if (IsSet(Encoding)) {
-            Buf := Buffer(StrPut(Str, Encoding))
-            StrPut(Str, Buf, Encoding)
-            return Buf
-        }
+
         if (IsObject(Encoding)) {
             throw TypeError("Expected a String or an Integer",,
                             Type(Encoding))
         }
-        Buf := Buffer(StrPut(Str))
-        StrPut(Str, Buf)
+        Buf := Buffer(StrPut(Str, Encoding))
+        StrPut(Str, Buf, Encoding)
         return Buf
     }
 
@@ -128,10 +127,11 @@ class Buffer {
     /**
      * Creates a new Buffer by reading from the given file.
      * 
-     * @param   {String}  FilePath  file path to read from
+     * @param   {String}      FilePath  file path to read from
+     * @param   {Primitive?}  Encoding  file encoding
      * @returns {Buffer}
      */
-    static FromFile(FilePath) {
+    static FromFile(FilePath, Encoding := A_FileEncoding) {
         if (IsObject(FilePath)) {
             throw TypeError("Expected a file path",, Type(FilePath))
         }
@@ -157,7 +157,7 @@ class Buffer {
                 "Float", "Double", "Ptr", "UPtr")
         {
             Define(Proto, "Get" . T, { Call: Get.Bind(unset, T) })
-            Define(Proto, "Write" . T, { Call: Put.Bind(unset, T) })
+            Define(Proto, "Put" . T, { Call: Put.Bind(unset, T) })
         }
 
         static Get(Buf, NumType, Offset := 0) {
@@ -344,6 +344,41 @@ class Buffer {
             }
         }
         return Out
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Define
+
+    /**
+     * Defines a position in the Buffer as a dynamic property.
+     * 
+     * @example
+     * Buf := Buffer(8).Define("x", "Int", 0).Define("y", "Int", 4)
+     * Buf.x := 23
+     * Buf.y := 98
+     * 
+     * @param   {String}   PropertyName  name of the property
+     * @param   {String}   NumType       AHK number type
+     * @param   {Integer}  Offset        memory offset
+     * @returns {this}
+     */
+    Define(PropertyName, NumType, Offset) {
+        if (IsObject(PropertyName)) {
+            throw TypeError("Expected a String",, Type(PropertyName))
+        }
+        if (IsObject(NumType)) {
+            throw TypeError("Expected a String",, Type(NumType))
+        }
+        if (!IsInteger(Offset)) {
+            throw TypeError("Expected an Integer",, Type(Offset))
+        }
+        Buffer.SizeOf(NumType) ; find out whether it's a valid AHK type
+
+        return this.DefineProp(PropertyName, {
+            Get: (_)        => NumGet(this, Offset, NumType),
+            Set: (_, Value) => NumPut(NumType, Value, this, Offset)
+        })
     }
 
     ;@endregion

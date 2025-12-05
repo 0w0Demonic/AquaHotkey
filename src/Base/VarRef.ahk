@@ -1,11 +1,11 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
- * AquaHotkey - VarRef.ahk
+ * VarRef utility.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/VarRef.ahk
+ * @module  <Base/VarRef>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_VarRef extends AquaHotkey {
 class VarRef {

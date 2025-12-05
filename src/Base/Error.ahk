@@ -1,14 +1,16 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
- * AquaHotkey - Error.ahk
+ * Error utility.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/Error.ahk
+ * @module  <Base/Error>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Error extends AquaHotkey {
 class Error {
+    ;@region Throwing
+
     /**
      * Throws an error of the given error type.
      * 
@@ -25,9 +27,45 @@ class Error {
 
     /**
      * Throws this error.
+     * 
+     * @throws {Error} this error object
      */
     Throw() {
         throw this
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Error Causes
+
+    /**
+     * Specifies the cause of this error, appending additional information
+     * to its stack.
+     * 
+     * @param   {Error}  Cause  the cause of this error
+     * @returns {this}
+     */
+    CausedBy(Cause) {
+        if (!(Cause is Error)) {
+            return this
+        }
+
+        this.Stack .= "`r`nCaused by: " . Type(Cause) . ": " . Cause.Message
+        if (StrLen(Cause.Extra)) {
+            this.Stack .= "`r`nSpecifically: " . Cause.Extra
+        }
+        this.Stack .= "`r`n" . Cause.Stack
+        this.DefineProp("Cause", { Value: Cause })
+        return this
+    }
+
+    /**
+     * Retrieves the cause of this error, otherwise `false` if none is present.
+     * 
+     * @returns {Error}
+     */
+    Cause => false
+
+    ;@endregion
 } ; class Error
 } ; class AquaHotkey_Error extends AquaHotkey

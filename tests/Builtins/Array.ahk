@@ -407,19 +407,19 @@ class Array {
         M[3].AssertEquals("foo")
     }
 
-    static AnyMatch() {
-        Val := Array(1, 2, 3, 4, 5).AnyMatch(  (x) => (x > 3)  )
+    static Any() {
+        Val := Array(1, 2, 3, 4, 5).Any(  (x) => (x > 3)  )
 
         Val.AssertType(Object)
         Val.Value.AssertEquals(4)
     }
 
-    static AllMatch() {
-        Array(1, 2, 3, 4, 5).AllMatch(  (x) => (x < 10) ).AssertEquals(true)
+    static All() {
+        Array(1, 2, 3, 4, 5).All(  (x) => (x < 10) ).AssertEquals(true)
     }
 
-    static NoneMatch() {
-        Array(1, 2, 3, 4, 5).NoneMatch(  (x) => (x > 10)  ).AssertEquals(true)
+    static None() {
+        Array(1, 2, 3, 4, 5).None(  (x) => (x > 10)  ).AssertEquals(true)
     }
 }
 

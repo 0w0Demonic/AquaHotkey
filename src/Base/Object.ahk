@@ -1,11 +1,11 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
- * AquaHotkey - Object.ahk
+ * Object utilities.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/Object.ahk
+ * @module  <Base/Object>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Object extends AquaHotkey {
 class Object {
@@ -43,9 +43,13 @@ class Object {
         ObjSetBase(this, BaseObj)
         return this
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region DefineProp
+
+    ; TODO return `Value` instead of `this`?
+
     /**
      * Defines a new read-only property by the name of `PropertyName` for this
      * object, which returns a constant `Value`.
@@ -61,7 +65,7 @@ class Object {
      * @returns {this}
      */
     DefineConstant(PropertyName, Value) {
-        return this.DefineProp(PropertyName, { Get: (*) => Value })
+        return this.DefineProp(PropertyName, { Get: (_) => Value })
     }
 
     /**

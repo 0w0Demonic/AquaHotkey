@@ -1,11 +1,11 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
- * AquaHotkey - Class.ahk
+ * Provides a `Class.ForName()` method to find a class by string.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/Class.ahk
+ * @module  <Base/Class>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Class extends AquaHotkey {
 class Class {

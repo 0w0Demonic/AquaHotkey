@@ -146,47 +146,47 @@ class Map {
         M[2].AssertEquals(1)
     }
 
-    static AllMatch() {
+    static All1() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
-        Map(1, 2, 2, 4, 4, 8).AllMatch(ValueIsEven).AssertEquals(true)
+        Map(1, 2, 2, 4, 4, 8).All(ValueIsEven).AssertEquals(true)
     }
 
-    static AllMatch2() {
+    static All2() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
-        Map(1, 2, 2, 4, 4, 7).AllMatch(ValueIsEven).AssertEquals(false)
+        Map(1, 2, 2, 4, 4, 7).All(ValueIsEven).AssertEquals(false)
     }
 
-    static AnyMatch1() {
+    static Any1() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
         Match := Map(1, 1, 3, 3, 5, 6)
-            .AnyMatch(ValueIsEven)
+            .Any(ValueIsEven)
             .AssertType(Object)
 
         Match.Key.AssertEquals(5)
         Match.Value.AssertEquals(6)
     }
 
-    static AnyMatch2() {
+    static Any2() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
         Map(1, 1, 3, 3, 5, 5, 7, 7)
-            .AnyMatch(ValueIsEven)
+            .Any(ValueIsEven)
             .AssertEquals(false)
     }
 
-    static NoneMatch1() {
+    static None1() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
-        Map(1, 1, 3, 3, 5, 5).NoneMatch(ValueIsEven).AssertEquals(true)
+        Map(1, 1, 3, 3, 5, 5).None(ValueIsEven).AssertEquals(true)
     }
 
-    static NoneMatch2() {
+    static None2() {
         static ValueIsEven(Key, Value) => !(Value & 1)
         
-        Map(1, 1, 3, 3, 5, 6).NoneMatch(ValueIsEven).AssertEquals(false)
+        Map(1, 1, 3, 3, 5, 6).None(ValueIsEven).AssertEquals(false)
     }
 }
 
