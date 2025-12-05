@@ -12,6 +12,9 @@ class Class {
     /**
      * Returns a class by the given name.
      * 
+     * This method caches previously seen class names, so changing the names of
+     * might cause issues.
+     * 
      * @example
      * (Class.ForName("Gui.ActiveX") == Gui.ActiveX) ; true
      * 
@@ -19,9 +22,10 @@ class Class {
      * @returns {Class}
      */
     static ForName(ClassName) {
-        static Deref1(this)    => %this%
-        static Deref2(VarName) => %VarName%
-        static Cache := (M := Map(), M.CaseSense := false, M)
+        static Cache := (
+            M := Map(),
+            M.CaseSense := false,
+            M)
 
         if (IsObject(ClassName)) {
             throw TypeError("Expected a String, but received an Object",,
@@ -31,13 +35,8 @@ class Class {
             return ClassObj
         }
         Loop Parse ClassName, "." {
-            if (ClassObj) {
-                ClassObj := ClassObj.%A_LoopField%
-            } else if (ClassName != "this") {
-                ClassObj := Deref1(A_LoopField)
-            } else {
-                ClassObj := Deref2(A_LoopField)
-            }
+            ClassObj := (ClassObj) ? ClassObj.%A_LoopField%
+                                   : (AquaHotkey.Deref)(A_LoopField)
             if (!(ClassObj is Class)) {
                 throw TypeError("Expected a Class object",, Type(ClassObj))
             }

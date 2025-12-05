@@ -1,11 +1,10 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 /**
- * AquaHotkey - Buffer.ahk
+ * Buffer utilities.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/Buffer.ahk
+ * @module  <Base/Buffer>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Buffer extends AquaHotkey
 {
@@ -72,17 +71,19 @@ class Buffer {
      * @param   {Integer}  Size  size in bytes
      * @returns {Buffer}
      */
-    static Zero(Size) => Buffer(Size, 0)
+    static Zero(Size) {
+        ObjSetBase(Buf := Buffer(Size, 0), this.Prototype)
+        return Buf
+    }
 
     /**
-     * Returns a buffer entirely containing the string `Str` encoded
-     * in `Encoding`.
+     * Returns a buffer entirely containing the given string.
      * 
      * @example
      * Buf := Buffer.OfString("foo", "UTF-8")
      * 
      * @param   {String}      Str       any string
-     * @param   {Primitive?}  Encoding  target encoding
+     * @param   {Primitive?}  Encoding  string encoding
      * @returns {Buffer}
      */
     static OfString(Str, Encoding?) {
@@ -107,24 +108,37 @@ class Buffer {
     }
 
     /**
-     * Creates a new Buffer by reading from the given file.
+     * Returns a buffer containing the given AHK number type.
      * 
-     * @param   {String/File}  F  file object or file path
+     * Relies on `Buffer.SizeOf(NumType)` to determine the byte size of the
+     * AHK number type.
+     * 
+     * @param   {String}  NumType  AHK number type
+     * @param   {Number}  Value    value of the number
      * @returns {Buffer}
      */
-    static FromFile(F) {
-        if (!IsObject(F)) {
-            ObjSetBase(Buf := FileRead(F, "RAW"), this.Prototype)
-            return Buf
-        }
-        if (!(F is File)) {
-            throw TypeError("Expected a File object or file path",, Type(F))
-        }
-        OldPos := F.Pos
-        F.Pos := 0
-        F.RawRead(Buf := Buffer(F.Length))
-        F.Pos := OldPos
+    static OfNumber(NumType, Value) {
+        Size := Buffer.SizeOf(NumType)
+        Buf := Buffer(Size)
+        NumPut(NumType, Value, Buf)
         ObjSetBase(Buf, this.Prototype)
+        return Buf
+    }
+
+    /**
+     * Creates a new Buffer by reading from the given file.
+     * 
+     * @param   {String}  FilePath  file path to read from
+     * @returns {Buffer}
+     */
+    static FromFile(FilePath) {
+        if (IsObject(FilePath)) {
+            throw TypeError("Expected a file path",, Type(FilePath))
+        }
+        if (!FileExist(FilePath)) {
+            throw TargetError("File not found",, FilePath)
+        }
+        ObjSetBase(Buf := FileRead(FilePath, "RAW"), this.Prototype)
         return Buf
     }
 
@@ -132,6 +146,7 @@ class Buffer {
     ;---------------------------------------------------------------------------
     ;@region Read/Write Methods
 
+    ; setup for Get<NumType>/Put<NumType> methods
     static __New() {
         static Define := (Object.Prototype.DefineProp)
 
@@ -141,19 +156,38 @@ class Buffer {
                 "Int", "UInt", "Int64", "UInt64",
                 "Float", "Double", "Ptr", "UPtr")
         {
-            Define(Proto, "Read" . T, { Call: Read.Bind(unset, T) })
+            Define(Proto, "Get" . T, { Call: Get.Bind(unset, T) })
             Define(Proto, "Write" . T, { Call: Put.Bind(unset, T) })
         }
 
-        static Read(Buf, NumType, Offset) {
+        static Get(Buf, NumType, Offset := 0) {
             return NumGet(Buf, Offset, NumType)
         }
 
-        static Put(Buf, NumType, Value, Offset) {
+        static Put(Buf, NumType, Value, Offset := 0) {
             NumPut(NumType, Value, Buf, Offset)
             return Buf
         }
     }
+
+    /**
+     * Reads a <NumType> from this Buffer.
+     * 
+     * @param   {Integer?}  Offset  byte offset
+     * @returns {Number}
+     */
+
+    ; Get<NumType>(Offset := 0) { ... }
+
+    /**
+     * Writes a <NumType> into the Buffer.
+     * 
+     * @param   {Number}    Value   <NumType> value to write
+     * @param   {Integer?}  Offset  byte offset
+     * @returns {this}
+     */
+
+    ; Put<NumType>(Value, Offset := 0) { ... }
 
     /**
      * Reads a string from the buffer.
@@ -162,7 +196,7 @@ class Buffer {
      * @param   {Primitive?}  Encoding  string encoding
      * @returns {String}
      */
-    ReadString(Offset := 0, Encoding?) {
+    GetString(Offset := 0, Encoding := A_FileEncoding) {
         if (!IsInteger(Offset)) {
             throw TypeError("Expected an Integer",, Type(Offset))
         }
@@ -170,10 +204,6 @@ class Buffer {
             throw TypeError("Invalid offset for buffer of size " . this.Size,,
                             Offset)
         }
-        if (!IsSet(Encoding)) {
-            return StrGet(this.Ptr + Offset, this.Size - Offset - 1)
-        }
-
         if (IsObject(Encoding)) {
             throw TypeError("Expected a String or an Integer",,
                             Type(Encoding))
@@ -214,9 +244,7 @@ class Buffer {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region General
-
-    ; TODO Slicing, but as view?
+    ;@region Slicing and Filling
 
     /**
      * Returns a new buffer containing a subsection of the current buffer.
@@ -268,6 +296,10 @@ class Buffer {
         return this
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Dump
+
     /**
      * Returns a hexadecimal representation of the buffer.
      * `LineLength` determines the amount of bytes to display per line. If zero,
@@ -313,6 +345,8 @@ class Buffer {
         }
         return Out
     }
+
+    ;@endregion
 } ; class Buffer
 
 ;@endregion
@@ -331,6 +365,3 @@ class ClipboardAll {
 ;@endregion
 
 } ; class AquaHotkey_Buffer extends AquaHotkey
-
-Buf := Buffer.FromFile(A_Desktop . "\Wordle.txt")
-MsgBox(Buf.ReadString())
