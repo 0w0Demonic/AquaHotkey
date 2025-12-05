@@ -27,6 +27,7 @@ class AquaHotkey_Any extends AquaHotkey {
          * 
          * @example
          * "Hello, world!".Class ; String
+         * "".Class.Type         ; "Class"
          * 
          * @returns {Class}
          */
@@ -51,13 +52,9 @@ class AquaHotkey_Any extends AquaHotkey {
                     return ClassObj
                 }
                 Loop Parse ClassName, "." {
-                    if (ClassObj) {
-                        ClassObj := ClassObj.%A_LoopField%
-                    } else if (ClassName != "_") {
-                        ClassObj := AquaHotkey_Any.Deref1(A_LoopField)
-                    } else {
-                        ClassObj := AquaHotkey_Any.Deref2(A_LoopField)
-                    }
+                    ClassObj := (ClassObj) ? ClassObj.%A_LoopField%
+                                           : (AquaHotkey.Deref)(A_LoopField)
+                    
                     if (!(ClassObj is Class)) {
                         throw TypeError("Expected a Class",, Type(ClassObj))
                     }
@@ -68,7 +65,4 @@ class AquaHotkey_Any extends AquaHotkey {
         }
         ;@endregion
     }
-
-    static Deref1(_)  => %_%
-    static Deref2(__) => %__%
 }

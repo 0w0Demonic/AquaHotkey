@@ -58,7 +58,7 @@ class Object {
      * 
      * @param   {String}  PropertyName  name of the new property
      * @param   {Any}     Value         value that is returned by this property
-     * @returns {Any}
+     * @returns {this}
      */
     DefineConstant(PropertyName, Value) {
         return this.DefineProp(PropertyName, { Get: (*) => Value })

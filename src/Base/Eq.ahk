@@ -7,11 +7,12 @@
  * In general:
  * 
  * 1. `A.Eq(A)` is always `true` (also `unset.Eq(unset)`)
- * 2. if `A.Eq(B)`, then `B.Eq(A)`
- * 3. if `A.Eq(B)` and `B.Eq(C)`, then `A.Eq(C)`
+ * 2. If `A.Eq(B)`, then `B.Eq(A)`
+ * 3. If `A.Eq(B)` and `B.Eq(C)`, then `A.Eq(C)`
  * 4. `A.Eq(unset)` is `false`, unless `!IsSet(A)`
  * 5. `A.Eq(B)` should **consistently** return either `true` or `false` when
  *    neither values are being changed.
+ * 6. If `A.Eq(B)`, then `A.Hash() == B.Hash()`.
  * 
  * @module  <Base/Eq>
  * @author  0w0Demonic

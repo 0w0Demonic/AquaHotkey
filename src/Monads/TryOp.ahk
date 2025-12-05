@@ -649,16 +649,17 @@ class TryOp {
     }
     ;@endregion
 }
+
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Extensions
-/**
- * ```
- * class Func
- * `- TryCall(Args*)
- * ```
- */
-class AquaHotkey_Try extends AquaHotkey {
+
+class AquaHotkey_Try {
+    static __New() => (this == AquaHotkey_Try)
+                   && (IsSet(AquaHotkey))
+                   && (AquaHotkey is Class)
+                   && (AquaHotkey.__New)(this)
+
     class Object {
         /**
          * Tries to call this object with `Args*`, wrapped in a try-operation.
@@ -671,4 +672,5 @@ class AquaHotkey_Try extends AquaHotkey {
         }
     }
 }
+
 ;@endregion

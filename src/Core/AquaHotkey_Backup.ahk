@@ -1,30 +1,44 @@
 #Include "%A_LineFile%\..\AquaHotkey.ahk"
 
 /**
- * @description
- * `AquaHotkey_Backup` creates snapshots of all properties contained in
- * one or more classes, allowing them to be safely overridden or
- * extended later.
+ * @public
+ * @abstract
+ * @class AquaHotkey_Backup
+ * @classdesc
  * 
- * The easiest way to use this class is to create a class to be used as
- * "container" of properties, and to call `this.Backup(Classes, ...)`
- * during static initialization.
+ * A base class for copying members of one or more specified classes or
+ * functions, allowing them to be overridden or extended in a
+ * non-destructive way.
  * 
  * @example
+ * ; method 1: using subclasses and `super.__New(Targets*)`
+ * class Gui_Backup extends AquaHotkey_Backup {
+ *     static __New() => super.__New(Gui)
+ * }
+ * 
+ * @example
+ * ; method 2: `Class#Backup(Targets*)`
  * class Gui_Backup {
  *     static __New() => this.Backup(Gui)
  * }
+ * 
+ * @example
+ * ; method 3: `AquaHotkey_Backup.Of(Targets*)`
  * Gui_Backup := AquaHotkey_Backup.Of(Gui)
  * 
- * @exports Class#Backup()
- * @see https://www.github.com/0w0Demonic/AquaHotkey
- * @author 0w0Demonic
+ * @exports  Class#Backup()
+ * @author   0w0Demonic
+ * @module   <Core/AquaHotkey_Backup>
+ * @see      https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Backup extends AquaHotkey
 {
 ;@region static __New()
 /**
- * Static class initializer that copies properties from one or more sources.
+ * Initializes AquaHotkey's backup system.
+ * 
+ * This method is called automatically whenever this class and its subclasses
+ * are loaded.
  * 
  * @param   {Object*}  Suppliers  where to copy properties and methods from
  * @returns {this}
@@ -276,7 +290,8 @@ static __New(Suppliers*)
 ;@region static Of()
 
 /**
- * Creates a complete and useable copy of the given class.
+ * Creates a complete and useable copy of the given class. This method
+ * does NOT recursively copy base classes.
  * 
  * @example
  * StringClass := AquaHotkey_Backup.Of(String)
@@ -285,15 +300,13 @@ static __New(Suppliers*)
  * @returns {Class}
  */
 static Of(Cls) {
-    ; TODO also construct base classes recursively?
     if (!(Cls is Class)) {
         throw TypeError("Expected a Class",, Type(Cls))
     }
-    BaseClass := ObjGetBase(Cls)
-    ClassName := Cls.Prototype.__Class
-    Backup := AquaHotkey.CreateClass(BaseClass, ClassName).Backup(Cls)
-    ObjSetBase(Backup, ObjGetBase(Cls))
-    return Backup
+
+    return AquaHotkey
+        .CreateClass(ObjGetBase(Cls), Cls.Prototype.__Class)
+        .Backup(Cls)
 }
 
 ;@endregion

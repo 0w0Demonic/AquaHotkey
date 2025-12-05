@@ -25,4 +25,31 @@
  * }
  */
 class AquaHotkey_Ignore {
+    /**
+     * Determines whether the current AHK version is above the specified
+     * version.
+     * 
+     * @example
+     * class Util extends AquaHotkey {
+     *     static __New() {
+     *         if (!this.VersionAbove("v2.1-alpha.3")) {
+     *         
+     *         }
+     *     }
+     * }
+     * 
+     * @param   {String}  Version  the required version
+     * @returns {Boolean}
+     */
+    Version(Version) => VerCompare(A_AhkVersion, Version)
+
+    /**
+     * 
+     */
+    DeleteClassIfAbsent(PropertyName, Cls?) {
+        if (!IsSet(Cls)) {
+            this.DeleteProp(PropertyName)
+        }
+        return this
+    }
 }

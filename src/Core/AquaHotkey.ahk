@@ -1,44 +1,45 @@
 ; 2.0.5: Fixed internal calls to `__Enum` to not call `__Call`.
 #Requires AutoHotkey >=v2.0.5
+
+; AquaHotkey core classes
 #Include %A_LineFile%/../AquaHotkey_Backup.ahk
 #Include %A_LineFile%/../AquaHotkey_MultiApply.ahk
 #Include %A_LineFile%/../AquaHotkey_Ignore.ahk
 #Include %A_LineFile%/../AquaHotkey_Mixin.ahk
 
 /**
- * @description
- * AquaHotkey is a class prototyping framework for AutoHotkey v2 that lets
- * you very easily rewrite built-in classes like `Array`, `String` and `Map`
- * to match your own style and preferences.
+ * @public
+ * @abstract
+ * @class AquaHotkey
+ * @classdesc
+ * A base class for defining extensions for AutoHotkey v2 built-in classes.
  * 
- * To use this class, create a subclass of `AquaHotkey`. Then, create nested
- * classes named after the targeted class or function to extend. Finally,
- * write properties into the nested classes as if you were dealing with the
- * actual target class.
- * 
- * AquaHotkey will then transfer your custom properties into
+ * Subclasses declare nested classes whose members are applied to the
+ * corresponding global built-in classes or functions. This provides a clean
+ * and structured way to augment AutoHotkey's prototype-based classes without
+ * manual patching.
  * 
  * @example
+ * ; adds `Sub()` and `Length` properties to the `String` class:
  * class StringExtensions extends AquaHotkey {
  *     class String {
- *         FirstCharacter() {
- *             return SubStr(this, 1, 1)
- *         }
+ *         Sub(Start, Length?) => SubStr(this, Start, Length?)
+ *         Length => StrLen(this)
  *     }
  * }
- * "foo".FirstCharacter() ; "f"
  * 
- * @author 0w0Demonic
- * @see https://www.github.com/0w0Demonic/AquaHotkey
+ * @author  0w0Demonic
+ * @module  <Core/AquaHotkey>
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey extends AquaHotkey_Ignore
 {
 ;@region static __New()
 /**
- * **Overview**:
+ * Initializes AquaHotkey's patching system.
  * 
- * The `AquaHotkey.__New()` method is responsible for adding custom
- * implementations to AutoHotkey's built-in types and functions.
+ * This method is called automatically when the class or any subclass is
+ * loaded, unless overridden.
  * 
  * **Terminology used in comments**:
  * 
@@ -53,18 +54,42 @@ class AquaHotkey extends AquaHotkey_Ignore
  *   The class or global function that receives custom implementations
  *   defined by the user.
  * 
+ * ---
+ * 
+ * You can override `static __New()` to add additional logic, e.g. checking
+ * the AHK version or whether certain classes exist in the script.
+ * 
  * @example
+ * ; add a `#Sub()` method to the `String` class
  * class StringExtensions extends AquaHotkey {
  *     ; StringExtensions.String
  *     ; `--> String
  *     class String {
- *         ; StringExtensions.String.Prototype.FirstCharacter()
- *         ; `--> String.Prototype.FirstCharacter()
- *         FirstCharacter() {
- *             return SubStr(this, 1, 1)
- *         }
+ *         ; StringExtensions.String.Prototype.Sub()
+ *         ; `--> String.Prototype.Sub()
+ *         Sub(Start, Length?) => SubStr(this, Start, Length?)
  *     }
  * }
+ * 
+ * @example
+ * 
+ * ; overridden `static __New()` that checks whether the AHK version is
+ * ; 
+ * class Utils extends AquaHotkey
+ * {
+ *     static __New() {
+ *         if (!IsSet(Foo) || !(Foo is Class)) {
+ *             this.DeleteProp("Foo")
+ *             return
+ *         }
+ *         super.__New()
+ *     }
+ * 
+ *     class Foo {
+ *     }
+ * }
+ *   
+ * ...
  */
 static __New()
 {
@@ -171,14 +196,8 @@ static __New()
             ; scope by name dereference. Otherwise, `Namespace` refers to
             ; the root class in which the property receiver resides
             ; (e.g. `Gui.Edit`, which is found in `Gui`).
-            switch {
-                case (IsSet(Namespace)):
-                    Receiver := Namespace.%ClassName%
-                case (ClassName != "_"):
-                    Receiver := AquaHotkey.Deref1(ClassName)
-                default:
-                    Receiver := AquaHotkey.Deref2(ClassName)
-            }
+            Receiver := (IsSet(Namespace)) ? Namespace.%ClassName%
+                                           : (AquaHotkey.Deref)(ClassName)
 
             SupplierName := Supplier.Prototype.__Class
             SupplierProtoName := SupplierName . ".Prototype"
@@ -234,7 +253,7 @@ static __New()
 
             ; No need to redefine `__Init()` if both initializers are the same.
             ; This would only slow down code.
-            if (ReceiverInit != ReceiverInit) {
+            if (SupplierInit != ReceiverInit) {
                 __Init(It) {
                     ReceiverInit(It) ; previously defined `__Init()`
                     SupplierInit(It) ; user-defined `__Init()`
@@ -311,15 +330,30 @@ static __New()
     while (DeletionQueue.Length) {
         DeletionQueue.Pop()()
     }
+    return this
     ;@endregion
 
 } ; static __New()
 ;@endregion
 
+;-------------------------------------------------------------------------------
+
 ;@region Dereference
-static Deref1(_)  => %_%
-static Deref2(__) => %__%
+/**
+ * Dereferences a global variable by name.
+ * 
+ * For the sake of elementing **any** possible name collisions, it has no
+ * parameters. Instead, this method must be called like this:
+ * 
+ * @example
+ * (AquaHotkey.Deref)("MyVariableName")
+ * 
+ * @returns {Any}
+ */
+static Deref() => %this%
 ;@endregion
+
+;-------------------------------------------------------------------------------
 
 ;@region static CreateClass()
 /**

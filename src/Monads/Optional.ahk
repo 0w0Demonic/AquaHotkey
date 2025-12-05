@@ -269,21 +269,17 @@ class Optional {
 
 ;@region Extensions
 class AquaHotkey_Optional {
-    static __New() {
-        if (ObjGetBase(this) != Object) {
-            return
-        }
-        if (!IsSet(AquaHotkey) || !(AquaHotkey is Class)) {
-            return
-        }
-        (AquaHotkey.__New)(this)
-    }
-
-    ;@region Any
+    static __New() => (this == AquaHotkey_Optional)
+                   && (IsSet(AquaHotkey))
+                   && (AquaHotkey is Class)
+                   && (AquaHotkey.__New)(this)
+    
+    /**
+     * Provides a universal `.Optional()` method.
+     */
     class Any {
         /**
          * Returns a new optional that wraps arount the element.
-         * @see `Optional`
          * 
          * @example
          * "Hello world!".Optional().IfPresent(MsgBox)
@@ -292,6 +288,5 @@ class AquaHotkey_Optional {
          */
         Optional() => Optional(this)
     }
-    ;@endregion
 }
 ;@endregion

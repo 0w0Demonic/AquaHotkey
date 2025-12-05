@@ -40,7 +40,7 @@ class AquaHotkey_Ord extends AquaHotkey {
                 AHasElements := !!ThisEnumer(&A)
                 BHasElements := !!OtherEnumer(&B)
                 if (AHasElements != BHasElements) {
-                    return 0 + AHasElements - BHasElements
+                    return AHasElements - BHasElements ; either 1 or -1
                 }
             }
         }

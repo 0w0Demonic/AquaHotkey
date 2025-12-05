@@ -1,14 +1,17 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
- * AquaHotkey - Assertions.ahk
+ * Provides a wide range of chainable assertion methods.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/Assertions.ahk
+ * @module  <Base/Assertions>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class AquaHotkey_Assertions extends AquaHotkey {
+class AquaHotkey_Assertions extends AquaHotkey
+{
+;-------------------------------------------------------------------------------
 ;@region Any
+
 class Any {
     /**
      * Asserts that the given `Condition` is true for the value. Otherwise,
@@ -160,9 +163,11 @@ class Any {
         throw PropertyError(Msg ?? "object has no property called " . PropName)
     }
 }
-;@endregion
 
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region Number
+
 class Number {
     /**
      * Asserts that this number is greater than `x`. Otherwise, a `ValueError`
@@ -257,9 +262,11 @@ class Number {
         return this
     }
 }
-;@endregion
 
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region Object
+
 class Object {
     /**
      * Asserts that the object owns a property by the given name, otherwise
@@ -277,7 +284,10 @@ class Object {
     }
 } ; class Object
 
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region String
+
 class String {
     /**
      * Asserts that the string is not empty.
@@ -291,7 +301,7 @@ class String {
         }
     }
 } ; class String
-;@endregion
 
 ;@endregion
+;-------------------------------------------------------------------------------
 } ; class AquaHotkey_Assertions extends AquaHotkey

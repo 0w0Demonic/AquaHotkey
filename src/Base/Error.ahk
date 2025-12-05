@@ -22,5 +22,12 @@ class Error {
     static Throw(Msg?, What?, Extra?) {
         throw this(Msg?, What?, Extra?)
     }
+
+    /**
+     * Throws this error.
+     */
+    Throw() {
+        throw this
+    }
 } ; class Error
 } ; class AquaHotkey_Error extends AquaHotkey
