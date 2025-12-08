@@ -7,8 +7,21 @@
  * {@link Stream} or {@link DoubleStream}. Don't expect anything beyond the
  * simple map operations to work properly.
  * 
- * This map depends on modules <Base/Eq> and <Base/Hash> to disperse objects
- * and to make equality checks.
+ * This map depends on modules <Base/Eq> and <Base/Hash> to spread objects
+ * evenly across the map, and to perform equality checks between the values.
+ * 
+ * @example
+ * M := HashMap()
+ * 
+ * M.Set([1, 2], "old value")
+ * M.Set([1, 2], "new value")
+ * 
+ * MsgBox(M.Count) ; 1
+ * MsgBox(M.Get([1, 2])) ; "new value"
+ * 
+ * @module  <Collections/HashMap>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class HashMap extends Map {
     /**

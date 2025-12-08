@@ -29,26 +29,70 @@ class AquaHotkey_Ignore {
      * Determines whether the current AHK version is above the specified
      * version.
      * 
-     * @example
-     * class Util extends AquaHotkey {
-     *     static __New() {
-     *         if (!this.VersionAbove("v2.1-alpha.3")) {
-     *         
-     *         }
-     *     }
-     * }
-     * 
      * @param   {String}  Version  the required version
      * @returns {Boolean}
      */
-    Version(Version) => VerCompare(A_AhkVersion, Version)
+    static Version(Version) => VerCompare(A_AhkVersion, Version)
 
     /**
+     * Asserts that the given version requirement is fulfilled, otherwise
+     * deletes one or more properties from the class.
+     *  
+     * @example
+     * this.RequiresVersion("v2.1-alpha.3", "Class", "Any")
      * 
+     * @param   {String}   Version        version requirement
+     * @param   {String}   PropertyPaths  affected property paths
+     * @returns {this}
      */
-    DeleteClassIfAbsent(PropertyName, Cls?) {
-        if (!IsSet(Cls)) {
-            this.DeleteProp(PropertyName)
+    static RequiresVersion(Version, PropertyPaths*) {
+        if (!PropertyPaths.Length) {
+            throw UnsetError("No properties specified")
+        }
+        if (!this.Version(Version)) {
+            this.Delete(PropertyPaths*)
+        }
+        return this
+    }
+
+    /**
+     */
+    static Delete(PropertyPaths*) {
+        if (!PropertyPaths.Length) {
+            throw UnsetError("No properties specified")
+        }
+        for PropertyPath in PropertyPaths {
+            if (IsObject(PropertyPath)) {
+                throw TypeError("Expected a String",, Type(PropertyPath))
+            }
+            Props := StrSplit(PropertyPath, "/")
+            Name := Props.Pop()
+            Obj := this
+            for Prop in Props {
+                Obj := Obj.%Prop%
+            }
+            ({}.DeleteProp)(Obj, Name)
+        }
+        return this
+    }
+
+    /**
+     * Asserts that the given global class or other value is present, otherwise
+     * deletes one or more properties from the class.
+     * 
+     * @example
+     * this.Requires(AquaHotkey_Eq?, "Any")
+     * 
+     * @param   {Any?}     Symbol         any global variable
+     * @param   {String*}  PropertyPaths  affected property paths
+     * @returns {this}
+     */
+    static Requires(Symbol?, PropertyPaths*) {
+        if (!PropertyPaths.Length) {
+            throw UnsetError("No properties specified")
+        }
+        if (!IsSet(Symbol)) {
+            this.Delete(PropertyPaths*)
         }
         return this
     }

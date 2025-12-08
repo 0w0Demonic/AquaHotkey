@@ -8,13 +8,16 @@
  * of any value.
  * 
  * @example
- * String({ Foo: "bar" })    ; "Object { Foo: "bar" }"
+ * String({ Foo: "bar" })    ; "Object { "Foo": "bar" }"
  * Array(1, 2, 3).ToString() ; "[1, 2, 3]"
  * 
  * ; get the `.ToString()` function explicitly used by `Object.Prototype`
  * Obj_ToStr := Object.ToString
  * 
  * Obj_ToStr(Array(1, 2, 3)) ; "Array { 1: 1, 2: 2, 3: 3 }"
+ * Obj_ToStr("foo") ; Error! Expected an Object.
+ * 
+ * Any.ToString("test") ; "test"
  * 
  * MsgBox(String(Obj))
  * 

@@ -1,6 +1,10 @@
 #Requires AutoHotkey v2
 
-class OrderedMap extends Map {
+/**
+ * 
+ */
+class OrderedSet extends Map
+{
     First := false
     Last := false
 
@@ -15,14 +19,14 @@ class OrderedMap extends Map {
             if (super.Has(Value)) {
                 return
             }
-            Node := { Previous: false, Value: Value }
+            Node := { Prev: false, Value: Value }
 
             if (!this.Count) {
                 this.Last := Node
                 Node.Next := false
             } else {
                 Node.Next := this.First
-                this.First.Previous := Node
+                this.First.Prev := Node
             }
             this.Set(Value, Node)
             this.First := Node
@@ -39,12 +43,12 @@ class OrderedMap extends Map {
 
             if (!this.Count) {
                 this.First := Node
-                Node.Previous := false
+                Node.Prev := false
             } else {
-                Node.Previous := this.Last
+                Node.Prev := this.Last
                 this.Last.Next := Node
             }
-            this.Set(Value, true)
+            this.Set(Value, Node)
             this.Last := Node
         }
         return this
@@ -77,7 +81,7 @@ class OrderedMap extends Map {
             this.First := false
             this.Last := false
         } else {
-            this.Last := Node.Previous
+            this.Last := Node.Prev
         }
         return Node.Value
     }
@@ -96,6 +100,12 @@ class OrderedMap extends Map {
         }
     }
 
+    __Delete() {
+        while (this.Count) {
+            this.RemoveLast()
+        }
+    }
+
     Delete(Value) {
         if (!this.Has(Value)) {
             throw UnsetError("Item not found")
@@ -105,7 +115,7 @@ class OrderedMap extends Map {
     }
 }
 
-List := OrderedMap()
+List := OrderedSet()
 
 Callback(*) => MsgBox("first")
 List.AddFirst(Callback)

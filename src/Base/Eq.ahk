@@ -286,6 +286,28 @@ class Object {
 
 ;@endregion
 ;-------------------------------------------------------------------------------
+;@region Reference Equality
+
+class ByReference extends AquaHotkey_MultiApply {
+    static __New() => super.__New(
+        Buffer, Class, File, Func, Gui, Gui.Control,
+        InputHook, Menu, MenuBar
+    )
+
+    /**
+     * Determines whether this value is equal to the `Other` value according
+     * to object reference.
+     * 
+     * This happens if both values share the same reference.
+     * 
+     * @param   {Any?}  Other  any value
+     * @returns {Boolean}
+     */
+    Eq(Other?) => (IsSet(Other) && (this = Other))
+}
+
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region Map
 
 class Map {

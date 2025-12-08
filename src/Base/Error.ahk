@@ -60,11 +60,22 @@ class Error {
     }
 
     /**
-     * Retrieves the cause of this error, otherwise `false` if none is present.
+     * Retrieves and sets the cause of this error.
      * 
      * @returns {Error}
      */
-    Cause => false
+    Cause {
+        get => false
+        set {
+            if (!(this is Error)) {
+                throw TypeError("Expected an Error",, Type(this))
+            }
+            if (!(value is Error)) {
+                throw TypeError("Expected an Error",, Type(value))
+            }
+            this.DefineProp("Cause", { Value: value })
+        }
+    }
 
     ;@endregion
 } ; class Error

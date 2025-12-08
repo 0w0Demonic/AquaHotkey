@@ -359,37 +359,45 @@ static Deref() => %this%
 /**
  * Creates a new class.
  * 
+ * This method should be used on versions above v2.1-alpha.3, otherwise it will
+ * fail to create subclasses of many built-in classes like `Array`, `Map`,
+ * `Buffer`, or `Gui`.
+ * 
  * @param   {Class?}   BaseClass  the base of the new class
  * @param   {String?}  Name       name of the class
+ * @param   {Any*}     Args       zero or more arguments for `static __New()`
  * @returns {Class}
  */
-static CreateClass(BaseClass := Object, Name := "(unnamed)", Args*)
-{
-    static Define := (Object.Prototype.DefineProp)
+static CreateClass(BaseClass := Object, Name := "(unnamed)", Args*) {
+    static Define := ({}.DefineProp)
+
+    if (!(BaseClass is Class)) {
+        throw TypeError("Expected a Class",, Type(BaseClass))
+    }
+    if (IsObject(Name)) {
+        throw TypeError("Expected a String",, Type(Name))
+    }
 
     if (VerCompare(A_AhkVersion, "2.1-alpha.3") >= 0) {
-        Cls := Class(Name, BaseClass, Args*)
-        ClsProto := Cls.Prototype
-    } else {
-        Cls := Class()
-        ClsProto := Object()
-        Define(Cls, "Prototype", { Value: ClsProto })
+        return Class(Name, BaseClass, Args*)
+    }
+    Cls := Class()
+    ClsProto := Object()
+    Define(Cls, "Prototype", { Value: ClsProto })
 
-        ObjSetBase(Cls, BaseClass)
-        try {
-            ObjSetBase(ClsProto, BaseClass.Prototype)
-        } catch {
-            OutputDebug("[Aqua] Unable to assign " . Name . " as base.")
-        }
-        if (Cls.__Init != Object.Prototype.__Init) {
-            Cls.__Init()
-        }
-        if (Cls.__New != Object.Prototype.__New) {
-            Cls.__New(Args*)
-        }
+    ObjSetBase(Cls, BaseClass)
+    try {
+        ObjSetBase(ClsProto, BaseClass.Prototype)
+    } catch {
+        OutputDebug("[Aqua] Unable to assign " . Name . " as base.")
+    }
+    if (Cls.__Init != Object.Prototype.__Init) {
+        Cls.__Init()
+    }
+    if (Cls.__New != Object.Prototype.__New) {
+        Cls.__New(Args*)
     }
     Define(ClsProto, "__Class", { Value: Name })
-    return Cls
 } ; static CreateClass()
 ;@endregion
 } ; class AquaHotkey

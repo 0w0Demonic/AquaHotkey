@@ -1,12 +1,11 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
- * AquaHotkey - Array.ahk
+ * Basic Array utilities.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/Array.ahk
+ * @module  <Base/Array>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Array extends AquaHotkey {
 class Array {
@@ -178,6 +177,8 @@ class Array {
         }
         return this
     }
+
+    ; TODO reverse view?
     
     /**
      * Reverses the array in place.
@@ -197,6 +198,9 @@ class Array {
     ;@endregion
 
     ;@region Sorting
+
+    ; TODO describe default comparator
+
     /**
      * Sorts the array in place according to the given `Comparator` function.
      * 
@@ -210,20 +214,22 @@ class Array {
      * @param   {Boolean?}  Reversed    sort in reverse order
      * @returns {this}
      */
-    Sort(Comp?, Reversed := false) {
+    Sort(Comp?, Reversed := false)
+    {
         static SizeOfField := 16
         static FieldOffset := CalculateFieldOffset()
         static CalculateFieldOffset() {
             Offset := (VerCompare(A_AhkVersion, "<2.1-") > 0 ? 3 : 5)
             return 8 + (Offset * A_PtrSize)
         }
-        static GetValue(ptr, &out) {
+
+        static GetValue(Ptr, &Out) {
             ; 0 - String, 1 - Integer, 2 - Float, 5 - Object
-            switch NumGet(ptr + 8, "Int") {
-                case 0: out := StrGet(NumGet(ptr, "Ptr") + 2 * A_PtrSize)
-                case 1: out := NumGet(ptr, "Int64")
-                case 2: out := NumGet(ptr, "Double")
-                case 5: out := ObjFromPtrAddRef(NumGet(ptr, "Ptr"))
+            switch NumGet(Ptr + 8, "Int") {
+                case 0: Out := StrGet(NumGet(Ptr, "Ptr") + 2 * A_PtrSize)
+                case 1: Out := NumGet(Ptr, "Int64")
+                case 2: Out := NumGet(Ptr, "Double")
+                case 5: Out := ObjFromPtrAddRef(NumGet(Ptr, "Ptr"))
             }
         }
 
@@ -239,15 +245,15 @@ class Array {
             return Comp(Value2?, Value1?)
         }
 
-        Comp := Comp ?? ((a, b) => (a > b) - (b > a))
-
-        GetMethod(Comp)
-        if (Reversed) {
-            Callback := CompareReversed
-        } else {
-            Callback := Compare
+        if (!IsSet(Comp)) {
+            if (!IsSet(AquaHotkey_Ord)) {
+                throw UnsetError("Comparator is missing")
+            }
+            Comp := Any.Compare
         }
+        GetMethod(Comp)
 
+        Callback  := (Reversed) ? CompareReversed : Compare
         mFields   := NumGet(ObjPtr(this) + FieldOffset, "Ptr")
         pCallback := CallbackCreate(Callback, "F CDecl", 2)
         DllCall("msvcrt.dll\qsort",
@@ -293,18 +299,21 @@ class Array {
      */
     Max(Comp?) {
         if (!this.Length) {
-            throw UnsetError("this array is empty")
+            throw UnsetError("Array is empty")
         }
-        Comp := Comp ?? ((a, b) => (a > b) - (b > a))
+        if (!IsSet(Comp)) {
+            if (!IsSet(AquaHotkey_Ord)) {
+                throw UnsetError("Comparator is missing")
+            }
+            Comp := Any.Compare
+        }
         GetMethod(Comp)
+
         Enumer := this.__Enum(1)
         while (Enumer(&Result) && !IsSet(Result)) {
         } ; nop
         for Value in Enumer {
-            (IsSet(Value) && Comp(Value, Result) > 0 && Result := Value)
-        }
-        if (!IsSet(Result)) {
-            throw UnsetError("every element in this array is unset")
+            (IsSet(Value) && (Comp(Value, Result) > 0) && (Result := Value))
         }
         return Result
     }
@@ -326,19 +335,26 @@ class Array {
         if (!this.Length) {
             throw UnsetError("this array is empty")
         }
-        Comp := Comp ?? ((a, b) => (a > b) - (b > a))
+        if (!IsSet(Comp)) {
+            if (!IsSet(AquaHotkey_Eq)) {
+                throw UnsetError("Comparator is missing")
+            }
+            Comp := Any.Compare
+        }
         GetMethod(Comp)
+
         Enumer := this.__Enum(1)
         while (Enumer(&Result) && !IsSet(Result)) {
         } ; nop
         for Value in Enumer {
             (IsSet(Value) && Comp(Value, Result) < 0 && Result := Value)
         }
-        if (!IsSet(Result)) {
-            throw UnsetError("every element in this array is unset")
-        }
         return Result
     }
+
+    ; TODO add Collect() into StreamOps?
+
+    ; TODO remove this?
 
     /**
      * Returns the total sum of numbers and numerical string in the array.
@@ -353,10 +369,12 @@ class Array {
     Sum() {
         Result := Float(0)
         for Value in this {
-            (IsSet(Value) && IsNumber(Value) && Result += Value)
+            (IsSet(Value) && IsNumber(Value) && (Result += Value))
         }
         return Result
     }
+
+    ; TODO remove this?
 
     /**
      * Returns the arithmetic mean of numbers and numeric strings in the array.
@@ -372,10 +390,12 @@ class Array {
         Sum := Float(0)
         Count := 0
         for Value in this {
-            (IsSet(Value) && IsNumber(Value) && ++Count && Sum += Value)
+            (IsSet(Value) && IsNumber(Value) && ++Count && (Sum += Value))
         }
         return Sum / Count
     }
+
+    ; TODO move to StreamOps?
     
     /**
      * Concatenates elements into a string, separated by the given `Delimiter`.
@@ -411,6 +431,8 @@ class Array {
         }
         return SubStr(Result, 1, -StrLen(Delimiter))
     }
+
+    ; TODO move to StreamOps?
 
     /**
      * Joins all elements in this array into a single string, each element

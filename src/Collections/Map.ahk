@@ -55,6 +55,9 @@ class Map {
     ;@endregion
 
     ;@region General
+
+    ; TODO views as keys, values, entryset?
+
     /**
      * Returns an array of all keys in the map.
      * 
