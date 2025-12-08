@@ -56,6 +56,10 @@ class AquaHotkey_Ignore {
     }
 
     /**
+     * Deletes one or more property paths from the class.
+     * 
+     * @param   {String*}  PropertyPaths  one or more property paths
+     * @returns {this}
      */
     static Delete(PropertyPaths*) {
         if (!PropertyPaths.Length) {
@@ -65,7 +69,7 @@ class AquaHotkey_Ignore {
             if (IsObject(PropertyPath)) {
                 throw TypeError("Expected a String",, Type(PropertyPath))
             }
-            Props := StrSplit(PropertyPath, "/")
+            Props := StrSplit(PropertyPath, ".")
             Name := Props.Pop()
             Obj := this
             for Prop in Props {

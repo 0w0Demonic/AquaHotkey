@@ -164,10 +164,10 @@ class Array {
             return false
         }
 
-        ThisEnumer := this.__Enum(1)
-        OtherEnumer := Other.__Enum(1)
+        Enumer1 := this.__Enum(1)
+        Enumer2 := Other.__Enum(1)
 
-        while (ThisEnumer(&A) && OtherEnumer(&B)) {
+        while (Enumer1(&A) && Enumer2(&B)) {
             if (!Any.Eq(A?, B?)) {
                 return false
             }

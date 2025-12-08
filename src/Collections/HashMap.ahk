@@ -68,6 +68,8 @@ class HashMap extends Map {
      */
     Mask => (this.Capacity - 1)
 
+    ; TODO constructor with values
+
     /**
      * Constructs a new hash table with the given initial capacity.
      * 
@@ -136,7 +138,7 @@ class HashMap extends Map {
      * @returns {Any}
      */
     Delete(Key) {
-        Container := this.Bucket.Get(Key.Hash() & this.Mask + 1)
+        Container := this.Bucket.Get((Key.Hash() & this.Mask) + 1)
         if (Container) {
             for Entry in Container {
                 if (Key.Eq(Entry.Key)) {
@@ -158,7 +160,7 @@ class HashMap extends Map {
      * @returns {Any}
      */
     Get(Key, Default?) {
-        Index := (Key.Hash() & this.Mask + 1)
+        Index := ((Key.Hash() & this.Mask) + 1)
         Container := this.Bucket.Get(Index)
         if (Container) {
             for Entry in Container {
@@ -183,7 +185,7 @@ class HashMap extends Map {
      * @returns {Boolean}
      */
     Has(Key) {
-        Index := (Key.Hash() & this.Mask + 1)
+        Index := ((Key.Hash() & this.Mask) + 1)
         Container := this.Bucket.Get(Index)
         if (Container) {
             for Entry in Container {
