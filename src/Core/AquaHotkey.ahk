@@ -131,11 +131,11 @@ static __New()
     static Debug(FormatStr, Args*) {
         OutputDebug("[Aqua] " . Format(FormatStr, Args*))
     }
+
     ;@endregion
-
     ;---------------------------------------------------------------------------
-
     ;@region Overwrite()
+
     /**
      * Main method responsible for transferring properties.
      * 
@@ -222,11 +222,11 @@ static __New()
                 throw TypeError("receiver must be a Class or a Func",,
                                 Type(Receiver))
         }
+
         ;@endregion
-
         ;------------------------------------------------------------------------
-
         ;@region __Init() Method
+
         ; If both supplier and receiver are classes, redefine the `__Init()`
         ; method which does declaration of instance variables.
         if ((Supplier is Class) && (Receiver is Class)
@@ -251,13 +251,10 @@ static __New()
                 Define(ReceiverProto, "__Init", { Call: __Init })
             }
         }
+
         ;@endregion
-
         ;-----------------------------------------------------------------------
-
         ;@region Static Properties
-        Delete(Supplier, "__Init")    ; No need to transfer `static __Init()`
-        Delete(Supplier, "Prototype") ; Avoid replaying entire prototype object
 
         ; Checks if the property is a nested class that should be recursed into.
         ; e.g. `AquaHotkey.Gui`              | `Gui`
@@ -269,8 +266,11 @@ static __New()
         }
 
         ; Transfer all static properties
-        for PropertyName in ObjOwnProps(Supplier) {
-            if (PropertyName = "__New") {
+        for PropertyName in ObjOwnProps(Supplier)
+        {
+            if ((PropertyName = "__Init")
+                    || (PropertyName = "Prototype")
+                    || (PropertyName = "__New")) {
                 continue
             }
             if (DoRecursion(Supplier, Receiver, PropertyName)) {
@@ -280,17 +280,17 @@ static __New()
                 Define(Receiver, PropertyName, PropDesc)
             }
         }
+
         ;@endregion
-
         ;-----------------------------------------------------------------------
-
         ;@region Instance Properties
-        Delete(SupplierProto, "__Init")  ; `__Init()` gets special treatment
-        Delete(SupplierProto, "__Class") ; Don't change the name of the class
 
         ; Transfer all non-static properties
         for PropertyName in ObjOwnProps(SupplierProto)
         {
+            if ((PropertyName = "__Init") || (PropertyName = "__Class")) {
+                continue
+            }
             PropDesc := GetProp(SupplierProto, PropertyName)
             Define(ReceiverProto, PropertyName, PropDesc)
         }
@@ -317,9 +317,11 @@ static __New()
     ;@endregion
 
 } ; static __New()
-;@endregion
 
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region static CreateClass()
+
 /**
  * Creates a new class.
  * 
@@ -331,28 +333,34 @@ static CreateClass(BaseClass := Object, Name := "(unnamed)", Args*)
 {
     static Define := (Object.Prototype.DefineProp)
 
-    if (VerCompare(A_AhkVersion, "2.1-alpha.3") >= 0) {
-        Cls := Class(Name, BaseClass, Args*)
-        ClsProto := Cls.Prototype
-    } else {
-        Cls := Class()
-        ClsProto := Object()
-        Define(Cls, "Prototype", { Value: ClsProto })
-
-        ObjSetBase(Cls, BaseClass)
-        try {
-            ObjSetBase(ClsProto, BaseClass.Prototype)
-        } catch {
-            OutputDebug("[Aqua] Unable to assign " . Name . " as base.")
-        }
-        if (Cls.__Init != Object.Prototype.__Init) {
-            Cls.__Init()
-        }
-        if (Cls.__New != Object.Prototype.__New) {
-            Cls.__New(Args*)
-        }
+    if (!(BaseClass is Class)) {
+        throw TypeError("Expected a Class",, Type(BaseClass))
     }
-    Define(ClsProto, "__Class", { Value: Name })
+    if (IsObject(Name)) {
+        throw TypeError("Expected a String",, Type(Name))
+    }
+
+    if (VerCompare(A_AhkVersion, "2.1-alpha.3") >= 0) {
+        return Cls := Class(Name, BaseClass, Args*)
+    }
+
+    Cls := Class()
+    ClsProto := { __Class: Name }
+    Define(Cls, "Prototype", { Value: ClsProto })
+
+    ObjSetBase(Cls, BaseClass)
+    try {
+        ObjSetBase(ClsProto, BaseClass.Prototype)
+    } catch {
+        throw TypeError("Incompatible base class. Try using v2.1-alpha.3+.",,
+                        "base class: " . BaseClass.Prototype.__Class)
+    }
+    if (Cls.__Init != Object.Prototype.__Init) {
+        Cls.__Init()
+    }
+    if (Cls.__New != Object.Prototype.__New) {
+        Cls.__New(Args*)
+    }
     return Cls
 } ; static CreateClass()
 ;@endregion
