@@ -1,11 +1,30 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
- * AquaHotkey - Pipes.ahk
+ * This module provides function piping operations like in shell languages
+ * such as Bash or PowerShell.
  * 
- * Author: 0w0Demonic
+ * It allows "forwarding" the current value into a function as its first
+ * argument, followed by zero or more values `Args*`.
  * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/Pipes.ahk
+ * This can be done "implicitly", i.e. calling an unknown property from a
+ * value with the same name as a global function, or "explicitly",
+ * via the `Any#o0()` method, passing the next function followed by zero
+ * or more `Args*`.
+ * 
+ * Using `.o0()` is marginally faster and more flexible because it directly
+ * accepts the next function instead of searching the global namespace.
+ * 
+ * @example
+ * ; implicit
+ * MyVar.DoThis().DoThat("foo", { bar: "" }).MsgBox()
+ * 
+ * ; explicit
+ * MyVar.o0(DoThis).o0(DoThat, "foo", { bar: "" }).o0(MsgBox)
+ * 
+ * @module  <Func/Pipes>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Pipes extends AquaHotkey {
 ;@region Any
@@ -15,19 +34,16 @@ class Any {
      * global function as its first parameter.
      * 
      * @example 
-     * MyVariable.DoThis().DoThat(Arg3, Arg3).MsgBox()
+     * MyVariable.DoThis().DoThat("foo", "bar").MsgBox()
      * 
-     * @param   {String}  FunctionName  name of the global function
-     * @param   {Any*}    Args          additional arguments
+     * @param   {String}  Name  name of the global function
+     * @param   {Any*}    Args  additional arguments
      * @returns {Any}
      */
     __Call(Name, Args) {
-        static Deref1(this) => %this%
-        static Deref2(VarName) => %VarName%
-
         ; try to do name-dereference
         try {
-            Fn := ((Name != "this") ? Deref1 : Deref2)(Name)
+            Fn := (AquaHotkey.Deref)(Name)
         }
         catch {
             throw UnsetError("(__Call) not found",, Name)
@@ -49,6 +65,7 @@ class Any {
      *           .o0(Foo.BindMethod("Bar"))
      * 
      * DoSomething(x, y, z) => ...
+     * 
      * class Foo {
      *     static Bar(x) => ...
      * }

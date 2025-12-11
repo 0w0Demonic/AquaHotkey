@@ -22,6 +22,8 @@ class AquaHotkey_Any extends AquaHotkey {
          */
         Type => Type(this)
 
+        ; TODO make this depend on `Class.ForName` or move into Class.ahk?
+
         /**
          * Returns the type of this variable as a class.
          * 

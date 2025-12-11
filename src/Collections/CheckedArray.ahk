@@ -80,9 +80,8 @@ class CheckedArray extends Array
     }
 }
 
-#Include <AquaHotkey\src\Collections\StreamOps>
-
-class AquaHotkey_CheckedArray extends AquaHotkey {
+class AquaHotkey_CheckedArray extends AquaHotkey
+{
     class Any {
         static __Item {
             get {
@@ -103,6 +102,3 @@ class AquaHotkey_CheckedArray extends AquaHotkey {
         super.__New()
     }
 }
-
-Values := Integer[](12, 23, 12)
-Values.Push("foo")

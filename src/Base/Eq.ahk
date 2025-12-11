@@ -189,9 +189,12 @@ class Object {
      * - `IsObject(Other)`;
      * - `this` and `Other` share the same set of properties;
      * - The value of these properties is equal. More specifically, the property
-     *   descriptor's `Value`.
+     *   produced either by the property descriptor's `Value` or 0-param `Get`
+     *   function.
      * 
      * Depending on the size of the object, this method is relatively expensive.
+     * You should generally override this method to get much more consistent
+     * results.
      * 
      * @example
      * Obj1 := { Foo: "bar" }

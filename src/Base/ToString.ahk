@@ -4,8 +4,8 @@
  * Provides string representations across all AutoHotkey types.
  * 
  * This module provides all built-in types with a `.ToString()` method, which
- * allows the universal use of `String(Value)` to get the string representation
- * of any value.
+ * allows the universal use of `String(Value)` to return the string
+ * representation of any value.
  * 
  * @example
  * String({ Foo: "bar" })    ; "Object { "Foo": "bar" }"
@@ -52,6 +52,8 @@ class Any {
      * @returns {Func}
      */
     static ToString => ObjBindMethod(this, "ToString")
+
+    ; TODO allow `unset`?
 
     /**
      * Converts the given value into a string.

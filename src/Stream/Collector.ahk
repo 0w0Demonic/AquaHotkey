@@ -1,4 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
+; TODO refactor this into mixins?
+
 /**
  * AquaHotkey - Collector.ahk
  * 

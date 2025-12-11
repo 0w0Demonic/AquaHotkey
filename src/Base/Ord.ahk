@@ -1,5 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO Comparator mixin or subtype of Func?
+
 /**
  * Provides an interface for comparing two values by order, which allows
  * precise control over sorting arrays and other collections.

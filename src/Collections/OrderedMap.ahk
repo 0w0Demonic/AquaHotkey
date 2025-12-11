@@ -115,9 +115,3 @@ class OrderedSet extends Map
     }
 }
 
-List := OrderedSet()
-
-Callback(*) => MsgBox("first")
-List.AddFirst(Callback)
-List.AddLast(Callback)
-List()

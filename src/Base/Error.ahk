@@ -73,6 +73,9 @@ class Error {
             if (!(value is Error)) {
                 throw TypeError("Expected an Error",, Type(value))
             }
+            if (!IsSet(value)) {
+                throw UnsetError("Value is unset")
+            }
             this.DefineProp("Cause", { Value: value })
         }
     }

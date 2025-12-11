@@ -26,17 +26,4 @@ class HashSet extends Set {
             this.Add(Values*)
         }
     }
-
-    /**
-     * Gets and retrieves case sensitivity of the underlying map
-     * (unsupported).
-     */
-    CaseSense {
-        get {
-            throw MethodError("Not supported")
-        }
-        set {
-            throw MethodError("Not supported")
-        }
-    }
 }

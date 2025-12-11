@@ -198,7 +198,7 @@ class HashMap extends Map {
     }
 
     /**
-     * Sets zero or more items
+     * Sets zero or more items.
      * 
      * @param   {Any*}  Args  alternating key and value
      */
@@ -317,10 +317,10 @@ class HashMap extends Map {
      */
     CaseSense {
         get {
-            throw PropertyError("not supported")
+            throw PropertyError("Not supported")
         }
         set {
-            throw PropertyError("not supported")
+            throw PropertyError("Not supported")
         }
     }
 

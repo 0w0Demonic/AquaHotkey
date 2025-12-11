@@ -19,52 +19,95 @@
  * @see https://www.github.com/0w0Demonic/AquaHotkey
  * @author 0w0Demonic
  */
-class AquaHotkey_Mixin extends AquaHotkey {
-class Class {
-    /**
-     * Adds the properties of one or more classes as mixin onto the
-     * specified class.
-     * 
-     * @param   {Class}   Cls      a class to be contained in the mixin
-     * @param   {Class*}  Classes  zero or more classes
-     */
-    Include(Cls, Classes*) {
-        if (!(Cls is Class)) {
-            throw ValueError("Expected a Class",, Type(Cls))
+class AquaHotkey_Mixin extends AquaHotkey
+{
+    static __New() {
+        ; TODO put this logic into the other AquaHotkey core classes
+
+        static Cache  := Map()
+        static Define := ({}.DefineProp)
+
+        if (this != AquaHotkey_Mixin) {
+            return
         }
-        for C in Classes {
-            if (!(C is Class)) {
-                throw TypeError("Expected a Class",, Type(C))
+        super.__New()
+
+        Define(Class.Prototype, "Implements", { Call: Implements })
+        Define(Any.Prototype,   "Implements", { Call: Implements })
+        Define(Class.Prototype, "Include",    { Call: Include    })
+
+        static Implements(Obj, Mixin) {
+            if (!(Mixin is Class)) {
+                throw TypeError("Expected a Class",, Type(Obj))
+            }
+            Loop {
+                if (Cache.Has(Obj) && Cache.Get(Obj).Has(Mixin)) {
+                    return true
+                }
+                Obj := ObjGetBase(Obj)
+                if (!Obj) {
+                    return false
+                }
             }
         }
 
-        Mixin := AquaHotkey
-            .CreateClass(ObjGetBase(this))
-            .Backup(Cls, Classes*)
-        
-        ObjSetBase(this,           Mixin)
-        ObjSetBase(this.Prototype, Mixin.Prototype)
-        return this
+        ; TODO recursion
+
+        static Include(Cls, Mixin, Mixins*) {
+            if (!(Mixin is Class)) {
+                throw TypeError("Expected a Class",, Type(Cls))
+            }
+            for M in Mixins {
+                if (!(M is Class)) {
+                    throw TypeError("Expected a Class",, Type(Cls))
+                }
+            }
+
+            if (Cache.Has(Cls)) {
+                ObjGetBase(Cls).Backup(Mixin, Mixins*)
+            } else {
+                BaseClass := AquaHotkey
+                    .CreateClass(ObjGetBase(Cls))
+                    .Backup(Mixin, Mixins*)
+                    
+                ObjSetBase(Cls,           BaseClass)
+                ObjSetBase(Cls.Prototype, BaseClass.Prototype)
+            }
+
+            if (!Cache.Has(Cls)) {
+                Cache.Set(Cls, Map())
+            }
+            Classes := Cache.Get(Cls)
+            Classes.Set(Mixin, true)
+            Classes.Set(Mixin.Prototype, true)
+            for M in Mixins {
+                Classes.Set(M, true)
+                Classes.Set(M.Prototype, true)
+            }
+            
+            return Cls
+        }
     }
 
-    /**
-     * Applies this mixin class onto one or more classes.
-     * 
-     * @param   {Class*}  Classes  classes on which to apply the mixin
-     * @returns {this}
-     */
-    Extend(Cls, Classes*) {
-        if (!(Cls is Class)) {
-            throw TypeError("Expected a Class",, Type(Cls))
-        }
-        Cls.Include(this)
-        for C in Classes {
-            if (!(C is Class)) {
-                throw TypeError("Expected a Class",, Type(C))
+    class Class {
+        /**
+         * Applies this mixin class onto one or more classes.
+         * 
+         * @param   {Class*}  Classes  classes on which to apply the mixin
+         * @returns {this}
+         */
+        Extend(Cls, Classes*) {
+            if (!(Cls is Class)) {
+                throw TypeError("Expected a Class",, Type(Cls))
             }
-            C.Include(this)
+            Cls.Include(this)
+            for C in Classes {
+                if (!(C is Class)) {
+                    throw TypeError("Expected a Class",, Type(C))
+                }
+                C.Include(this)
+            }
+            return this
         }
-        return this
-    }
-} ; class Class
+    } ; class Class
 } ; class AquaHotkey_Mixin extends AquaHotkey

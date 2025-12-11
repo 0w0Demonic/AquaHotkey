@@ -220,8 +220,14 @@ static __New(Suppliers*)
         ; Copy all static properties
         for PropName in ObjOwnProps(Supplier)
         {
-            ; Very important - SKIP PROTOTYPE!
+            ; Do not overwrite the reference to the class' prototype, only apply
+            ; changes to the existing one
             if ((Supplier is Class) && (PropName = "Prototype")) {
+                continue
+            }
+
+            ; Avoid overwriting `static __New()`
+            if ((Supplier is Class) && (PropName = "__New")) {
                 continue
             }
 

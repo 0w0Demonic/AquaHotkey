@@ -185,6 +185,14 @@ class Set
     }
 
     /**
+     * Retrieves and sets the capacity of the backing map.
+     */
+    Capacity {
+        get => this.M.Capacity
+        set => (this.M.Capacity := value)
+    }
+
+    /**
      * Determines whether the given value is present in the set.
      * 
      * @param   {Any}  Value  any value
@@ -192,24 +200,7 @@ class Set
      */
     __Item[Value] => this.Has(Value)
     
-    ; TODO move this somehow into StreamOps, along with the mixin stuff
-
-    /**
-     * 
-     */
-    ForEach(Action, Args*) {
-        for Value in this {
-            Action(Value, Args*)
-        }
-        return this
-    }
-
-    /**
-     * Returns an array containing all current elements in this set.
-     * 
-     * @returns {Array}
-     */
-    ToArray() => Array(this*)
+    ; TODO put this into `Enumerable1` mixin?
 
     /**
      * - (Requires `AquaHotkey_Hash`)
