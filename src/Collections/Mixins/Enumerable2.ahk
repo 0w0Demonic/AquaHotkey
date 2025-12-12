@@ -1,9 +1,6 @@
 
 ; TODO method for getting e.g. only the second parameter in 2-param for loop?
 
-/**
- * 
- */
 class Enumerable2 {
     ForEach2(Action, Args*) {
         for Key, Value in this {
