@@ -1,26 +1,21 @@
 /**
- * AquaHotkey - AquaHotkey_Ignore.ahk
+ * @public
+ * @abstract
+ * @class
+ * @classdesc
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Core/AquaHotkey_Ignore.ahk
- * 
- * `AquaHotkey_Ignore` is a special marker class used to indicate that a class
- * should be excluded from AquaHotkey's class prototyping system. It serves as
- * a signal for AquaHotkey to skip over any class it is applied to, ensuring
- * that nested or non-prototyped classes do not undergo the class modification
- * that AquaHotkey typically performs on standard classes.
- * 
- * **When to use**:
- * 
- * - Extend the `AquaHotkey_Ignore` class to indicate that it should be ignored.
+ * Marker class for indicating that a class should be ignored by
+ * `AquaHotkey.__New()`.
  * 
  * @example
+ * class MyStuff extends AquaHotkey
+ * {
+ *     ; extend built-in `String`
+ *     class String {
+ *     }
  * 
- * class Tanuki extends AquaHotkey {
+ *     ; this class will be ignored
  *     class Util extends AquaHotkey_Ignore {
- *         ; this class will be ignored by AquaHotkey's prototyping
  *     }
  * }
  */
@@ -29,8 +24,13 @@ class AquaHotkey_Ignore {
      * Determines whether the current AHK version is above the specified
      * version.
      * 
+     * @public
      * @param   {String}  Version  the required version
      * @returns {Boolean}
+     * @example
+     * if (this.Version(">v2.1-alpha.3")) {
+     *     this.Delete("String", "Class")
+     * }
      */
     static Version(Version) => VerCompare(A_AhkVersion, Version)
 
@@ -38,12 +38,12 @@ class AquaHotkey_Ignore {
      * Asserts that the given version requirement is fulfilled, otherwise
      * deletes one or more properties from the class.
      *  
-     * @example
-     * this.RequiresVersion("v2.1-alpha.3", "Class", "Any")
-     * 
+     * @public
      * @param   {String}   Version        version requirement
      * @param   {String}   PropertyPaths  affected property paths
      * @returns {this}
+     * @example
+     * this.RequiresVersion("v2.1-alpha.3", "Class", "Any")
      */
     static RequiresVersion(Version, PropertyPaths*) {
         if (!PropertyPaths.Length) {
@@ -58,8 +58,11 @@ class AquaHotkey_Ignore {
     /**
      * Deletes one or more property paths from the class.
      * 
+     * @public
      * @param   {String*}  PropertyPaths  one or more property paths
      * @returns {this}
+     * @example
+     * this.Delete("String")
      */
     static Delete(PropertyPaths*) {
         if (!PropertyPaths.Length) {
@@ -81,11 +84,12 @@ class AquaHotkey_Ignore {
     }
 
     /**
-     * Asserts that the given global class or other value is present, otherwise
-     * deletes one or more properties from the class.
+     * Asserts that the given symbol is present, otherwise deletes one
+     * or more properties from the class.
      * 
      * @example
-     * this.Requires(AquaHotkey_Eq?, "Any")
+     * ; provide ".Eq(Other?)" if `AquaHotkey_Eq` is present, otherwise remove
+     * this.Requires(AquaHotkey_Eq?, "Prototype.Eq")
      * 
      * @param   {Any?}     Symbol         any global variable
      * @param   {String*}  PropertyPaths  affected property paths

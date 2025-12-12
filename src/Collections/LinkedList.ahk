@@ -6,6 +6,10 @@
  * 
  * Supports negative indexing and `unset` values.
  * 
+ * @example
+ * L := LinkedList(1, 2, 3)
+ * L.Pop() ; 3
+ * L.Shove("insert first value")
  * 
  * @module  <Collections/LinkedList>
  * @author  0w0Demonic
@@ -30,7 +34,7 @@ class LinkedList
      * LinkedList().Head        ; false
      * LinkedList(1, 2, 3).Head ; Node(1)
      */
-    Head => false
+    Head := false
 
     /**
      * The last node in the list, otherwise `false` when empty.
@@ -41,7 +45,7 @@ class LinkedList
      * LinkedList().Tail        ; false
      * LinkedList(1, 2, 3).Tail ; Node(3)
      */
-    Tail => false
+    Tail := false
 
     /**
      * Amount of elements in the list.
@@ -51,7 +55,7 @@ class LinkedList
      * @example
      * LinkedList(1, 2, 3).Size ; 3
      */
-    Size => 0
+    Size := 0
 
     /**
      * Constructs a new linked list containing the specified elements.
@@ -63,12 +67,18 @@ class LinkedList
      */
     __New(Values*) => this.Push(Values*)
 
+    ; TODO use "missing node" type?
+
     /**
      * Returns the node at the given index of the list, otherwise throws
-     * an {@link UnsetError} if the index is invalid.
+     * an `UnsetError` if the index is invalid.
      * 
+     * @protected
      * @param   {Integer}  Index  index of the element 
      * @returns {LinkedList.Node}
+     * 
+     * @example
+     * LinkedList(1, 2).RequiredNodeAt(3) ; IndexError!
      */
     RequiredNodeAt(Index) {
         Node := this.NodeAt(Index)
@@ -82,6 +92,7 @@ class LinkedList
      * Returns the node at the given index of the list, otherwise `false`
      * if the index is invalid.
      * 
+     * @protected
      * @param   {Integer}  Index  index of the element
      * @returns {LinkedList.Node}
      * @example
@@ -109,7 +120,7 @@ class LinkedList
 
         if (Index < (Size / 2)) {
             Node := this.Head
-            loop (A_Index - 1) {
+            loop (Index - 1) {
                 Node := Node.Next
             }
         } else {
@@ -134,7 +145,7 @@ class LinkedList
      */
     Has(Index) {
         Node := this.NodeAt(Index)
-        return (Node && Node.HasValue)
+        return (Node && Node.Has())
     }
 
     /**
@@ -156,7 +167,7 @@ class LinkedList
     Get(Index, Default?) {
         Node := this.RequiredNodeAt(Index)
 
-        if (Node.HasValue) {
+        if (Node.Has()) {
             return Node.Value
         }
         if (IsSet(Default)) {
@@ -171,10 +182,9 @@ class LinkedList
     /**
      * Sets the value of an element.
      * 
-     * @param   {Index}  Index  index of element
-     * @param   {T?}     Value  new value to set
-     * @throws  {IndexError}    if index is invalid
-     * 
+     * @param   {Integer}  Index  index of element
+     * @param   {T?}       Value  new value to set
+     * @throws  {IndexError}      if index is invalid
      * @example
      * Lst := LinkedList(1, 2, 3)
      * 
@@ -182,6 +192,20 @@ class LinkedList
      * Lst.Set(1, "example")
      */
     Set(Index, Value?) => this.RequiredNodeAt(Index).Set(Value?)
+
+    /**
+     * Deletes the element from the list.
+     * 
+     * @param   {Integer}  Index  index of element
+     * @throws  {IndexError}      if index is invalid
+     * @returns {T}               value of the element
+     * @example
+     * Lst := LinkedList(1, 2, 3)
+     * 
+     * ; LinkedList(1, 3) 
+     * Lst.Delete(2) ; 2
+     */
+    Delete(Index) => this.RequiredNodeAt(Index).Delete()
 
     /**
      * Enumerates the values contained in this linked list.
@@ -203,7 +227,7 @@ class LinkedList
             if (!Node) {
                 return false
             }
-            Value := (Node.HasValue) ? Node.Value : unset
+            Value := (Node.Has()) ? Node.Value : unset
             Node := Node.Next
             return true
         }
@@ -216,7 +240,7 @@ class LinkedList
                 return false
             }
             Index := Idx++
-            Value := (Node.HasValue) ? Node.Value : unset
+            Value := (Node.Has()) ? Node.Value : unset
             Node := Node.Next
             return true
         }
@@ -238,11 +262,6 @@ class LinkedList
         set => this.Set(Index, value?)
     }
 
-    ; TODO move this into a mixin?
-    Contains(Value) {
-        
-    }
-
     ; TODO
     Find(&OutValue, Condition, Args*) {
 
@@ -258,6 +277,7 @@ class LinkedList
     }
 
     ; TODO add method to attach more lists?
+    ; rename to "Bump()"?
 
     /**
      * Inserts the specified values at the front of the list.
@@ -272,7 +292,7 @@ class LinkedList
     Shove(Values*) {
         for Value in Values {
             Node := LinkedList.Node(Value?)
-            if (this.IsEmpty) {
+            if ((A_Index == 1) && this.IsEmpty) {
                 this.DefineProp("Head", { Value: Node })
                 this.DefineProp("Tail", { Value: Node })
             } else {
@@ -298,7 +318,7 @@ class LinkedList
     Push(Values*) {
         for Value in Values {
             Node := LinkedList.Node(Value?)
-            if (this.IsEmpty) {
+            if ((A_Index == 1) && this.IsEmpty) {
                 this.DefineProp("Head", { Value: Node })
                 this.DefineProp("Tail", { Value: Node })
             } else {
@@ -334,7 +354,7 @@ class LinkedList
         Size := (this.Size - 1)
         this.DefineProp("Size", { Get: (_) => Size })
 
-        if (Head.HasValue) {
+        if (Head.Has()) {
             return Head.Value
         }
     }
@@ -362,12 +382,13 @@ class LinkedList
         Size := (this.Size - 1)
         this.DefineProp("Size", { Get: (_) => Size })
         
-        if (Tail.HasValue) {
+        if (Tail.Has()) {
             return Tail.Value
         }
     }
 
     ; TODO turn this into an enumerable for stream?
+
     Slurp(Action, Args*) {
         while (!this.IsEmpty) {
             Val := (this.Poll() ?? unset)
@@ -382,6 +403,9 @@ class LinkedList
         }
     }
 
+    /**
+     * 
+     */
     class Node {
         __New(Value?) => this.Set(Value?)
 
@@ -398,7 +422,23 @@ class LinkedList
             return this.Value
         }
 
-        HasValue => (this is LinkedList.Node) && ObjHasOwnProp(this, "Value")
+        Has() => (this is LinkedList.Node) && ObjHasOwnProp(this, "Value")
+
+        Delete() {
+            Next := this.Next
+            Prev := this.Prev
+            this.DeleteProp("Next")
+            this.DeleteProp("Prev")
+            if (Next) {
+                Next.DefineProp("Prev", { Value: Prev })
+            }
+            if (Prev) {
+                Prev.DefineProp("Next", { Value: Next })
+            }
+            if (ObjHasOwnProp(this, "Value")) {
+                return this.Value
+            }
+        }
 
         AttachLeft(Values*) {
 
@@ -416,11 +456,8 @@ class LinkedList
 
         }
 
-        Prev := false
-        Next := false
-    }
-
-    Reversed() {
-
+        Prev => false
+        Next => false
     }
 }
+

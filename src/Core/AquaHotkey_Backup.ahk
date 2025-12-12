@@ -3,9 +3,8 @@
 /**
  * @public
  * @abstract
- * @class AquaHotkey_Backup
+ * @class
  * @classdesc
- * 
  * A base class for copying members of one or more specified classes or
  * functions, allowing them to be overridden or extended in a
  * non-destructive way.
@@ -31,7 +30,7 @@
  * @module   <Core/AquaHotkey_Backup>
  * @see      https://www.github.com/0w0Demonic/AquaHotkey
  */
-class AquaHotkey_Backup extends AquaHotkey
+class AquaHotkey_Backup extends AquaHotkey_Ignore
 {
 ;@region static __New()
 /**
@@ -39,6 +38,9 @@ class AquaHotkey_Backup extends AquaHotkey
  * 
  * This method is called automatically whenever this class and its subclasses
  * are loaded.
+ * 
+ * @example
+ * static __New() => super.__New(Array, Map, String, MsgBox)
  * 
  * @param   {Object*}  Suppliers  where to copy properties and methods from
  * @returns {this}
@@ -265,6 +267,21 @@ static __New(Suppliers*)
             Transfer(NestedSupplier, NestedReceiver)
         }
         ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Mixin Declaration
+
+        ; we need this class to load to gain access to `Class#Mixins`
+        (AquaHotkey_Mixin)
+        if (!(Receiver is Class)) {
+            return
+        }
+        
+        ; add to `Mixins` property
+        Mixins := Receiver.Mixins
+        Mixins.Set(Supplier, true)
+        Define(Receiver, "Mixins", { Get: (_) => Mixins.Clone() })
+
+        ;@endregion
     }
 
     ;@endregion
@@ -309,16 +326,22 @@ static Of(Cls) {
     if (!(Cls is Class)) {
         throw TypeError("Expected a Class",, Type(Cls))
     }
-
     return AquaHotkey
-        .CreateClass(ObjGetBase(Cls), Cls.Prototype.__Class)
-        .Backup(Cls)
+                .CreateClass(ObjGetBase(Cls), Cls.Prototype.__Class)
+                .Backup(Cls)
 }
 
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Class#Backup()
 
+/**
+ * @private
+ * @class
+ * @classdesc
+ * Exposes the method `Class#Backup()` as a convenient shorthand for creating
+ * backups.
+ */
 class Extensions extends Any {
     static __New() {
         if (ObjGetBase(this) != Any) {

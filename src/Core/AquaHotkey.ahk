@@ -75,25 +75,18 @@ class AquaHotkey extends AquaHotkey_Ignore
  * 
  * ; overridden `static __New()` that checks whether the AHK version is
  * ; 
- * class Utils extends AquaHotkey
- * {
+ * class Utils extends AquaHotkey {
  *     static __New() {
- *         if (!IsSet(Foo) || !(Foo is Class)) {
- *             this.DeleteProp("Foo")
- *             return
- *         }
+ *         this.Require(Foo, "List")
  *         super.__New()
  *     }
- * 
- *     class Foo {
- *     }
+ *     class List { ... }
  * }
- *   
- * ...
  */
 static __New()
 {
     ;@region Helper Functions
+
     /**
      * `Object`'s implementation of `DefineProp()`.
      * 
@@ -310,6 +303,19 @@ static __New()
             PropDesc := GetProp(SupplierProto, PropertyName)
             Define(ReceiverProto, PropertyName, PropDesc)
         }
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Mixin Declarations
+
+        (AquaHotkey_Mixin) ; force this class to load
+        if (!(Receiver is Class) || !(Supplier is Class)) {
+            return
+        }
+        Mixins := Receiver.Mixins
+        Mixins.Set(Supplier, true)
+        Define(Receiver, "Mixins", { Get: (_) => Mixins.Clone() })
+        return
+
         ;@endregion
     }
     ;@endregion
