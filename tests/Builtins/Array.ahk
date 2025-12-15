@@ -1,11 +1,3 @@
-/**
- * AquaHotkey - Array.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/Sphinx
- * - tests/Builtins/Array.ahk
- */
 class Array {
     static PropertySetters() {
         Arr := Array().SetCapacity(256).SetLength(128).SetDefault("(empty)")
