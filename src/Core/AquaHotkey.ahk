@@ -10,6 +10,10 @@
  * At its core, AquaHotkey abstracts manual monkeypatching by using classes
  * as "property containers" whose contents can be moved around freely.
  * 
+ * Members are copied from, or dispatched into the built-in classes or types.
+ * This can be done with the core `AquaHotkey` classes and their exported
+ * methods.
+ * 
  * ## Feature Classes (Recommended Pattern)
  * 
  * For larger or reusable setups, it's highly recommended to collect related
@@ -27,6 +31,42 @@
  * @see      https://www.github.com/0w0Demonic/AquaHotkey
  * @date     2025/12/12
  * @version  3.0.0
+ * @example
+ * class MyUtils extends AquaHotkey {
+ *     class String {
+ *         Sub(Start, Length?) => SubStr(this, Start, Length?)
+ *       
+ *         Length => StrLen(this)
+ *     }
+ *     class Array {
+ *         IsEmpty => (this.Length)
+ *     }
+ * }
+ * 
+ * @example
+ * class EqualityByReference {
+ *     static __New() => this.ApplyOnto(Gui, Class, File, ...)
+ * 
+ *     Eq(Other?) => (IsSet(Other) && (this = Other))
+ * }
+ * 
+ * @example
+ * class GuiBackup {
+ *     static __New() => this.Backup(Gui)
+ * }
+ * 
+ * @example
+ * class Enumerable1 {
+ *     static __New() => this.Extend(Array, Gui, Map, RegExMatchInfo)
+ * 
+ *     ForEach(Action, Args*) {
+ *         GetMethod(Action, Args*)
+ *         for Value in this {
+ *             Action(Value?, Args*)
+ *         }
+ *         return this
+ *     }
+ * }
  */
 ;-------------------------------------------------------------------------------
 ;@region Version Requirement
@@ -39,7 +79,7 @@
  *   Introduces `Class([Name, ] BaseClass?, Args*)` to create classes based on
  *   native classes other than `Object`, at runtime. On earlier versions, this
  *   will cause `AquaHotkey.CreateClass()` and `AquaHotkey_Backup.Of()` to fail
- *   setting a fully functional subclass.
+ *   creating a prototype for such classes.
  */
  #Requires AutoHotkey   v2
 ;#Requires AutoHotkey >=v2.1-alpha.3
@@ -107,7 +147,7 @@ class AquaHotkey extends AquaHotkey_Ignore
                 continue
             }
             if (HasBase(Supplier, AquaHotkey_Ignore)) {
-                Log("``- ignoring: {1}", Supplier.Prototype.__Class)
+                Log("- ignoring: {1}", Supplier.Prototype.__Class)
                 continue
             }
             Receiver := (AquaHotkey.Deref)(PropertyName)
@@ -161,17 +201,16 @@ class AquaHotkey extends AquaHotkey_Ignore
             if (!HasProp(this, "Mixins")) {
                 return false
             }
-            Cls := this
+            Val := this
             loop {
-                if (ObjHasOwnProp(this, "Mixins")) {
-                    for M in this.Mixins {
-                        if (M.Implements(Mixin)) {
-                            return true
-                        }
+                if (ObjHasOwnProp(Val, "Mixins")) {
+                    Mixins := Val.Mixins
+                    if (Mixins.Has(Mixin)) {
+                        return true
                     }
                 }
-                Cls := ObjGetBase(Cls)
-            } until (!Cls)
+                Val := ObjGetBase(Val)
+            } until (!Val)
             return false
         }
         ;@endregion
@@ -187,21 +226,6 @@ class AquaHotkey extends AquaHotkey_Ignore
          * @type {Map}
          */
         Mixins => Map()
-
-        ;@endregion
-        ;-----------------------------------------------------------------------
-        ;@region Implements()
-
-        /**
-         * Determines whether this class implements the given mixin class.
-         * 
-         * @public
-         * @param   {Class}  Mixin  the mixin class
-         * @returns {Boolean}
-         * @example
-         * Array.Implements(Enumerable1) ; true
-         */
-        Implements(Mixin) => (this.Prototype).Implements(Mixin)
 
         ;@endregion
         ;-----------------------------------------------------------------------
@@ -224,6 +248,8 @@ class AquaHotkey extends AquaHotkey_Ignore
          * Array.Include(Enumerable1)
          */
         Include(Mixin, Mixins*) {
+            static Define := ({}.DefineProp)
+
             if (!(Mixin is Class)) {
                 throw TypeError("Expected a Class",, Type(Mixin))
             }
@@ -234,12 +260,17 @@ class AquaHotkey extends AquaHotkey_Ignore
             }
 
             Mixins := this.Mixins
+
             if (Mixins.Count) {
+                for Mixin in Mixins {
+                    MsgBox(Mixin.Prototype.__Class)
+                }
                 ObjGetBase(this).Backup(Mixin, Mixins*)
             } else {
                 BaseClass := AquaHotkey
                         .CreateClass(ObjGetBase(this))
                         .Backup(Mixin, Mixins*)
+                
                 ObjSetBase(this, BaseClass)
                 ObjSetBase(this.Prototype, BaseClass.Prototype)
             }
@@ -248,7 +279,10 @@ class AquaHotkey extends AquaHotkey_Ignore
             for M in Mixins {
                 Mixins.Set(M, true)
             }
-            ({}.DefineProp)(this, "Mixins", { Get: (_) => Mixins.Clone() })
+
+            Getter := { Get: (_) => Mixins.Clone() }
+            Define(this,           "Mixins", Getter)
+            Define(this.Prototype, "Mixins", Getter)
             return this
         }
 
@@ -260,7 +294,7 @@ class AquaHotkey extends AquaHotkey_Ignore
          * Applies this mixin class onto one or more classes.
          * 
          * @public
-         * @param   {Cls}     Cls      the class on which to apply the mixin
+         * @param   {Class}   Cls      the class on which to apply the mixin
          * @param   {Class*}  Classes  more classes
          * @returns {this}
          * @example
@@ -317,7 +351,7 @@ class AquaHotkey extends AquaHotkey_Ignore
 
         ;@endregion
         ;-----------------------------------------------------------------------
-        ;@region Backup
+        ;@region Backup()
 
         /**
          * Copies the properties from one or more sources into this class.
@@ -333,7 +367,7 @@ class AquaHotkey extends AquaHotkey_Ignore
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region CreateClass()
+    ;@region static CreateClass()
 
     /**
      * Creates a new class.
@@ -411,7 +445,7 @@ class AquaHotkey extends AquaHotkey_Ignore
 class AquaHotkey_Ignore
 {
     ;---------------------------------------------------------------------------
-    ;@region Version()
+    ;@region static Version()
 
     /**
      * Determines whether the current AutoHotkey version fulfills the given
@@ -440,34 +474,7 @@ class AquaHotkey_Ignore
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region RequiresVersion()
-
-    /**
-     * Checks whether the given AutoHotkey version requirement is fulfilled,
-     * otherwise deletes one or more properties from this class by their
-     * property path.
-     * 
-     * @public
-     * @param   {String}  Version        version requirement
-     * @param   {String}  PropertyPaths  affected property paths
-     * @returns {this}
-     * @example
-     * this.RequiresVersion(">=v2.1-alpha.3", "Class", "Any")
-     */
-    static RequiresVersion(Version, PropertyPaths*) {
-        if (!PropertyPaths.Length) {
-            throw UnsetError("No properties specified")
-        }
-        if (!(AquaHotkey_Ignore.Version)(this, Version)) {
-            (AquaHotkey_Ignore.Log)(this, "version is " . Version)
-            (AquaHotkey_Ignore.Delete)(this, PropertyPaths*)
-        }
-        return this
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Delete
+    ;@region static Delete()
 
     /**
      * Deletes one or more properties from this class by their property
@@ -507,7 +514,34 @@ class AquaHotkey_Ignore
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region
+    ;@region RequiresVersion()
+
+    /**
+     * Checks whether the given AutoHotkey version requirement is fulfilled,
+     * otherwise deletes one or more properties from this class by their
+     * property path.
+     * 
+     * @public
+     * @param   {String}  Version        version requirement
+     * @param   {String}  PropertyPaths  affected property paths
+     * @returns {this}
+     * @example
+     * this.RequiresVersion(">=v2.1-alpha.3", "Class", "Any")
+     */
+    static RequiresVersion(Version, PropertyPaths*) {
+        if (!PropertyPaths.Length) {
+            throw UnsetError("No properties specified")
+        }
+        if (!(AquaHotkey_Ignore.Version)(this, Version)) {
+            (AquaHotkey_Ignore.Log)(this, "version is " . Version)
+            (AquaHotkey_Ignore.Delete)(this, PropertyPaths*)
+        }
+        return this
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region static Requires()
 
     /**
      * Asserts that the given symbol is present, otherwise deletes one
@@ -536,7 +570,7 @@ class AquaHotkey_Ignore
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Log
+    ;@region static Log()
 
     /**
      * Outputs useful information.
@@ -552,6 +586,10 @@ class AquaHotkey_Ignore
         FormatStr := Format("{1:-30} | {2}", ClassName, Str)
         OutputDebug(Format(FormatStr, Args*))
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region static LogVerbose()
 
     /**
      * Outputs verbose information, if `AquaHotkey_Verbose` is declared as
@@ -575,7 +613,7 @@ class AquaHotkey_Ignore
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Apply
+    ;@region static Apply()
 
     /**
      * Transfers all of the properties owned by the `Supplier` and overwrites
@@ -713,7 +751,7 @@ class AquaHotkey_Ignore
         Resolve(Supplier, &SupplierProto, &SupplierName, &SupplierProtoName)
         Resolve(Receiver, &ReceiverProto, &ReceiverName, &ReceiverProtoName)
 
-        if (HasBase(Supplier, AquaHotkey_Ignore)) {
+        if (HasBase(Receiver, AquaHotkey_Ignore)) {
             Log("  # ignoring: {1}", SupplierName)
             return
         }
@@ -854,17 +892,6 @@ class AquaHotkey_Ignore
             return
         }
 
-        if (this == AquaHotkey) {
-            Mixins := Map()
-        } else {
-            Mixins := ReceiverProto.Mixins
-        }
-        LogVerbose("      Add {1} to {2}'s mixins",
-                this.Prototype.__Class,
-                ReceiverName)
-        Mixins.Set(this, true)
-        Define(ReceiverProto, "Mixins", { Get: (_) => Mixins.Clone() })
-
         ;@endregion
     }
     ;@endregion
@@ -912,6 +939,7 @@ class AquaHotkey_Ignore
  * }
  */
 class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
+    ;@region static __New()
     /**
      * Initializes AquaHotkey's multi-apply system.
      * 
@@ -947,6 +975,7 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
         }
         return this
     }
+    ;@endregion
 }
 ;@endregion
 
@@ -977,6 +1006,7 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
  * Gui_Backup := AquaHotkey_Backup.Of(Gui)
  */
 class AquaHotkey_Backup extends AquaHotkey_Ignore {
+    ;@region static __New()
     /**
      * Initializes AquaHotkey's backup system.
      * 
@@ -1013,6 +1043,10 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
         }
         return this
     }
+    
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region static Of()
 
     /**
      * Creates a complete and useable copy of the given class.
@@ -1031,5 +1065,7 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
                     .CreateClass(ObjGetBase(Cls), Cls.Prototype.__Class)
                     .Backup(Cls)
     }
+
+    ;@endregion
 }
 ;@endregion

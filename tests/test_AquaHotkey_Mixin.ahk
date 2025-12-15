@@ -11,4 +11,4 @@ class MyStuff extends AquaHotkey {
     }
 }
 
-MsgBox(Array.Implements(MyStuff.Array))
+MsgBox(Array.Implements(MyStuff))

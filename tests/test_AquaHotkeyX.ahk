@@ -94,4 +94,5 @@ class TestSuite {
     }
 }
 
-ExitApp()
+class AquaHotkey_Verbose {
+}

@@ -1,15 +1,104 @@
-/**
- * AquaHotkey - Buffer.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - tests/Builtins/Buffer.ahk
- */
 class Buffer {
+    static SizeOf_BasicTest() {
+        Buffer.SizeOf("UInt64*").AssertEquals(A_PtrSize)
+        Buffer.SizeOf("DoubleP").AssertEquals(A_PtrSize)
+
+        Buffer.SizeOf("UShort").AssertEquals(2)
+        Buffer.SizeOf("Double").AssertEquals(8)
+    }
+
+    static SizeOf_ThrowsOnBadType() {
+        TestSuite.AssertThrows(() => Buffer.SizeOf("invalid"))
+    }
+
+    static SizeOf_NoUnsignedFloats() {
+        TestSuite.AssertThrows(() => Buffer.SizeOf("UFloat"))
+        TestSuite.AssertThrows(() => Buffer.SizeOf("UDouble"))
+    }
+
+    static FromMemory() {
+        Str := "foo"
+        Fn := (Cls) => Cls.FromMemory(StrPtr(Str), StrPut(Str)).GetString()
+                                .AssertEquals(Str)
+        Fn(Buffer)
+        Fn(ClipboardAll)
+    }
+
+    static staticZero_BasicTest() {
+        Buffer.Zero(16).AssertType(Buffer)
+    }
+
+    static staticZero_WithCasting() {
+        ClipboardAll.Zero(16).AssertType(ClipboardAll)
+    }
+
+    static staticZero_ThrowsOnBadSize() {
+        TestSuite.AssertThrows(() => Buffer.Zero(-123))
+    }
+
+    static OfString() {
+        Buffer.OfString("AAA", "UTF-8").HexDump().AssertEquals("41 41 41 00 ")
+    }
+
+    static OfNumber() {
+        NumType := "UShort"
+        Value := 123
+
+        Buf := ClipboardAll.OfNumber(NumType, Value)
+        Buf.AssertType(ClipboardAll)
+
+        Buf.Size.AssertEquals(Buffer.SizeOf(NumType))
+        NumGet(Buf, NumType).AssertEquals(Value)
+    }
+
+    ; TODO FromFile()
+
     static GetChar_PutChar() {
         Buf := Buffer(8).PutChar(45, 0)
         Buf.GetChar(0).AssertEquals(45)
+    }
+
+    static GetString() {
+        Str := "example"
+        Size := StrPut(Str, "UTF-16")
+        Buf := Buffer(Size)
+        StrPut(Str, Buf)
+        Buf.GetString().AssertEquals(Str)
+    }
+
+    static PutString() {
+        Str := "example"
+        Size := StrPut(Str, "UTF-16")
+        Buf := Buffer(Size)
+
+        Buf.PutString(Str)
+        Buf.GetString().AssertEquals(Str)
+    }
+
+    static PutString_ThrowsOnBadInput() {
+        TestSuite.AssertThrows(() => Buffer(4).PutString(
+                "the quick brown fox jumps over the lazy dog"))
+
+        TestSuite.AssertThrows(() => Buffer(8).PutString("foo", 6))
+    }
+
+    static Slice() {
+        Buf := Buffer(8, 0)
+        NumPut("Int", 123, Buf)
+        NumPut("Int", 456, Buf, 4)
+
+        Slice := Buf.Slice(0, 4)
+        NumGet(Slice, "Int").AssertEquals(123)
+    }
+
+    static Zero() {
+        Buf := Buffer.OfString("example").Zero()
+        NumGet(Buf, "UInt64").AssertEquals(0)
+    }
+
+    static Fill() {
+        Buf := Buffer.OfString("example").Fill(42)
+        NumGet(Buf, "Char").AssertEquals(42)
     }
 
     static HexDump() {
@@ -21,7 +110,31 @@ class Buffer {
         Buf.HexDump().AssertEquals("41 41 41 41 ")
     }
 
-    static OfString() {
-        Buffer.OfString("AAA", "UTF-8").HexDump().AssertEquals("41 41 41 00 ")
+    static staticDefine() {
+        Buffer.Define("Left", "Int", 0)
+
+        Buf := Buffer(16)
+        Buf.Left := 42
+        NumGet(Buf, 0, "Int").AssertEquals(42)
+    }
+
+    static Define() {
+        Buf := Buffer(16)
+
+        Buf.Define("Bottom", "Int", 8)
+        Buf.AssertHasOwnProp("Bottom")
+        Buf.Bottom := 99
+
+        NumGet(Buf, 8, "Int").AssertEquals(99)
+        Buf.Bottom.AssertEquals(99)
+    }
+
+    static Define_OnPrototype() {
+        Buffer.Prototype.Define("Top", "Int", 4)
+
+        Buf := Buffer(16)
+        Buf.Top := 22
+        NumGet(Buf, 4, "Int").AssertEquals(22)
+        Buf.Top.AssertEquals(22)
     }
 }

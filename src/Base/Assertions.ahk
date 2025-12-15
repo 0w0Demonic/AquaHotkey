@@ -17,56 +17,48 @@ class Any {
      * Asserts that the given `Condition` is true for the value. Otherwise,
      * throws an error.
      * 
-     * @example
-     * MyVariable.Assert(IsNumber, "Not a number")
-     * 
-     * @param   {Func}     Condition  the condition to assert
-     * @param   {String?}  Msg        custom error message
+     * @param   {Func}  Condition  the condition to assert
      * @returns {this}
+     * @example
+     * MyVariable.Assert(IsNumber)
      */
-    Assert(Condition, Msg?) {
+    Assert(Condition) {
         if (Condition(this)) {
             return this
         }
-        throw ValueError(Msg ?? "failed assertion")
+        throw ValueError("failed assertion", -2)
     }
     
     /**
      * Asserts that this variable is derived from class `T`. Otherwise, a
-     * `TypeError` is thrown with the error message `Msg`.
+     * `TypeError` is thrown.
      * 
-     * @example
-     * MyVariable.AssertType(String, "this variable is not a string")
-     * 
-     * @param   {Class}    T    expected type
-     * @param   {String?}  Msg  custom error message
+     * @param   {Class}  T  expected type
      * @returns {this}
+     * @example
+     * MyVariable.AssertType(String)
      */
-    AssertType(T, Msg?) {
+    AssertType(T) {
         if (this is T) {
             return this
         }
-        throw TypeError(Msg ?? "expected variable to be type "
-                      . T.Prototype.__Class,,
-                        Type(this))
+        throw TypeError("expected type " . T.Prototype.__Class, -2, Type(this))
     }
 
     /**
      * Asserts that this variable is case-insensitive equal to `Other`.
-     * Otherwise, a `ValueError` is thrown with the error message `Msg`.
+     * Otherwise, a `ValueError` is thrown.
      * 
-     * @example
-     * Str.AssertEquals("foo", 'this string is not equal to "foo"')
-     * 
-     * @param   {Any}      Other  expected value
-     * @param   {String?}  Msg    custom error message
+     * @param   {Any}  Other  expected value
      * @returns {this}
+     * @example
+     * Str.AssertEquals("foo")
      */
-    AssertEquals(Other, Msg?) {
+    AssertEquals(Other) {
         if (this = Other) {
             return this
         }
-        throw ValueError(Msg ?? "value is not equal to " . ToString(&Other),,
+        throw ValueError("value is not equal to " . ToString(&Other), -2,
                          ToString(&this))
 
         static ToString(&Value) {
@@ -77,20 +69,18 @@ class Any {
 
     /**
      * Asserts that this variable is case-sensitive equal to `Other`. Otherwise,
-     * a `ValueError` is thrown with the error message `Msg`.
+     * a `ValueError` is thrown.
      * 
-     * @example
-     * Str.AssertCsEquals("foo", 'this string is not equal to "foo"')
-     * 
-     * @param   {Any}      Other  expected value
-     * @param   {String?}  Msg    custom error message
+     * @param   {Any}  Other  expected value
      * @returns {this}
+     * @example
+     * Str.AssertCsEquals("foo")
      */
     AssertCsEquals(Other) {
         if (this == Other) {
             return this
         }
-        throw ValueError(Msg ?? "value is not equal to " . ToString(&Other),,
+        throw ValueError("value is not equal to " . ToString(&Other), -2,
                          ToString(&this))
 
         static ToString(&Value) {
@@ -101,20 +91,18 @@ class Any {
 
     /**
      * Asserts that this variable is not case-insensitive equal to `Other`.
-     * Otherwise, a `ValueError` is thrown with the error message `Msg`.
+     * Otherwise, a `ValueError` is thrown.
  
-     * @example
-     * Str.AssertNotEquals("foo", 'this string is equal to "foo"')
-     * 
-     * @param   {Any}      Other  unexpected value
-     * @param   {String?}  Msg    custom error message
+     * @param   {Any}  Other  unexpected value
      * @returns {this}
+     * @example
+     * Str.AssertNotEquals("foo")
      */
-    AssertNotEquals(Other, Msg?) {
+    AssertNotEquals(Other) {
         if (this != Other) {
             return this
         }
-        throw ValueError(Msg ?? "value is equal to " . ToString(&Other),,
+        throw ValueError("value is equal to " . ToString(&Other), -2,
                          ToString(&this))
         
         static ToString(&Value) {
@@ -125,21 +113,19 @@ class Any {
     
     /**
      * Asserts that this variable is not case-sensitive equal to `Other`.
-     * Otherwise, a `ValueError` is thrown with the error message `Msg`.
+     * Otherwise, a `ValueError` is thrown.
      * 
-     * @example
-     * Str.AssertCsNotEquals("foo", 'this string is equal to "foo"')
-     * 
-     * @param   {Any}      Other  unexpected value
-     * @param   {String?}  Msg    custom error message
+     * @param   {Any}  Other  unexpected value
      * @returns {this}
+     * @example
+     * Str.AssertCsNotEquals("foo")
      */
-    AssertCsNotEquals(Other, Msg?) {
+    AssertCsNotEquals(Other) {
         if (this !== Other) {
             return this
         }
 
-        throw ValueError(Msg ?? "value is equal to " . ToString(&Other),,
+        throw ValueError("value is equal to " . ToString(&Other), -2,
                          ToString(&this))
         
         static ToString(&Value) {
@@ -152,114 +138,118 @@ class Any {
      * Asserts that this variable has a property by the given name, otherwise
      * throws a `PropertyError`.
      * 
-     * @param   {String}   PropName  name of the property
-     * @param   {String?}  Msg       custom error message
+     * @param   {String}  PropName  name of the property
      * @returns {this}
+     * @example
+     * { foo: "bar" }.AssertHasProp("foo")
      */
-    AssertHasProp(PropName, Msg?) {
+    AssertHasProp(PropName) {
         if (HasProp(this, PropName)) {
             return this
         }
-        throw PropertyError(Msg ?? "object has no property called " . PropName)
+        throw PropertyError("value has no property called " . PropName, -2)
     }
 }
 
 ;@endregion
 ;-------------------------------------------------------------------------------
-;@region Number
+;@region Primitive
 
-class Number {
+class Primitive {
     /**
      * Asserts that this number is greater than `x`. Otherwise, a `ValueError`
-     * is thrown with the error message `Msg`.
+     * is thrown.
      * 
-     * @example
-     * (12.23).AssertGt(5, "number is not greater than 5")
-     * 
-     * @param   {Number}   x    any number
-     * @param   {String?}  Msg  error message
+     * @param   {Number}  x  any number
      * @returns {this}
+     * @example
+     * (12.23).AssertGt(5)
      */
-    AssertGt(x, Msg?) {
+    AssertGt(x) {
         if (this > x) {
             return this
         }
-        throw ValueError(Msg ?? "number is not greater than " . x,, this)
+        throw ValueError("number is not greater than " . x, -2, this)
     }
 
     /**
      * Asserts that this number is greater than or equal to `x`. Otherwise, a
-     * `ValueError` is thrown with the error message `Msg`.
+     * `ValueError` is thrown.
      * 
      * @example
-     * (0).AssertGe(0, "number is less than 0")
+     * (0).AssertGe(0)
      * 
-     * @param   {Number}   x    any number
-     * @param   {String?}  Msg  error message
+     * @param   {Number}  x  any number
      * @returns {this}
      */
-    AssertGe(x, Msg?) {
+    AssertGe(x) {
         if (this >= x) {
             return this
         }
-        throw ValueError(Msg ?? "number is less than " . x,, this)
+        throw ValueError("number is less than " . x, -2, this)
     }
 
     /**
      * Asserts that this number is less than `x`. Otherwise, a `ValueError` is
-     * thrown with the error message `Msg`.
+     * thrown.
      * 
-     * @example
-     * (23).AssertLt(65, "number is not less than 65")
-     * 
-     * @param   {Number}   x    any number
-     * @param   {String?}  Msg  error message
+     * @param   {Number}  x  any number
      * @returns {this}
+     * @example
+     * (23).AssertLt(65)
      */
-    AssertLt(x, Msg?) {
+    AssertLt(x) {
         if (this < x) {
             return this
         }
-        throw ValueError(Msg ?? "number is not less than " . x,, this)
+        throw ValueError("number is not less than " . x, -2, this)
     }
 
     /**
      * Asserts that this number is smaller than or equal to `x`. Otherwise,
-     * a `ValueError` is thrown with the error message `Msg`.
+     * a `ValueError` is thrown.
      * 
-     * @example
-     * (23).AssertLe(65, "number is greater than 65")
-     * 
-     * @param   {Number}   x    any number
-     * @param   {String?}  Msg  error message
+     * @param   {Number}  x  any number
      * @returns {this}
+     * @example
+     * (23).AssertLe(65)
      */
-    AssertLe(x, Msg?) {
+    AssertLe(x) {
         if (this <= x) {
             return this
         }
-        throw ValueError(Msg ?? "number is greater than " . X,, this)
+        throw ValueError("number is greater than " . X, -2, this)
     }
 
     /**
      * Asserts that this number lies in the inclusive range between `x` and `y`.
      * 
-     * @example
-     * (12).AssertInRange(1, 100, "number is not between 1-100")
-     * 
-     * @param   {Number}   x    lower limit
-     * @param   {Number}   y    upper limit
-     * @param   {String?}  Msg  error message
+     * @param   {Number}  x  lower limit
+     * @param   {Number}  y  upper limit
      * @returns {this}
+     * @example
+     * (12).AssertInRange(1, 100)
      */
-    AssertInRange(x, y, Msg?) {
+    AssertInRange(x, y) {
         Hi := Max(x, y)
         Lo := Min(x, y)
         if ((this < Lo) || (this > Hi)) {
-            throw ValueError(Msg ?? "number is not in range "
-                                  . Lo . " - " . Hi,, this)
+            throw ValueError("number is not in range " . Lo . " - " . Hi,
+                            -2, this)
         }
         return this
+    }
+
+    /**
+     * Asserts that the string is not empty.
+     * 
+     * @returns {this}
+     */
+    AssertNotEmpty() {
+        if (this != "") {
+            return this
+        }
+        throw ValueError("empty string", 2)
     }
 }
 
@@ -272,35 +262,18 @@ class Object {
      * Asserts that the object owns a property by the given name, otherwise
      * throws a `PropertyError`.
      * 
-     * @param   {String}   PropName  name of the property
-     * @param   {String?}  Msg       custom error message
+     * @param   {String}  PropName  name of the property
      * @returns {this}
+     * @example
+     * { foo: "bar" }.AssertHasOwnProp("foo")
      */
-    AssertHasOwnProp(PropName, Msg?) {
+    AssertHasOwnProp(PropName) {
         if (ObjHasOwnProp(this, PropName)) {
             return this
         }
-        throw PropertyError(Msg ?? "object has no property called " . PropName)
+        throw PropertyError("object has no property called " . PropName)
     }
 } ; class Object
-
-;@endregion
-;-------------------------------------------------------------------------------
-;@region String
-
-class String {
-    /**
-     * Asserts that the string is not empty.
-     * 
-     * @param   {String?}  Msg  custom error message
-     * @returns {this}
-     */
-    AssertNotEmpty(Msg?) {
-        if (this == "") {
-            throw ValueError(Msg ?? "Empty string")
-        }
-    }
-} ; class String
 
 ;@endregion
 ;-------------------------------------------------------------------------------
