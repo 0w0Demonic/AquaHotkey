@@ -1,409 +1,960 @@
-; 2.0.5: Fixed internal calls to `__Enum` to not call `__Call`.
-#Requires AutoHotkey >=v2.0.5
+/**
+ * @file AquaHotkey.ahk
+ * @fileoverview
+ * 
+ * AquaHotkey is a framework for defining extensions for AutoHotkey's built-in
+ * classes in a declarative and simple way. It involves declaring classes and
+ * properties in the specified format, and adding custom logic by overriding
+ * the `static __New()` constructor.
+ * 
+ * ## Feature Classes (Recommended Pattern)
+ * 
+ * AquaHotkey does not require any particular file layout. However, for larger
+ * or reusable setups, it's recommended to collect related changes by feature
+ * into a single class, defined in its own file.
+ * 
+ * Even if a feature consists of multiple methods or affects several built-in
+ * types, it is often conceptually *one* change. Keeping these related behaviors
+ * together makes the code easier to reason about, reuse across scripts, and
+ * modify in one place. Encapsulating a feature in a dedicated class also allows
+ * scripts to detect its presence at runtime (for example via
+ * `IsSet(MyFeature)`), making features optional and loosely coupled.
+ * 
+ * @module   <Core/AquaHotkey>
+ * @author   0w0Demonic
+ * @see      https://www.github.com/0w0Demonic/AquaHotkey
+ * @date     2025/12/12
+ * @version  3.0.0
+ */
+;-------------------------------------------------------------------------------
+;@region Version Requirement
 
-; AquaHotkey core classes
-#Include %A_LineFile%/../AquaHotkey_Backup.ahk
-#Include %A_LineFile%/../AquaHotkey_MultiApply.ahk
-#Include %A_LineFile%/../AquaHotkey_Ignore.ahk
-#Include %A_LineFile%/../AquaHotkey_Mixin.ahk
+/**
+ * The minimal requirement for AquaHotkey is v2, possibly also some pre-release
+ * versions. There are, however, a few version-specific caveats:
+ *
+ * v2.1-alpha.3:
+ *   Introduces `Class([Name, ] BaseClass?, Args*)` to create classes based on
+ *   native classes other than `Object`, at runtime. On earlier versions, this
+ *   will cause `AquaHotkey.CreateClass()` and `AquaHotkey_Backup.Of()` to fail
+ *   setting a fully functional subclass.
+ */
+ #Requires AutoHotkey   v2
+;#Requires AutoHotkey >=v2.1-alpha.3
+if (VerCompare(A_AhkVersion, "<v2.1-alpha.3")) {
+    AquaHotkey.Log("INFO: using an AutoHotkey version below v2.1-alpha.3")
+}
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region AquaHotkey
 
 /**
  * @public
  * @abstract
- * @class AquaHotkey
+ * @class
  * @classdesc
  * A base class for defining extensions for AutoHotkey v2 built-in classes.
  * 
  * Subclasses declare nested classes whose members are applied to the
- * corresponding global built-in classes or functions. This provides a clean
- * and structured way to augment AutoHotkey's prototype-based classes without
+ * corresponding global class or function. This provides a very clean and
+ * structured way to augment AutoHotkey's prototype-based classes without
  * manual patching.
  * 
  * @example
- * ; adds `Sub()` and `Length` properties to the `String` class:
  * class StringExtensions extends AquaHotkey {
- *     class String {
- *         Sub(Start, Length?) => SubStr(this, Start, Length?)
- *         Length => StrLen(this)
- *     }
+ *   class String {
+ *     Sub(Start, Length?) => SubStr(this, Start, Length?)
+ *     Length              => StrLen(this)
+ *   }
  * }
- * 
- * @author  0w0Demonic
- * @module  <Core/AquaHotkey>
- * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * "AquaHotkey".Sub(1, 4) ; "Aqua"
+ * "foo".Length           ; 3
  */
 class AquaHotkey extends AquaHotkey_Ignore
 {
-;@region static __New()
-/**
- * Initializes AquaHotkey's patching system.
- * 
- * This method is called automatically when the class or any subclass is
- * loaded, unless overridden.
- * 
- * **Terminology used in comments**:
- * 
- * - **Property Supplier**:
- * 
- *   The class that is defined by the user, which contains custom
- *   implementations and is "supplied" to the given target, a class or a
- *   function.
- * 
- * - **Property Receiver**:
- * 
- *   The class or global function that receives custom implementations
- *   defined by the user.
- * 
- * ---
- * 
- * You can override `static __New()` to add additional logic, e.g. checking
- * the AHK version or whether certain classes exist in the script.
- * 
- * @example
- * ; add a `#Sub()` method to the `String` class
- * class StringExtensions extends AquaHotkey {
- *     ; StringExtensions.String
- *     ; `--> String
- *     class String {
- *         ; StringExtensions.String.Prototype.Sub()
- *         ; `--> String.Prototype.Sub()
- *         Sub(Start, Length?) => SubStr(this, Start, Length?)
- *     }
- * }
- * 
- * @example
- * 
- * ; overridden `static __New()` that checks whether the AHK version is
- * ; 
- * class Utils extends AquaHotkey {
- *     static __New() {
- *         this.Require(Foo, "List")
- *         super.__New()
- *     }
- *     class List { ... }
- * }
- */
-static __New()
-{
-    ;@region Helper Functions
-
+    ;@region static __New()
     /**
-     * `Object`'s implementation of `DefineProp()`.
+     * Initializes AquaHotkey's "main" patching system.
      * 
-     * @param   {Object}  Obj           object to define property on
-     * @param   {String}  PropertyName  name of property
-     * @param   {Object}  PropertyDesc  property descriptor
-     */
-    static Define(Obj, PropertyName, PropertyDesc) {
-        ; Very strange edge case: defining an empty property does not
-        ; throw an error, but is an invalid argument for `.DefineProp()`.
-        if (!ObjOwnPropCount(PropertyDesc)) {
-            return
-        }
-        (Object.Prototype.DefineProp)(Obj, PropertyName, PropertyDesc)
-    }
-
-    /**
-     * `Object`'s implementation of `DeleteProp()`.
+     * This method is called automatically when the class or any subclass
+     * is loaded.
      * 
-     * @param   {Object}  Obj           object to delete property from
-     * @param   {String}  PropertyName  name of property
-     */
-    static Delete(Obj, PropertyName) {
-        (Object.Prototype.DeleteProp)(Obj, PropertyName)
-    }
-
-    /**
-     * `Object`'s implementation of `GetOwnPropDesc()`.
+     * You can override `static __New()` to add additional logic, e.g.
+     * checking the current version or AutoHotkey or whether certain
+     * classes are included in the script.
      * 
-     * @param   {Object}  Obj           object to retrieve property from
-     * @param   {String}  PropertyName  name of property
-     * @returns {Object}
-     */
-    static GetProp(Obj, PropertyName) {
-        return (Object.Prototype.GetOwnPropDesc)(Obj, PropertyName)
-    }
-
-    /**
-     * After properties have been successfully transferred to the target,
-     * classes are erased.
-     * 
-     * In order to avoid issues with deleting properties *during iteration*
-     * of `ObjOwnProps()`, this array keeps track of all classes to delete
-     * afterwards.
-     * 
+     * @protected
+     * @abstract
      * @example
-     * [() => (Object.Prototype.DeleteProp)(AquaHotkey, String),
-     *  () => (Object.Prototype.DeleteProp)(AquaHotkey, Integer),
-     *  ...
-     * ]
+     * static __New() {
+     *     this.Requires(AquaHotkey_Stream?, "Stream")
+     *     this.RequiresVersion(">=v2.1-alpha.3", "Class")
+     *     super.__New()
+     * }
      */
-    static DeletionQueue := Array()
+    static __New() {
+        Log(Str, Args*) => (AquaHotkey_Ignore.Log)(this, Str, Args*)
 
-    /**
-     * Outputs useful information to the debugger.
-     * 
-     * @param   {String}   FormatStr  format string to be used
-     * @param   {String*}  Args       zero or more arguments
-     */
-    static Debug(FormatStr, Args*) {
-        OutputDebug("[Aqua] " . Format(FormatStr, Args*))
-    }
-    ;@endregion
-
-    ;---------------------------------------------------------------------------
-
-    ;@region Overwrite()
-    /**
-     * Main method responsible for transferring properties.
-     * 
-     * @param   {Class}   RootClass      class that encloses property supplier
-     * @param   {String}  ClassName      name of a property
-     * @param   {Array}   DeletionQueue  reference to `static DeletionQueue`
-     * @param   {Class?}  Namespace      scope to find property receiver in
-     */
-    static Overwrite(RootClass, ClassName, Namespace?)
-    {
-        ;@region Resolving
-
-        ; Get property from root class and check if it's a property supplier,
-        ; otherwise return
-        try Supplier := RootClass.%ClassName%
-        if (!IsSet(Supplier) || !(Supplier is Class)) {
-            return
-        }
-
-        ; ignore classes that extend `AquaHotkey_Ignore`
-        if (HasBase(Supplier, AquaHotkey_Ignore)) {
-            Debug("ignoring: {1}", Supplier.Prototype.__Class)
-            return
-        }
-        
-        ; Get a reference to the prototype
-        SupplierProto := Supplier.Prototype
-
-        ; Try to find a property receiver (usually a built-in class)
-        try
-        {
-            ; If `Namespace` is unset, search for a property receiver at global
-            ; scope by name dereference. Otherwise, `Namespace` refers to
-            ; the root class in which the property receiver resides
-            ; (e.g. `Gui.Edit`, which is found in `Gui`).
-            Receiver := (IsSet(Namespace)) ? Namespace.%ClassName%
-                                           : (AquaHotkey.Deref)(ClassName)
-
-            SupplierName := Supplier.Prototype.__Class
-            SupplierProtoName := SupplierName . ".Prototype"
-            if (Receiver is Func) {
-                ReceiverProtoName := ReceiverName := Receiver.Name
-            } else {
-                ReceiverName := Receiver.Prototype.__Class
-                ReceiverProtoName := ReceiverName . ".Prototype"
+        Log("#### Extension Class: {1} ####", this.Prototype.__Class)
+        for PropertyName in ObjOwnProps(this) {
+            try Supplier := this.%PropertyName%
+            if (!IsSet(Supplier) || !(Supplier is Class)) {
+                continue
             }
+            if (HasBase(Supplier, AquaHotkey_Ignore)) {
+                Log("ignoring: {1}", Supplier.Prototype.__Class)
+                continue
+            }
+            Receiver := (AquaHotkey.Deref)(PropertyName)
+            (AquaHotkey_Ignore.Apply)(this, Supplier, Receiver)
+        }
+        if (this == AquaHotkey) {
+            ({}.DeleteProp)(this, "Any")
+            ({}.DeleteProp)(this, "Class")
+        }
+        return this
+    }
 
-            Debug("{1:-40} -> {2}", SupplierName, ReceiverName)
-        }
-        catch
-        {
-            ; Oops! unable to find property receiver.
-            ; Let's try to throw a reasonable exception here...
-            RootClassName := RootClass.Prototype.__Class
-            ReceiverName := IsSet(Namespace)
-                                ? Namespace.Prototype.__Class . "." . ClassName
-                                : ClassName
-            
-            Msg   := "unable to extend class " . ReceiverName
-            Extra := "class " . RootClassName
-            throw UnsetError(Msg,, Extra)
-        }
-        
-        ; Create a `BoundFunc` which deletes the reference to the property
-        ; supplier when called, and push it to an array.
-        DeletionQueue.Push(ObjBindMethod(Delete,, RootClass, Supplier))
-        
-        ; Check type the property receiver (must be `Class` or `Func`). If the
-        ; property receiver is a `Func`, all properties are seen as `static`, as
-        ; functions cannot have instances.
-        switch {
-            case Receiver is Class: ReceiverProto := Receiver.Prototype
-            case Receiver is Func:  ReceiverProto := Receiver
-            default:
-                throw TypeError("receiver must be a Class or a Func",,
-                                Type(Receiver))
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Deref()
+
+    /**
+     * Resolves a global value by its name. This method must be called like
+     * a function.
+     * 
+     * @public
+     * @example
+     * (AquaHotkey.Deref)("String")
+     * 
+     * @param   {String}  this  name of global value
+     * @returns {Any}
+     */
+    static Deref() => %this%
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Extensions
+
+    class Any {
+        ;@region Implements()
+        /**
+         * Determines whether this value implements the given mixin class.
+         * 
+         * @public
+         * @param   {Class}  Mixin  the given mixin class
+         * @returns {Boolean}
+         * @example
+         * Array(1, 2, 3).Implements(Enumerable1) ; true
+         */
+        Implements(Mixin) {
+            if (!(Mixin is Class)) {
+                throw TypeError("Expected a Class",, Type(Mixin))
+            }
+            if (!HasBase(this, "Mixins")) {
+                return false
+            }
+            Cls := this
+            loop {
+                if (ObjHasOwnProp(this, "Mixins")) {
+                    for M in this.Mixins {
+                        if (M.Implements(Mixin)) {
+                            return true
+                        }
+                    }
+                }
+                Cls := ObjGetBase(Cls)
+            } until (!Cls)
+            return false
         }
         ;@endregion
+    }
 
-        ;------------------------------------------------------------------------
+    class Class {
+        ;@region Mixins
+        /**
+         * The mixin classes implemented by this class.
+         * 
+         * @public
+         * @abstract
+         * @type {Map}
+         */
+        Mixins => Map()
 
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Implements()
+
+        /**
+         * Determines whether this class implements the given mixin class.
+         * 
+         * @public
+         * @param   {Class}  Mixin  the mixin class
+         * @returns {Boolean}
+         * @example
+         * Array.Implements(Enumerable1) ; true
+         */
+        Implements(Mixin) => this.Prototype.Implements(Mixin)
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Include()
+
+        /**
+         * Applies one or more mixin classes onto this class.
+         * 
+         * @param   {Class}   Mixin   mixin class to apply
+         * @param   {Class*}  Mixins  more mixins
+         * @returns {this}
+         * @example
+         * class Enumerable1 {
+         *   ForEach(Action, Args*) {
+         *     for Value in this {
+         *       Action(Value?, Args*)
+         *     }
+         *   }
+         * }
+         * Array.Include(Enumerable1)
+         */
+        Include(Mixin, Mixins*) {
+            if (!(Mixin is Class)) {
+                throw TypeError("Expected a Class",, Type(Mixin))
+            }
+            for M in Mixins {
+                if (!(M is Class)) {
+                    throw TypeError("Expected a Class",, Type(M))
+                }
+            }
+
+            Mixins := this.Mixins
+            if (Mixins.Count) {
+                ObjGetBase(this).Backup(Mixin, Mixins*)
+            } else {
+                BaseClass := AquaHotkey
+                        .CreateClass(ObjGetBase(this))
+                        .Backup(Mixin, Mixins*)
+                ObjSetBase(this, BaseClass)
+                ObjSetBase(this.Prototype, BaseClass.Prototype)
+            }
+
+            Mixins.Set(Mixin, true)
+            for M in Mixins {
+                Mixins.Set(M, true)
+            }
+            ({}.DefineProp)(this, "Mixins", { Get: (_) => Mixins.Clone() })
+            return this
+        }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Extend()
+
+        /**
+         * Applies this mixin class onto one or more classes.
+         * 
+         * @public
+         * @param   {Cls}     Cls      the class on which to apply the mixin
+         * @param   {Class*}  Classes  more classes
+         * @returns {this}
+         * @example
+         * class Enumerable1 {
+         *   static __New() => this.Extend(Array)
+         * 
+         *   ForEach(Action, Args*) {
+         *     for Value in this {
+         *       Action(Value?, Args*)
+         *     }
+         *   }
+         * }
+         */
+        Extend(Cls, Classes*) {
+            if (!(Cls is Class)) {
+                throw TypeError("Expected a Class",, Type(Cls))
+            }
+            Cls.Include(this)
+            for C in Classes {
+                if (!IsSet(C)) {
+                    throw UnsetError("Value unset")
+                }
+                if (!(C is Class)) {
+                    throw TypeError("Expected a Class",, Type(C))
+                }
+                C.Include(this)
+            }
+            return this
+        }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region ApplyOnto()
+
+        ; TODO elaborate difference between "Extend" and "ApplyOnto"
+
+        /**
+         * Copies the properties of the class into one or more specified
+         * targets.
+         * 
+         * @public
+         * @param   {Object*}  Targets  targets to apply properties onto
+         * @returns {this}
+         * @example
+         * class Enumerable1 {
+         *   static __New() => this.ApplyOnto(Array)
+         * 
+         *   ForEach(Action, Args*) {
+         *     for Value in this {
+         *       Action(Value?, Args*)
+         *     }
+         *   }
+         * }
+         */
+        ApplyOnto(Receivers*) => (AquaHotkey_MultiApply.__New)(this, Receivers*)
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Backup
+
+        /**
+         * Copies the properties from one or more sources into this class.
+         * 
+         * @public
+         * @param   {Object*}  Suppliers  where to copy properties from
+         * @returns {this}
+         */
+        Backup(Suppliers*) => (AquaHotkey_Backup.__New)(this, Suppliers*)
+
+        ;@endregion
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region CreateClass()
+
+    /**
+     * Creates a new class.
+     * 
+     * On AutoHotkey versions below v2.1-alpha.3, this method might fail
+     * creating prototypes based on native types other than `Object`, such
+     * as `Array` or `Map`.
+     * 
+     * @param   {Class?}   BaseClass  the base of the new class
+     * @param   {String?}  Name       name of the class
+     * @param   {Any*}     Args       arguments for `static __New()`
+     * @returns {Class}
+     */
+    static CreateClass(BaseClass := Object, Name := "(unnamed)", Args*) {
+        static Define(Obj, Name, PropDesc) {
+            if (ObjOwnPropCount(PropDesc)) {
+                ({}.DefineProp)(Obj, Name, PropDesc)
+            }
+        }
+
+        if (!(BaseClass is Class)) {
+            throw TypeError("Expected a Class",, Type(BaseClass))
+        }
+        if (IsObject(Name)) {
+            throw TypeError("Expected a String",, Type(Name))
+        }
+
+        if (VerCompare(A_AhkVersion, ">=v2.1-alpha.3")) {
+            return Class(Name, BaseClass, Args*)
+        }
+
+        Cls      := Class()
+        ClsProto := Object()
+        Define(Cls, "Prototype", { Value: ClsProto })
+
+        try {
+            ObjSetBase(Cls.Prototype, BaseClass.Prototype)
+            ObjSetBase(Cls, BaseClass)
+        } catch {
+            throw TypeError("Unable to subclass. Try using v2.1-alpha.3+.")
+        }
+
+        if (Cls.__New != Object.Prototype.__New) {
+            Cls.__New(Args*)
+        }
+        Define(ClsProto, "__Class", { Value: Name })
+        return Cls
+    }
+
+    ;@endregion
+}
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region AquaHotkey_Ignore
+
+/**
+ * @public
+ * @abstract
+ * @class
+ * @classdesc
+ * 
+ * Marker class for indicating that a class should be ignored by AquaHotkey's
+ * class prototyping system.
+ * 
+ * @example
+ * class MyStuff extends AquaHotkey {
+ *     ; this class will be ignored
+ *     class Util extends AquaHotkey_Ignore { ... }
+ * 
+ *     ; applies to `String`
+ *     class String { ... }
+ * }
+ */
+class AquaHotkey_Ignore
+{
+    ;---------------------------------------------------------------------------
+    ;@region Version()
+
+    /**
+     * Determines whether the current AutoHotkey version fulfills the given
+     * version requirement. A version requirement should start with a
+     * comparison operator (`>`/`<`/`>=`/`<=`), otherwise `>=` is taken
+     * as the default.
+     * 
+     * @public
+     * @param   {String}  Version  version requirement
+     * @returns {Boolean}
+     * @example
+     * 
+     * ; NOTE: prefer using `static RequiresVersion()` or `static Requires()`
+     * if (this.Version(">=v2.1-alpha.3")) {
+     *     this.Delete("String", "Class")
+     * }
+     */
+    static Version(Version) {
+        if (IsObject(Version)) {
+            throw TypeError("Expected a String",, Type(Version))
+        }
+        return VerCompare(A_AhkVersion, (Version ~= "^[^<>]")
+                    ? ">=" . Version
+                    : Version)
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region RequiresVersion()
+
+    /**
+     * Checks whether the given AutoHotkey version requirement is fulfilled,
+     * otherwise deletes one or more properties from this class by their
+     * property path.
+     * 
+     * @public
+     * @param   {String}  Version        version requirement
+     * @param   {String}  PropertyPaths  affected property paths
+     * @returns {this}
+     * @example
+     * this.RequiresVersion(">=v2.1-alpha.3", "Class", "Any")
+     */
+    static RequiresVersion(Version, PropertyPaths*) {
+        if (!PropertyPaths.Length) {
+            throw UnsetError("No properties specified")
+        }
+        if (!(AquaHotkey_Ignore.Version)(this, Version)) {
+            (AquaHotkey_Ignore.Log)(this, "version is " . Version)
+            (AquaHotkey_Ignore.Delete)(this, PropertyPaths*)
+        }
+        return this
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Delete
+
+    /**
+     * Deletes one or more properties from this class by their property
+     * path. Paths consist of one or more property names delimited by dots
+     * (`.`).
+     * 
+     * @public
+     * @param   {String*}  PropertyPaths  paths of properties to delete
+     * @returns {this}
+     * @example
+     * this.Delete("Prototype.Eq")
+     */
+    static Delete(PropertyPaths*) {
+        Log(Str, Args*) => (AquaHotkey_Ignore.Log)(this, Str, Args*)
+
+        if (!PropertyPaths.Length) {
+            throw UnsetError("No properties specified")
+        }
+        for PropertyPath in PropertyPaths {
+            if (!IsSet(PropertyPath)) {
+                throw UnsetItemError("No value found",, "Index " . A_Index)
+            }
+            if (IsObject(PropertyPath)) {
+                throw TypeError("Expected a String",, Type(PropertyPath))
+            }
+            Log("deleting " . PropertyPath)
+            Props := StrSplit(PropertyPath, ".")
+            Name := Props.Pop()
+            Obj := this
+            for Prop in Props {
+                Obj := Obj.%Prop%
+            }
+            ({}.DeleteProp)(Obj, Name)
+        }
+        return this
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region
+
+    /**
+     * Asserts that the given symbol is present, otherwise deletes one
+     * or more properties from the class by their property path.
+     * 
+     * @param   {Any?}     Symbol         any global variable
+     * @param   {String*}  PropertyPaths  affected property paths
+     * @returns {this}
+     * @example
+     * class StringExtensions extends AquaHotkey {
+     *   static __New() => this.Requires(AquaHotkey_Eq?, "Prototype.Eq")
+     * 
+     *   class String { ... }
+     * }
+     */
+    static Requires(Symbol?, PropertyPaths*) {
+        if (!PropertyPaths.Length) {
+            throw UnsetError("No properties specified")
+        }
+        if (!IsSet(Symbol)) {
+            (AquaHotkey_Ignore.Log)(this, "symbol not found")
+            (AquaHotkey_Ignore.Delete)(this, PropertyPaths*)
+        }
+        return this
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Log
+
+    /**
+     * Outputs useful information.
+     * 
+     * @public
+     * @param   {String}   Str   format string
+     * @param   {String*}  Args  zero or more arguments
+     */
+    static Log(Str, Args*) {
+        OutputDebug(Format("[" . this.Prototype.__Class . "]: " . Str, Args*))
+    }
+
+    ; TODO keep this?
+    static LogVerbose(Str, Args*) {
+        if (IsSet(AquaHotkey_Verbose)) {
+            (AquaHotkey_Ignore.Log)(this, Str, Args*)
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Apply
+
+    ; TODO go more into detail about what happens here
+    /**
+     * Transfers all of the properties owned by the `Supplier` and overwrites
+     * them into the given `Receiver`.
+     * 
+     * @protected
+     * @param   {Class|Func}  Supplier  contains the properties to be applied
+     * @param   {Class|Func}  Receiver  receives the new properties
+     */
+    static Apply(Supplier, Receiver) {
+        ;@region Helper Functions
+        /**
+         * `Object.Prototype.DefineProp()`.
+         * 
+         * @param   {Object}  Obj       object to define property on
+         * @param   {String}  Name      name of property
+         * @param   {Object}  PropDesc  property descriptor
+         */
+        static Define(Obj, Name, PropDesc) {
+            if (ObjOwnPropCount(PropDesc)) {
+                ({}.DefineProp)(Obj, Name, PropDesc)
+            }
+        }
+
+        /**
+         * `Object.Prototype.DeleteProp(`.
+         * 
+         * @param   {Object}  Obj   object to delete property from
+         * @param   {String}  Name  name of property
+         * 
+         */
+        static Delete(Obj, Name) => ({}.DeleteProp)(Obj, Name)
+
+        /**
+         * `Object.Prototype.GetOwnPropDesc()`.
+         * 
+         * @param   {Object}  Obj   object to retrieve property from
+         * @param   {String}  Name  name of property
+         */
+        static GetPropDesc(Obj, Name) {
+            static PD := ({}.GetOwnPropDesc)
+            return PD(Obj, Name)
+        }
+
+        /**
+         * Resolves the name and "prototype" of the given class or function.
+         * 
+         * @param   {Class|Func}      Target      any class or function
+         * @param   {VarRef<Object>}  Proto       (out) the prototype
+         * @param   {VarRef<Object>}  Name        (out) name of class/function
+         * @param   {VarRef<Object>}  ProtoName   (out) name of class prototype
+         */
+        static Resolve(Target, &Proto, &Name, &ProtoName) {
+            switch {
+                case (Target is Class):
+                    Proto     := Target.Prototype
+                    Name      := Proto.__Class
+                    ProtoName := Name . ".Prototype"
+                case (Target is Func):
+                    Proto     := Target
+                    Name      := Target.Name
+                    ProtoName := Name
+                default:
+                    throw TypeError("Expected a Class or Func",, Type(Target))
+            }
+        }
+
+        /**
+         * Returns a getter property that always returns `Value`.
+         * 
+         * @param   {Any}  Value  the value to return
+         * @returns {Object}
+         */
+        static GetterProperty(Value) => { Get: (_) => Value }
+
+        /**
+         * Creates a property descriptor typical for nested classes.
+         * 
+         * @param   {Class}  Cls  the nested class
+         * @returns {Object}
+         */
+        static NestedClassProperty(Cls) => {
+            Get:  (_)        => Cls,
+            Call: (_, Args*) => Cls(Args*)
+        }
+
+        /**
+         * Creates a method which delegates to `Val`.
+         * 
+         * @param   {Func}  Fn   the method to call
+         * @param   {Any}   Val  delegate value
+         * @returns {Func}
+         */
+        static DelegateMethod(Fn, Val) => (_, Args*) => Fn(Val, Args*)
+
+        /**
+         * Creates a property descriptor that delegates to `Val`.
+         * 
+         * @param   {Object}  PropDesc  a property descriptor
+         * @param   {Func}    Val       delegate value
+         * @param   {Object}
+         */
+        static Delegate(Obj, Name, Val) {
+            PropDesc := GetPropDesc(Obj, Name)
+            Result := Object()
+            for Name, Value in ObjOwnProps(PropDesc) {
+                Value := ((Name = "Value") || !Value.IsBuiltIn)
+                        ? Value
+                        : DelegateMethod(Value, Val)
+                Define(Result, Name, { Value: Value })
+            }
+            return Result
+        }
+
+        Log(Str, Args*) {
+            (AquaHotkey_Ignore.Log)(this, Str, Args*)
+        }
+
+        Apply(Supplier, Receiver) {
+            (AquaHotkey_Ignore.Apply)(this, Supplier, Receiver)
+        }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Resolving
+
+        if (this == AquaHotkey_Ignore) {
+            throw TypeError("This method must be called by a subclass")
+        }
+
+        Resolve(Supplier, &SupplierProto, &SupplierName, &SupplierProtoName)
+        Resolve(Receiver, &ReceiverProto, &ReceiverName, &ReceiverProtoName)
+
+        if (HasBase(Supplier, AquaHotkey_Ignore)) {
+            Log("ignoring: {1}", SupplierName)
+            return
+        }
+
+        Log("#### {1} -> {2} ####", SupplierName, ReceiverName)
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
         ;@region __Init() Method
-        ; If both supplier and receiver are classes, redefine the `__Init()`
-        ; method which does declaration of instance variables.
+
+        ; If appropriate, create a custom `__Init()` to declare the variables
+        ; of both classes.
         if ((Supplier is Class) && (Receiver is Class)
                 && (HasBase(Receiver, Object)))
         {
             ReceiverInit := ReceiverProto.__Init
             SupplierInit := SupplierProto.__Init
 
-            ; No need to redefine `__Init()` if both initializers are the same.
-            ; This would only slow down code.
-            if (SupplierInit != ReceiverInit) {
-                __Init(It) {
-                    ReceiverInit(It) ; previously defined `__Init()`
-                    SupplierInit(It) ; user-defined `__Init()`
+            ; No need to define custom `__Init()` if both are the same.
+            ; Otherwise, this would be detrimental to overall performance.
+            if (ReceiverInit != SupplierInit) {
+                __Init(Instance) {
+                    ReceiverInit(Instance)
+                    SupplierInit(Instance)
                 }
+            }
 
-                ; Rename the new `__Init()` method to something useful
-                InitMethodName := SupplierProto.__Class . ".Prototype.__Init"
-                Define(__Init, "Name", { Get: (_) => InitMethodName })
+            InitMethodName := SupplierProtoName . ".__Init"
+            Define(ReceiverProto, "__Init", { Call: __Init })
+        }
 
-                ; Finally, overwrite the old `__Init()` property with ours
-                Define(ReceiverProto, "__Init", { Call: __Init })
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Delegation
+
+        if (Supplier is Func) {
+            for Name in ObjOwnProps(Func.Prototype) {
+                Define(Receiver, Name, Delegate(Func.Prototype, Name, Supplier))
             }
         }
+
         ;@endregion
-
         ;-----------------------------------------------------------------------
+        ;@region Instance Properties
 
-        ;@region Static Properties
-        Delete(Supplier, "__Init")    ; No need to transfer `static __Init()`
-        Delete(Supplier, "Prototype") ; Avoid replaying entire prototype object
-
-        ; Checks if the property is a nested class that should be recursed into.
-        ; e.g. `AquaHotkey.Gui`              | `Gui`
-        ;       `--> `AquaHotkey.Gui.Button` |  `--> `Gui.Button`
-        static DoRecursion(Supplier, Receiver, PropertyName) {
-            try return (Supplier is Class) && (Supplier.%PropertyName% is Class)
-                    && (Receiver is Class) && (Receiver.%PropertyName% is Class)
-            return false
+        for Name in ObjOwnProps(SupplierProto) {
+            if (Supplier is Class) {
+                switch (StrLower(Name)) {
+                    case "__class", "__init":
+                        continue
+                }
+            }
+            Define(ReceiverProto, Name, GetPropDesc(SupplierProto, Name))
         }
 
-        ; Transfer all static properties
-        for PropertyName in ObjOwnProps(Supplier) {
-            if (PropertyName = "__New") {
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Static Properties
+
+        for Name in ObjOwnProps(Supplier) {
+            if (Supplier is Class) {
+                switch (StrLower(Name)) {
+                    case "prototype", "__new", "__init":
+                        continue
+                }
+            }
+
+            DoRecursion := false
+            try DoRecursion := (Supplier.%Name% is Class)
+
+            if (!DoRecursion) {
+                Define(Receiver, Name, GetPropDesc(Supplier, Name))
                 continue
             }
-            if (DoRecursion(Supplier, Receiver, PropertyName)) {
-                Overwrite(Supplier, PropertyName, Receiver)
-            } else {
-                PropDesc := GetProp(Supplier, PropertyName)
-                Define(Receiver, PropertyName, PropDesc)
+
+            NestedSupplier     := Supplier.%Name%
+            NestedSupplierName := NestedSupplier.Prototype.__Class
+
+            if (ObjHasOwnProp(Receiver, Name)) {
+                NestedReceiver := Receiver.%Name%
+                if (NestedReceiver is Class) {
+                    Apply(NestedSupplier, Receiver.%Name%)
+                    continue
+                }
             }
+
+            Base := ObjGetBase(NestedSupplier)
+            NestedReceiver := AquaHotkey.CreateClass(Base, NestedSupplierName)
+
+            Define(Receiver, Name, NestedClassProperty(NestedReceiver))
+            Apply(NestedSupplier, NestedReceiver)
         }
-        ;@endregion
 
-        ;-----------------------------------------------------------------------
-
-        ;@region Instance Properties
-        Delete(SupplierProto, "__Init")  ; `__Init()` gets special treatment
-        Delete(SupplierProto, "__Class") ; Don't change the name of the class
-
-        ; Transfer all non-static properties
-        for PropertyName in ObjOwnProps(SupplierProto)
-        {
-            PropDesc := GetProp(SupplierProto, PropertyName)
-            Define(ReceiverProto, PropertyName, PropDesc)
-        }
         ;@endregion
         ;-----------------------------------------------------------------------
-        ;@region Mixin Declarations
+        ;@region Mixin
 
-        (AquaHotkey_Mixin) ; force this class to load
-        if (!(Receiver is Class) || !(Supplier is Class)) {
+        if (!(Receiver is Class)) {
             return
         }
-        Mixins := Receiver.Mixins
-        Mixins.Set(Supplier, true)
+        if (this == AquaHotkey) {
+            Mixins := Map()
+        } else {
+            Mixins := Receiver.Mixins
+        }
+        Mixins.Set(this, true)
         Define(Receiver, "Mixins", { Get: (_) => Mixins.Clone() })
-        return
 
         ;@endregion
     }
     ;@endregion
 
-    ;---------------------------------------------------------------------------
-    
-    ;@region Execution
-    Debug("")
-    Debug("######## Extension Class: {1} ########", this.Prototype.__Class)
-    Debug("")
+    /**
+     * Dereferences a global variable by name.
+     * 
+     * This method must be called like this:
+     * @example
+     * (this.Deref)("MyVariableName")
+     * 
+     * @package
+     * @returns {Any}
+     */
+    static Deref() => %this%
+}
 
-    ; Loop through all properties of AquaHotkey and modify classes
-    for PropertyName in ObjOwnProps(this) {
-        Overwrite(this, PropertyName, unset)
-    }
-
-    ; Finally, erase all supplier classes.
-    while (DeletionQueue.Length) {
-        DeletionQueue.Pop()()
-    }
-    return this
-    ;@endregion
-
-} ; static __New()
 ;@endregion
-
 ;-------------------------------------------------------------------------------
+;@region AquaHotkey_MultiApply
 
-;@region Dereference
 /**
- * Dereferences a global variable by name.
+ * @public
+ * @abstract
+ * @class
+ * @classdesc
  * 
- * For the sake of elementing **any** possible name collisions, it has no
- * parameters. Instead, this method must be called like this:
+ * Base class for copying contents of the class into one or more specified
+ * targets.
  * 
  * @example
- * (AquaHotkey.Deref)("MyVariableName")
+ * ; deprecated
+ * class Example extends AquaHotkey_MultiApply {
+ *     static __New() => super.__New(Gui.Button, Gui.CheckBox)
+ *     
+ *     ...
+ * }
  * 
- * @returns {Any}
+ * @example
+ * ; new version
+ * class Example {
+ *     static __New() => this.ApplyOnto(Gui.Button, Gui.CheckBox)
+ * 
+ *     ...
+ * }
  */
-static Deref() => %this%
+class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
+    /**
+     * Initializes AquaHotkey's multi-apply system.
+     * 
+     * The contents of this class are copied into one or more specified
+     * targets.
+     * 
+     * @example
+     * ; deprecated
+     * static __New() => super.__New(Gui.Button, Gui.ComboBox)
+     * 
+     * @example
+     * ; new version
+     * static __New() => this.ApplyOnto(Gui.Button, Gui.ComboBox)
+     * 
+     * @param   {Object*}  Targets  where to copy properties into
+     * @returns {this}
+     */
+    static __New(Receivers*) {
+        if (this == AquaHotkey_MultiApply) {
+            return
+        }
+        if (!Receivers.Length) {
+            throw ValueError("No targets provided")
+        }
+
+        Supplier := this
+        for Receiver in Receivers {
+            (AquaHotkey_Ignore.Apply)(this, Supplier, Receiver)
+        }
+        return this
+    }
+}
 ;@endregion
 
-;-------------------------------------------------------------------------------
-
-;@region static CreateClass()
+;@region AquaHotkey_Backup
 /**
- * Creates a new class.
+ * @public
+ * @abstract
+ * @class
+ * @classdesc
+ * A base class for copying members of one or more specified classes or
+ * functions, allowing them to be overridden or extended in a
+ * non-destructive way.
  * 
- * This method should be used on versions above v2.1-alpha.3, otherwise it will
- * fail to create subclasses of many built-in classes like `Array`, `Map`,
- * `Buffer`, or `Gui`.
+ * @example
+ * ; method 1: using subclasses and `super.__New(Targets*)`
+ * class Gui_Backup extends AquaHotkey_Backup {
+ *     static __New() => super.__New(Gui)
+ * }
  * 
- * @param   {Class?}   BaseClass  the base of the new class
- * @param   {String?}  Name       name of the class
- * @param   {Any*}     Args       zero or more arguments for `static __New()`
- * @returns {Class}
+ * @example
+ * ; method 2: `Class#Backup(Targets*)`
+ * class Gui_Backup {
+ *     static __New() => this.Backup(Gui)
+ * }
+ * 
+ * @example
+ * ; method 3: `AquaHotkey_Backup.Of(Targets*)`
+ * Gui_Backup := AquaHotkey_Backup.Of(Gui)
  */
-static CreateClass(BaseClass := Object, Name := "(unnamed)", Args*) {
-    static Define := ({}.DefineProp)
+class AquaHotkey_Backup extends AquaHotkey_Ignore {
+    /**
+     * Initializes AquaHotkey's backup system.
+     * 
+     * This method is called automatically whenever this class and
+     * its subclasses are loaded, copying and maintaining the contents of
+     * one or more specified sources.
+     * 
+     * @example
+     * ; deprecated
+     * static __New() => super.__New(Array)
+     * 
+     * @example
+     * ; new version
+     * static __New() => this.Backup(Array)
+     * 
+     * @param   {Object*}  Suppliers  where to copy properties from
+     * @returns {this}
+     */
+    static __New(Suppliers*) {
+        if (this == AquaHotkey_Backup) {
+            return
+        }
+        if (!Suppliers.Length) {
+            throw ValueError("No source classes provided")
+        }
 
-    if (!(BaseClass is Class)) {
-        throw TypeError("Expected a Class",, Type(BaseClass))
-    }
-    if (IsObject(Name)) {
-        throw TypeError("Expected a String",, Type(Name))
+        Receiver := this
+        for Supplier in Suppliers {
+            (AquaHotkey_Ignore.Apply)(this, Supplier, Receiver)
+        }
+        return this
     }
 
-    if (VerCompare(A_AhkVersion, "2.1-alpha.3") >= 0) {
-        return Class(Name, BaseClass, Args*)
+    /**
+     * Creates a complete and useable copy of the given class.
+     * 
+     * @example
+     * StringClass := AquaHotkey_Backup.Of(String)
+     * 
+     * @param   {Class}  Cls  the class to be copied
+     * @returns {Class}
+     */
+    static Of(Cls) {
+        if (!(Cls is Class)) {
+            throw TypeError("Expected a Class",, Type(Cls))
+        }
+        return AquaHotkey
+                    .CreateClass(ObjGetBase(Cls), Cls.Prototype.__Class)
+                    .Backup(Cls)
     }
-    Cls := Class()
-    ClsProto := Object()
-    Define(Cls, "Prototype", { Value: ClsProto })
-
-    ObjSetBase(Cls, BaseClass)
-    try {
-        ObjSetBase(ClsProto, BaseClass.Prototype)
-    } catch {
-        OutputDebug("[Aqua] Unable to assign " . Name . " as base.")
-    }
-    if (Cls.__Init != Object.Prototype.__Init) {
-        Cls.__Init()
-    }
-    if (Cls.__New != Object.Prototype.__New) {
-        Cls.__New(Args*)
-    }
-    Define(ClsProto, "__Class", { Value: Name })
-} ; static CreateClass()
+}
 ;@endregion
-} ; class AquaHotkey
