@@ -3,15 +3,17 @@
  * @fileoverview
  * 
  * AquaHotkey is a framework for defining extensions for AutoHotkey's built-in
- * classes in a declarative and simple way. It involves declaring classes and
- * properties in the specified format, and adding custom logic by overriding
- * the `static __New()` constructor.
+ * classes in a declarative and simple way.
+ * 
+ * ## Fundamental Concept
+ * 
+ * At its core, AquaHotkey abstracts manual monkeypatching by using classes
+ * as "property containers" whose contents can be moved around freely.
  * 
  * ## Feature Classes (Recommended Pattern)
  * 
- * AquaHotkey does not require any particular file layout. However, for larger
- * or reusable setups, it's recommended to collect related changes by feature
- * into a single class, defined in its own file.
+ * For larger or reusable setups, it's highly recommended to collect related
+ * changes by features into a single class, defined in its own file.
  * 
  * Even if a feature consists of multiple methods or affects several built-in
  * types, it is often conceptually *one* change. Keeping these related behaviors
@@ -95,23 +97,27 @@ class AquaHotkey extends AquaHotkey_Ignore
      */
     static __New() {
         Log(Str, Args*) => (AquaHotkey_Ignore.Log)(this, Str, Args*)
+        Log("# Extension Class: {1}", this.Prototype.__Class)
 
-        Log("#### Extension Class: {1} ####", this.Prototype.__Class)
+        Classes := Array()
+
         for PropertyName in ObjOwnProps(this) {
             try Supplier := this.%PropertyName%
             if (!IsSet(Supplier) || !(Supplier is Class)) {
                 continue
             }
             if (HasBase(Supplier, AquaHotkey_Ignore)) {
-                Log("ignoring: {1}", Supplier.Prototype.__Class)
+                Log("``- ignoring: {1}", Supplier.Prototype.__Class)
                 continue
             }
             Receiver := (AquaHotkey.Deref)(PropertyName)
+            Classes.Push(PropertyName)
             (AquaHotkey_Ignore.Apply)(this, Supplier, Receiver)
         }
         if (this == AquaHotkey) {
-            ({}.DeleteProp)(this, "Any")
-            ({}.DeleteProp)(this, "Class")
+            for Cls in Classes {
+                ({}.DeleteProp)(this, Cls)
+            }
         }
         return this
     }
@@ -152,7 +158,7 @@ class AquaHotkey extends AquaHotkey_Ignore
             if (!(Mixin is Class)) {
                 throw TypeError("Expected a Class",, Type(Mixin))
             }
-            if (!HasBase(this, "Mixins")) {
+            if (!HasProp(this, "Mixins")) {
                 return false
             }
             Cls := this
@@ -195,7 +201,7 @@ class AquaHotkey extends AquaHotkey_Ignore
          * @example
          * Array.Implements(Enumerable1) ; true
          */
-        Implements(Mixin) => this.Prototype.Implements(Mixin)
+        Implements(Mixin) => (this.Prototype).Implements(Mixin)
 
         ;@endregion
         ;-----------------------------------------------------------------------
@@ -288,8 +294,6 @@ class AquaHotkey extends AquaHotkey_Ignore
         ;@endregion
         ;-----------------------------------------------------------------------
         ;@region ApplyOnto()
-
-        ; TODO elaborate difference between "Extend" and "ApplyOnto"
 
         /**
          * Copies the properties of the class into one or more specified
@@ -540,14 +544,31 @@ class AquaHotkey_Ignore
      * @public
      * @param   {String}   Str   format string
      * @param   {String*}  Args  zero or more arguments
+     * @example
+     * this.Log("doing something... {1}", MyClass.Prototype.__Class)
      */
     static Log(Str, Args*) {
-        OutputDebug(Format("[" . this.Prototype.__Class . "]: " . Str, Args*))
+        ClassName := "[" . this.Prototype.__Class . "]"
+        FormatStr := Format("{1:-30} | {2}", ClassName, Str)
+        OutputDebug(Format(FormatStr, Args*))
     }
 
-    ; TODO keep this?
+    /**
+     * Outputs verbose information, if `AquaHotkey_Verbose` is declared as
+     * variable somewhere in the script.
+     * 
+     * @public
+     * @param   {String}   Str   format string
+     * @param   {String*}  Args  zero or more arguments
+     * @example
+     * this.LogVerbose("doing something in detail...")
+     * ...
+     * ; this class is used as option to activate verbose mode
+     * class AquaHotkey_Verbose {
+     * }
+     */
     static LogVerbose(Str, Args*) {
-        if (IsSet(AquaHotkey_Verbose)) {
+        if (IsSet(AquaHotkey_Verbose) && (AquaHotkey_Verbose)) {
             (AquaHotkey_Ignore.Log)(this, Str, Args*)
         }
     }
@@ -556,7 +577,6 @@ class AquaHotkey_Ignore
     ;---------------------------------------------------------------------------
     ;@region Apply
 
-    ; TODO go more into detail about what happens here
     /**
      * Transfers all of the properties owned by the `Supplier` and overwrites
      * them into the given `Receiver`.
@@ -674,6 +694,10 @@ class AquaHotkey_Ignore
             (AquaHotkey_Ignore.Log)(this, Str, Args*)
         }
 
+        LogVerbose(Str, Args*) {
+            (AquaHotkey_Ignore.LogVerbose)(this, Str, Args*)
+        }
+
         Apply(Supplier, Receiver) {
             (AquaHotkey_Ignore.Apply)(this, Supplier, Receiver)
         }
@@ -690,11 +714,11 @@ class AquaHotkey_Ignore
         Resolve(Receiver, &ReceiverProto, &ReceiverName, &ReceiverProtoName)
 
         if (HasBase(Supplier, AquaHotkey_Ignore)) {
-            Log("ignoring: {1}", SupplierName)
+            Log("  # ignoring: {1}", SupplierName)
             return
         }
 
-        Log("#### {1} -> {2} ####", SupplierName, ReceiverName)
+        Log("  # {1} -> {2}", SupplierName, ReceiverName)
 
         ;@endregion
         ;-----------------------------------------------------------------------
@@ -702,46 +726,65 @@ class AquaHotkey_Ignore
 
         ; If appropriate, create a custom `__Init()` to declare the variables
         ; of both classes.
+
+        LogVerbose("    # __Init()")
         if ((Supplier is Class) && (Receiver is Class)
                 && (HasBase(Receiver, Object)))
         {
+
             ReceiverInit := ReceiverProto.__Init
             SupplierInit := SupplierProto.__Init
 
-            ; No need to define custom `__Init()` if both are the same.
-            ; Otherwise, this would be detrimental to overall performance.
-            if (ReceiverInit != SupplierInit) {
-                __Init(Instance) {
-                    ReceiverInit(Instance)
-                    SupplierInit(Instance)
-                }
-            }
+            ReceiverInitName := ReceiverProtoName . ".__Init"
+            SupplierInitName := SupplierProtoName . ".__Init"
 
-            InitMethodName := SupplierProtoName . ".__Init"
-            Define(ReceiverProto, "__Init", { Call: __Init })
+            if (SupplierInit != ReceiverInit) {
+                __Init(Instance) {
+                    ReceiverInit(Instance) ; previous `__Init()`
+                    SupplierInit(Instance) ; our new `__Init()`
+                }
+
+                LogVerbose("      merging __Init() methods...")
+                LogVerbose("      1. {1}", ReceiverInitName)
+                LogVerbose("      2. {1}", SupplierInitName)
+                Define(ReceiverProto, "__Init", { Call: __Init })
+                LogVerbose("      done.")
+            } else {
+                LogVerbose("      ignore. both __Init() methods equal {1}",
+                            ReceiverInitName)
+            }
+        } else {
+            LogVerbose("      incompatible.")
         }
 
         ;@endregion
         ;-----------------------------------------------------------------------
         ;@region Delegation
 
+        LogVerbose("    # Function Delegation")
         if (Supplier is Func) {
             for Name in ObjOwnProps(Func.Prototype) {
+                LogVerbose("      > {1}", Name)
                 Define(Receiver, Name, Delegate(Func.Prototype, Name, Supplier))
             }
+        } else {
+            LogVerbose("      ignore - not a function.")
         }
 
         ;@endregion
         ;-----------------------------------------------------------------------
         ;@region Instance Properties
 
+        LogVerbose("    # Instance Properties")
         for Name in ObjOwnProps(SupplierProto) {
             if (Supplier is Class) {
                 switch (StrLower(Name)) {
                     case "__class", "__init":
+                        LogVerbose("      > {1} (ignored)", Name)
                         continue
                 }
             }
+            LogVerbose("      > {1}", Name)
             Define(ReceiverProto, Name, GetPropDesc(SupplierProto, Name))
         }
 
@@ -749,10 +792,12 @@ class AquaHotkey_Ignore
         ;-----------------------------------------------------------------------
         ;@region Static Properties
 
+        LogVerbose("    # Static Properties")
         for Name in ObjOwnProps(Supplier) {
             if (Supplier is Class) {
                 switch (StrLower(Name)) {
                     case "prototype", "__new", "__init":
+                        LogVerbose("      > {1} (ignored)", Name)
                         continue
                 }
             }
@@ -761,25 +806,41 @@ class AquaHotkey_Ignore
             try DoRecursion := (Supplier.%Name% is Class)
 
             if (!DoRecursion) {
+                LogVerbose("      > {1}", Name)
                 Define(Receiver, Name, GetPropDesc(Supplier, Name))
                 continue
             }
 
             NestedSupplier     := Supplier.%Name%
             NestedSupplierName := NestedSupplier.Prototype.__Class
+            NestedReceiverName := ReceiverName . "." . Name
+
+            LogVerbose("      nested class... {1}", Name)
 
             if (ObjHasOwnProp(Receiver, Name)) {
                 NestedReceiver := Receiver.%Name%
                 if (NestedReceiver is Class) {
+                    LogVerbose("      recurse into existing: {1}",
+                               NestedReceiverName)
                     Apply(NestedSupplier, Receiver.%Name%)
                     continue
+                } else {
+                    LogVerbose("      overwriting existing class: {1}",
+                               NestedReceiverName)
                 }
             }
 
             Base := ObjGetBase(NestedSupplier)
             NestedReceiver := AquaHotkey.CreateClass(Base, NestedSupplierName)
+            
+            LogVerbose("      creating new class: {1}", NestedReceiverName)
+            LogVerbose("      base class: {1}", Base.Prototype.__Class)
 
             Define(Receiver, Name, NestedClassProperty(NestedReceiver))
+
+            LogVerbose("      recurse into newly created class: {1}",
+                       NestedReceiverName)
+
             Apply(NestedSupplier, NestedReceiver)
         }
 
@@ -787,16 +848,22 @@ class AquaHotkey_Ignore
         ;-----------------------------------------------------------------------
         ;@region Mixin
 
+        LogVerbose("    # Mixins")
         if (!(Receiver is Class)) {
+            LogVerbose("      ignore - not a class")
             return
         }
+
         if (this == AquaHotkey) {
             Mixins := Map()
         } else {
-            Mixins := Receiver.Mixins
+            Mixins := ReceiverProto.Mixins
         }
+        LogVerbose("      Add {1} to {2}'s mixins",
+                this.Prototype.__Class,
+                ReceiverName)
         Mixins.Set(this, true)
-        Define(Receiver, "Mixins", { Get: (_) => Mixins.Clone() })
+        Define(ReceiverProto, "Mixins", { Get: (_) => Mixins.Clone() })
 
         ;@endregion
     }
@@ -866,6 +933,10 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
         if (this == AquaHotkey_MultiApply) {
             return
         }
+        (AquaHotkey_Ignore.LogVerbose)(this,
+                "# Multi-Apply Class: {1}",
+                this.Prototype.__Class)
+
         if (!Receivers.Length) {
             throw ValueError("No targets provided")
         }
@@ -928,6 +999,10 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
         if (this == AquaHotkey_Backup) {
             return
         }
+        (AquaHotkey_Ignore.LogVerbose)(this,
+                "# Backup class: {1}",
+                this.Prototype.__Class)
+
         if (!Suppliers.Length) {
             throw ValueError("No source classes provided")
         }
