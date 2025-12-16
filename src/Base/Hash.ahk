@@ -1,7 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
- * Adds a universal `.Hash()` function.
+ * Adds a universal `.HashCode()` function.
  * 
  * In general, this class uses FNV-1a to create hashes.
  * 
@@ -23,7 +23,21 @@ class AquaHotkey_Hash extends AquaHotkey
      * FNV prime.
      * @type {Integer}
      */
-    static Prime  => 0x00000100000001B3
+    static Prime => 0x00000100000001B3
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Any
+
+    class Any {
+        /**
+         * Unsupported `.HashCode()` function.
+         * @returns {Integer}
+         */
+        HashCode() {
+            throw TypeError("not applicable for this type " . Type(this))
+        }
+    }
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -31,17 +45,18 @@ class AquaHotkey_Hash extends AquaHotkey
 
     class Array {
         /**
-         * Creates a hash from all elements in this array.
+         * Creates a hash from all elements in this array. Elements are
+         * allowed to be `unset`.
          * 
          * @returns {Integer}
          */
-        Hash() {
+        HashCode() {
             static Offset := AquaHotkey_Hash.Offset
             static Prime  := AquaHotkey_Hash.Prime
 
             Result := Offset
             for Value in this {
-                Result ^= (IsSet(Value) && Value.Hash())
+                Result ^= (IsSet(Value) && Value.HashCode())
                 Result *= Prime
             }
             return Result
@@ -55,17 +70,18 @@ class AquaHotkey_Hash extends AquaHotkey
     class Map {
         /**
          * Creates a hash from all key-value pairs in this map.
+         * Key-value pairs in the map are not allowed to have `unset` values.
          * 
          * @returns {Integer}
          */
-        Hash() {
+        HashCode() {
             static Offset := AquaHotkey_Hash.Offset
             static Prime  := AquaHotkey_Hash.Prime
 
             Result := Offset
             for Key, Value in this {
-                Result := (Result ^   Key.Hash()) * Prime
-                Result := (Result ^ Value.Hash()) * Prime
+                Result := (Result ^   Key.HashCode()) * Prime
+                Result := (Result ^ Value.HashCode()) * Prime
             }
             return Result
         }
@@ -77,11 +93,12 @@ class AquaHotkey_Hash extends AquaHotkey
 
     class String {
         /**
-         * Creates a hash from all characters in this string.
+         * Creates a hash value from all characters in this string.
+         * The result hash value is case-sensitive.
          * 
          * @returns {Integer}
          */
-        Hash() {
+        HashCode() {
             static Offset := AquaHotkey_Hash.Offset
             static Prime  := AquaHotkey_Hash.Prime
 
@@ -104,7 +121,7 @@ class AquaHotkey_Hash extends AquaHotkey
          * 
          * @returns {Integer}
          */
-        Hash() {
+        HashCode() {
             static Buf := Buffer(8)
             NumPut("Double", this, Buf)
             return NumGet(Buf, 0, "Int64")
@@ -121,7 +138,7 @@ class AquaHotkey_Hash extends AquaHotkey
          * 
          * @returns {Integer}
          */
-        Hash() => this
+        HashCode() => this
     }
 
     ;@endregion
@@ -135,52 +152,70 @@ class AquaHotkey_Hash extends AquaHotkey
          * Property names are case-insensitive. In other words, `{ foo: "bar" }`
          * and `{ FOO: "bar" }` produce the same hash code.
          * 
-         * If `A.Hash() == B.Hash()`, then it's extremely likely - but NOT
-         * guaranteed - that `A.Eq(B)`. The same applies vice-versa.
+         * If `A.HashCode() == B.HashCode()`, then it's extremely likely - but
+         * NOT guaranteed - that `A.Eq(B)`. The same applies vice-versa.
          * 
          * @returns {Integer}
          */
-        Hash() {
-            static Offset := AquaHotkey_Hash.Offset
-            static Prime  := AquaHotkey_Hash.Prime
+        HashCode() {
+            static GetProp := ({}.GetOwnPropDesc)
+            static Offset  := AquaHotkey_Hash.Offset
+            static Prime   := AquaHotkey_Hash.Prime
 
+            Obj := this
             Result := Offset
-            Loop {
-                for PropertyName, Value in ObjOwnProps(this) {
-                    ; use lowercase to make properties case-insensitive
-                    Loop Parse, StrLower(PropertyName) {
+            loop {
+                for PropertyName in ObjOwnProps(Obj) {
+                    loop parse, StrLower(PropertyName) {
                         Result ^= Ord(A_LoopField)
                         Result *= Prime
                     }
+                    PropDesc := GetProp(Obj, PropertyName)
+                    Value := ObjHasOwnProp(PropDesc, "Value")
+                        ? PropDesc.Value
+                        : unset
 
-                    Result ^= (!IsSet(Value) && Value.Hash())
+                    Result ^= (!IsSet(Value) && Value.HashCode())
                     Result *= Prime
                 }
-
-                if (this == Any.Prototype) {
-                    return Result
-                }
-                this := ObjGetBase(this)
-            }
+                Obj := ObjGetBase(Obj)
+            } until (!Obj)
         }
     }
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Any
+    ;@region ByReference
 
-    class Any {
+    class ByReference extends AquaHotkey_MultiApply {
+        static __New() => super.__New(
+            Buffer, Class, Error, File, Func, Gui, Gui.Control,
+            InputHook, Menu, MenuBar, RegExMatchInfo)
+
+        /**
+         * Returns a hash value based on the object pointer.
+         * 
+         * @returns {Integer}
+         * @example
+         * Class.HashCode() ; for example: 10185408
+         */
+        HashCode() => ObjPtr(this)
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Class
+
+    class Class {
         /**
          * Returns a type-checked `.Hash()` method.
          * 
+         * @returns {Func}
          * @example
          * ObjHash := Object.Hash
-         * 
          * ObjHash("Str") ; Error! Expected an Object.
-         * 
-         * @returns {Func}
          */
-        static Hash => ObjBindMethod(this, "Hash")
+        Hash => ObjBindMethod(this, "Hash")
 
         /**
          * Returns the hash code for zero or more values.
@@ -189,12 +224,12 @@ class AquaHotkey_Hash extends AquaHotkey
          * example:
          * 
          * @example
-         * Integer.Hash(1, 2435, 123, "foo") ; Error! Expected a(n) Integer
+         * Integer.Hash(1, 2435, 123, "foo") ; Error! Expected an Integer.
          * 
          * @param   {Any*}  Values  zero or more values
          * @returns {Integer}
          */
-        static Hash(Values*) {
+        Hash(Values*) {
             static Offset := AquaHotkey_Hash.Offset
             static Prime  := AquaHotkey_Hash.Prime
 
@@ -205,7 +240,7 @@ class AquaHotkey_Hash extends AquaHotkey
                                     Type(Value))
                 }
 
-                Result ^= (IsSet(Value) && Value.Hash())
+                Result ^= (IsSet(Value) && Value.HashCode())
                 Result *= Prime
             }
             return Result
@@ -222,7 +257,7 @@ class AquaHotkey_Hash extends AquaHotkey
          * 
          * @returns {Integer}
          */
-        Hash() => ComValue.Hash(ComObjType(this), ComObjValue(this))
+        HashCode() => ComValue.Hash(ComObjType(this), ComObjValue(this))
     }
 
     ;@endregion

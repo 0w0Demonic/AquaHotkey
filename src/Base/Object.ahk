@@ -48,8 +48,6 @@ class Object {
     ;---------------------------------------------------------------------------
     ;@region DefineProp
 
-    ; TODO return `Value` instead of `this`?
-
     /**
      * Defines a new read-only property by the name of `PropertyName` for this
      * object, which returns a constant `Value`.

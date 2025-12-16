@@ -53,11 +53,8 @@ class Any {
     /**
      * Determines whether this value is equal to the `Other` value.
      * 
-     * If not otherwise overridden, two values `A` and `B` are equal, if...
-     * 
-     * ```ahk
-     * (A = B)
-     * ```
+     * If not otherwise overridden, two values `A` and `B` are
+     * equal, if `A = B`.
      * 
      * In other words, regular (case-insensitive) equality checks are used,
      * unless specified otherwise.
@@ -91,27 +88,7 @@ class Class {
      * Eq(unset, unset)         ; true
      * Eq("foo", "bar")         ; TypeError! Expected a Map.
      */
-    Eq {
-        get {
-            return Eq
-            Eq(A?, B?) {
-                if (!IsSet(A)) {
-                    return (!IsSet(B))
-                } else if (!IsSet(B)) {
-                    return false
-                }
-                if (!(A is this)) {
-                    throw TypeError("Expected a(n) " . this.Prototype.__Class,,
-                            Type(A))
-                }
-                if (!(B is this)) {
-                    throw TypeError("Expected a(n) " . this.Prototype.__Class,,
-                            Type(B))
-                }
-                return (A = B) || A.Eq(B)
-            }
-        }
-    }
+    Eq => (A?, B?) => this.Eq(A?, B?)
     
     /**
      * If called with 1 parameter, determines whether this class is equal to the
@@ -136,7 +113,8 @@ class Class {
             case 2:
                 if (!Args.Has(1)) {
                     return (!Args.Has(2))
-                } else if (!Args.Has(2)) {
+                }
+                if (!Args.Has(2)) {
                     return false
                 }
                 A := Args[1]
@@ -257,19 +235,23 @@ class Object {
             if (ThisProp != OtherProp) {
                 return false
             }
+            ; value of this object prop
             PropDesc := GetProp(this, ThisProp)
-            if (ObjHasOwnProp(PropDesc, "Value")) {
-                ThisValue := PropDesc.Value
-            }
-            PropDesc := GetProp(this, OtherProp)
-            if (ObjHasOwnProp(PropDesc, "Value")) {
-                OtherValue := PropDesc.Value
-            }
+            ThisValue := (ObjHasOwnProp(PropDesc, "Value"))
+                    ? PropDesc.Value
+                    : unset
+            
+            ; value of other object prop
+            PropDesc := GetProp(Other, OtherProp)
+            OtherValue := (ObjHasOwnProp(PropDesc, "Value"))
+                    ? PropDesc.Value
+                    : unset
 
             if (!IsSet(ThisValue)) {
                 if (IsSet(OtherValue)) {
                     return false
                 }
+                ; both are `unset`
                 continue
             }
             if (!IsSet(OtherValue) || !ThisValue.Eq(OtherValue)) {
@@ -286,8 +268,8 @@ class Object {
 
 class ByReference extends AquaHotkey_MultiApply {
     static __New() => super.__New(
-        Buffer, Class, File, Func, Gui, Gui.Control,
-        InputHook, Menu, MenuBar, ComObjArray)
+        Buffer, Class, Error, File, Func, Gui, Gui.Control,
+        InputHook, Menu, MenuBar, RegExMatchInfo, ComObjArray)
 
     /**
      * Determines whether this value is equal to the `Other` value according

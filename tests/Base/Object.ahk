@@ -1,21 +1,17 @@
-/**
- * AquaHotkey - Object.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - tests/Builtins/Object.ahk
- */
 class Object {
     static BindMethod() {
         Arr      := Array()
         ArrPush1 := Arr.BindMethod("Push", 1)
-
         Loop 5 {
             ArrPush1()
         }
-
         Arr.Join(" ").AssertEquals("1 1 1 1 1")
+    }
+
+    static SetBase() {
+        BaseObj := Object
+        Obj := Object().SetBase(BaseObj)
+        HasBase(Obj, BaseObj).AssertEquals(true)
     }
 
     static DefineConstant() {

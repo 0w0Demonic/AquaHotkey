@@ -55,7 +55,7 @@ class Error {
             this.Stack .= "`r`nSpecifically: " . Cause.Extra
         }
         this.Stack .= "`r`n" . Cause.Stack
-        this.DefineProp("Cause", { Value: Cause })
+        this.DefineProp("Cause", { Get: (_) => Cause })
         return this
     }
 
@@ -68,15 +68,15 @@ class Error {
         get => false
         set {
             if (!(this is Error)) {
-                throw TypeError("Expected an Error",, Type(this))
+                throw ValueError("cannot call this method from the prototype")
             }
             if (!(value is Error)) {
-                throw TypeError("Expected an Error",, Type(value))
+                throw TypeError("expected an Error",, Type(value))
             }
             if (!IsSet(value)) {
-                throw UnsetError("Value is unset")
+                throw UnsetError("value is unset")
             }
-            this.DefineProp("Cause", { Value: value })
+            this.DefineProp("Cause", { Get: (_) => value })
         }
     }
 

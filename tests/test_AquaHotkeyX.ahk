@@ -76,6 +76,7 @@ class TestSuite {
     #Include %A_LineFile%/../Base/Array.ahk
     #Include %A_LineFile%/../Base/Comvalue.ahk
     #Include %A_LineFile%/../Base/Eq.ahk
+    #Include %A_LineFile%/../Base/Error.ahk
 
     #Include %A_LineFile%/../Base/Buffer.ahk
     #Include %A_LineFile%/../Base/TypeInfo.ahk

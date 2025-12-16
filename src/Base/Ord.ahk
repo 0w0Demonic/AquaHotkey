@@ -7,7 +7,8 @@
  * precise control over sorting arrays and other collections.
  * 
  * In general, two values can be ordered by using `A.Compare(B)`.
- * This is done with so-called "comparators".
+ * This is done with so-called "comparators". Unset values are **not**
+ * supported.
  * 
  * ---
  * 
@@ -28,6 +29,12 @@
  * 
  * ---
  * 
+ * **<MyClass>.Compare()**:
+ * 
+ * 
+ * 
+ * ---
+ * 
  * **How to Implement**:
  * 
  * - Create a method with the signature `Compare(Other)`
@@ -39,10 +46,19 @@
  * ---
  * 
  * @example
- * ; [1.98, 23, 123, 3455]
+ * ; << easy array sorting >>
+ * ; result: [1.98, 23, 123, 3455]
  * Array(123, 23, 1.98, 3455).Sort(Number.Compare)
  * 
- * Object.Compare(-1, 2) ; Error! Expected an Object.
+ * ; << using `static Compare(A, B)` >>
+ * Number.Compare(-1, 2) ; -1
+ * Object.Compare(Object) ; Error! Class is not comparable.
+ * 
+ * ; << `static Compare()` does type checking >>
+ * Array.Compare(1, 2) ; TypeError! Expected an Array.
+ * 
+ * ; retrieve the comparator function
+ * ArrCompare := Array.Compare
  * 
  * @module  <Base/Ord>
  * @author  0w0Demonic
@@ -129,9 +145,11 @@ class AquaHotkey_Ord extends AquaHotkey {
          * @throws  always
          */
         Compare(Other) {
-            throw TypeError("Unsupported type!",, Type(this))
+            throw TypeError("This type is not comparable",, Type(this))
         }
+    }
 
+    class Class {
         /**
          * Returns a type-checked comparison function.
          * 
@@ -143,7 +161,7 @@ class AquaHotkey_Ord extends AquaHotkey {
          * 
          * @returns {Func}
          */
-        static Compare => ObjBindMethod(this, "Compare")
+        Compare => (A, B) => this.Compare(A, B)
 
         /**
          * Compares two values by order.
@@ -152,12 +170,25 @@ class AquaHotkey_Ord extends AquaHotkey {
          * @param   {Any}  B  second value
          * @returns {Integer}
          */
-        static Compare(A, B) {
-            if ((A is this) && (B is this)) {
+        Compare(Args*) {
+            switch (Args.Length) {
+            case 1:
+                return super.Compare(Args[1])
+            case 2:
+                A := Args[1]
+                B := Args[2]
+                if (!(A is this)) {
+                    throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                            Type(A))
+                }
+                if (!(B is this)) {
+                    throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                            Type(B))
+                }
                 return A.Compare(B)
+            default:
+                throw ValueError("invalid param count: " . Args.Length)
             }
-            throw TypeError("Expected a(n) " . this.Prototype.__Class,,
-                            Type(A) . ", " . Type(B))
         }
     }
 }

@@ -120,8 +120,12 @@ class Eq {
         C().Eq(C()).AssertEquals(true)
     }
 
-    static ComObjArray() {
-        A := ComObjArray(0x08, 8)
+    static ComObjArray_is_by_reference() {
+        Arr() => ComObjArray(0x08, 8)
+
+        A := Arr()
         A.Eq(A).AssertEquals(true)
+
+        Arr().Eq(Arr()).AssertEquals(false)
     }
 }

@@ -35,49 +35,6 @@ class Any {
      * @returns {String}
      */
     ToString() => String(this)
-
-    /**
-     * Returns a type-checked `.ToString()` method for the calling class.
-     * 
-     * @example
-     * Obj_ToStr := Object.ToString
-     * 
-     * Arr := Array(1, 2, 3)
-     * 
-     * MsgBox(String(Arr)) ; "[1, 2, 3]"
-     * 
-     * ; explicitly uses `Object#ToString()`
-     * MsgBox(Obj_ToStr(Arr)) ; "Array { 1: 1, 2: 2, 3: 3 }"
-     * 
-     * @returns {Func}
-     */
-    static ToString => ObjBindMethod(this, "ToString")
-
-    ; TODO allow `unset`?
-
-    /**
-     * Converts the given value into a string.
-     * 
-     * If this method is called from a class other than `Any`, it will
-     * explicitly use the `.ToString()` declared in the class and type-check
-     * its input.
-     * 
-     * @example
-     * Array.ToString([1, 2, 3])  ; "[1, 2, 3]"
-     * Object.ToString([1, 2, 3]) ; "Array { 1: 1, 2: 2, 3: 3 }"
-     * Object.ToString("Test")    ; Error! Expected an Object.
-     * Any.ToString("Test")       ; "Test"
-     * 
-     * @param   {Any}  Value  any value
-     * @returns {String}
-     */
-    static ToString(Value) {
-        if (!(Value is this)) {
-            throw TypeError("Expected a(n) " . this.Prototype.__Class,,
-                            Type(Value))
-        }
-        return (this.Prototype.ToString)(Value)
-    }
 }
 
 ;@endregion
@@ -234,14 +191,64 @@ class Buffer {
 
 class Class {
     /**
-     * Returns the string representation of the class.
-     * 
-     * @example
-     * Gui.ToString() ; "Class Gui"
+     * Returns the string representation of the class if no argument is given.
+     * Otherwise, converts the given value into a string using the `ToString()`
+     * defined in the class calling this method.
      * 
      * @returns {String}
+     * @example
+     * Gui.ToString()             ; "Class Gui"
+     * Object.ToString( [34, 8] ) ; "{ 1: 34, 2: 8 }"
      */
-    ToString() => "Class " . this.Prototype.__Class
+    ToString(Args*) {
+        if (!Args.Length) {
+            return "Class " . this.Prototype.__Class
+        }
+        if (Args.Length != 1) {
+            throw ValueError("invalid param count: " . Args.Length)
+        }
+        Value := Args[1]
+        if (!(Value is this)) {
+            throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                            Type(Value))
+        }
+        return (this.Prototype.ToString)(Value)
+    }
+
+    /**
+     * Returns a type-checked `.ToString()` function.
+     * 
+     * @returns {Func}
+     * @example
+     * ToStr := Array.ToString
+     * 
+     * ToStr([1, 2, 3]) ; "[1, 2, 3]"
+     */
+    ToString => (Value) => this.ToString(Value)
+
+    /**
+     * Converts the given value into a string.
+     * 
+     * If this method is called from a class other than `Any`, it will
+     * explicitly use the `.ToString()` declared in the class and type-check
+     * its input.
+     * 
+     * @example
+     * Array.ToString([1, 2, 3])  ; "[1, 2, 3]"
+     * Object.ToString([1, 2, 3]) ; "Array { 1: 1, 2: 2, 3: 3 }"
+     * Object.ToString("Test")    ; Error! Expected an Object.
+     * Any.ToString("Test")       ; "Test"
+     * 
+     * @param   {Any}  Value  any value
+     * @returns {String}
+     */
+    static ToString(Value) {
+        if (!(Value is this)) {
+            throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                            Type(Value))
+        }
+        return (this.Prototype.ToString)(Value)
+    }
 }
 
 ;@endregion
@@ -260,8 +267,9 @@ class File {
      * @returns {String}
      */
     ToString() {
-        Pattern := "File{{} Name: {}, Pos: {}, Encoding: {}, Handle: {} {}}"
-        return Format(Pattern, this.Name, this.Pos, this.Encoding, this.Handle)
+        return Format("{} {{} Name: {}, Pos: {}, Encoding: {}, Handle: {} {}}",
+                Type(this), this.Name, this.Pos,
+                this.Encoding, this.Handle)
     }
 }
 
@@ -316,17 +324,11 @@ class ComValue {
      * 
      * @returns {String}
      */
-    ToString() {
-        static VT_BSTR := 0x0008
-        VarType := ComObjType(this)
-        if (VarType == VT_BSTR) {
-            Value := '"' . StrGet(ComObjValue(this)) . '"'
-        } else {
-            Value := ComObjValue(this)
-        }
-        return "ComValue { Type: " VarType . ", Value: " . Value . " }"
-    }
+    ToString() => Format("{} {{} Type: {}, Value: {} {}}",
+                         Type(this),
+                         ComObjType(this),
+                         ComObjValue(this))
 } ; class ComValue
-
 ;@endregion
+
 } ; class AquaHotkey_ToString extends AquaHotkey
