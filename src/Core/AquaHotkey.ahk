@@ -958,13 +958,14 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
      * @returns {this}
      */
     static __New(Receivers*) {
+        LogVerbose(Str, Args*) {
+            (AquaHotkey_Ignore.LogVerbose)(this, Str, Args*)
+        }
+
         if (this == AquaHotkey_MultiApply) {
             return
         }
-        (AquaHotkey_Ignore.LogVerbose)(this,
-                "# Multi-Apply Class: {1}",
-                this.Prototype.__Class)
-
+        LogVerbose("# Multi-Apply Class: {1}", this.Prototype.__Class)
         if (!Receivers.Length) {
             throw ValueError("No targets provided")
         }

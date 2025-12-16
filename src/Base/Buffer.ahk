@@ -162,11 +162,16 @@ class AquaHotkey_Buffer extends AquaHotkey
          * Relies on `Buffer.SizeOf(NumType)` to determine the byte size of the
          * AHK number type.
          * 
-         * @param   {String}  NumType  AHK number type
-         * @param   {Number}  Value    value of the number
+         * @param   {String}   NumType  AHK number type
+         * @param   {Number?}  Value    value of the number
          * @returns {Buffer}
+         * @example
+         * Buf := Buffer.OfNumber("Ptr", Ptr)
+         * 
+         * @example
+         * Buf := Buffer.OfNumber("Int64")
          */
-        static OfNumber(NumType, Value) {
+        static OfNumber(NumType, Value := 0) {
             Size := Buffer.SizeOf(NumType)
             Buf := Buffer(Size)
             NumPut(NumType, Value, Buf)

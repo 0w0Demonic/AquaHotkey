@@ -8,40 +8,37 @@
  * 
  * **How to Implement**:
  * 
- * In general, these rules should be followed for things to work correctly:
+ * In general, these rules should apply for things to work correctly:
  * 
- * 1. `A.Eq(A)` is **always** `true` (also `unset.Eq(unset)`)
- * 2. If `A.Eq(B)`, then `B.Eq(A)`
- * 3. If `A.Eq(B)` and `B.Eq(C)`, then `A.Eq(C)`
- * 4. `A.Eq(unset)` is `false`, unless `!IsSet(A)`
- * 5. `A.Eq(B)` should **consistently** return either `true` or `false` when
- *    neither values are being changed.
- * 6. If `A.Hash() == B.Hash()`, it should be **extremely likely** that
- *    `A.Eq(B)`, and vice versa.
+ * 1. `A.Eq(A)` is **always** `true`
+ * 2. `A.Eq(unset)` is **always** `false`
+ * 3. (symmetric) `A.Eq(B)` must equal `B.Eq(A)`
+ * 4. (transitive) if `A.Eq(B)` and `B.Eq(C)`, then `A.Eq(C)`
+ * 5. (consistent) the result of `A.Eq(B)`, when unmodified, must be
+ *    **consistently** either `true` or `false`.
  * 
  * ---
  * 
- * **`Any.Eq(A?, B?)`**:
+ * **Any.Eq(A?, B?)**:
  * 
- * This static method allows you to check two values for equality, even if
- * both of them are `unset`.
+ * Determines whether two values are equal, even if they're both `unset`.
+ * Depending on the class on which this method is called, additional
+ * type checking is performed. For example, `Number.Eq("foo", "bar")` throws
+ * an error because `!("foo" is Number)`.
  * 
- * Calling this method from a subclass (e.g. `Number.Eq()`) will perform
- * additional type checking. For example `Object.Eq(12, 45)` throws an error
- * because objects are expected instead of numbers.
- * 
- * ---
+ * You can retrieve the equality function directly by using `<MyClass>.Eq`.
  * 
  * @example
- * Obj1 := { foo: "bar" }
- * Obj2 := { FOO: "bar" } ; property names are case-insensitive
- * Obj1.Eq(Obj2) ; true (determined by the set of properties and their values)
+ * ({ foo: "bar" }).Eq({ FOO: "BAR" }) ; true
  * 
  * ; (unset == unset)
  * Any.Eq(unset, unset) ; true
  * 
  * ; <Class>.Eq() does type-checking.
- * Object.Eq(123, 45) ; Error! Expected an Object.
+ * Object.Eq(124, 45) ; Error! Expected an Object.
+ * 
+ * ; returns the equality function
+ * MapEquality := Map.Eq ; Eq(Map A?, Map B?) { ... }
  * 
  * @module  <Base/Eq>
  * @author  0w0Demonic
@@ -75,55 +72,87 @@ class Any {
      * @returns {Boolean}
      */
     Eq(Other?) => (IsSet(Other) && (this = Other))
+}
 
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Class
+
+class Class {
     /**
-     * Returns a type-checked `.Eq()` method.
-     * 
-     * This method is type-checked, depending on the calling class. For example:
-     * 
-     * @example
-     * NumberEq := Number.Eq
-     * 
-     * NumberEq(1, 1)         ; true
-     * NumberEq("foo", "bar") ; Error! expected a(n) Integer
+     * Returns a type-checked 2-parameter equality function that supports
+     * `unset` values.
      * 
      * @returns {Func}
-     */
-    static Eq => ObjBindMethod(this, "Eq")
-
-    /**
-     * Determines whether two values `A` and `B` are equal.
-     * 
-     * This method returns `true` whenever...
-     * 
-     * 1. `A` and `B` are both `unset`
-     * 2. `A.Eq(B)`
-     * 
      * @example
-     * Any.Eq("a", "a")     ; true
-     * Any.Eq(unset, unset) ; true
-     * Any.Eq(1, unset)     ; false
+     * Eq := Map.Eq
      * 
-     * @param   {Any?}  A  first value
-     * @param   {Any?}  B  second value
-     * @returns {Boolean}
+     * Eq(Map(1, 2), Map(1, 2)) ; true
+     * Eq(unset, unset)         ; true
+     * Eq("foo", "bar")         ; TypeError! Expected a Map.
      */
-    static Eq(A?, B?) {
-        if (!IsSet(A)) {
-            return !IsSet(B)
-        }
-        if (!(A is this)) {
-            throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+    Eq {
+        get {
+            return Eq
+            Eq(A?, B?) {
+                if (!IsSet(A)) {
+                    return (!IsSet(B))
+                } else if (!IsSet(B)) {
+                    return false
+                }
+                if (!(A is this)) {
+                    throw TypeError("Expected a(n) " . this.Prototype.__Class,,
                             Type(A))
-        }
-        if (!IsSet(B)) {
-            return false
-        }
-        if (!(B is this)) {
-            throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                }
+                if (!(B is this)) {
+                    throw TypeError("Expected a(n) " . this.Prototype.__Class,,
                             Type(B))
+                }
+                return (A = B) || A.Eq(B)
+            }
         }
-        return A.Eq(B)
+    }
+    
+    /**
+     * If called with 1 parameter, determines whether this class is equal to the
+     * other class. Otherwise, determines whether two given values are equal.
+     * 
+     * Type-checking based on the class on which the method is called. This
+     * method supports `unset` values.
+     * 
+     * @param   {Any*}  Args  a class object, or two values
+     * @returns {Boolean}
+     * @example
+     * String.Eq(String) ; regular `Class.Eq(Class)` method
+     * 
+     * String.Eq("foo", "bar") ; false
+     * String.Eq(unset, unset) ; true
+     * String.Eq([1, 2], "")   ; TypeError! Expected a String.
+     */
+    Eq(Args*) {
+        switch (Args.Length) {
+            case 1:
+                return Args.Has(1) && (Args.Pop() = this)
+            case 2:
+                if (!Args.Has(1)) {
+                    return (!Args.Has(2))
+                } else if (!Args.Has(2)) {
+                    return false
+                }
+                A := Args[1]
+                if (!(A is this)) {
+                    throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                            Type(A))
+                }
+                B := Args[2]
+                if (!(B is this)) {
+                    throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                            Type(B))
+                }
+                return (A = B) || A.Eq(B)
+            default:
+                throw ValueError("invalid param count: " . Args.Length)
+        }
     }
 }
 
@@ -151,6 +180,8 @@ class Array {
      * @returns {Boolean}
      */
     Eq(Other?) {
+        static AnyEq := (Any.Eq)
+
         if (!IsSet(Other)) {
             return false
         }
@@ -160,15 +191,24 @@ class Array {
         if (!(Other is Array)) {
             return false
         }
+
         if (this.Length != Other.Length) {
             return false
         }
-
         Enumer1 := this.__Enum(1)
         Enumer2 := Other.__Enum(1)
 
         while (Enumer1(&A) && Enumer2(&B)) {
-            if (!Any.Eq(A?, B?)) {
+            if (!IsSet(A)) {
+                if (IsSet(B)) {
+                    return false
+                }
+                continue
+            }
+            if (!IsSet(B)) {
+                return false
+            }
+            if (!A.Eq(B)) {
                 return false
             }
         }
@@ -186,27 +226,13 @@ class Object {
      * 
      * This happens when `this == Other`, or...
      * 
-     * - `IsObject(Other)`;
-     * - `this` and `Other` share the same set of properties;
-     * - The value of these properties is equal. More specifically, the property
-     *   produced either by the property descriptor's `Value` or 0-param `Get`
-     *   function.
-     * 
-     * Depending on the size of the object, this method is relatively expensive.
-     * You should generally override this method to get much more consistent
-     * results.
-     * 
-     * @example
-     * Obj1 := { Foo: "bar" }
-     * Obj2 := { Foo: "bar" }
-     * 
-     * MsgBox(Obj1 == Obj2) ; false
-     * Obj1.Eq(Obj2)        ; true
-     * 
-     * @param   {Any?}  Other  any value
-     * @returns {Boolean}
+     * - `ObjGetBase(this) == ObjGetBase(Other)`
+     * - `this` and `Other` share the same set of properties
+     * - properties with `Value` descriptor are equal (`.Eq()`)
      */
     Eq(Other?) {
+        static GetProp := ({}.GetOwnPropDesc)
+
         if (!IsSet(Other)) {
             return false
         }
@@ -216,73 +242,40 @@ class Object {
         if (!IsObject(Other)) {
             return false
         }
-
-        ThisObj := this
-        Checked := Map()
-        Checked.CaseSense := false
-
-        loop {
-            OtherObj := Other
-            for PropertyName in ObjOwnProps(ThisObj) {
-                if (Checked.Has(PropertyName)) {
-                    continue
-                }
-                if (!HasProp(OtherObj, PropertyName)) {
-                    return false
-                }
-
-                ; value of this property
-                PropDesc := ({}.GetOwnPropDesc)(ThisObj, PropertyName)
-                if (ObjHasOwnProp(PropDesc, "Value")) {
-                    ThisValue := PropDesc.Value
-                } else if (ObjHasOwnProp(PropDesc, "Get")) {
-                    try ThisValue := (PropDesc.Get)(this)
-                }
-
-                ; value of other property
-                while (!ObjHasOwnProp(OtherObj, PropertyName)) {
-                    OtherObj := ObjGetBase(OtherObj)
-                }
-                PropDesc := ({}.GetOwnPropDesc)(OtherObj, PropertyName)
-                if (ObjHasOwnProp(PropDesc, "Value")) {
-                    OtherValue := PropDesc.Value
-                } else if (ObjHasOwnProp(PropDesc, "Get")) {
-                    try OtherValue := (PropDesc.Get)(Other)
-                }
-
-                ; equality check
-                if (!Any.Eq(ThisValue?, OtherValue?)) {
-                    return false
-                }
-
-                Checked.Set(PropertyName, true)
-            }
-            
-            if (ThisObj == Any.Prototype) {
-                break
-            }
-            ThisObj := ObjGetBase(ThisObj)
+        if (ObjGetBase(this) != ObjGetBase(Other)) {
+            return false
+        }
+        
+        if (ObjOwnPropCount(this) != ObjOwnPropCount(Other)) {
+            return false
         }
 
-        ; check whether `Other` has properties which are absent in `this`
-        OtherObj := Other
-        loop {
-            for PropertyName in ObjOwnProps(OtherObj) {
-                if (Checked.Has(PropertyName)) {
-                    continue
-                }
-                if (!HasProp(this, PropertyName)) {
+        ThisEnumer := ObjOwnProps(this)
+        OtherEnumer := ObjOwnProps(Other)
+
+        while (ThisEnumer(&ThisProp) && OtherEnumer(&OtherProp)) {
+            if (ThisProp != OtherProp) {
+                return false
+            }
+            PropDesc := GetProp(this, ThisProp)
+            if (ObjHasOwnProp(PropDesc, "Value")) {
+                ThisValue := PropDesc.Value
+            }
+            PropDesc := GetProp(this, OtherProp)
+            if (ObjHasOwnProp(PropDesc, "Value")) {
+                OtherValue := PropDesc.Value
+            }
+
+            if (!IsSet(ThisValue)) {
+                if (IsSet(OtherValue)) {
                     return false
                 }
-                Checked.Set(PropertyName, true)
+                continue
             }
-
-            if (OtherObj == Any.Prototype) {
-                return true
+            if (!IsSet(OtherValue) || !ThisValue.Eq(OtherValue)) {
+                return false
             }
-            OtherObj := ObjGetBase(OtherObj)
         }
-
         return true
     }
 }
@@ -294,8 +287,7 @@ class Object {
 class ByReference extends AquaHotkey_MultiApply {
     static __New() => super.__New(
         Buffer, Class, File, Func, Gui, Gui.Control,
-        InputHook, Menu, MenuBar
-    )
+        InputHook, Menu, MenuBar, ComObjArray)
 
     /**
      * Determines whether this value is equal to the `Other` value according

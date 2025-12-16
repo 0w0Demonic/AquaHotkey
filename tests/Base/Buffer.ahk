@@ -18,8 +18,10 @@ class Buffer {
 
     static FromMemory() {
         Str := "foo"
-        Fn := (Cls) => Cls.FromMemory(StrPtr(Str), StrPut(Str)).GetString()
-                                .AssertEquals(Str)
+        Fn := (Cls) => Cls.FromMemory(StrPtr(Str), StrPut(Str))
+            .GetString()
+            .AssertEquals(Str)
+
         Fn(Buffer)
         Fn(ClipboardAll)
     }

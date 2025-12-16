@@ -74,7 +74,7 @@ class ComValue {
             ; - ComObjArray.BSTR(3) => ComObjArray(0x0008, 3)
             Define(ComObjArray, Name, {
                 Get:  Constant(Name_ComObjArray, Name, Value | ARRAY),
-                Call: ArrConstructor(Name_ComObjArray, Name, Value | ARRAY)})
+                Call: ArrConstructor(Name_ComObjArray, Name, Value)})
         }
 
         static Constant(ClassName, VarName, VarType) {
@@ -137,6 +137,12 @@ class ComValue {
 ;@region ComValueRef
 
 class ComValueRef {
+    ; just reuse the existing `__Item[]` getter instead of wrapping
+    static __New() => ({}.DefineProp)(
+        this.Prototype,
+        "Get",
+        { Call: ({}.GetOwnPropDesc)(ComValueRef.Prototype, "__Item").Get })
+
     /**
      * Gets the value contained by this `ComValueRef`.
      * 

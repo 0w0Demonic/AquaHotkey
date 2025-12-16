@@ -6,7 +6,16 @@
 
 class TestSuite {
     static __New() {
-        Output := "TESTS: AutoHotkey " . A_AHKVersion . "`n" . "-".Repeat(60) . "`n"
+        ToolTip("running...")
+
+        Output := Format("
+        (
+        TESTS: AutoHotkey {1}
+
+        {2}
+        ------------------------------------------------------------
+
+        )", A_AhkVersion, FormatTime(unset, "yyyy/MM/dd HH:mm:ss"))
 
         for ClsName in ObjOwnProps(this) {
             if (ClsName ~= "^__") {
@@ -32,7 +41,9 @@ class TestSuite {
             Output .= "=".Repeat(60) . "`n"
         }
 
-        Output.ToClipboard()
+        FileOpen(A_LineFile . "\..\result.txt", "w").Write(Output)
+        Sleep(400)
+        ExitApp()
 
         static FormatTestResult(Function, Successful, E?) {
             StartIndex    := InStr(Function.Name, ".") + 1
@@ -62,15 +73,18 @@ class TestSuite {
         }
     }
 
-    #Include %A_LineFile%/../Builtins/Array.ahk
-    #Include %A_LineFile%/../Builtins/Buffer.ahk
-    #Include %A_LineFile%/../Builtins/TypeInfo.ahk
+    #Include %A_LineFile%/../Base/Array.ahk
+    #Include %A_LineFile%/../Base/Comvalue.ahk
+    #Include %A_LineFile%/../Base/Eq.ahk
 
-    #Include %A_LineFile%/../Builtins/Func.ahk
-    #Include %A_LineFile%/../Builtins/Map.ahk
-    #Include %A_LineFile%/../Builtins/Object.ahk
-    #Include %A_LineFile%/../Builtins/String.ahk
-    #Include %A_LineFile%/../Builtins/VarRef.ahk
+    #Include %A_LineFile%/../Base/Buffer.ahk
+    #Include %A_LineFile%/../Base/TypeInfo.ahk
+
+    #Include %A_LineFile%/../Base/Func.ahk
+    #Include %A_LineFile%/../Base/Map.ahk
+    #Include %A_LineFile%/../Base/Object.ahk
+    #Include %A_LineFile%/../Base/String.ahk
+    #Include %A_LineFile%/../Base/VarRef.ahk
     
     #Include %A_LineFile%/../Extensions/Stream.ahk
     #Include %A_LineFile%/../Extensions/Optional.ahk

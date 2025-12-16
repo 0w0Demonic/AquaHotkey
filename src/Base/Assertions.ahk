@@ -45,6 +45,7 @@ class Any {
         throw TypeError("expected type " . T.Prototype.__Class, -2, Type(this))
     }
 
+    ; TODO integrate with `AquaHotkey_Eq?`
     /**
      * Asserts that this variable is case-insensitive equal to `Other`.
      * Otherwise, a `ValueError` is thrown.
