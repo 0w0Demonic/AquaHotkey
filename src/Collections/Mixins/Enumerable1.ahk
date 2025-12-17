@@ -1,5 +1,6 @@
 
 /**
+ * Mixin class for types that can be enumeraed.
  */
 class Enumerable1 {
     /**
@@ -15,23 +16,30 @@ class Enumerable1 {
         for Value in this {
             Action(Value?, Args*)
         }
-    }
-
-    ; TODO let stream handle this?
-
-    /**
-     * 
-     */
-    Map(Mapper) {
-        
+        return this
     }
 
     /**
+     * Collects all elements into an array.
      * 
+     * @returns {Array}
+     * @example
      */
     ToArray() => Array(this*)
 
-    ; TODO make this optional
+    /**
+     * 
+     */
+    To(T) => T(this*)
+
+    /**
+     * 
+     */
+    Stream() => (Stream?)(this*)
+
+
+    ; TODO let stream handle this?
+
     ToSet() {
 
     }
@@ -78,6 +86,10 @@ class Enumerable1 {
 
     /**
      * 
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments
+     * @returns {Boolean}
      */
     All(Condition, Args*) {
         for Value in this {
@@ -91,6 +103,9 @@ class Enumerable1 {
     ; TODO mix this with Collector API?
     /**
      * 
+     * 
+     * @param   {Func}  Coll  collector that receives elements
+     * @returns {Any}
      */
     Collect(Coll) {
         GetMethod(Coll)

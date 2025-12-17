@@ -35,7 +35,7 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
 
         ; TODO return type?
         /**
-         * Returns the chain of bases of this value, include the value itself.
+         * Returns the chain of bases of this value, including the value itself.
          * 
          * @readonly
          * @returns {Array}

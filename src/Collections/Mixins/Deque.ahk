@@ -34,14 +34,4 @@ class Deque {
             return true
         }
     }
-
-    ; TODO what kind of equality?
-
-    Find() {
-
-    }
-
-    FindIndex() {
-
-    }
 }

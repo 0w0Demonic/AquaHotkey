@@ -87,7 +87,7 @@ To get started, clone this repository and (preferably) put it in one of the
 AutoHotkey [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib).
 
 ```ahk
-#Requires AutoHotkey >=v2.0.5 <v2.2
+#Requires AutoHotkey v2
 #Include <AquaHotkey>
 ; #Include path/to/AquaHotkey.ahk
 ```
