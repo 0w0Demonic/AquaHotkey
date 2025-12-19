@@ -10,14 +10,6 @@
 class AquaHotkey_Primitive extends AquaHotkey {
 class Primitive {
     /**
-     * Returns itself. This method allows you to call `.Clone()` on every
-     * single type (except for e.g. `ComObject`).
-     * 
-     * @returns {Primitive}
-     */
-    Clone() => this
-
-    /**
      * Outputs the value as text inside a message box.
      * 
      * @example

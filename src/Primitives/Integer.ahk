@@ -13,21 +13,21 @@ class Integer {
      * Returns the hexadecimal representation of the string.
      * 
      * @example
-     * (255).ToHexString() ; "FF"
+     * (255).Hex() ; "FF"
      * 
      * @returns {String}
      */
-    ToHexString() => Format("{:x}", this)
+    Hex() => Format("{:x}", this)
 
     /**
      * Returns the binary representation of the string.
      * 
      * @example
-     * (32).ToBinaryString() ; "100000"
+     * (32).Bin() ; "100000"
      * 
      * @returns {String}
      */
-    ToBinaryString() {
+    Bin() {
         Buf := Buffer(64)
         x := this
         i := 63

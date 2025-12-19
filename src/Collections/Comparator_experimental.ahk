@@ -1,73 +1,107 @@
+#Include <AquaHotkey>
+#Include <AquaHotkey\src\Func\Cast>
+
 /**
  * 
  */
 class Comparator extends Func {
-    static Call(Fn) => this.Cast(ObjBindMethod(Fn))
-
-    static Cast(Fn) {
-        Fn := ObjBindMethod(Fn)
-        ObjSetBase(Fn, this.Prototype)
-        return Fn
-    }
-
     static Num => this.Num()
 
     static Num(Mapper?, Args*) {
-        
+        Comp := this((A, B) => (A > B) - (B > A))
+        if (!IsSet(Mapper)) {
+            return Comp
+        }
+        return Comp.By(Mapper, Args*)
     }
 
     static Alpha => this.Alpha()
 
     static Alpha(CaseSense := false, Mapper?, Args*) {
+        StrComp(A, B) => StrCompare(A, B, CaseSense)
 
+        if (IsObject(CaseSense)) {
+            throw TypeError("Expected a String or an Integer",, Type(CaseSense))
+        }
+        this.Cast(StrComp)
+        if (!IsSet(Mapper)) {
+            return StrComp
+        }
+        return StrComp.By(Mapper)
     }
 
-    By() {
+    By(Mapper) {
+        Comp(A?, B?) => this(Mapper(A?), Mapper(B?))
 
+        GetMethod(Mapper)
+        ObjSetBase(Comp, ObjGetBase(this))
+        return Comp
     }
 
-    Then() {
+    Then(Other) {
+        Comp(A?, B?) => this(A?, B?) || Other(A?, B?)
 
+        GetMethod(Other)
+        ObjSetBase(Comp, ObjGetBase(this))
+        return Comp
     }
 
-    ThenNum() {
-
-    }
-
-    ThenAlpha() {
-
-    }
+    ThenNum()   => this.Then(this.Num())
+    ThenAlpha() => this.Then(this.Alpha())
 
     Rev() {
-
+        Comp(A?, B?) => this(B?, A?)
+        ObjSetBase(Comp, ObjGetBase(this))
+        ({}.DefineProp)(Comp, "Rev", {
+            Call: (_) => this
+        })
+        return Comp
     }
 
     NullFirst() {
-
+        Comp(A?, B?) {
+            if (IsSet(A)) {
+                if (IsSet(B)) {
+                    return this(A?, B?)
+                }
+                return 1
+            }
+            if (IsSet(B)) {
+                return -1
+            }
+            return 0
+        }
+        ObjSetBase(Comp, ObjGetBase(this))
+        return Comp
     }
 
     NullLast() {
-        
+        Comp(A?, B?) {
+            if (IsSet(A)) {
+                if (IsSet(B)) {
+                    return this(A?, B?)
+                }
+                return -1
+            }
+            if (IsSet(B)) {
+                return 1
+            }
+            return 0
+        }
+        ObjSetBase(Comp, ObjGetBase(this))
+        return Comp
     }
 }
 
-NumberCompare(A, B) => (A > B) - (B > A)
-
-Comp := Comparator(NumberCompare)
-
-Comparator.Cast(StrCompare)
-
-MsgBox(Comp(1, 2))
-
 class AquaHotkey_Comparator extends AquaHotkey {
-    static __New() {
-        ObjSetBase(StrCompare, Comparator.Prototype)
-        ObjSetBase(NumberCompare, Comparator.Prototype)
-    }
-
     class StrCompare {
-        static Locale => Comparator(ObjBindMethod(this,,, "Locale"))
-        static CS     => Comparator(ObjBindMethod(this,,, true))
-        static CI     => Comparator(ObjBindMethod(this,,, false))
+        static Locale => Comparator((A, B) => this(A, B, "Locale"))
+        static Locale(A, B) => this(A, B, "Locale")
+
+        static CS => Comparator((A, B) => this(A, B, true))
+        static CS(A, B) => this(A, B, true)
+
+        static CI => Comparator((A, B) => this(A, B, false))
+        static CI(A, B) => this(A, B, false)
     }
 }

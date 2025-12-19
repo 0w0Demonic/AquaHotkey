@@ -136,13 +136,24 @@ class AquaHotkey extends AquaHotkey_Ignore
      * }
      */
     static __New() {
+        static GetProp(Obj, Name) => ({}.GetOwnPropDesc)(Obj, Name)
+
         Log(Str, Args*) => (AquaHotkey_Ignore.Log)(this, Str, Args*)
         Log("# Extension Class: {1}", this.Prototype.__Class)
 
         Classes := Array()
 
-        for PropertyName in ObjOwnProps(this) {
-            try Supplier := this.%PropertyName%
+        for PropertyName in ObjOwnProps(this)
+        {
+            PropDesc := ({}.GetOwnPropDesc)(this, PropertyName)
+            switch {
+                case (ObjHasOwnProp(PropDesc, "Value")):
+                    Supplier := PropDesc.Value
+                case (ObjHasOwnProp(PropDesc, "Get")):
+                    try Supplier := (PropDesc.Get)(this)
+                default:
+                    Supplier := unset
+            }
             if (!IsSet(Supplier) || !(Supplier is Class)) {
                 continue
             }
@@ -488,6 +499,10 @@ class AquaHotkey_Ignore
      * this.Delete("Prototype.Eq")
      */
     static Delete(PropertyPaths*) {
+        static BadProp(PropertyName) {
+            throw Error("Unable to retrieve property", -2, PropertyName)
+        }
+
         Log(Str, Args*) => (AquaHotkey_Ignore.Log)(this, Str, Args*)
 
         if (!PropertyPaths.Length) {
@@ -504,8 +519,21 @@ class AquaHotkey_Ignore
             Props := StrSplit(PropertyPath, ".")
             Name := Props.Pop()
             Obj := this
+
             for Prop in Props {
-                Obj := Obj.%Prop%
+                PropDesc := ({}.GetOwnPropDesc)(Obj, Prop)
+                switch {
+                    case (ObjHasOwnProp(PropDesc, "Value")):
+                        Obj := PropDesc.Value
+                    case (ObjHasOwnProp(PropDesc, "Get")):
+                        try {
+                            Obj := (PropDesc.Get)(Obj)
+                        } catch {
+                            BadProp(Prop)
+                        }
+                    default:
+                        BadProp(Prop)
+                }
             }
             ({}.DeleteProp)(Obj, Name)
         }
@@ -728,6 +756,28 @@ class AquaHotkey_Ignore
             return Result
         }
 
+        /**
+         * Returns the from an object's property.
+         * 
+         * @param   {Object}  Obj   an object
+         * @param   {String}  Name  name of the property
+         * @returns {Boolean}
+         */
+        static GetValueOfProp(Obj, PropertyName) {
+            Out := unset
+            PropDesc := GetPropDesc(Obj, PropertyName)
+            switch {
+                case (ObjHasOwnProp(PropDesc, "Value")):
+                    return PropDesc.Value
+
+                case (ObjHasOwnProp(PropDesc, "Get")):
+                    return (PropDesc.Get)(Obj)
+                
+                default:
+                    throw UnsetError()
+            }
+        }
+
         Log(Str, Args*) {
             (AquaHotkey_Ignore.Log)(this, Str, Args*)
         }
@@ -841,7 +891,12 @@ class AquaHotkey_Ignore
             }
 
             DoRecursion := false
-            try DoRecursion := (Supplier.%Name% is Class)
+            PropDesc := GetPropDesc(Supplier, Name)
+            if (ObjHasOwnProp(PropDesc, "Value")) {
+                DoRecursion := (PropDesc.Value is Class)
+            } else if ObjHasOwnProp(Supplier, "Get") {
+                try DoRecursion := ((PropDesc.Get)(Supplier) is Class)
+            }
 
             if (!DoRecursion) {
                 LogVerbose("      > {1}", Name)
@@ -849,18 +904,18 @@ class AquaHotkey_Ignore
                 continue
             }
 
-            NestedSupplier     := Supplier.%Name%
+            NestedSupplier := GetValueOfProp(Supplier, Name)
             NestedSupplierName := NestedSupplier.Prototype.__Class
             NestedReceiverName := ReceiverName . "." . Name
 
             LogVerbose("      nested class... {1}", Name)
 
             if (ObjHasOwnProp(Receiver, Name)) {
-                NestedReceiver := Receiver.%Name%
+                NestedReceiver := GetValueOfProp(Receiver, Name)
                 if (NestedReceiver is Class) {
                     LogVerbose("      recurse into existing: {1}",
                                NestedReceiverName)
-                    Apply(NestedSupplier, Receiver.%Name%)
+                    Apply(NestedSupplier, NestedReceiver)
                     continue
                 } else {
                     LogVerbose("      overwriting existing class: {1}",
@@ -880,16 +935,6 @@ class AquaHotkey_Ignore
                        NestedReceiverName)
 
             Apply(NestedSupplier, NestedReceiver)
-        }
-
-        ;@endregion
-        ;-----------------------------------------------------------------------
-        ;@region Mixin
-
-        LogVerbose("    # Mixins")
-        if (!(Receiver is Class)) {
-            LogVerbose("      ignore - not a class")
-            return
         }
 
         ;@endregion

@@ -1,19 +1,15 @@
 ;@region Combiner
+
 /**
- * AquaHotkey - Combiner.ahk
+ * A function that combines two values into one.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - Extensions/Collector.ahk
- * 
- * ---
- * 
- * Utility class for functions that reduce or combine two values into one.
- * Suitable for reducers and custom stream-like logic.
+ * @module  <Func/Combiner>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class Combiner {
+class Combiner extends Func {
     ;@region General
+
     /**
      * Returns the smaller of two values through a custom comparator.
      * @param   {Comparator}  Comp  the comparator to use
