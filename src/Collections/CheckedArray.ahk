@@ -1,14 +1,44 @@
+#Requires AutoHotkey >=v2.1-alpha.3
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
-class CheckedArray extends Array
-{
+/**
+ * Allows the use of type-checked arrays with an intuitive syntax.
+ * 
+ * At its core, calling `__Item[]` on a class (e.g. `Integer[]`) will return
+ * its "array class", i.e. a subclass of `CheckedArray` which asserts that an
+ * element `is <Class>` when it's added to the array.
+ * 
+ * Elements can be further constrained by passing a validation function
+ * between the square brackets.
+ * 
+ * @module  <Collections/CheckedArray>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * 
+ * @example
+ * NonNull(Val?) => IsSet(Val?)
+ * 
+ * StrArray := String[NonNull]("foo", "bar")
+ * MsgBox(StrArray is String[NonNull]) ; true
+ * 
+ * StrArray.Push([1, 2, 3]) ; Error! Expected a string.
+ * StrArray.Push(unset)     ; Error! Failed assertion (NonNull)
+ */
+class CheckedArray extends Array {
+    /**
+     * Constructs a new subclass of `CheckedArray`.
+     * 
+     * @param   {Class}  T           the type to be checked
+     * @param   {Func?}  Constraint  additional constraint to enforce
+     * @example
+     * 
+     * ; array class containing only strings
+     * StringArray := String[]
+     * 
+     * ; array class that allows all data types, but not `unset`
+     * Any[(V?) => IsSet(V)]
+     */
     static __New(T?, Constraint?) {
-        static Define := ({}.DefineProp)
-        static DefineMethod(Obj, Name, Fn) {
-            GetMethod(Fn)
-            Define(Obj, Name, { Call: Fn })
-        }
-
         if (this == CheckedArray) {
             return
         }
@@ -23,10 +53,11 @@ class CheckedArray extends Array
 
         if (IsSet(Constraint)) {
             GetMethod(Constraint)
-            DefineMethod(Proto, "Check", TypeCheckWithConstraint)
+            Fn := TypeCheckWithConstraint
         } else {
-            DefineMethod(Proto, "Check", TypeCheck)
+            Fn := TypeCheck
         }
+        ({}.DefineProp)(Proto, "Check", { Call: Fn })
 
         TypeCheck(_, Val?) {
             if (IsSet(Val) && !(Val is T)) {
@@ -47,6 +78,11 @@ class CheckedArray extends Array
         }
     }
 
+    /**
+     * Creates a new array with additional checking.
+     * 
+     * @param   {Any*}  Values  zero or more values
+     */
     __New(Values*) {
         for Value in Values {
             this.Check(Value?)
@@ -54,10 +90,24 @@ class CheckedArray extends Array
         super.__New(Values*)
     }
 
+    /**
+     * Determines whether the given value is a valid array element.
+     * 
+     * This method should be overridden by subclasses.
+     * 
+     * @abstract
+     * @param   {Any?}  Val   the value
+     * @returns {Boolean}
+     */
     Check(Val?) {
         ; nop
     }
 
+    /**
+     * Pushes zero or more elements to the array with additional checking.
+     * 
+     * @param   {Any*}  Values  zero or more values to be pushed
+     */
     Push(Values*) {
         for Value in Values {
             this.Check(Value?)
@@ -65,6 +115,12 @@ class CheckedArray extends Array
         return super.Push(Values*)
     }
 
+    /**
+     * Inserts elements into the array at the given index.
+     * 
+     * @param   {Integer}  Idx     index at which to insert
+     * @param   {Any*}     Values  the values to be inserted
+     */
     InsertAt(Idx, Values*) {
         for Value in Values {
             this.Check(Value?)
@@ -72,21 +128,78 @@ class CheckedArray extends Array
         return super.InsertAt(Idx, Values*)
     }
 
-    __Item[Key] {
+    /**
+     * Sets a value in the array.
+     * 
+     * @param   {Integer}  Index  array index
+     * @param   {Any?}     value  the new value
+     */
+    __Item[Index] {
         set {
-            this.Check(value)
-            super[Key] := value
+            if (IsSet(value)) {
+                this.Check(value)
+                super[Index] := value
+            } else {
+                this.Check(unset)
+                super[Index] := unset
+            }
         }
+    }
+
+    /**
+     * Deletes an item from the array, returning the previously contained
+     * value.
+     * 
+     * @param   {Integer}  Index  a valid array index
+     * @returns {Any}
+     */
+    Delete(Index) {
+        this.Check(unset)
+        return super.Delete(Index)
     }
 }
 
-class AquaHotkey_Verbose {
+class AquaHotkey_CheckedArray extends AquaHotkey {
+    static __New() {
+        if (this != AquaHotkey_CheckedArray) {
+            return
+        }
 
-}
+        ; alias Class#ArrayType and Any.__Item
+        ({}.DefineProp)(this.Class.Prototype, "ArrayType",
+                ({}.GetOwnPropDesc)(this.Any, "__Item"))
+        
+        super.__New()
+    }
 
-class AquaHotkey_CheckedArray extends AquaHotkey
-{
+    class Class {
+        /**
+         * Returns the "array class" of this class.
+         * 
+         * @returns {Class}
+         * @example
+         * Integer.ArrayType ; class Integer[]
+         */
+        ArrayType {
+            get {
+                ; (Any) static __Item[]
+            }
+        }
+    }
+
     class Any {
+        /**
+         * Returns the "array class" of this class.
+         * 
+         * @param   {Func?}  Constraint  additional validation function
+         * @returns {Class}
+         * @example
+         * ArrClass := Number[]
+         * Arr := ArrClass(23, 1, 45)
+         * 
+         * ; shorthand
+         * Number[](23, 1, 45)
+         */
         static __Item[Constraint?] {
             get {
                 static NONE := false
@@ -123,39 +236,18 @@ class AquaHotkey_CheckedArray extends AquaHotkey
     }
 
     class Array {
-        static Of(T) {
+        /**
+         * Returns a type-checked array class.
+         * 
+         * @param   {Class}  T           type of elements contained in the array
+         * @param   {Func?}  Constraint  additional validation function
+         * @returns {Class<? extends CheckedArray>}
+         */
+        static Of(T, Constraint?) {
             if (!(T is Class)) {
                 throw TypeError("Expected a Class",, Type(T))
             }
-            return T[]
+            ArrayClass := T[Constraint?]
         }
-
-        static Checked(Constraint) {
-            GetMethod(Constraint)
-            return Any[Constraint]
-        }
-    }
-
-    static __New() {
-        this.RequiresVersion(">v2.1-alpha.3", "Any")
-        super.__New()
     }
 }
-
-; our "constraint" which all elements must fulfill
-NonNull(Val?) => (IsSet(Val))
-
-; an array of strings, in which elements *must* have a value
-; (as specified by `NonNull`)
-StringArray := String[NonNull]
-
-; create a new array of non-null strings
-Arr := StringArray("value 1", "value 2")
-
-; alternatively just do this directly
-Arr := String[NonNull]("value 1", "value2")
-
-; yup, this also works.
-MsgBox(Arr is String[NonNull])
-
-Arr.Push(unset) ; Error! failed assertion (NonNull).
