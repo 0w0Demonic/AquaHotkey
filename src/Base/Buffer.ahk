@@ -9,28 +9,9 @@
  */
 class AquaHotkey_Buffer extends AquaHotkey
 {
-    ;---------------------------------------------------------------------------
-    ;@region static __New()
-    static __New() {
-        static Define      := ({}.DefineProp)
-        static GetPropDesc := ({}.GetOwnPropDesc)
-        if (this != AquaHotkey_Buffer) {
-            return
-        }
-        for Name in Array("Zero", "OfString", "OfNumber", "FromFile") {
-            Define(this.ClipboardAll, Name, GetPropDesc(this.Buffer, Name))
-        }
-        super.__New()
-    }
-    ;@endregion
-    ;---------------------------------------------------------------------------
     ;@region Buffer
     class Buffer {
-
         ;@region AHK Number Types
-
-        ; TODO move this somewhere else?
-
         /**
          * Returns the size of the AHK number type in bytes.
          * 
@@ -38,11 +19,11 @@ class AquaHotkey_Buffer extends AquaHotkey
          * @returns {Integer}
          */
         static SizeOf(NumType) {
+            ; TODO move this somewhere else?
             static NumTypes := Init()
             static Init() {
                 M := Map()
                 M.CaseSense := false
-                M.Default := false
 
                 Int("Char",   1)
                 Int("Short",  2)
@@ -69,7 +50,7 @@ class AquaHotkey_Buffer extends AquaHotkey
             if (IsObject(NumType)) {
                 throw TypeError("Expected a String",, Type(NumType))
             }
-            Result := NumTypes.Get(NumType)
+            Result := NumTypes.Get(NumType, false)
             if (!Result) {
                 throw ValueError("Invalid number type",, NumType)
             }
@@ -83,27 +64,28 @@ class AquaHotkey_Buffer extends AquaHotkey
         /**
          * Creates a Buffer from memory.
          * 
-         * @param   {Integer}  Ptr     the address of the binary data
-         * @param   {Integer}  Length  the number of bytes
+         * @param   {Integer}  Ptr   the address of the binary data
+         * @param   {Integer}  Size  the number of bytes
          * @returns {Buffer}
          * @example
          * Buffer.FromMemory(StrPtr("foo"), StrPut("foo"))
          */
-        static FromMemory(Ptr, Length) {
+        static FromMemory(Ptr, Size) {
             if (!IsInteger(Ptr)) {
                 throw TypeError("Expected an Integer",, Type(Ptr))
             }
-            if (!IsInteger(Length)) {
-                throw TypeError("Expected an Integer",, Type(Length))
+            if (!IsInteger(Size)) {
+                throw TypeError("Expected an Integer",, Type(Size))
             }
+
             if ((this == ClipboardAll) || HasBase(this, ClipboardAll)) {
-                Buf := ClipboardAll(Ptr, Length)
+                Buf := ClipboardAll(Ptr, Size)
             } else {
-                Buf := Buffer(Length)
+                Buf := Buffer(Size)
                 DllCall("RtlCopyMemory",
                         "Ptr", Buf.Ptr,
                         "Ptr", Ptr,
-                        "UPtr", Length)
+                        "UPtr", Size)
             }
             ObjSetBase(Buf, this.Prototype)
             return Buf
@@ -135,17 +117,6 @@ class AquaHotkey_Buffer extends AquaHotkey
          * @returns {Buffer}
          */
         static OfString(Str, Encoding := "UTF-16") {
-            if (IsObject(Str)) {
-                throw TypeError("Expected a String, but received an Object",,
-                                Type(Str))
-            }
-            ; StrPut(Str, Encoding?) causes some weird issues, need to
-            ; explicitly check `IsSet(Encoding)`.
-
-            if (IsObject(Encoding)) {
-                throw TypeError("Expected a String or an Integer",,
-                                Type(Encoding))
-            }
             Size := StrPut(Str, Encoding)
             Buf := Buffer(Size)
             StrPut(Str, Buf, Encoding)
@@ -167,8 +138,6 @@ class AquaHotkey_Buffer extends AquaHotkey
          * @returns {Buffer}
          * @example
          * Buf := Buffer.OfNumber("Ptr", Ptr)
-         * 
-         * @example
          * Buf := Buffer.OfNumber("Int64")
          */
         static OfNumber(NumType, Value := 0) {
@@ -190,12 +159,6 @@ class AquaHotkey_Buffer extends AquaHotkey
          * @returns {Buffer}
          */
         static FromFile(FilePath, Encoding := A_FileEncoding) {
-            if (IsObject(FilePath)) {
-                throw TypeError("Expected a file path",, Type(FilePath))
-            }
-            if (!FileExist(FilePath)) {
-                throw TargetError("File not found",, FilePath)
-            }
             Buf := FileRead(FilePath, "RAW")
             if ((this == ClipboardAll) || HasBase(this, ClipboardAll)) {
                 Buf := ClipboardAll(Buf)
@@ -211,14 +174,15 @@ class AquaHotkey_Buffer extends AquaHotkey
         ; setup for Get<NumType>/Put<NumType> methods
         static __New() {
             static Define := ({}.DefineProp)
+
             Proto := this.Prototype
             for T in Array(
                     "Char", "UChar", "Short", "UShort",
                     "Int", "UInt", "Int64", "UInt64",
                     "Float", "Double", "Ptr", "UPtr")
             {
-                Define(Proto, "Get" . T, { Call: Get.Bind(unset, T) })
-                Define(Proto, "Put" . T, { Call: Put.Bind(unset, T) })
+                Define(Proto, "Get" . T, { Call: ObjBindMethod(Get,,, T) })
+                Define(Proto, "Put" . T, { Call: ObjBindMethod(Put,,, T) })
             }
 
             static Get(Buf, NumType, Offset := 0) {
@@ -264,10 +228,6 @@ class AquaHotkey_Buffer extends AquaHotkey
             if (Offset >= this.Size) {
                 throw TypeError("Invalid offset for size " . this.Size,, Offset)
             }
-            if (IsObject(Encoding)) {
-                throw TypeError("Expected a String or an Integer",,
-                                Type(Encoding))
-            }
             return StrGet(this.Ptr + Offset, this.Size - Offset - 1, Encoding)
         }
 
@@ -280,19 +240,12 @@ class AquaHotkey_Buffer extends AquaHotkey
          * @returns {this}
          */
         PutString(Str, Offset := 0, Encoding := "UTF-16") {
-            if (IsObject(Str)) {
-                throw TypeError("Expected a String",, Type(Str))
-            }
             if (!IsInteger(Offset)) {
-                throw TypeError("Expected an Integer",, Type(Str))
+                throw TypeError("Expected an Integer",, Type(Offset))
             }
             if (Offset >= this.Size) {
                 throw ValueError("Invalid offset for size " . this.Size,,
                                  Offset)
-            }
-            if (IsObject(Encoding)) {
-                throw TypeError("Expected a String or an Integer",,
-                                Type(Encoding))
             }
             StrPut(Str, this.Ptr + Offset, this.Size - Offset, Encoding)
             return this
@@ -325,10 +278,12 @@ class AquaHotkey_Buffer extends AquaHotkey
             }
             
             Ptr := (this.Ptr + Offset)
-            if ((this == ClipboardAll) || HasBase(this, ClipboardAll)) {
+            if (this is ClipboardAll) {
                 Buf := ClipboardAll(Ptr, Length)
             } else {
+                Buf := Buffer.FromMemory()
                 Buf := Buffer(Length)
+                ; TODO move this somewhere?
                 DllCall("RtlCopyMemory",
                         "Ptr", Buf.Ptr,
                         "Ptr", Ptr,
@@ -390,7 +345,7 @@ class AquaHotkey_Buffer extends AquaHotkey
             }
 
             VarSetStrCapacity(&Out,
-                    (this.Size                     * (StrLen(Delimiter) + 1))
+                   (this.Size                    * (StrLen(Delimiter) + 1))
                 + ((this.Size - 1) // LineLength * (StrLen(Delimiter) - 1)))
 
             if (!LineLength) {
@@ -424,21 +379,22 @@ class AquaHotkey_Buffer extends AquaHotkey
          * @param   {Integer}  Offset        memory offset
          * @returns {this}
          * @example
-         * class Rect extends Buffer {
-         *     static __New() {
-         *         this.Define("Left",  "Int",  0)
-         *         this.Define("Top",   "Int",  4)
-         *         this.Define("Right", "Int",  8)
-         *         this.Define("Bottom" "Int", 12)
-         *     }
+         * class RECT extends Buffer {
+         *     static __New() => this
+         *         .Define("Left",  "Int",  0)
+         *         .Define("Top",   "Int",  4)
+         *         .Define("Right", "Int",  8)
+         *         .Define("Bottom" "Int", 12)
          * }
          */
         static Define(PropertyName, NumType, Offset) {
-            return (this.Prototype).Define(PropertyName, NumType, Offset)
+            (this.Prototype).Define(PropertyName, NumType, Offset)
+            return this
         }
 
         /**
          * Defines a position in the Buffer as a dynamic property.
+         * This method can also be used directly from the class prototype.
          * 
          * @param   {String}   PropertyName  name of the property
          * @param   {String}   NumType       AHK number type
@@ -484,7 +440,6 @@ class AquaHotkey_Buffer extends AquaHotkey
             A_Clipboard := this
             return this
         }
-    } ; class ClipboardAll
+    }
     ;@endregion
-
-} ; class AquaHotkey_Buffer extends AquaHotkey
+}

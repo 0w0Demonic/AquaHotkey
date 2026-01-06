@@ -66,7 +66,7 @@ class Collector {
     static Min2() {
         Array({ x: 15 }, { x: 16 }, { x: 12 })
             .Collect(C.Min(
-                Comparator.Numeric((Obj) => Obj.x)
+                Comparator.Num((Obj) => Obj.x)
             ))
             .x
             .AssertEquals(12)
@@ -79,7 +79,7 @@ class Collector {
     static Max2() {
         Array({ x: 15 }, { x: 16 }, { x: 12 })
             .Collect(C.Max(
-                Comparator.Numeric((Obj) => Obj.x)
+                Comparator.Num((Obj) => Obj.x)
             ))
             .x
             .AssertEquals(16)

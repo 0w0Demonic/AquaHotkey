@@ -1,9 +1,5 @@
-
 #Include "%A_LineFile%\..\HashMap.ahk"
 #Include "%A_LineFile%\..\Set.ahk"
-
-; TODO refactor this into some sort of static constructor accepting
-; internal map
 
 /**
  * A set implementation that supports object equality comparisons

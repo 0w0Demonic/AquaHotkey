@@ -1,32 +1,45 @@
 #Requires AutoHotkey >=v2.1-alpha.3
-#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
 
+; TODO type casting
 /**
- * Allows the use of type-checked arrays with an intuitive syntax.
+ * Introduces type-checked arrays using intuitive array syntax (`[]`).
  * 
- * At its core, calling `__Item[]` on a class (e.g. `Integer[]`) will return
- * its "array class", i.e. a subclass of `CheckedArray` which asserts that an
- * element `is <Class>` when it's added to the array.
+ * Calling `__Item[]` on a class (e.g. `Integer[]`) returns its "array class",
+ * i.e. a subclass of `GenericArray` which asserts that an element
+ * `is <Class>` whenever added or modified.
  * 
  * Elements can be further constrained by passing a validation function
  * between the square brackets.
  * 
- * @module  <Collections/CheckedArray>
+ * ```ahk
+ * Assertion(Elem?) => Boolean
+ * ```
+ * 
+ * Existing classes are cached, which means calling e.g. `String[]` will
+ * produce the same object, allowing you to use `is String[]` consistently.
+ * 
+ * @module  <Collections/Generic/Array>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * 
  * @example
+ * ; additional constraint (forbids `unset`)
  * NonNull(Val?) => IsSet(Val?)
  * 
  * StrArray := String[NonNull]("foo", "bar")
- * MsgBox(StrArray is String[NonNull]) ; true
  * 
- * StrArray.Push([1, 2, 3]) ; Error! Expected a string.
- * StrArray.Push(unset)     ; Error! Failed assertion (NonNull)
+ * MsgBox(StrArray is String[NonNull]) ; true
+ * MsgBox(StrArray is String[])        ; false (unfortunately, for now)
+ * 
+ * StrArray.Push([1, 2]) ; Error! Expected a string.
+ * StrArray.Push(unset)  ; Error! Failed assertion (NonNull)
+ * StrArray.Delete(1)    ; Error! Failed assertion (NonNull)
+ * StrArray[1] := "qux"  ; ok.
  */
-class CheckedArray extends Array {
+class GenericArray extends Array {
     /**
-     * Constructs a new subclass of `CheckedArray`.
+     * Constructs a new subclass of `GenericArray`.
      * 
      * @param   {Class}  T           the type to be checked
      * @param   {Func?}  Constraint  additional constraint to enforce
@@ -39,7 +52,7 @@ class CheckedArray extends Array {
      * Any[(V?) => IsSet(V)]
      */
     static __New(T?, Constraint?) {
-        if (this == CheckedArray) {
+        if (this == GenericArray) {
             return
         }
         if (!IsSet(T)) {
@@ -136,13 +149,8 @@ class CheckedArray extends Array {
      */
     __Item[Index] {
         set {
-            if (IsSet(value)) {
-                this.Check(value)
-                super[Index] := value
-            } else {
-                this.Check(unset)
-                super[Index] := unset
-            }
+            this.Check(value?)
+            super[Index] := (value ?? unset)
         }
     }
 
@@ -159,9 +167,9 @@ class CheckedArray extends Array {
     }
 }
 
-class AquaHotkey_CheckedArray extends AquaHotkey {
+class AquaHotkey_GenericArray extends AquaHotkey {
     static __New() {
-        if (this != AquaHotkey_CheckedArray) {
+        if (this != AquaHotkey_GenericArray) {
             return
         }
 
@@ -176,11 +184,12 @@ class AquaHotkey_CheckedArray extends AquaHotkey {
         /**
          * Returns the "array class" of this class.
          * 
+         * @param   {Func?}  Constraint  additional validation function
          * @returns {Class}
          * @example
          * Integer.ArrayType ; class Integer[]
          */
-        ArrayType {
+        ArrayType[Constraint?] {
             get {
                 ; (Any) static __Item[]
             }
@@ -215,7 +224,7 @@ class AquaHotkey_CheckedArray extends AquaHotkey {
 
                 ClsName := this.Prototype.__Class . "[]"
                 ArrayType := AquaHotkey.CreateClass(
-                        CheckedArray,
+                        GenericArray,
                         ClsName,
                         this, Constraint?)
                 
@@ -241,9 +250,9 @@ class AquaHotkey_CheckedArray extends AquaHotkey {
          * 
          * @param   {Class}  T           type of elements contained in the array
          * @param   {Func?}  Constraint  additional validation function
-         * @returns {Class<? extends CheckedArray>}
+         * @returns {Class<? extends GenericArray>}
          */
-        static Of(T, Constraint?) {
+        static OfType(T, Constraint?) {
             if (!(T is Class)) {
                 throw TypeError("Expected a Class",, Type(T))
             }

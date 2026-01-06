@@ -1,451 +1,387 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
- * Basic Array utilities.
+ * Array stream-like operations.
  * 
- * @module  <Base/Array>
+ * @module  <Collections/Array>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Array extends AquaHotkey {
 class Array {
-    ;@region Configuration
     /**
-     * Sets the `Default` property of this array which is returned when
-     * accessing an unset element.
+     * Creates a new empty array with the same base object, capacity and
+     * `Default` behaviour of the given array. None of the actual elements
+     * are copied.
+     * 
+     * @param   {Array}  Arr  the array to be copied
+     * @returns {Array}
+     * @example
+     * Arr := Array(1, 2, 3)
+     * Arr.Default := "(empty)"
+     * 
+     * Copy := Array.BasedFrom(Arr)
+     * 
+     * MsgBox(Copy.Length) ; 0
+     * MsgBox(Copy.Capacity) ; 3
+     * MsgBox(Copy.Default) ; "(empty)"
+     * MsgBox(ObjGetBase(Arr) == ObjGetBase(Copy)) ; always `true`
+     */
+    static BasedFrom(Arr) {
+        static Define  := {}.DefineProp
+        static GetProp := {}.GetOwnPropDesc
+
+        Result := Array()
+        ObjSetBase(Result, ObjGetBase(Arr))
+        Result.Capacity := Arr.Length
+
+        for PropertyName in ObjOwnProps(Arr) {
+            Define(Result, PropertyName, GetProp(Arr, PropertyName))
+        }
+        return Result
+    }
+
+    /**
+     * Returns a new array containing all values in this array transformed
+     * by applying the given `Mapper` function.
+     * 
+     * ```ahk
+     * Mapper(ArrElement?, Args*)
+     * ```
      * 
      * @example
-     * Arr := Array().SetDefault(false)
+     * Array(1, 2, 3, 4).Map(x => x * 2)         ; [2, 4, 6, 8]
+     * Array("hello", "world").Map(SubStr, 1, 1) ; ["h", "w"]
      * 
-     * @param   {Any}  Default  new array default value
+     * @param   {Func}  Mapper  function that returns a new element
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {Array}
+     */
+    Map(Mapper, Args*) {
+        GetMethod(Mapper)
+        Result := Array.BasedFrom(this)
+        for Value in this {
+            Result.Push(Mapper(Value?, Args*))
+        }
+        return Result
+    }
+
+    /**
+     * Transforms all values in the array in place by applying the given
+     * `Mapper`.
+     * 
+     * ```ahk
+     * Mapper(ArrElement?, Args*)
+     * ```
+     * 
+     * @example
+     * Arr := Array(1, 2, 3)
+     * 
+     * Arr.ReplaceAll(x => (x * 2))
+     * Arr.Join(", ").MsgBox() ; "2, 4, 6"
+     * 
+     * @param   {Func}  Mapper  function that returns a new element
+     * @param   {Any*}  Args    zero or more additional arguments
      * @returns {this}
      */
-    SetDefault(Default) {
-        this.Default := Default
+    ReplaceAll(Mapper, Args*) {
+        GetMethod(Mapper)
+        for Value in this {
+            this[A_Index] := Mapper(Value?, Args*)
+        }
         return this
     }
 
     /**
-     * Sets the `Length` property of this array.
+     * Returns a new array containing all elements in the array transformed by
+     * applying the given `Mapper`, resulting arrays flattened into separate
+     * elements.
+     * 
+     * ```ahk
+     * Mapper(ArrElement?, Args*)
+     * ```
+     * 
+     * The method defaults to flattening existing array elements, if no `Mapper`
+     * is given.
      * 
      * @example
-     * Arr := Array().SetLength(16)
+     * Array("hel", "lo").FlatMap(StrSplit)       ; ["h", "e", "l", "l", "o"]
+     * Array([1, 2], [3, 4]).FlatMap()            ; [1, 2, 3, 4]
+     * Array("a,b", "c,d").FlatMap(StrSplit, ",") ; ["a", "b", "c", "d"]
      * 
-     * @param   {Integer}  Length  new array length
-     * @returns {this}
+     * @param   {Func?}  Mapper  function to convert and flatten elements
+     * @param   {Any*}   Args    zero or more additional arguments
+     * @returns {Array}
      */
-    SetLength(Length) {
-        this.Length := Length
-        return this
-    }
+    FlatMap(Mapper?, Args*) {
+        Result := Array.BasedFrom(this)
 
-    /**
-     * Sets the `Capacity` property of this array.
-     * 
-     * @example
-     * Arr := Array().SetCapacity(16)
-     * 
-     * @param   {Integer}  Capacity  new array capacity
-     * @returns {this}
-     */
-    SetCapacity(Capacity) {
-        this.Capacity := Capacity
-        return this
-    }
-    ;@endregion
-    
-    ;@region Structural
-    /**
-     * Returns an array slice from index `Begin` to `End` (inclusive),
-     * selecting elements at an interval `Step`.
-     * 
-     * @example
-     * Array(21, 23, 453, -73).Slice(, 2)  ; [21, 23]
-     * Array(1, 2, 3, 4).Slice(2, -1)      ; [2, 3]
-     * Array(1, 2, 3, 4, 5).Slice(1, 4, 2) ; [1, 3]
-     * 
-     * @param   {Integer?}  Begin  start index
-     * @param   {Integer?}  End    end index
-     * @param   {Integer?}  Step   interval at which elements are selected
-     */
-    Slice(Begin := 1, End := this.Length, Step := 1) {
-        if (!IsInteger(Begin) || !IsInteger(End) || !IsInteger(Step)) {
-            throw TypeError("Expected an Integer",,
-                            Type(Begin) . " " . Type(End) . " " . Type(Step))
-        }
-        if (!Begin || !End || !Step) {
-            throw IndexError("Out of bounds",,
-                             Begin . ", " . End . ", " . Step)
-        }
-        if (Abs(Begin) > this.Length || Abs(End) > this.Length) {
-            throw ValueError("array index out of bounds",,
-                             "Begin " . Begin . " End " . End)
-        }
-        if (Begin < 0) {
-            Begin := this.Length + 1 + Begin ; last x elements
-        }
-        if (End < 0) {
-            End := this.Length + End ; leave out last x elements
-        }
-        if (Step < 0) {
-            Temp  := Begin
-            Begin := End
-            End   := temp
-        }
-
-        Result          := Array()
-        Result.Capacity := (Abs(Begin - End) + 1) // Abs(Step)
-
-        if (Step > 0) {
-            while (Begin <= End) {
-                if (this.Has(Begin)) {
-                    Result.Push(this[Begin])
+        if (IsSet(Mapper)) {
+            GetMethod(Mapper)
+            for Value in this {
+                Element := Mapper(Value?, Args*)
+                if (Element is Array) {
+                    Result.Push(Element*)
                 } else {
-                    Result.Push(unset)
+                    Result.Push(Element )
                 }
-                Begin += Step
             }
             return Result
         }
-        while (Begin >= End) {
-            if (this.Has(Begin)) {
-                Result.Push(this[Begin])
+        for Value in this {
+            if (IsSet(Value)) {
+                if (Value is Array) {
+                    Result.Push(Value*)
+                } else {
+                    Result.Push(Value )
+                }
             } else {
-                Result.Push(unset)
+                ++Result.Length
             }
-            Begin += Step
+        }
+        return Result
+    }
+    
+    /**
+     * Returns a new array of all elements that satisfy the given `Condition`.
+     * 
+     * ```ahk
+     * Condition(ArrElement?, Args*)
+     * ```
+     * 
+     * @example
+     * Array(1, 2, 3, 4).RetainIf(x => x > 2)    ; [3, 4]
+     * Array("foo", "bar").RetainIf(InStr, "f")  ; ["foo"]
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
+     * @returns {Array}
+     */
+    RetainIf(Condition, Args*) {
+        GetMethod(Condition)
+        Result := Array.BasedFrom(this)
+        for Value in this {
+            (Condition(Value?, Args*) && Result.Push(Value?))
         }
         return Result
     }
 
     /**
-     * Returns `true`, if the array is empty (its length is zero).
+     * Returns a new array of all elements that do not satisfy the given
+     * `Condition`.
+     * 
+     * ```ahk
+     * Condition(ArrElement, Args*)
+     * ```
      * 
      * @example
-     * Array().IsEmpty   ; true
-     * Array(42).IsEmpty ; false
-     *  
-     * @returns {Boolean}
+     * Array(1, 2, 3, 4).RemoveIf(x => x > 2)    ; [1, 2]
+     * Array("foo", "bar").RemoveIf(InStr, "f")  ; ["bar"]
+     * 
+     * @param   {Predicate}  Condition  the given condition
+     * @param   {Any*}       Args       zero or more additional arguments
+     * @returns {Array}
      */
-    IsEmpty => (!this.Length)
+    RemoveIf(Condition, Args*) {
+        GetMethod(Condition)
+        Result := Array.BasedFrom(this)
+        for Value in this {
+            (Condition(Value?, Args*) || Result.Push(Value?))
+        }
+        return Result
+    }
 
     /**
-     * Returns `true`, if the array has values.
+     * Returns a new array of unique elements by keeping track of them in a Map.
+     * 
+     * A custom `Hasher` can be used to specify the map key to be used.
+     * 
+     * ```ahk
+     * Hasher(ArrElement?)
+     * ```
+     * 
+     * You can determine the behavior of the internal Map by passing either...
+     * - the map to be used;
+     * - a function that returns the map to be used;
+     * - a case-sensitivity option
+     * 
+     * ...as value for the `MapParam` parameter.
      * 
      * @example
-     * Array(unset, 42).HasElements ; true
-     * Array(unset, unset).HasElements ; false
+     * ; [1, 2, 3]
+     * Array(1, 2, 3, 1).Distinct()
      * 
-     * @returns {Boolean}
+     * ; ["foo"]
+     * Array("foo", "Foo", "FOO").Distinct(StrLower)
+     * 
+     * ; [{ Value: 1 }, { Value: 2 }]
+     * Array({ Value: 1 }, { Value: 2 }, { Value: 1 })
+     *         .Distinct(  (Obj) => Obj.Value )
+     * 
+     * @param   {Func?}                  Hasher    function to create map keys
+     * @param   {Map?/Func?/Primitive?}  MapParam  internal map options
+     * @returns {Array}
      */
-    HasElements {
-        Get {
-            for Value in this {
-                if (IsSet(Value)) {
-                    return true
+    Distinct(Hasher?, MapParam := Map()) {
+        ; TODO rethink how values are saved
+        switch {
+            case (MapParam is Map):
+                Cache := MapParam
+            case (HasMethod(MapParam)):
+                Cache := MapParam()
+                if (!(Cache is Map)) {
+                    throw TypeError("Expected a Map",, Type(Cache))
                 }
-            }
-            return false
-        }
-    }
-    
-    /**
-     * Swaps two elements in the array with indices `a` and `b`.
-     * 
-     * This method properly swaps unset values, but throws an error if the index
-     * if out of bounds.
-     * 
-     * @example
-     * Arr := Array(1, 2, 3, 4)
-     * Arr.Swap(2, 4) ; [1, 4, 3, 2]
-     * 
-     * @param   {Integer}  a  first index
-     * @param   {Integer}  b  second index
-     * @returns {this}
-     */
-    Swap(a, b) {
-        (this.Has(a) && Temp := this[a])
-        if (this.Has(b)) {
-            this[a] := this[b]
-        } else {
-            this.Delete(a)
-        }
-        if (IsSet(Temp)) {
-            this[b] := Temp
-        } else {
-            this.Delete(b)
-        }
-        return this
-    }
-
-    ; TODO reverse view?
-    
-    /**
-     * Reverses the array in place.
-     * 
-     * @example
-     * Array(1, 2, 3, 4).Reverse() ; [4, 3, 2, 1]
-     * 
-     * @returns {this}
-     */
-    Reverse() {
-        EndIndex := this.Length + 1
-        Loop (this.Length // 2) {
-            this.Swap(A_Index, EndIndex - A_Index)
-        }
-        return this
-    }
-    ;@endregion
-
-    ;@region Sorting
-
-    ; TODO describe default comparator
-
-    /**
-     * Sorts the array in place according to the given `Comparator` function.
-     * 
-     * The array is sorted in reverse order, if `Reversed` is set to `true`.
-     * @see `Comparator`
-     * 
-     * @example
-     * Array(5, 1, 2, 7).Sort() ; [1, 2, 5, 7]
-     * 
-     * @param   {Func?}     Comp        function that orders two values
-     * @param   {Boolean?}  Reversed    sort in reverse order
-     * @returns {this}
-     */
-    Sort(Comp?, Reversed := false)
-    {
-        static SizeOfField := 16
-        static FieldOffset := CalculateFieldOffset()
-        static CalculateFieldOffset() {
-            Offset := (VerCompare(A_AhkVersion, "<2.1-") > 0 ? 3 : 5)
-            return 8 + (Offset * A_PtrSize)
+            default:
+                Cache := Map()
+                Cache.CaseSense := MapParam
         }
 
-        static GetValue(Ptr, &Out) {
-            ; 0 - String, 1 - Integer, 2 - Float, 5 - Object
-            switch NumGet(Ptr + 8, "Int") {
-                case 0: Out := StrGet(NumGet(Ptr, "Ptr") + 2 * A_PtrSize)
-                case 1: Out := NumGet(Ptr, "Int64")
-                case 2: Out := NumGet(Ptr, "Double")
-                case 5: Out := ObjFromPtrAddRef(NumGet(Ptr, "Ptr"))
-            }
-        }
-
-        Compare(Ptr1, Ptr2) {
-            GetValue(Ptr1, &Value1)
-            GetValue(Ptr2, &Value2)
-            return Comp(Value1?, Value2?)
-        }
-
-        CompareReversed(Ptr1, Ptr2) {
-            GetValue(Ptr1, &Value1)
-            GetValue(Ptr2, &Value2)
-            return Comp(Value2?, Value1?)
-        }
-
-        if (!IsSet(Comp)) {
-            if (!IsSet(AquaHotkey_Ord)) {
-                throw UnsetError("Comparator is missing")
-            }
-            Comp := Any.Compare
-        }
-        GetMethod(Comp)
-
-        Callback  := (Reversed) ? CompareReversed : Compare
-        mFields   := NumGet(ObjPtr(this) + FieldOffset, "Ptr")
-        pCallback := CallbackCreate(Callback, "F CDecl", 2)
-        DllCall("msvcrt.dll\qsort",
-                "Ptr",  mFields,
-                "UInt", this.Length,
-                "UInt", SizeofField,
-                "Ptr",  pCallback,
-                "Cdecl")
-        CallbackFree(pCallback)
-        return this
-    }
-
-    /**
-     * Lexicographically sorts the array in place using `StrCompare()`.
-     * 
-     * The array is sorted in reverse order, if `Reversed` is set to `true`.
-     * @example
-     * 
-     * Array("banana", "apple").SortAlphabetically() ; ["apple", "banana"]
-     * 
-     * @param   {Primitive?}  CaseSense  case-sensitivity for string comparisons
-     * @param   {Boolean?}    Reversed   sort in reverse order
-     */
-    SortAlphabetically(CaseSense := false, Reversed := false) {
-        return this.Sort(ObjBindMethod(StrCompare,,,, CaseSense), Reversed)
-    }
-    ;@endregion
-
-    ;@region Aggregation
-    /**
-     * Returns the highest ordered element according to the given `Comparator`.
-     * 
-     * Unset elements are ignored.
-     * 
-     * @see `Comparator`
-     * 
-     * @example
-     * Array(1, 4, 234, 67).Max()                ; 234
-     * Array("banana", "zigzag").Max(StrCompare) ; "zigzag"
-     * 
-     * @param   {Func?}  Comp  function that orders two values
-     * @returns {Any}
-     */
-    Max(Comp?) {
-        if (!this.Length) {
-            throw UnsetError("Array is empty")
-        }
-        if (!IsSet(Comp)) {
-            if (!IsSet(AquaHotkey_Ord)) {
-                throw UnsetError("Comparator is missing")
-            }
-            Comp := Any.Compare
-        }
-        GetMethod(Comp)
-
-        Enumer := this.__Enum(1)
-        while (Enumer(&Result) && !IsSet(Result)) {
-        } ; nop
-        for Value in Enumer {
-            (IsSet(Value) && (Comp(Value, Result) > 0) && (Result := Value))
-        }
-        return Result
-    }
-
-    /**
-     * Returns the lowest ordered element according to the given `Comparator`.
-     * 
-     * Unset elements are ignored.
-     * @see `Comparator`
-     * 
-     * @example
-     * Array(1, 2, 3, 4).Min() ; 1
-     * Array("apple", "banana", "foo").Min(StrCompare) ; "apple"
-     * 
-     * @param   {Func?}  Comp  function that orders two values
-     * @returns {Any}
-     */
-    Min(Comp?) {
-        if (!this.Length) {
-            throw UnsetError("this array is empty")
-        }
-        if (!IsSet(Comp)) {
-            if (!IsSet(AquaHotkey_Eq)) {
-                throw UnsetError("Comparator is missing")
-            }
-            Comp := Any.Compare
-        }
-        GetMethod(Comp)
-
-        Enumer := this.__Enum(1)
-        while (Enumer(&Result) && !IsSet(Result)) {
-        } ; nop
-        for Value in Enumer {
-            (IsSet(Value) && Comp(Value, Result) < 0 && Result := Value)
-        }
-        return Result
-    }
-
-    ; TODO add Collect() into StreamOps?
-
-    ; TODO remove this?
-
-    /**
-     * Returns the total sum of numbers and numerical string in the array.
-     * 
-     * Non-numeric and unset elements are ignored.
-     * 
-     * @example
-     * Array("foo", 3, "4", unset).Sum() ; 7
-     * 
-     * @returns {Float}
-     */
-    Sum() {
-        Result := Float(0)
-        for Value in this {
-            (IsSet(Value) && IsNumber(Value) && (Result += Value))
-        }
-        return Result
-    }
-
-    ; TODO remove this?
-
-    /**
-     * Returns the arithmetic mean of numbers and numeric strings in the array.
-     * 
-     * Non-numeric and unset elements are ignored.
-     * 
-     * @example
-     * Array("foo", 3, "4", unset) ; 3.5 (total sum 7, 2 numerical values)
-     * 
-     * @returns {Float}
-     */
-    Average() {
-        Sum := Float(0)
-        Count := 0
-        for Value in this {
-            (IsSet(Value) && IsNumber(Value) && ++Count && (Sum += Value))
-        }
-        return Sum / Count
-    }
-
-    ; TODO move to StreamOps?
-    
-    /**
-     * Concatenates elements into a string, separated by the given `Delimiter`.
-     * 
-     * Objects are converted to strings by using `String(Obj)` (implicitly calls
-     * the `.ToString()` method).
-     * 
-     * `InitialCap` can improve performance by setting an initial capacity of
-     * the string.
-     * 
-     * @example
-     * Array(1, 2, 3, 4).Join() ; "1234"
-     * ReallyLargeArray.Join(", ", 1048576) ; 1MB
-     * 
-     * @param   {String?}   Delimiter   separator string
-     * @param   {Integer?}  InitialCap  initial string capacity
-     * @returns {String}
-     */
-    Join(Delimiter := "", InitialCap := 0) {
-        Delimiter .= ""
-        Result    := ""
-        try VarSetStrCapacity(&Result, InitialCap)
-
-        if (Delimiter == "") {
+        Result := Array.BasedFrom(this)
+        if (IsSet(Hasher)) {
             for Value in this {
-                (IsSet(Value) && Result .= String(Value))
+                Key := Hasher(Value?)
+                if (!Cache.Has(Key)) {
+                    Result.Push(Value)
+                    Cache[Key] := true
+                }
             }
             return Result
         }
         for Value in this {
-            (IsSet(Value) && Result .= String(Value))
-            Result .= Delimiter
+            if (IsSet(Value) && !Cache.Has(Value)) {
+                Result.Push(Value)
+                Cache[Value] := true
+            }
         }
-        return SubStr(Result, 1, -StrLen(Delimiter))
+        return Result
     }
 
-    ; TODO move to StreamOps?
+    /**
+     * Accepts two arrays and returns the index of the first different item,
+     * or `0` if all items are considered equal (`.Eq()`).
+     * 
+     * @param   {Array}  A  first array
+     * @param   {Array}  B  second array
+     * @returns {Integer}
+     * @example
+     * Array.Mismatch([1, 2, 3], [1, 2, 4]) ; 3
+     * Array.Mismatch([], [])               ; 0
+     */
+    static Mismatch(A, B) {
+        if (!(A is Array)) {
+            throw TypeError("Expected an Array",, Type(A))
+        }
+        if (!(B is Array)) {
+            throw TypeError("Expected an Array",, Type(B))
+        }
+        Enumer1 := A.__Enum(1)
+        Enumer2 := B.__Enum(1)
+
+        loop {
+            A := Enumer1(&Value1)
+            B := Enumer2(&Value2)
+
+            if (A) {
+                if (!B || !Value1.Eq(Value2)) {
+                    return A_Index
+                }
+            } else { ; if (!A) { ... }
+                if (B) {
+                    return A_Index
+                }
+                return 0
+            }
+        }
+    }
 
     /**
-     * Joins all elements in this array into a single string, each element
-     * separated by a newline character `\n`.
-     * @see `Array.Join()`
+     * Searches the array for the specified value using the binary search
+     * algorithm, returning the array index, or `0` if the element could not
+     * be found.
      * 
+     * This method requires...
+     * 1. that the array is sorted.
+     * 2. that all elements support equality checks (`.Eq()`) and natural
+     *    ordering (`.Compare()`) between each other.
+     * 
+     * @param   {Any}       Value  the value to check
+     * @param   {Integer?}  Low    index of first element to be searched
+     * @param   {Integer?}  High   index of last element to be searched
+     * @returns {Integer}
      * @example
-     * Array(1, 2, 3, 4).JoinLine() ; "1`n2`n3`n4"
-     * 
-     * @param   {Integer?}  InitialCap  initial string capacity
-     * @returns {String}
+     * Array(1, 2, 3, 3, 3, 3, 4, 5, 6).BinarySearch(4) ; 7
+     * ;     1  2  3  4  5  6  7  8  9
      */
-    JoinLine(InitialCap := 0) => this.Join("`n", InitialCap)
-    ;@endregion
+    BinarySearch(Value, Low := 1, High := this.Length) {
+        if (!IsInteger(Low)) {
+            throw TypeError("Expected an Integer",, Type(Low))
+        }
+        if (!IsInteger(High)) {
+            throw TypeError("Expected an Integer",, Type(High))
+        }
+
+        Len := this.Length
+        if (Low <= 0 || Low > Len) {
+            throw IndexError("invalid low index",, Low)
+        }
+        if (High <= 0 || High > Len) {
+            throw IndexError("invalid high index",, High)
+        }
+
+        while (Low <= High) {
+            Mid := Low + (High - Low) // 2
+            Item := this[Mid]
+            if (Item.Eq(Value)) {
+                return Mid
+            }
+            if (Value.Gt(Item)) { ; Value > Item
+                Low := Mid + 1
+            } else {
+                High := Mid - 1
+            }
+        }
+        return 0
+    }
+
+    /**
+     * Fills the array with the specified value.
+     * 
+     * @param   {Any?}  Value  the value to set
+     * @returns {this}
+     */
+    Fill(Value?) {
+        loop (this.Length) {
+            this[A_Index] := (Value?)
+        }
+        return this
+    }
+
+    /**
+     * Repeats this array `X` times.
+     * 
+     * @param   {Integer}  X  amount of times to repeat the array
+     * @returns {Array}
+     * @example
+     * [3].Times(3) ; [3, 3, 3]
+     * 
+     * [ [3].Times(3) ].Times(3) ; [[3, 3, 3], [3, 3, 3], [3, 3, 3]]
+     */
+    Times(X) {
+        ; TODO move this somewhere else?
+        if (!IsInteger(X)) {
+            throw TypeError("Expected an Integer",, Type(X))
+        }
+        Result := Array()
+        Result.Capacity := X * this.Length
+        loop (X) {
+            Result.Push(this*)
+        }
+        return Result
+    }
+
+    ; TODO add...
+    ; - SetAll() ?
+    ; - ReplaceAll(Value, NewValue) ?
 } ; class Array
 } ; class AquaHotkey_Array extends AquaHotkey

@@ -5,6 +5,10 @@
 
 /**
  * @mixin
+ * Assumes:
+ * - `IsEmpty => Boolean`
+ * - `Pop()`
+ * - `Poll()`
  */
 class Deque {
     static __New() => this.Backup(Enumerable1)
@@ -12,26 +16,24 @@ class Deque {
     Drain() {
         return Stream(Drain)
 
-        Drain(&Value) {
-            if (this.IsEmpty) {
-                return false
+        Drain(&Out) {
+            if (!this.IsEmpty) {
+                Out := this.Pop()
+                return true
             }
-            Node := this.Pop()
-            Value := (Node.HasValue) ? Node.Value : unset
-            return true
+            return false
         }
     }
 
     Slurp() {
         return Stream(Slurp)
 
-        Slurp(&Value) {
-            if (this.IsEmpty) {
-                return false
+        Slurp(&Out) {
+            if (!this.IsEmpty) {
+                Out := this.Poll()
+                return true
             }
-            Node := this.Poll()
-            Value := (Node.HasValue) ? Node.Value : unset
-            return true
+            return false
         }
     }
 }

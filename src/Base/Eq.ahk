@@ -59,16 +59,25 @@ class Any {
      * In other words, regular (case-insensitive) equality checks are used,
      * unless specified otherwise.
      * 
+     * @param   {Any}  Other  any value
+     * @returns {Boolean}
      * @example
      * (1).Eq("1") ; true
      * 
      * Obj := {}
      * Obj.Eq(Obj) ; true
-     * 
-     * @param   {Any}  Other  any value
-     * @returns {Boolean}
      */
     Eq(Other?) => (IsSet(Other) && (this = Other))
+
+    /**
+     * Determines whether this vaue is not equal to the `Other` value.
+     * 
+     * @param   {Any?}  Other  any value
+     * @returns {Boolean}
+     * @example
+     * "foo".Ne("bar") ; true
+     */
+    Ne(Other?) => !this.Eq(Other?)
 }
 
 ;@endregion
@@ -147,15 +156,14 @@ class Array {
      * - `Other` is an array with the same length;
      * - Elements in this array are equal to elements in `Other` (`.Eq()`).
      * 
+     * @param   {Any?}  Other  any value
+     * @returns {Boolean}
      * @example
      * ([1, 2, 3]).Eq([1, 2, 3]) ; true
      * 
      * ([1]).Eq([1, 2]) ; false
      * 
      * ([1]).Eq("example") ; false
-     * 
-     * @param   {Any?}  Other  any value
-     * @returns {Boolean}
      */
     Eq(Other?) {
         static AnyEq := (Any.Eq)
@@ -207,6 +215,14 @@ class Object {
      * - `ObjGetBase(this) == ObjGetBase(Other)`
      * - `this` and `Other` share the same set of properties
      * - properties with `Value` descriptor are equal (`.Eq()`)
+     * 
+     * @param   {Any?}  Other  any value
+     * @returns {Boolean}
+     * @example
+     * ; true
+     * ; - foo equals FOO (case-insensitive properties)
+     * ; - "bar" equals "BAR" (`String#Eq()`)
+     * ({ foo: "bar" }).Eq({ FOO: "BAR" })
      */
     Eq(Other?) {
         static GetProp := ({}.GetOwnPropDesc)
@@ -294,11 +310,12 @@ class Map {
      * This happens when `Other` is a map that shares the same set of key-value
      * pairs.
      * 
-     * @example
-     * Map(1, 2, 3, 4).Eq(Map(1, 2, 3, 4)) ; true
+     * Key-value pairs are not allowed to contain `unset`.
      * 
      * @param   {Any*}  Other  any value
      * @returns {Boolean}
+     * @example
+     * Map(1, 2, 3, 4).Eq(Map(1, 2, 3, 4)) ; true
      */
     Eq(Other?) {
         if (!IsSet(Other)) {
@@ -370,8 +387,10 @@ class ComValue {
      * 
      * This happens when the underlying value and `VARIANT` type are equal.
      * 
+     * @param   {Any?}  Other  any value
+     * @returns {Boolean}
      * @example
-     * ComValue(0xB, true).Eq(ComValue(0xB, true))
+     * ( ComValue(0x08, true) ).Eq( ComValue(0x08, true) ) ; true
      */
     Eq(Other?) {
         if (!IsSet(Other)) {

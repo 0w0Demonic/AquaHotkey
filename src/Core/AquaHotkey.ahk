@@ -273,9 +273,6 @@ class AquaHotkey extends AquaHotkey_Ignore
             Mixins := this.Mixins
 
             if (Mixins.Count) {
-                for Mixin in Mixins {
-                    MsgBox(Mixin.Prototype.__Class)
-                }
                 ObjGetBase(this).Backup(Mixin, Mixins*)
             } else {
                 BaseClass := AquaHotkey
@@ -499,10 +496,6 @@ class AquaHotkey_Ignore
      * this.Delete("Prototype.Eq")
      */
     static Delete(PropertyPaths*) {
-        static BadProp(PropertyName) {
-            throw Error("Unable to retrieve property", -2, PropertyName)
-        }
-
         Log(Str, Args*) => (AquaHotkey_Ignore.Log)(this, Str, Args*)
 
         if (!PropertyPaths.Length) {
@@ -522,18 +515,15 @@ class AquaHotkey_Ignore
 
             for Prop in Props {
                 PropDesc := ({}.GetOwnPropDesc)(Obj, Prop)
-                switch {
-                    case (ObjHasOwnProp(PropDesc, "Value")):
-                        Obj := PropDesc.Value
-                    case (ObjHasOwnProp(PropDesc, "Get")):
-                        try {
-                            Obj := (PropDesc.Get)(Obj)
-                        } catch {
-                            BadProp(Prop)
-                        }
-                    default:
-                        BadProp(Prop)
+                if (ObjHasOwnProp(PropDesc, "Value")) {
+                    Obj := PropDesc.Value
+                    continue
                 }
+                if (ObjHasOwnProp(PropDesc, "Get")) {
+                    try Obj := (PropDesc.Get)(Obj)
+                    continue
+                }
+                throw PropertyError("Unknown property", -2, Prop)
             }
             ({}.DeleteProp)(Obj, Name)
         }
@@ -561,7 +551,9 @@ class AquaHotkey_Ignore
             throw UnsetError("No properties specified")
         }
         if (!(AquaHotkey_Ignore.Version)(this, Version)) {
-            (AquaHotkey_Ignore.Log)(this, "version is " . Version)
+            (AquaHotkey_Ignore.Log)(this, "version is not {} (current: {})",
+                    Version,
+                    A_AhkVersion)
             (AquaHotkey_Ignore.Delete)(this, PropertyPaths*)
         }
         return this
@@ -774,12 +766,13 @@ class AquaHotkey_Ignore
                     return (PropDesc.Get)(Obj)
                 
                 default:
-                    throw UnsetError()
+                    throw PropertyError("unknown property",, PropertyName)
             }
         }
 
-        Log(Str, Args*) {
-            (AquaHotkey_Ignore.Log)(this, Str, Args*)
+        Log(Indent, Str, Args*) {
+            Pad := Format("{:" . (Indent * 2) . "}")
+            (AquaHotkey_Ignore.Log)(this, Pad . Str, Args*)
         }
 
         LogVerbose(Str, Args*) {
@@ -802,11 +795,11 @@ class AquaHotkey_Ignore
         Resolve(Receiver, &ReceiverProto, &ReceiverName, &ReceiverProtoName)
 
         if (HasBase(Receiver, AquaHotkey_Ignore)) {
-            Log("  # ignoring: {1}", SupplierName)
+            Log(1, "# ignoring: {1}", SupplierName)
             return
         }
 
-        Log("  # {1} -> {2}", SupplierName, ReceiverName)
+        Log(1, "# {1} -> {2}", SupplierName, ReceiverName)
 
         ;@endregion
         ;-----------------------------------------------------------------------
@@ -819,7 +812,6 @@ class AquaHotkey_Ignore
         if ((Supplier is Class) && (Receiver is Class)
                 && (HasBase(Receiver, Object)))
         {
-
             ReceiverInit := ReceiverProto.__Init
             SupplierInit := SupplierProto.__Init
 

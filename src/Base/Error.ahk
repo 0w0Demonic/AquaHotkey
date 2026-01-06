@@ -74,9 +74,9 @@ class Error {
                 throw TypeError("expected an Error",, Type(value))
             }
             if (!IsSet(value)) {
-                throw UnsetError("value is unset")
+                ({}.DeleteProp)(this, "Cause")
             }
-            this.DefineProp("Cause", { Get: (_) => value })
+            ({}.DefineProp)(this, "Cause", { Get: (_) => value })
         }
     }
 

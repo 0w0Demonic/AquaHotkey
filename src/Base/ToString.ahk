@@ -1,13 +1,17 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
- * Provides string representations across all AutoHotkey types.
+ * Provides string representations across all AutoHotkey types by adding
+ * a broad range of `.ToString()` methods.
  * 
- * This module provides all built-in types with a `.ToString()` method, which
- * allows the universal use of `String(Value)` to return the string
- * representation of any value.
+ * This allows you to use `String(Value)` to return a string representation of
+ * any given value.
  * 
+ * @module  <Base/ToString>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
+ * 
  * String({ Foo: "bar" })    ; "Object { "Foo": "bar" }"
  * Array(1, 2, 3).ToString() ; "[1, 2, 3]"
  * 
@@ -20,10 +24,6 @@
  * Any.ToString("test") ; "test"
  * 
  * MsgBox(String(Obj))
- * 
- * @module  <Base/ToString>
- * @author  0w0Demonic
- * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_ToString extends AquaHotkey
 {
@@ -43,15 +43,11 @@ class Any {
 
 class Object {
     /**
-     * Converts this object into a string. `String(Obj)` implicitly calls this
-     * method.
-     * 
-     * The behavior of this method might be changed in future versions.
-     * 
-     * @example
-     * ({ Foo: 45, Bar: 123 }) ; "Object { "Bar": 123, "Foo": 45 }"
+     * Converts this object into a string.
      * 
      * @returns {String}
+     * @example
+     * ({ Foo: 45, Bar: 123 }) ; "Object { "Bar": 123, "Foo": 45 }"
      */
     ToString() {
         static ToString(Value?) {
@@ -105,9 +101,9 @@ class Object {
 
 ;@endregion
 ;-------------------------------------------------------------------------------
-;@region Number
+;@region Primitive
 
-class Number {
+class Primitive {
     /**
      * Returns this number as string.
      * 
@@ -122,7 +118,7 @@ class Number {
 
 class String {
     /**
-     * Returns the string itself as string representation.
+     * Returns the string itself as string presentation.
      * 
      * @returns {String}
      */
@@ -137,10 +133,9 @@ class Array {
     /**
      * Returns the string representation of the array.
      * 
+     * @returns {String}
      * @example
      * Array(1, 2, 3, 4).ToString() ; "[1, 2, 3, 4]" 
-     * 
-     * @returns {String}
      */
     ToString() {
         static Mapper(Value?) {
@@ -171,13 +166,12 @@ class Array {
 
 class Buffer {
     /**
-     * Returns a string representation of this buffer consisting of
+     * Returns a string representation of the buffer consisting of
      * its type, memory address pointer and size in bytes.
      * 
+     * @returns {String}
      * @example
      * Buffer(128).ToString() ; "Buffer { Ptr: 000000000024D080, Size: 128 }"
-     * 
-     * @returns {String}
      */
     ToString() {
         Ptr  := Format("{:p}", this.Ptr)
@@ -192,13 +186,17 @@ class Buffer {
 class Class {
     /**
      * Returns the string representation of the class if no argument is given.
-     * Otherwise, converts the given value into a string using the `ToString()`
-     * defined in the class calling this method.
+     * 
+     * Otherwise, explicitly uses the `.ToString()` method declared in the
+     * calling class to convert the input into its string representation.
      * 
      * @returns {String}
      * @example
-     * Gui.ToString()             ; "Class Gui"
-     * Object.ToString( [34, 8] ) ; "{ 1: 34, 2: 8 }"
+     * Gui.ToString()       ; "Class Gui"
+     * 
+     * Arr := Array(34, 8)
+     * Arr.ToString()       ; [34, 8]
+     * Object.ToString(Arr) ; "{ 1: 34, 2: 8 }"
      */
     ToString(Args*) {
         if (!Args.Length) {
@@ -219,36 +217,13 @@ class Class {
      * Returns a type-checked `.ToString()` function.
      * 
      * @returns {Func}
+     * @see {@link AquaHotkey_ToString.Class#ToString() Class#ToString}
      * @example
      * ToStr := Array.ToString
      * 
      * ToStr([1, 2, 3]) ; "[1, 2, 3]"
      */
     ToString => (Value) => this.ToString(Value)
-
-    /**
-     * Converts the given value into a string.
-     * 
-     * If this method is called from a class other than `Any`, it will
-     * explicitly use the `.ToString()` declared in the class and type-check
-     * its input.
-     * 
-     * @example
-     * Array.ToString([1, 2, 3])  ; "[1, 2, 3]"
-     * Object.ToString([1, 2, 3]) ; "Array { 1: 1, 2: 2, 3: 3 }"
-     * Object.ToString("Test")    ; Error! Expected an Object.
-     * Any.ToString("Test")       ; "Test"
-     * 
-     * @param   {Any}  Value  any value
-     * @returns {String}
-     */
-    static ToString(Value) {
-        if (!(Value is this)) {
-            throw TypeError("Expected a(n) " . this.Prototype.__Class,,
-                            Type(Value))
-        }
-        return (this.Prototype.ToString)(Value)
-    }
 }
 
 ;@endregion
@@ -259,12 +234,11 @@ class File {
     /**
      * Returns a string representation of this file, consisting of file name,
      * position of file pointer, encoding and the system file handle.
-     * @example
-     * 
-     * ; "File { Name: C:\...\foo.txt, Pos: 0, Encoding: UTF-8, Handle: 362 }"
-     * MyFile.ToString()
      * 
      * @returns {String}
+     * @example
+     * ; "File { Name: C:\...\foo.txt, Pos: 0, Encoding: UTF-8, Handle: 362 }"
+     * MyFile.ToString()
      */
     ToString() {
         return Format("{} {{} Name: {}, Pos: {}, Encoding: {}, Handle: {} {}}",
@@ -281,10 +255,9 @@ class Func {
     /**
      * Returns the string representation of the function.
      * 
+     * @returns {String}
      * @example
      * MsgBox.ToString() ; "Func MsgBox"
-     * 
-     * @returns {String}
      */
     ToString() {
         if (this.Name == "") {
@@ -302,16 +275,12 @@ class VarRef {
     /**
      * Returns a string representation of the reference.
      * 
+     * @returns {String}
      * @example
      * Bar := &(Foo := 2)
-     * Bar.ToString() ; "&Foo"
-     * 
-     * @returns {String}
+     * Bar.ToString() ; "VarRef<2>"
      */
-    ToString() {
-        pName := NumGet(ObjPtr(this) + 8 + 6 * A_PtrSize, "Ptr")
-        return "&" . StrGet(pName, "UTF-16") 
-    }
+    ToString() => "VarRef<" . (IsSetRef(this) ? String(%this%) : "unset") . ">"
 }
 
 ;@endregion

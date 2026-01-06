@@ -1,14 +1,12 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-
-; TODO Comparator mixin or subtype of Func?
+#Include "%A_LineFile%\..\..\Func\Comparator.ahk"
 
 /**
  * Provides an interface for comparing two values by order, which allows
  * precise control over sorting arrays and other collections.
  * 
  * In general, two values can be ordered by using `A.Compare(B)`.
- * This is done with so-called "comparators". Unset values are **not**
- * supported.
+ * This is done with so-called "comparators".
  * 
  * ---
  * 
@@ -24,14 +22,13 @@
  * 
  * Primitive types are provided a standard comparator function.
  * 
- * Use the {@link Comparator} class for creating custom comparators that can
- * handle objects.
- * 
  * ---
  * 
  * **<MyClass>.Compare()**:
  * 
- * 
+ * Allows two values to be compared by their natural ordering. Depending on
+ * the calling class (e.g. `Number.Compare()`), input values are type-checked
+ * to ensure a value `is <MyClass>`.
  * 
  * ---
  * 
@@ -52,7 +49,7 @@
  * 
  * ; << using `static Compare(A, B)` >>
  * Number.Compare(-1, 2) ; -1
- * Object.Compare(Object) ; Error! Class is not comparable.
+ * Object.Compare(Object) ; Error! Type "Class" is not comparable.
  * 
  * ; << `static Compare()` does type checking >>
  * Array.Compare(1, 2) ; TypeError! Expected an Array.
@@ -64,7 +61,93 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class AquaHotkey_Ord extends AquaHotkey {
+class AquaHotkey_Ord extends AquaHotkey
+{
+    ;@region Any
+    class Any {
+        /**
+         * Unsupported `.Compare()` method.
+         * 
+         * @param   {Any}  Other  any value
+         * @returns {Integer}
+         */
+        Compare(Other) {
+            throw PropertyError("Not applicable for this type",, Type(this))
+        }
+
+        /**
+         * Determines whether this value has a natural ordering greater than
+         * the other value.
+         * 
+         * @param   {Any}  Other  other value
+         * @returns {Boolean}
+         * @example
+         * ([1, 2]).Gt([1, 1]) ; true
+         */
+        Gt(Other) => (this.Compare(Other) > 0)
+
+        /**
+         * Determines whether this value has a natural ordering greater than
+         * or equal to the other value.
+         * 
+         * @param   {Any}  Other  other value
+         * @returns {Boolean}
+         * @example
+         * "foo".Ge("foo") ; true
+         */
+        Ge(Other) => (this.Compare(Other) >= 0)
+
+        /**
+         * Determines whether this value has a natural ordering equal to
+         * the other value. Unlike `.Eq()`, this method does NOT check actual
+         * object equality.
+         * 
+         * It's strongly recommended that if `A.Eq(B)`, then also `A.OrdEq(B)`.
+         * 
+         * @param   {Any}  Other  other value
+         * @returns {Boolean}
+         * @example
+         * (123).OrdEq(123) ; true
+         */
+        OrdEq(Other) => (this.Compare(Other) == 0)
+
+        /**
+         * Determines whether this value has a natural ordering that is not equal
+         * to the other value, i.e. whether the value is greater or less than the
+         * other.
+         * 
+         * @param   {Any}  Other  other value
+         * @returns {Boolean}
+         * @example
+         * (123).OrdNe(42) ; true
+         */
+        OrdNe(Other) => (this.Compare(Other) != 0)
+
+        /**
+         * Determines whether this value has a natural ordering less than or equal
+         * to the other value.
+         * 
+         * @param   {Any}  Other  other value
+         * @returns {Boolean}
+         * @example
+         * (123).Le(123) ; true
+         */
+        Le(Other) => (this.Compare(Other) <= 0)
+
+        /**
+         * Determines whether this value has a natural ordering less than the
+         * other value.
+         * 
+         * @param   {Any}  Other  other value
+         * @returns {Boolean}
+         * @example
+         * (123).Lt(42) ; false
+         */
+        Lt(Other) => (this.Compare(Other) < 0)
+    }
+    ;@endregion
+
+    ;@region Number
     class Number {
         /**
          * Compares this number with another number. Numeric strings are not
@@ -84,7 +167,9 @@ class AquaHotkey_Ord extends AquaHotkey {
             return (this > Other) - (Other > this)
         }
     }
+    ;@endregion
 
+    ;@region String
     class String {
         /**
          * Compares this string with another string via case-insensitive
@@ -103,21 +188,18 @@ class AquaHotkey_Ord extends AquaHotkey {
             return StrCompare(this, Other)
         }
     }
+    ;@endregion
 
+    ;@region Array
     class Array {
         /**
          * Compares this array with another array. This is done by comparing its
          * elements.
          * 
-         * @example
-         * 
-         * ; 1.Compare(1) => 0
-         * ; 2.Compare(2) => 0
-         * ; 3.Compare(4) => -1
-         * ([1, 2, 3]).Compare([1, 2, 4]) ; -1
-         * 
          * @param   {Array}  Other  any array
          * @returns {Integer}
+         * @example
+         * ([1, 2, 3]).Compare([1, 2, 4]) ; -1
          */
         Compare(Other) {
             if (!(Other is Array)) {
@@ -133,62 +215,44 @@ class AquaHotkey_Ord extends AquaHotkey {
                     ; the array with more elements is considered larger
                     return AHasElements - BHasElements
                 }
+                Result := A.Compare(B)
+                if (Result) {
+                    return Result
+                }
             }
         }
     }
+    ;@endregion
 
-    class Any {
-        /**
-         * Default, unsupported compare function.
-         * 
-         * @param   {Any}  Other  any value
-         * @throws  always
-         */
-        Compare(Other) {
-            throw TypeError("This type is not comparable",, Type(this))
-        }
-    }
-
+    ;@region Class
     class Class {
         /**
          * Returns a type-checked comparison function.
          * 
-         * @example
-         * NumCompare := Number.Compare
-         * 
-         * NumCompare(1, 2) ; -1
-         * NumCompare("foo", "bar") ; Error! Expected a Number.
-         * 
          * @returns {Func}
+         * @example
+         * MyArray.Sort(String.Compare)
          */
-        Compare => (A, B) => this.Compare(A, B)
+        Compare => Comparator(ObjBindMethod(this, "Compare"))
 
         /**
-         * Compares two values by order.
+         * Compares two values by order. This method is type-checked, meaning
+         * that both inputs are assured to be instances of the calling class.
          * 
          * @param   {Any}  A  first value
          * @param   {Any}  B  second value
          * @returns {Integer}
+         * @example
+         * String.Compare("foo", "bar")       ; 4
+         * String.Compare([1, 2], Buffer(16)) ; TypeError!
          */
-        Compare(Args*) {
-            switch (Args.Length) {
-            case 1:
-                return super.Compare(Args[1])
-            case 2:
-                A := Args[1]
-                B := Args[2]
-                if (!(A is this)) {
-                    throw TypeError("Expected a(n) " . this.Prototype.__Class,,
-                            Type(A))
-                }
-                if (!(B is this)) {
-                    throw TypeError("Expected a(n) " . this.Prototype.__Class,,
-                            Type(B))
-                }
+        Compare(A, B) {
+            if ((A is this) && (B is this)) {
                 return A.Compare(B)
-            default:
-                throw ValueError("invalid param count: " . Args.Length)
             }
+            throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                            Type(A) . ", " . Type(B))
         }
     }
+    ;@endregion
 }

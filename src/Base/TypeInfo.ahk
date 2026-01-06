@@ -15,7 +15,6 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
          * 
          * @returns {String}
          * @example
-         * 
          * "foo".Type ; "String"
          */
         Type => Type(this)
@@ -26,21 +25,18 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
          * @readonly
          * @returns {String}
          * @example
-         * "foo".Class ; String
+         * "foo".Class ; String (class)
          */
         Class => Class.ForName(
                         (IsObject(this) && ObjHasOwnProp(this, "__Class"))
                                 ? this.__Class
                                 : Type(this))
 
-        ; TODO return type?
         /**
          * Returns the chain of bases of this value, including the value itself.
          * 
-         * @readonly
          * @returns {Array}
          * @example
-         * 
          * ; ["foo", String.Prototype, Primitive.Prototype, Any.Prototype]
          * "foo".Hierarchy
          */
@@ -63,7 +59,6 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
          * @readonly
          * @returns {Array}
          * @example
-         * 
          * ; [String.Prototype, Primitive.Prototype, Any.Prototype]
          * "foo".Bases
          */
@@ -89,11 +84,7 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
          * @returns {Class}
          * @throws  {UnsetError} when unable to find class
          * @example
-         * 
-         * Cls := Class.ForName("Gui.ActiveX")
-         * 
-         * Type(Cls) ; "Class"
-         * Cls.Prototype.__Class ; "Gui.ActiveX"
+         * Cls := Class.ForName("Gui.ActiveX") ; Gui.ActiveX (class)
          */
         static ForName(ClassName) {
             if (IsObject(ClassName)) {

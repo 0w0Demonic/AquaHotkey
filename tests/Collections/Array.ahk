@@ -38,18 +38,6 @@ class Array {
         Array(1, 2, 4).IsEmpty.AssertEquals(false)
     }
 
-    static HasElements1() {
-        Array(1, 2, 4).HasElements.AssertEquals(true)
-    }
-
-    static HasElements2() {
-        Array(unset, unset, 1).HasElements.AssertEquals(true)
-    }
-
-    static HasElements3() {
-        Array(unset, unset, unset).HasElements.AssertEquals(false)
-    }
-
     static Swap1() {
         Array("1", "2").Swap(1, 2).Join().AssertEquals("21")
     }
@@ -107,18 +95,6 @@ class Array {
         Array(1, 3, 56, 23, 12).Sort(, true).Join(" ")
             .AssertEquals("56 23 12 3 1")
     }
-    
-    static Sort5() {
-        Array("FOO", "foo", "Foo").SortAlphabetically(true).Join(" ")
-            .AssertEquals("FOO Foo foo")
-    }
-
-    static Sort6() {
-        Array("apple", "Apple", "APPLE")
-            .SortAlphabetically(true, true)
-            .Join(" ")
-            .AssertEquals("APPLE Apple apple")
-    }
 
     static Sort7() {
         static Comparator(a?, b?) {
@@ -149,15 +125,6 @@ class Array {
         vbuf := Buffer(24, 0)
         vref := ComValue(0x400C, vbuf.Ptr)
         Array(vbuf, vbuf).Sort(CompBuffers)
-    }
-
-    static SortAlphabetically() {
-        Array(1, 4, 2, 3).SortAlphabetically().Join().AssertEquals("1234")
-    }
-
-    static SortAlphabetically2() {
-        Array("foo", "FOO").SortAlphabetically(true)
-                           .Join().AssertEquals("FOOfoo")
     }
 
     static Max1() {
@@ -221,11 +188,11 @@ class Array {
     }
     
     static Sum() {
-        Array(1, 2, 3, 4, unset).Sum().AssertEquals(10)
+        Array(1, 2, 3, 4).Sum().AssertEquals(10)
     }
 
     static Average() {
-        Array(1, 2, 3, 4, unset).Average().AssertEquals(2.5)
+        Array(1, 2, 3, 4).Average().AssertEquals(2.5)
     }
 
     static Map1() {
@@ -343,11 +310,11 @@ class Array {
     }
 
     static Join() {
-        Array(1, 2, 3).Join(" ", 64).AssertEquals("1 2 3")
+        Array(1, 2, 3).Join(" ").AssertEquals("1 2 3")
     }
 
     static JoinLine() {
-        Array(1, 2, 3).JoinLine(64).AssertEquals("
+        Array(1, 2, 3).JoinLine().AssertEquals("
         (
         1
         2

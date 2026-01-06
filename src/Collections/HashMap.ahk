@@ -2,10 +2,7 @@
 #Include "%A_LineFile%\..\..\Base\Hash.ahk"
 
 /**
- * A simple hash table implementation. Only the basic {@link Map} API is
- * supported, although you can convert instances of this class into a
- * {@link Stream} or {@link DoubleStream}. Don't expect anything beyond the
- * simple map operations to work properly.
+ * A simple hash table implementation.
  * 
  * This map depends on modules <Base/Eq> and <Base/Hash> to spread objects
  * evenly across the map, and to perform equality checks between the values.
@@ -68,33 +65,43 @@ class HashMap extends Map {
      */
     Mask => (this.Capacity - 1)
 
-    ; TODO constructor with values
-
     /**
      * Constructs a new hash table with the given initial capacity.
      * 
      * @param   {Integer?}  Cap  initial capacity
      */
-    __New(Cap := HashMap.InitialCap) {
-        Cap := HashMap.CapacityFor(Cap)
+    __New(Values*) {
+        if (Values.Length & 1) {
+            throw ValueError("invalid param count",, Values.Length)
+        }
+        Cap := HashMap.CapacityFor(Max(Values.Length, 16))
 
         Bucket := Array()
         Bucket.Default := false
         Bucket.Capacity := Cap
-        Loop Cap {
+        loop Cap {
             Bucket.Push(false)
         }
 
         this.DefineProp("Capacity", { Get: (_) => Cap    })
         this.DefineProp("Bucket",   { Get: (_) => Bucket })
         this.DefineProp("Count",    { Get: (_) => 0      })
+
+        Enumer := Values.__Enum(1)
+        while (Enumer(&Key) && Enumer(&Value)) {
+            this.Set(Key, Value)
+        }
     }
 
     /**
      * Clears this hash map.
      */
     Clear() {
-        this.Bucket.Length := 0
+        B := this.Bucket
+        loop B.Length {
+            B.Delete(A_Index)
+        }
+        this.DefineProp("Count", { Get: (_) => 0 })
     }
 
     /**
@@ -138,7 +145,7 @@ class HashMap extends Map {
      * @returns {Any}
      */
     Delete(Key) {
-        Container := this.Bucket.Get((Key.Hash() & this.Mask) + 1)
+        Container := this.Bucket.Get((Key.HashCode() & this.Mask) + 1)
         if (Container) {
             for Entry in Container {
                 if (Key.Eq(Entry.Key)) {
@@ -160,7 +167,7 @@ class HashMap extends Map {
      * @returns {Any}
      */
     Get(Key, Default?) {
-        Index := ((Key.Hash() & this.Mask) + 1)
+        Index := ((Key.HashCode() & this.Mask) + 1)
         Container := this.Bucket.Get(Index)
         if (Container) {
             for Entry in Container {
@@ -185,7 +192,7 @@ class HashMap extends Map {
      * @returns {Boolean}
      */
     Has(Key) {
-        Index := ((Key.Hash() & this.Mask) + 1)
+        Index := ((Key.HashCode() & this.Mask) + 1)
         Container := this.Bucket.Get(Index)
         if (Container) {
             for Entry in Container {
@@ -214,7 +221,7 @@ class HashMap extends Map {
 
         Enumer := Args.__Enum(1)
         while (Enumer(&Key) && Enumer(&Value)) {
-            Index := (Key.Hash() & this.Mask) + 1
+            Index := (Key.HashCode() & this.Mask) + 1
             
             if (!this.Bucket.Get(Index)) {
                 this.Bucket[Index] := Array({ Key: Key, Value: Value })
@@ -239,6 +246,8 @@ class HashMap extends Map {
 
     /**
      * Increases the capacity of this hash map to the given max capacity.
+     * The capacity remains at least the amount of elements present in the
+     * hash map.
      * 
      * @param   {Integer}  Cap  the new capacity of the map
      */
@@ -250,7 +259,7 @@ class HashMap extends Map {
 
         Bucket := Array()
         Bucket.Capacity := Cap
-        Loop Cap {
+        loop Cap {
             Bucket.Push(false)
         }
 
@@ -280,17 +289,17 @@ class HashMap extends Map {
             static Containers := this.Bucket.__Enum(1)
             static Entries := (*) => false
             
-            Loop {
+            loop {
                 if (Entries(&Entry)) {
                     Key := Entry.Key
                     Value := Entry.Value
                     return true
                 }
-                Loop {
+                loop {
                     if (!Containers(&Container)) {
                         return false
                     }
-                } Until (Container)
+                } until (Container)
                 Entries := Container.__Enum(1)
             }
         }

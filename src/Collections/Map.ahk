@@ -1,58 +1,138 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
- * AquaHotkey - Map.ahk
+ * Map utils and stream-like operations.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/Map.ahk
+ * @module  <Collections/Map>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Map extends AquaHotkey {
 class Map {
-    ;@region Configuration
     /**
-     * Sets the `Default` property of the map.
+     * Creates a new empty map with the same base object, case sensitivity and
+     * `Default` property of the given map. None of the actual map elements
+     * are copied.
      * 
+     * @param   {Map}  M  the map to be copied
+     * @returns {Map}
      * @example
-     * MapObj := Map().SetDefault("(empty)")
-     * MapObj["foo"] ; "(empty)"
+     * M := Map(1, 2, 3, 4)
+     * M.CaseSense := false
+     * M.Default := "(empty)"
      * 
-     * @param   {Any}  Default  new default return value
-     * @returns {this}
+     * Copy := Map.BasedFrom(M)
+     * MsgBox(ObjGetBase(Copy) == ObjGetBase(M)) ; always `true`
+     * MsgBox(Copy.CaseSense) ; false
+     * MsgBox(Copy.Default) ; "(empty)"
      */
-    SetDefault(Default) {
-        this.Default := Default
+    static BasedFrom(M) {
+        static Define  := {}.DefineProp
+        static GetProp := {}.GetOwnPropDesc
+
+        Result := Map()
+        ObjSetBase(Result, ObjGetBase(M))
+
+        Result.CaseSense := M.CaseSense
+        for PropertyName in ObjOwnProps(M) {
+            Define(Result, PropertyName, GetProp(M, PropertyName))
+        }
+        return Result
+    }
+
+    /**
+     * Returns a new map of all elements that fulfill the given `Condition`.
+     * 
+     * ```ahk
+     * Condition(Key, Value, Args*) => Boolean
+     * ```
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
+     * @returns {Map}
+     * @example
+     * ; Map { 1 => 2 }
+     * Map(1, 2, 3, 4).RetainIf((Key, Value) => (Key == 1))
+     */
+    RetainIf(Condition, Args*) {
+        GetMethod(Condition)
+        Result := Map.BasedFrom(this)
+        for Key, Value in this {
+            (Condition(Key, Value, Args*) && Result[Key] := Value)
+        }
+        return Result
+    }
+
+    /**
+     * Returns a new map of all elements that don't satisfy the given
+     * `Condition`.
+     * 
+     * ```ahk
+     * Condition(Key, Value, Args*) => Boolean
+     * ```
+     * 
+     * @param   {Func}  Condition  function that evaluates a condition
+     * @param   {Any*}  Args       zero or more additional arguments
+     * @returns {this}
+     * @example
+     * ; Map { 3 => 4 }
+     * Map(1, 2, 3, 4).RemoveIf((Key, Value) => (Key == 1))
+     */
+    RemoveIf(Condition, Args*) {
+        GetMethod(Condition)
+        Result := Map.BasedFrom(this)
+        for Key, Value in this {
+            (Condition(Key, Value, Args*) || Result[Key] := Value)
+        }
+        return Result
+    }
+
+    /**
+     * Replaces all values in the map *in place* by applying `Mapper` to
+     * each element.
+     * 
+     * ```ahk
+     * Mapper(Key, Value, Args*) => Any
+     * ```
+     * 
+     * @param   {Func}  Mapper  function that returns a new value
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {this}
+     * @example
+     * ; Map { 1 => 4, 3 => 8 }
+     * Map(1, 2, 3, 4).ReplaceAll((Key, Value) => (Value * 2))
+     */
+    ReplaceAll(Mapper, Args*) {
+        GetMethod(Mapper)
+        for Key, Value in this {
+            this[Key] := Mapper(Key, Value, Args*)
+        }
         return this
     }
 
     /**
-     * Sets the capacity of the map.
+     * Returns a new map of elements transformed by applying `Mapper` to
+     * each element.
      * 
+     * ```ahk
+     * Mapper(Key, Value, Args*) => Any
+     * ```
+     * 
+     * @param   {Func}  Mapper  function that returns a new value
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {Map}
      * @example
-     * MapObj := Map().SetCapacity(128)
-     * 
-     * @param   {Integer}  Capacity  new capacity
-     * @returns {this}
+     * ; Map { 1 => 4, 3 => 8 }
+     * Map(1, 2, 3, 4).Map((Key, Value) => (Value * 2))
      */
-    SetCapacity(Capacity) {
-        this.Capacity := Capacity
-        return this
+    Map(Mapper, Args*) {
+        GetMethod(Mapper)
+        Result := Map.BasedFrom(this)
+        for Key, Value in this {
+            Result[Key] := Mapper(Key, Value, Args*)
+        }
+        return Result
     }
-
-    /**
-     * Sets the case-sensitivity of the map.
-     * 
-     * @example
-     * MapObj := Map().SetCaseSense(false)
-     * 
-     * @param   {Primitive}  CaseSense  new case-sensitivity
-     * @returns {this}
-     */
-    SetCaseSense(CaseSense) {
-        this.CaseSense := CaseSense
-        return this
-    }
-    ;@endregion
 
     ;@region General
 
@@ -61,46 +141,33 @@ class Map {
     /**
      * Returns an array of all keys in the map.
      * 
+     * @returns {Array}
      * @example
      * Map(1, 2, "foo", "bar").Keys() ; [1, "foo"]
-     * 
-     * @returns {Array}
      */
     Keys() => Array(this*)
 
     /**
      * Returns an array of all values in the map.
      * 
+     * @returns {Array}
      * @example
      * Map(1, 2, "foo", "bar").Values() ; [2, "bar"]
-     * 
-     * @returns {Array}
      */
     Values() => Array(this.__Enum(2).Bind(&Ignore)*)
 
-    /**
-     * Returns `true`, if this map is empty (has no entries).
-     * 
-     * @example
-     * Map().IsEmpty ; true
-     * Map(1, 2, "foo", "bar").IsEmpty ; false
-     * 
-     * @returns {Boolean}
-     */
-    IsEmpty => (!this.Count)
     ;@endregion
 
     ;@region Mutations
     /**
      * If absent, adds a new map element.
      * 
-     * @example
-     * ; Map { "foo" => "bar" }
-     * Map().PutIfAbsent("foo", "bar") ; "bar"
-     * 
      * @param   {Any}  Key    map key
      * @param   {Any}  Value  value associated with map key
      * @returns {this}
+     * @example
+     * ; Map { "foo" => "bar" }
+     * Map().PutIfAbsent("foo", "bar") ; "bar"
      */
     PutIfAbsent(Key, Value) {
         (this.Has(Key) || this[Key] := Value)
@@ -112,16 +179,15 @@ class Map {
      * `Mapper` to the given key.
      * 
      * ```ahk
-     * Mapper(Key)
+     * Mapper(Key) => Any
      * ```
-     * 
-     * @example
-     * ; Map { 1 => 2 }
-     * Map().ComputeIfAbsent(1, (Key => Key * 2))
      * 
      * @param   {Any}   Key     key of the map entry
      * @param   {Func}  Mapper  function that creates a new value
      * @returns {this}
+     * @example
+     * ; Map { 1 => 2 }
+     * Map().ComputeIfAbsent(1, (Key => Key * 2))
      */
     ComputeIfAbsent(Key, Mapper) {
         GetMethod(Mapper)
@@ -134,16 +200,15 @@ class Map {
      * using key and value as arguments.
      * 
      * ```ahk
-     * Mapper(Key, Value)
+     * Mapper(Key, Value) => Any
      * ```
-     * 
-     * @example
-     * ; Map { 1 => 3 }
-     * Map(1, 2).ComputeIfPresent(1, (Key, Value) => (Key + Value))
      * 
      * @param   {Any}   Key     key of the map entry
      * @param   {Func}  Mapper  function that creates a new value
      * @returns {this}
+     * @example
+     * ; Map { 1 => 3 }
+     * Map(1, 2).ComputeIfPresent(1, (Key, Value) => (Key + Value))
      */
     ComputeIfPresent(Key, Mapper) {
         GetMethod(Mapper)
@@ -159,20 +224,12 @@ class Map {
      * Mapper(Key, Value?)
      * ```
      * 
-     * @example
-     * Mapper(Key, Value?) {
-     *     if (!IsSet(Value)) {
-     *         return 1
-     *     }
-     *     return ++Value
-     * }
-     * 
-     * ; Map { "foo" => 1 }
-     * Map().Compute("foo", Mapper)
-     * 
      * @param   {Any}   Key     key of the map entry
      * @param   {Func}  Mapper  function that creates a new value
      * @returns {this}
+     * @example
+     * ; Map { "foo" => 1 }
+     * Map().Compute("foo", (Key, Value?) => ((Value ?? 0) + 1))
      */
     Compute(Key, Mapper) {
         GetMethod(Mapper)
@@ -192,13 +249,12 @@ class Map {
      * Combiner(OldValue, NewValue)
      * ```
      * 
-     * @example
-     * Map().Merge("foo", 1, (a, b) => (a + b))
-     * 
      * @param   {Any}   Key       map key
      * @param   {Any}   Value     the new value
      * @param   {Func}  Combiner  function to merge both values with
      * @returns {this}
+     * @example
+     * Map().Merge("foo", 1, (a, b) => (a + b))
      */
     Merge(Key, Value, Combiner) {
         GetMethod(Combiner)

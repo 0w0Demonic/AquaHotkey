@@ -14,27 +14,23 @@ class VarRef {
      * This is particularly useful for passing strings to `DllCall()`
      * by reference.
      * 
+     * @returns {Integer}
      * @example
      * Str := "Hello, world!"
      * DllCall("...", "Ptr", &Str)
-     * 
-     * @returns {Integer}
      */
     Ptr {
         Get {
             if (!IsSetRef(this)) {
                 throw UnsetError("unset value")
             }
-            if (%this% is String) {
+            if (!IsObject(%this%)) {
                 return StrPtr(%this%)
             }
-            if (IsObject(%this%)) {
-                if (HasProp(%this%, "Ptr")) {
-                    return %this%.Ptr
-                }
-                return ObjPtr(%this%)
+            if (HasProp(%this%, "Ptr")) {
+                return %this%.Ptr
             }
-            throw TypeError("invalid type",, Type(%this%))
+            return ObjPtr(%this%)
         }
     }
 } ; class VarRef

@@ -15,15 +15,14 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class LinkedList
-{
-    /**
-     * Determines whether the list is empty.
-     * 
-     * @readonly
-     * @returns {Boolean} whether the list is empty
-     */
-    IsEmpty => (!this.Size)
+class LinkedList {
+    static __New() {
+        (AquaHotkey_Sizeable)
+        if (this != LinkedList) {
+            return
+        }
+        Sizeable.ApplyOnto(this)
+    }
 
     /**
      * The first node in the list, otherwise `false` when empty.
@@ -460,4 +459,3 @@ class LinkedList
         Next => false
     }
 }
-
