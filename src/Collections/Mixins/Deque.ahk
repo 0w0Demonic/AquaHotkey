@@ -1,8 +1,3 @@
-#Requires AutoHotkey v2.0
-
-#Include <AquaHotkey\src\Stream\Stream>
-#Include <AquaHotkey\src\Collections\Mixins\Enumerable1>
-
 /**
  * @mixin
  * Assumes:
@@ -11,14 +6,25 @@
  * - `Poll()`
  */
 class Deque {
-    static __New() => this.Backup(Enumerable1)
+    /**
+     * Determines whether the value can be used as a deque.
+     * 
+     * @param   {Any}  Val  any value
+     * @returns {Boolean}
+     */
+    static IsInstance(Val) {
+        return IsObject(Val)
+            && HasProp(Val, "IsEmpty")
+            && HasMethod(Val, "Pop")
+            && HasMethod(Val, "Poll")
+    }
 
     Drain() {
         return Stream(Drain)
 
         Drain(&Out) {
             if (!this.IsEmpty) {
-                Out := this.Pop()
+                Out := (this.Pop()?)
                 return true
             }
             return false
@@ -30,7 +36,7 @@ class Deque {
 
         Slurp(&Out) {
             if (!this.IsEmpty) {
-                Out := this.Poll()
+                Out := (this.Poll()?)
                 return true
             }
             return false

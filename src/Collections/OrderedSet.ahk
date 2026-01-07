@@ -3,7 +3,7 @@
 /**
  * 
  */
-class OrderedSet extends Map
+class OrderedSet
 {
     First := false
     Last := false

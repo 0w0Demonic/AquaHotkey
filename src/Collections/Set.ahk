@@ -7,23 +7,19 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class Set
-{
-    /**
-     * Constructs a new set by accepting a backing map.
-     * 
-     * @param   {Map}  M  the backing map
-     * @returns {Set}
-     */
-    static FromMap(M) {
-        ObjSetBase(Result := Object(), this.Prototype)
-        Result.DefineProp("M", { Get: (_) => M })
-        return Result
+class Set {
+    static __New() {
+        if (this != Set) {
+            return
+        }
+        this.IsSizedBy("Count")
+        this.Backup(Enumerable1)
     }
 
     /**
      * Constructs a new set containing the given values as elements.
      * 
+     * @constructor
      * @param   {Any*}  Values  zero or more elements
      */
     __New(Values*) {
@@ -37,16 +33,15 @@ class Set
     /**
      * Returns a mutable map view of this set.
      * 
+     * @returns {Map}
      * @example
      * S := Set(1, 2, 3)
      * 
-     * ; Map { 1 => true, 2 => true, 3 => true }
+     * ; Map { 1: true, 2: true, 3: true }
      * M := S.AsMap()
-     * M.Set("foo", true)
+     * M.Set("foo", "bar")
      * 
-     * S.Contains("foo") ; true
-     * 
-     * @returns {Map}
+     * S.Has("foo") ; true
      */
     AsMap() => this.M
 
@@ -62,7 +57,7 @@ class Set
      * M := S.ToMap()
      * M.Set("foo", true)
      * 
-     * S.Contains("foo")
+     * S.Has("foo")
      */
     ToMap() => this.M.Clone()
 
@@ -104,45 +99,67 @@ class Set
     }
 
     /**
+     * Determines whether the given value is present in the set.
      * 
+     * @param   {Any}  Value  any value
+     * @returns {Boolean}
+     * @example
+     * Set(1, 2, 3).Has(3) ; true
      */
     Has(Value) => this.M.Has(Value)
 
+    ; TODO what kind of equality check to use?
     /**
+     * Determines whether any of the given values is present in the set.
      * 
-     */
-    Contains(Value) => this.M.Has(Value)
-
-    /**
-     * 
+     * @param   {Any}   Value   any value
+     * @param   {Any*}  Values  zero or more values
+     * @returns {Boolean}
+     * @example
+     * Set(1, 2, 3).HasAny()
      */
     HasAny(Value, Values*) {
-
+        if (this.Has(Value)) {
+            return true
+        }
+        for V in Values {
+            if (this.Has(V)) {
+                return true
+            }
+        }
+        return false
     }
 
     /**
+     * Determines whether all of the given values are present in the set.
      * 
-     */
-    ContainsAny(Value, Values*) {
-
-    }
-
-    /**
-     * 
+     * @param   {Any}   Value   any value
+     * @param   {Any*}  Values  zero or more values
+     * @returns {Boolean}
+     * @example
+     * Set(1, 2, 3).HasAll(1, 2, 3)
      */
     HasAll(Value, Values*) {
-
+        if (!this.Has(Value)) {
+            return false
+        }
+        for V in Values {
+            if (!this.Has(V)) {
+                return false
+            }
+        }
+        return true
     }
 
     /**
-     * 
-     */
-    ContainsAll(Value, Values*) {
-
-    }
-
-    /**
-     * 
+     * Adds one or more values to the set.
+     * @param   {Any}   Value   any value
+     * @param   {Any*}  Values  zero or more values
+     * @returns {Boolean}
+     * @example
+     * S := Set()
+     * S.Add("value1", "value2")
+     * MsgBox(S.Has("value1")) ; true
      */
     Add(Value, Values*) {
         Changed := (!this.M.Has(Value))
@@ -197,10 +214,14 @@ class Set
      * 
      * @param   {Any}  Value  any value
      * @returns {Boolean}
+     * @example
+     * if (MySet[123]) {
+     *     ...
+     * }
      */
     __Item[Value] => this.Has(Value)
-    
-    ; TODO put this into `Enumerable1` mixin?
+
+    ; TODO use `Enumerable1` for hashing?
 
     /**
      * - (Requires `AquaHotkey_Hash`)
@@ -209,7 +230,7 @@ class Set
      * 
      * @returns {Integer}
      */
-    Hash() => (Array.Prototype.Hash)(this)
+    HashCode() => (Array.Prototype.Hash)(this)
 
     /**
      * - (Requires `AquaHotkey_Eq`)
@@ -217,7 +238,7 @@ class Set
      * Determines whether this set is equal to the `Other` value.
      * 
      * This happens, when both values are sets of the same size and
-     * share equivalent values (`.Contains(Value)`).
+     * share equivalent values (`.Has(Value)`).
      * 
      * @param   {Any?}  Other  any value
      * @returns {Boolean}
@@ -242,28 +263,9 @@ class Set
         }
         return true
     }
-
-    static __New() {
-        if (this != Set) {
-            return
-        }
-        if (!IsSet(AquaHotkey_Hash)) {
-            this.Prototype.DeleteProp("Hash")
-        }
-        if (!IsSet(AquaHotkey_Eq)) {
-            this.Prototype.DeleteProp("Eq")
-        }
-    }
 }
 
-#Include <AquaHotkey>
-
-class AquaHotkey_Set
-{
-    static __New() => (this == AquaHotkey_Set)
-                && IsSet(AquaHotkey) && (AquaHotkey is Class)
-                && (AquaHotkey.__New)(this)
-
+class AquaHotkey_Set extends AquaHotkey {
     class Map {
         /**
          * Returns a mutable set view of this map.
@@ -290,7 +292,5 @@ class AquaHotkey_Set
             }
             return SetClass(this*)
         }
-
-        ; TODO static FromSet() or similar?
     }
 }

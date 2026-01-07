@@ -4,23 +4,26 @@
 /**
  * A simple hash table implementation.
  * 
- * This map depends on modules <Base/Eq> and <Base/Hash> to spread objects
- * evenly across the map, and to perform equality checks between the values.
- * 
- * @example
- * M := HashMap()
- * 
- * M.Set([1, 2], "old value")
- * M.Set([1, 2], "new value")
- * 
- * MsgBox(M.Count) ; 1
- * MsgBox(M.Get([1, 2])) ; "new value"
+ * This class uses AquaHotkey's equality checks `.Eq()` and hash methods
+ * (`.HashCode()`) to test keys for equivalance instead of object reference.
  * 
  * @module  <Collections/HashMap>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @example
+ * M := HashMap()
+ * 
+ * M.Set([1, 2], "old value")
+ * M.Set([1, 2], "new value") ; [1, 2].Eq([1, 2]) => true
+ * 
+ * MsgBox(M.Count) ; 1
+ * MsgBox(M.Get([1, 2])) ; "new value"
  */
 class HashMap extends Map {
+    static __New() => (this == HashMap)
+        && ({}.DefineProp)(this, "CapacityFor",
+                          ({}.GetOwnPropDesc)(this.Prototype, "CapacityFor"))
+
     /**
      * Standard load factor to indicate how full the {@link HashMap} is allowed
      * to get before being resized.
@@ -30,11 +33,21 @@ class HashMap extends Map {
     static LoadFactor => 0.75
 
     /**
-     * Initial capacity of the hash table.
+     * Initial minimum capacity of the hash table.
      * 
      * @returns {Integer}
      */
     static InitialCap => 16
+
+    ;>> NOTE: this gets replaced by `HashMap#CapacityFor` when class is loaded
+    /**
+     * Returns the given number if it is a power of 2, otherwise returns the
+     * next power of 2.
+     * 
+     * @param   {Integer}  x  amount of elements to fit into the `HashMap`
+     * @returns {Integer}
+     */
+    static CapacityFor(x) => (this.Prototype).CapacityFor(x)
 
     /**
      * Returns the given number if it is a power of 2, otherwise returns the
@@ -43,14 +56,15 @@ class HashMap extends Map {
      * @param   {Integer}  x  amount of elements to fit into the `HashMap`
      * @returns {Integer}
      */
-    static CapacityFor(x) {
+    CapacityFor(x) {
+        x := Max(x, HashMap.InitialCap)
         if (!IsInteger(x)) {
             throw TypeError("Expected an Integer",, Type(x))
         }
         if (x <= 0) {
             throw ValueError("Capacity must be greater than 0",, x)
         }
-        --x
+        --x ; prevent making larger, if already power of 2
         x |= (x >>> 1)
         x |= (x >>> 2)
         x |= (x >>> 4)
@@ -74,7 +88,7 @@ class HashMap extends Map {
         if (Values.Length & 1) {
             throw ValueError("invalid param count",, Values.Length)
         }
-        Cap := HashMap.CapacityFor(Max(Values.Length, 16))
+        Cap := this.CapacityFor(Values.Length)
 
         Bucket := Array()
         Bucket.Default := false
@@ -87,10 +101,7 @@ class HashMap extends Map {
         this.DefineProp("Bucket",   { Get: (_) => Bucket })
         this.DefineProp("Count",    { Get: (_) => 0      })
 
-        Enumer := Values.__Enum(1)
-        while (Enumer(&Key) && Enumer(&Value)) {
-            this.Set(Key, Value)
-        }
+        this.Set(Values*)
     }
 
     /**
@@ -99,7 +110,7 @@ class HashMap extends Map {
     Clear() {
         B := this.Bucket
         loop B.Length {
-            B.Delete(A_Index)
+            B[A_Index] := false
         }
         this.DefineProp("Count", { Get: (_) => 0 })
     }
@@ -220,27 +231,28 @@ class HashMap extends Map {
         NewCount := this.Count
 
         Enumer := Args.__Enum(1)
+
+        itemPair:
         while (Enumer(&Key) && Enumer(&Value)) {
             Index := (Key.HashCode() & this.Mask) + 1
             
             if (!this.Bucket.Get(Index)) {
                 this.Bucket[Index] := Array({ Key: Key, Value: Value })
                 ++NewCount
-                return
+                continue
             }
 
             Container := this.Bucket.Get(Index)
             for Entry in Container {
                 if (Key.Eq(Entry.Key)) {
                     Entry.Value := Value
-                    return
+                    continue itemPair
                 }
             }
             Container.Push({ Key: Key, Value: Value })
             ++NewCount
         }
-
-        this.DefineProp("Count", { Get: (_) => NewCount })
+        ({}.DefineProp)(this, "Count", { Get: (_) => NewCount })
         return
     }
 
@@ -313,7 +325,7 @@ class HashMap extends Map {
             throw UnsetError("Capacity property is absent")
         }
         set {
-            value := HashMap.CapacityFor(value)
+            value := this.CapacityFor(value)
             if (value >= (this.Count * HashMap.LoadFactor)) {
                 this.Resize(value)
             }
@@ -352,6 +364,8 @@ class HashMap extends Map {
     /**
      * Gets and sets items in the hash map.
      * 
+     * Newly set values are not allowed to be `unset`.
+     * 
      * @param   {Any}  Key    the map key
      * @param   {Any}  Value  value to associate with the key
      * @returns {Any}
@@ -363,3 +377,5 @@ class HashMap extends Map {
         }
     }
 }
+
+MsgBox("result: " . HashMap(1, 2, 1, 2).Count)

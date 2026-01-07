@@ -17,21 +17,41 @@ own style and preferences.
 "Hello, World!".SubStr(1, 7).Append("AquaHotkey!").MsgBox()
 ```
 
-- Declaratively add and rewrite properties of built-in types
-- Make AutoHotkey match your style and needs. Clean, elegant, awesome.
+### What is Class Prototyping?
 
-### How it Works
+AutoHotkey v2 is a prototype-based language, exactly like JavaScript. Everything
+has an internal link to another object called its prototype, and so on,
+forming a "prototype chain".
 
-The overall concept behind class prototyping is simple: It involves adding
-or modifying properties of existing classes at runtime.
+Example - the number `42`:
 
 ```ahk
-; add a `.Length` property for strings
-({}.DefineProp)(String.Prototype, "Length", { Get: StrLen })
+42
+`- Integer.Prototype
+   `- Number.Protoype
+      `- Primitive.Prototype
+         `- Any.Prototype
 ```
 
-The hard part is making this *easy*. AquaHotkey's goal is to make class
-prototyping as straightforward and fun as possible.
+More interestingly, you can modify these prototypes to change the behaviour of
+any deriving object:
+
+```ahk
+Define := {}.DefineProp
+
+; add a `.Length` property for strings
+Define(String.Prototype, "Length", { Get: StrLen })
+
+MsgBox("foo".Length) ; 3
+```
+
+Although this method of adding properties and methods has existing for pretty
+long and can be found mostly in array/map utility libraries, it's tedious work
+when done manually.
+
+This is where AquaHotkey is the perfect tool for you:
+
+### How it Works
 
 Write a new class, make a few changes, done. AquaHotkey will do the rest of
 the job, ensuring your changes land where they need to be.
@@ -51,10 +71,26 @@ class StringLength extends AquaHotkey {
 "foo".Sub(2, 2)     ; "oo"
 ```
 
-For more insight on how this library evolved over time, check out
-[About AquaHotkey](./rambling/00_about.md).
+Arguably the best thing about how everything happens declaratively, and that
+it uses plain and simple "class syntax". In most cases, the use of
+[descriptors](https://www.autohotkey.com/docs/v2/lib/Object.htm#GetOwnPropDesc)
+can be fully avoided.
 
-### Massively Reusable
+```ahk
+...
+Contains(Pattern) => InStr(this, Pattern)
+```
+
+As you'd expect, the `this` keyword is simply a string instance.
+
+<TODO>
+- if you know what you're doing, you can make groundbreaking changes with just
+  a few classes and properties
+- this library uncovers a huge, beautiful but still vastly unexplored part of
+  AutoHotkey, and it's my job for you to explore
+</TODO>
+
+### Modular and Massively Reusable
 
 Once you're done making changes, you can move your AquaHotkey class into a
 separate file and `#Include` them across scripts whenever you need them.

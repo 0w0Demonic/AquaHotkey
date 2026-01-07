@@ -1,9 +1,43 @@
 #Requires AutoHotkey >=v2
+#Include <AquaHotkey>
 
 class AquaHotkey_Scheduler extends AquaHotkey {
     class Func {
         Schedule(Opt) {
+            ;...
+            SetTimer(-300, this)
+        }
+    }
+}
 
+With(Args*) {
+    if (Args.Length < 2) {
+        throw ValueError("invalid param count",, Args.Length)
+    }
+    Callback := Args.Pop()
+    GetMethod(Callback)
+    Callback(Args*)
+}
+
+class Schedule {
+    static Call(Opt, Callback) {
+        GetMethod(Callback)
+    }
+
+    Every(Expression) {
+        if (!(Expression is String)) {
+            throw TypeError("Expected a String",, Type(Expression))
+        }
+        if (!RegExMatch(Expression, "^(\d++)(\w)$", &Match)) {
+            throw ValueError("invalid expression",, Expression)
+        }
+        ; TODO replace this with a map or something
+        Unit := Match[2]
+        switch (StrLower(Unit)) {
+            case "s":
+                ; ...
+            default:
+                throw ValueError("invalid unit",, Unit)
         }
     }
 }
@@ -19,7 +53,6 @@ class Scheduler {
      */
     static FromCronExpression(Str) {
         Str.AssertType(String)
-
     }
 
     /**
@@ -27,32 +60,8 @@ class Scheduler {
      * @param   {Object}  Options  the schedule to be used
      */
     __New(Options) {
-        Options.Assert(IsObject)
-
+        if (!IsObject(Options)) {
+            throw TypeError("Expected an Object",, Type(Options))
+        }
     }
-}
-
-class AquaHotkey_Cycle extends AquaHotkey {
-    class Any {
-        Cycle(Count?) => Cycle(this, Count?)
-    }
-}
-
-Scheduler({
-    Second: 1,
-    Minute: 0,
-    Hour: [12, 17],
-    DayOfMonth: Ignore,
-    Month: Any,
-    DayOfWeek: Any,
-    Year:
-
-})
-
-Increment() {
-
-}
-
-class Ignore {
-
 }

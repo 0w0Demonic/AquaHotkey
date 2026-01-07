@@ -148,13 +148,7 @@ class Array {
     }
 
     static Max4() {
-        Array(unset, unset, 1, unset).Max().AssertEquals(1)
-    }
-
-    static Max5() {
-        TestSuite.AssertThrows(() => (
-            Array(unset, unset, unset).Max()
-        ))
+        TestSuite.AssertThrows(() => Array(unset, unset, 1, unset).Max())
     }
 
     static Min1() {
@@ -369,8 +363,7 @@ class Array {
     static Any() {
         Val := Array(1, 2, 3, 4, 5).Any(  (x) => (x > 3)  )
 
-        Val.AssertType(Object)
-        Val.Value.AssertEquals(4)
+        Val.AssertEquals(true)
     }
 
     static All() {
@@ -381,4 +374,3 @@ class Array {
         Array(1, 2, 3, 4, 5).None(  (x) => (x > 10)  ).AssertEquals(true)
     }
 }
-

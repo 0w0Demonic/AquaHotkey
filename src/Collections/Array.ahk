@@ -301,7 +301,7 @@ class Array {
      * be found.
      * 
      * This method requires...
-     * 1. that the array is sorted.
+     * 1. that the array is sorted (if not, use `ArrayObj.Sort()` first).
      * 2. that all elements support equality checks (`.Eq()`) and natural
      *    ordering (`.Compare()`) between each other.
      * 
@@ -363,11 +363,11 @@ class Array {
      * @param   {Integer}  X  amount of times to repeat the array
      * @returns {Array}
      * @example
-     * [3].Times(3) ; [3, 3, 3]
+     * [3].Repeat(3) ; [3, 3, 3]
      * 
-     * [ [3].Times(3) ].Times(3) ; [[3, 3, 3], [3, 3, 3], [3, 3, 3]]
+     * [ [3].Repeat(3) ].Repeat(3) ; [[3, 3, 3], [3, 3, 3], [3, 3, 3]]
      */
-    Times(X) {
+    Repeat(X) {
         ; TODO move this somewhere else?
         if (!IsInteger(X)) {
             throw TypeError("Expected an Integer",, Type(X))

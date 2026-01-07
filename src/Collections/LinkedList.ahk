@@ -17,11 +17,10 @@
  */
 class LinkedList {
     static __New() {
-        (AquaHotkey_Sizeable)
         if (this != LinkedList) {
             return
         }
-        Sizeable.ApplyOnto(this)
+        this.Backup(Sizeable, Deque)
     }
 
     /**
@@ -383,22 +382,6 @@ class LinkedList {
         
         if (Tail.Has()) {
             return Tail.Value
-        }
-    }
-
-    ; TODO turn this into an enumerable for stream?
-
-    Slurp(Action, Args*) {
-        while (!this.IsEmpty) {
-            Val := (this.Poll() ?? unset)
-            Action(Val?, Args*)
-        }
-    }
-
-    Drain(Action, Args*) {
-        while (!this.IsEmpty) {
-            Val := (this.Pop() ?? unset)
-            Action(Val?, Args*)
         }
     }
 

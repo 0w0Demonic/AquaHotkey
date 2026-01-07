@@ -1,4 +1,9 @@
-class Buffer {
+#Include <AquaHotkey>
+#Include <AquaHotkey/src/Base/Assertions>
+#Include <AquaHotkey/src/Base/Buffer>
+#Include <AquaHotkey/tests/TestSuite>
+
+class Test_Buffer extends TestSuite {
     static SizeOf_BasicTest() {
         Buffer.SizeOf("UInt64*").AssertEquals(A_PtrSize)
         Buffer.SizeOf("DoubleP").AssertEquals(A_PtrSize)
@@ -8,12 +13,12 @@ class Buffer {
     }
 
     static SizeOf_ThrowsOnBadType() {
-        TestSuite.AssertThrows(() => Buffer.SizeOf("invalid"))
+        this.AssertThrows(() => Buffer.SizeOf("invalid"))
     }
 
     static SizeOf_NoUnsignedFloats() {
-        TestSuite.AssertThrows(() => Buffer.SizeOf("UFloat"))
-        TestSuite.AssertThrows(() => Buffer.SizeOf("UDouble"))
+        this.AssertThrows(() => Buffer.SizeOf("UFloat"))
+        this.AssertThrows(() => Buffer.SizeOf("UDouble"))
     }
 
     static FromMemory() {
@@ -35,7 +40,7 @@ class Buffer {
     }
 
     static staticZero_ThrowsOnBadSize() {
-        TestSuite.AssertThrows(() => Buffer.Zero(-123))
+        this.AssertThrows(() => Buffer.Zero(-123))
     }
 
     static OfString() {
@@ -78,10 +83,10 @@ class Buffer {
     }
 
     static PutString_ThrowsOnBadInput() {
-        TestSuite.AssertThrows(() => Buffer(4).PutString(
+        this.AssertThrows(() => Buffer(4).PutString(
                 "the quick brown fox jumps over the lazy dog"))
 
-        TestSuite.AssertThrows(() => Buffer(8).PutString("foo", 6))
+        this.AssertThrows(() => Buffer(8).PutString("foo", 6))
     }
 
     static Slice() {
