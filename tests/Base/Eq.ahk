@@ -1,5 +1,5 @@
 
-class Eq {
+class Test_Eq extends TestSuite {
     static UnsetEqualsUnset() {
         Any.Eq(unset, unset).AssertEquals(true)
     }
@@ -79,9 +79,7 @@ class Eq {
     }
 
     static Class_eq_a_b_type_checking() {
-        TestSuite.AssertThrows(() =>
-            String.Eq([1, 2], [1, 2])
-        )
+        this.AssertThrows(() => String.Eq([1, 2], [1, 2]))
     }
 
     static Class_eq_prop_is_2_param() {
@@ -92,9 +90,7 @@ class Eq {
     }
 
     static Class_eq_throws_on_too_many_params() {
-        TestSuite.AssertThrows(() =>
-            String.Eq("a", "b", "c")
-        )
+        this.AssertThrows(() => String.Eq("a", "b", "c"))
     }
 
     static ByReference_should_exist() {

@@ -7,7 +7,7 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
- * M := Map.WithFactory((MapObj, Key) => Array())
+ * M := Map.WithDefault((MapObj, Key) => Array())
  * 
  * ; Map { "foo": ["bar"] }
  * M["foo"].Push("bar")
@@ -30,39 +30,12 @@ class AquaHotkey_DefaultProp {
      * @param   {Func}  Callback  the function to call
      * @returns {Map}
      * @example
-     * M := Map.WithDefault((MapObj, Key) => "")
+     * M := Map.WithDefault((MapObj) => "")
      */
     static WithDefault(Callback) {
         GetMethod(Callback)
         Result := this()
-        ({}.DefineProp)(Result, "Default", { Call: Callback })
+        ({}.DefineProp)(Result, "Default", { Get: Callback })
         return Result
-    }
-
-    /**
-     * Creates a map which initializes a new value, if an absent key is
-     * retrieved.
-     * 
-     * ```ahk
-     * Factory(MapObj, Key) => Any
-     * ```
-     * 
-     * @param   {Func}  Factory  function that produces new value
-     * @returns {Map}
-     * @example
-     * M := Map.WithFactory((MapObj, Key) => Array())
-     * 
-     * ; Map { "foo": ["bar"] }
-     * M["foo"].Push("bar")
-     */
-    static WithFactory(Factory) {
-        GetMethod(Factory)
-        return this.WithDefault(Default)
-
-        Default(MapObj, Key) {
-            Value := Factory(MapObj, Key)
-            MapObj.Set(Key, Value)
-            return Value
-        }
     }
 }

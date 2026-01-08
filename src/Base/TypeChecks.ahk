@@ -21,9 +21,9 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
- * "123".Is(String)      ; true (calls `"123" is String`)
- * "123".Is(Numeric)     ; true (calls `IsNumber("123")`)
- * "example".Is(Numeric) ; false
+ * "123".Is(String)      ; true ("123" is String)
+ * "123".Is(Numeric)     ; true (IsNumber("123"))
+ * "example".Is(Email)   ; false ("example" is String && (example ~= "..."))
  * 
  * class Numeric {
  *     static IsInstance(Val) => IsNumber(Val)
@@ -48,7 +48,7 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
          * "123".Is(String)      ; true
          * "example".Is(Numeric) ; false
          */
-        Is(T) => T.IsInstance(this) ; TODO change to "InstanceOf()" ?
+        Is(T) => T.IsInstance(this)
     }
 
     class Class {
@@ -92,7 +92,7 @@ class Numeric {
  */
 class Callable {
     /**
-     * Determines whether the value is callable.
+     * Determines whether the value is callable, excluding `.__Call()`.
      * 
      * @param   {Any}  Value  any value
      * @returns {Boolean}
@@ -101,7 +101,7 @@ class Callable {
      * Callable.IsInstance(MsgBox)                   ; true
      * ({ Call: (this) => this.Value }).Is(Callable) ; true
      */
-    static IsInstance(Val) => IsObject(Val) && HasMethod(Val)
+    static IsInstance(Val) => (IsObject(Val) && HasMethod(Val))
 }
 
 /**
@@ -120,6 +120,5 @@ class BufferObject {
     static IsInstance(Val) => (
             IsObject(Val) &&
             HasProp(Val, "Ptr") &&
-            HasProp(Val, "Size")
-    )
+            HasProp(Val, "Size"))
 }

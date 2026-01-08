@@ -1,7 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
-; TODO introduce this as new `Comparator`
-
 /**
  * A comparator is a function that determines a natural ordering between its
  * two input values. This is mainly used for creating custom sorting logic.
@@ -18,6 +16,12 @@
  * Array("example", "b", "a", unset).Sort(Comp)
  */
 class Comparator extends Func {
+    static __New() {
+        if (this == Comparator) {
+            ObjSetBase(StrCompare, Comparator.Prototype)
+        }
+    }
+
     /**
      * Creates a new comparator from the function to be called.
      * 
@@ -46,18 +50,6 @@ class Comparator extends Func {
             throw TypeError("Expected a Func",, Type(Fn))
         }
         ObjSetBase(Fn, this.Prototype)
-        return Fn
-    }
-
-    /**
-     * Like `Func#Bind()`, but the result is a comparator.
-     * 
-     * @param   {Any*}  Args  zero or more arguments
-     * @returns {Comparator}
-     */
-    Bind(Args*) {
-        Fn := super.Bind(Args*)
-        ObjSetBase(Fn, ObjGetBase(this))
         return Fn
     }
 
@@ -128,7 +120,7 @@ class Comparator extends Func {
         Comp(A?, B?) => Mapper(A?, Args*).Compare(Mapper(B?, Args*))
 
         GetMethod(Mapper)
-        ObjSetBase(Comp, ObjGetBase(this))
+        ObjSetBase(Comp, this.Prototype)
         return Comp
     }
 
@@ -267,28 +259,5 @@ class Comparator extends Func {
         }
         ObjSetBase(Comp, ObjGetBase(this))
         return Comp
-    }
-}
-
-/**
- * Introduces changes related to comparators, most noteably changing the base
- * of `StrCompare` to become a comparator.
- */
-class AquaHotkey_Comparator extends AquaHotkey
-{
-    static __New() {
-        ObjSetBase(StrCompare, Comparator.Prototype)
-        super.__New()
-    }
-
-    class StrCompare {
-        static Locale => Comparator((A, B) => this(A, B, "Locale"))
-        static Locale(A, B) => this(A, B, "Locale")
-
-        static CS => Comparator((A, B) => this(A, B, true))
-        static CS(A, B) => this(A, B, true)
-
-        static CI => Comparator((A, B) => this(A, B, false))
-        static CI(A, B) => this(A, B, false)
     }
 }

@@ -1,5 +1,5 @@
 
-class ComValue {
+class Test_ComValue extends TestSuite {
     static BSTR_ShouldReturn_0x08() {
         ComValue.BSTR.AssertEquals(0x08)
     }

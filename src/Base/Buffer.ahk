@@ -1,5 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO different buffer view types?
+
 /**
  * Buffer utilities.
  * 
@@ -86,21 +88,6 @@ class AquaHotkey_Buffer extends AquaHotkey
                         "Ptr", Buf.Ptr,
                         "Ptr", Ptr,
                         "UPtr", Size)
-            }
-            ObjSetBase(Buf, this.Prototype)
-            return Buf
-        }
-
-        /**
-         * Creates a new zero-filled buffer with the given size in bytes.
-         * 
-         * @param   {Integer}  Size  size in bytes
-         * @returns {Buffer}
-         */
-        static Zero(Size) {
-            Buf := Buffer(Size, 0)
-            if ((this == ClipboardAll) || HasBase(this, ClipboardAll)) {
-                Buf := ClipboardAll(Buf)
             }
             ObjSetBase(Buf, this.Prototype)
             return Buf
@@ -259,35 +246,34 @@ class AquaHotkey_Buffer extends AquaHotkey
          * Returns a new buffer containing a subsection of the current buffer.
          * 
          * @param   {Integer}  Offset  offset in bytes
-         * @param   {Integer}  Length  length of the subsection
+         * @param   {Integer}  Size  length of the subsection
          * @returns {Buffer}
          */
-        Slice(Offset, Length) {
+        Slice(Offset, Size) {
             if (!IsInteger(Offset)) {
                 throw TypeError("Expected an Integer",, Type(Offset))
             }
-            if (!IsInteger(Length)) {
-                throw TypeError("Expected an Integer",, Type(Length))
+            if (!IsInteger(Size)) {
+                throw TypeError("Expected an Integer",, Type(Size))
             }
-            if (Length <= 0) {
-                throw ValueError("Length must be greater than zero",, Length)
+            if (Size <= 0) {
+                throw ValueError("Size must be greater than zero",, Size)
             }
-            if (Offset + Length > this.Size) {
+            if (Offset + Size > this.Size) {
                 throw ValueError("Invalid offset for size " . this.Size,,
-                                 "offset: " . Offset . ", length: " . Length)
+                                 "offset: " . Offset . ", length: " . Size)
             }
             
             Ptr := (this.Ptr + Offset)
             if (this is ClipboardAll) {
-                Buf := ClipboardAll(Ptr, Length)
+                Buf := ClipboardAll(Ptr, Size)
             } else {
-                Buf := Buffer.FromMemory()
-                Buf := Buffer(Length)
+                Buf := Buffer.FromMemory(Ptr, Size)
                 ; TODO move this somewhere?
                 DllCall("RtlCopyMemory",
                         "Ptr", Buf.Ptr,
                         "Ptr", Ptr,
-                        "UPtr", Length)
+                        "UPtr", Size)
             }
             ObjSetBase(Buf, ObjGetBase(this))
             return Buf

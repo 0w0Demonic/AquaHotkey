@@ -1,4 +1,5 @@
-class Error {
+
+class Test_Error extends TestSuite {
     static staticThrow() {
         Str := "foo"
         try (false || TypeError.Throw(Str))

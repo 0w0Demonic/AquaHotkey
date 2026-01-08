@@ -23,12 +23,15 @@ static __New() {
     Output := ""
     for Name in ObjOwnProps(this) {
         switch (StrLower(Name)) {
-            case "call", "prototype", "__init": continue
+            case "call", "prototype", "__init", "__new": continue
         }
         if (!HasMethod(this, Name)) {
             continue
         }
         Fn := ({}.GetOwnPropDesc)(this, Name).Call
+        if (Fn.IsBuiltIn) {
+            continue
+        }
 
         Err := unset
         try {

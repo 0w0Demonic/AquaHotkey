@@ -120,6 +120,7 @@ class Indexable {
         return Result
     }
 
+    ; TODO change how this method works?
     /**
      * Reverses all elements in place.
      * 
@@ -137,8 +138,16 @@ class Indexable {
         return this
     }
 
+    ; TODO move this into a mixin more specific than `Indexable`?
+
     /**
      * Sorts elements in place according to the given comparator function.
+     * 
+     * This method assumed that the underlying object works like an array.
+     * In other words:
+     * 
+     * - supports `__Item[Index: Integer] => Any`
+     * - index is 1-based
      * 
      * @param   {Func?}     Comp      function that orders two values
      * @param   {Boolean?}  Reversed  sort in reverse order
@@ -150,7 +159,7 @@ class Indexable {
     Sort(Comp := Any.Compare, Reversed := false) {
         GetMethod(Comp)
         if (Reversed) {
-            Comp := Comparator(Comp).Reversed()
+            Comp := Comparator(Comp).Rev()
         }
 
         for Value in Quicksort(this*) {
@@ -175,7 +184,7 @@ class Indexable {
             Result := Array()
             Result.Capacity := Size
             Result.Push(Quicksort(L*)*)
-            Result.Push(Pivot)
+            Result.Push(Pivot?)
             Result.Push(Quicksort(R*)*)
             return Result
         }

@@ -1,17 +1,7 @@
-/**
- * AquaHotkey - Map.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/Sphinx
- * - tests/Builtins/Map.ahk
- */
-class Map {
-    static Default_Capacity_CaseSense() {
-        M := Map().SetDefault("(empty)").SetCapacity(128).SetCaseSense(false)
-        M.Default.AssertEquals("(empty)")
-        M.Capacity.AssertEquals(128)
-        M.CaseSense.AssertEquals("Off")
+class Test_Map extends TestSuite {
+    static WithDefault() {
+        M := Map.WithDefault((MapObj) => false)
+        M["foo"].AssertEquals(false)
     }
 
     static Keys() {

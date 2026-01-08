@@ -1,4 +1,4 @@
-#Include <AquaHotkey>
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
  * This feature allows easy type-casting between different `Func` types.

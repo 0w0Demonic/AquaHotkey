@@ -1,6 +1,8 @@
-class TypeInfo {
+
+class Test_TypeInfo extends TestSuite
+{
     static __Call_ShouldThrow() {
-        TestSuite.AssertThrows(() => String.UnsetProperty())
+        this.AssertThrows(() => String.UnsetProperty())
     }
 
     static Class_ForName() {
@@ -30,5 +32,9 @@ class TypeInfo {
 
     static Class_PrototypeShouldResolve_GuiButton() {
         (Gui.Button.Prototype).Class.AssertEquals(Gui.Button)
+    }
+
+    static Class_Name_Should_Be_String() {
+        (String.Name).AssertEquals("String")
     }
 }

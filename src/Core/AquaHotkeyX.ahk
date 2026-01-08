@@ -1,12 +1,9 @@
 #Requires AutoHotkey >=v2.0.5
 
 /**
- * AquaHotkey - AquaHotkeyX.ahk
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Core/AquaHotkeyX.ahk
+ * @version 3.0.0-alpha
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 
 ;-------------------------------------------------------------------------------
@@ -51,6 +48,7 @@
 
 
 #Include "%A_LineFile%/../../Collections/Array.ahk"
+#Include "%A_LineFile%/../../Collections/DefaultProp.ahk"
 #Include "%A_LineFile%/../../Collections/Map.ahk"
 #Include "%A_LineFile%/../../Collections/Zip.ahk"
 
@@ -58,7 +56,6 @@
 #Include "%A_LineFile%/../../Collections/Mixins/Sizeable.ahk"
 #Include "%A_LineFile%/../../Collections/Mixins/Enumerable1.ahk"
 #Include "%A_LineFile%/../../Collections/Mixins/Enumerable2.ahk"
-
 
 ;@endregion
 ;-------------------------------------------------------------------------------

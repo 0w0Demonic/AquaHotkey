@@ -1,5 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO add back Swap() with unset handling
+
 /**
  * Array stream-like operations.
  * 

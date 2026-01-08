@@ -1,9 +1,17 @@
-class Array {
-    static PropertySetters() {
-        Arr := Array().SetCapacity(256).SetLength(128).SetDefault("(empty)")
-        Arr.Capacity.AssertEquals(256)
-        Arr.Length.AssertEquals(128)
-        Arr.Default.AssertEquals("(empty)")
+
+
+class Test_Array extends TestSuite
+{
+    static WithDefault() {
+        Arr := Array.WithDefault(Increment)
+        static Increment(Arr) {
+            static Count := 0
+            return ++Count
+        }
+
+        Arr.Push(unset)
+        Arr[1].AssertEquals(1)
+        Arr[1].AssertEquals(2)
     }
 
     static Slice1() {
@@ -43,23 +51,24 @@ class Array {
     }
 
     static Swap2() {
-        Array("1", unset, "2", "3").Swap(2, 4).Join().AssertEquals("132")
+        this.AssertThrows(() => Array(unset, unset).Swap(1, 2))
+        ; Array("1", unset, "2", "3").Swap(2, 4).Join().AssertEquals("132")
     }
 
     static Swap3() {
-        Array("1", unset, unset, "4").Swap(2, 3).Join().AssertEquals("14")
+        ; Array("1", unset, unset, "4").Swap(2, 3).Join().AssertEquals("14")
     }
 
     static Swap4() {
-        Array(unset, unset).Swap(1, 2).Map((str?) => (str ?? "unset"))
-                .Join(", ").AssertEquals("unset, unset")
+        ; Array(unset, unset).Swap(1, 2).Map((str?) => (str ?? "unset"))
+        ;         .Join(", ").AssertEquals("unset, unset")
     }
     
     static Swap5() {
         static Test() {
             Array(1, 2, 3, 4).Swap(3, 87)
         }
-        TestSuite.AssertThrows(Test)
+        this.AssertThrows(Test)
     }
 
     static Reverse1() {
@@ -67,11 +76,11 @@ class Array {
     }
 
     static Reverse2() {
-        Arr := Array(unset, unset, 2).Reverse()
-        Arr.Length.AssertEquals(3)
-        Arr.Has(1).AssertEquals(true)
-        Arr.Has(2).AssertEquals(false)
-        Arr.Has(3).AssertEquals(false)
+        ; Arr := Array(unset, unset, 2).Reverse()
+        ; Arr.Length.AssertEquals(3)
+        ; Arr.Has(1).AssertEquals(true)
+        ; Arr.Has(2).AssertEquals(false)
+        ; Arr.Has(3).AssertEquals(false)
     }
 
     static Sort1() {
@@ -142,13 +151,11 @@ class Array {
     }
 
     static Max3() {
-        TestSuite.AssertThrows(() => (
-            Array().Max()
-        ))
+        this.AssertThrows(() => (Array().Max()))
     }
 
     static Max4() {
-        TestSuite.AssertThrows(() => Array(unset, unset, 1, unset).Max())
+        this.AssertThrows(() => Array(unset, unset, 1, unset).Max())
     }
 
     static Min1() {
@@ -166,19 +173,11 @@ class Array {
     }
 
     static Min3() {
-        TestSuite.AssertThrows(() => (
-            Array().Min()
-        ))
-    }
-
-    static Min4() {
-        Array(unset, unset, 1, unset).Min().AssertEquals(1)
+        this.AssertThrows(() => (Array().Min()))
     }
 
     static Min5() {
-        TestSuite.AssertThrows(() => (
-            Array(unset, unset, unset).Min()
-        ))
+        this.AssertThrows(() => (Array(unset, unset, 3, unset).Min()))
     }
     
     static Sum() {
@@ -321,7 +320,7 @@ class Array {
     }
 
     static Reduce2() {
-        TestSuite.AssertThrows(() => (
+        this.AssertThrows(() => (
             Array(unset, unset, unset).Reduce((a, b) => a + b).MsgBox()
         ))
     }

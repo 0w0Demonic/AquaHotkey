@@ -159,5 +159,28 @@ class Object {
         return this.DefineProp(PropertyName, { Call: Method })
     }
     ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region .GetOwnPropDesc()
+
+    /**
+     * Returns the property descriptor of the object like `.GetOwnPropDesc()`,
+     * but regardless where it is inherited.
+     * 
+     * @param   {String}  PropName  name of the property
+     * @returns {Object}
+     * @example
+     * ; (see AquaHotkey_TypeChecks)
+     * (42).GetPropDesc("Is") ; { Call: AquaHotkey_TypeChecks.Any.Prototype.Is }
+     */
+    GetPropDesc(PropName) {
+        if (!HasProp(this, PropName)) {
+            return ""
+        }
+        Obj := this
+        while (!ObjHasOwnProp(Obj, PropName)) {
+            Obj := ObjGetBase(Obj)
+        }
+        return ({}.GetOwnPropDesc)(Obj, PropName)
+    }
 } ; class Object
 } ; class AquaHotkey_Object extends AquaHotkey

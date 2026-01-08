@@ -1,5 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO replace entire thing with `Should` similar to FluentAssertions?
+
 /**
  * Provides a wide range of chainable assertion methods.
  * 
@@ -29,6 +31,8 @@ class Any {
         throw ValueError("failed assertion", -2)
     }
     
+    ; TODO integrate with `AquaHotkey_Eq?`
+
     /**
      * Asserts that this variable is derived from class `T`. Otherwise, a
      * `TypeError` is thrown.
@@ -42,7 +46,7 @@ class Any {
         if (this is T) {
             return this
         }
-        throw TypeError("expected type " . T.Prototype.__Class, -2, Type(this))
+        throw TypeError("expected type " . T.Name, -2, Type(this))
     }
 
     ; TODO integrate with `AquaHotkey_Eq?`

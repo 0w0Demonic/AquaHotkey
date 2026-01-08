@@ -103,5 +103,14 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
             }
             return ClassObj
         }
+
+        /**
+         * Returns the name of the class.
+         * 
+         * @returns {String}
+         * @example
+         * MsgBox(String.Name) ; "String"
+         */
+        Name => this.Prototype.__Class
     }
 }

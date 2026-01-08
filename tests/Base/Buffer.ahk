@@ -1,9 +1,5 @@
-#Include <AquaHotkey>
-#Include <AquaHotkey/src/Base/Assertions>
-#Include <AquaHotkey/src/Base/Buffer>
-#Include <AquaHotkey/tests/TestSuite>
-
-class Test_Buffer extends TestSuite {
+class Test_Buffer extends TestSuite
+{
     static SizeOf_BasicTest() {
         Buffer.SizeOf("UInt64*").AssertEquals(A_PtrSize)
         Buffer.SizeOf("DoubleP").AssertEquals(A_PtrSize)
@@ -22,43 +18,39 @@ class Test_Buffer extends TestSuite {
     }
 
     static FromMemory() {
-        Str := "foo"
-        Fn := (Cls) => Cls.FromMemory(StrPtr(Str), StrPut(Str))
-            .GetString()
-            .AssertEquals(Str)
+        static Str := "foo"
+        static Fn(Cls) => Cls
+                .FromMemory(StrPtr(Str), StrPut(Str))
+                .GetString()
+                .AssertEquals(Str)
 
         Fn(Buffer)
         Fn(ClipboardAll)
     }
 
-    static staticZero_BasicTest() {
-        Buffer.Zero(16).AssertType(Buffer)
-    }
-
-    static staticZero_WithCasting() {
-        ClipboardAll.Zero(16).AssertType(ClipboardAll)
-    }
-
-    static staticZero_ThrowsOnBadSize() {
-        this.AssertThrows(() => Buffer.Zero(-123))
-    }
-
     static OfString() {
-        Buffer.OfString("AAA", "UTF-8").HexDump().AssertEquals("41 41 41 00 ")
+        static Fn(Cls) {
+            Buf := Cls.OfString("AAA", "UTF-8")
+            Buf.AssertType(Cls)
+            Buf.HexDump().AssertEquals("41 41 41 00 ")
+        }
+        Fn(Buffer)
+        Fn(ClipboardAll)
     }
 
     static OfNumber() {
-        NumType := "UShort"
-        Value := 123
-
-        Buf := ClipboardAll.OfNumber(NumType, Value)
-        Buf.AssertType(ClipboardAll)
-
-        Buf.Size.AssertEquals(Buffer.SizeOf(NumType))
-        NumGet(Buf, NumType).AssertEquals(Value)
+        Buf := Buffer.OfNumber("UShort", 123)
+        Buf.Size.AssertEquals(2)
+        NumGet(Buf, "UShort").AssertEquals(123)
     }
 
-    ; TODO FromFile()
+    static OfNumber_DoesCasting() {
+        ClipboardAll.OfNumber("UShort", 123).AssertType(ClipboardAll)
+    }
+
+    static FromFile() {
+        Buffer.FromFile(A_LineFile).Size.AssertType(Integer).AssertGt(0)
+    }
 
     static GetChar_PutChar() {
         Buf := Buffer(8).PutChar(45, 0)

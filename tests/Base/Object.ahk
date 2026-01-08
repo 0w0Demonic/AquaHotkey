@@ -1,4 +1,5 @@
-class Object {
+class Test_Object extends TestSuite
+{
     static BindMethod() {
         Arr      := Array()
         ArrPush1 := Arr.BindMethod("Push", 1)

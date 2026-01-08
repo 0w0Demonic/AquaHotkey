@@ -9,93 +9,108 @@
 
 ## What is AquaHotkey?
 
-AquaHotkey is a *class prototyping library* for AutoHotkey v2 that lets you
-easily rewrite built-in types like `Array`, `String` and `Map` to match your
-own style and preferences.
+AquaHotkey is a *class-prototyping* library that lets you easily rewrite
+built-in types like `Array`, `String` or `Map` to match your own style
+and preferences.
 
 ```ahk
 "Hello, World!".SubStr(1, 7).Append("AquaHotkey!").MsgBox()
 ```
 
-### What is Class Prototyping?
+## Quick Start
 
-AutoHotkey v2 is a prototype-based language, exactly like JavaScript. Everything
-has an internal link to another object called its prototype, and so on,
-forming a "prototype chain".
+Just as a little showcase at the start, here's how this library works.
 
-Example - the number `42`:
+Setting up this one-liner to work is really easy! Just do the following:
 
 ```ahk
-42
-`- Integer.Prototype
-   `- Number.Protoype
-      `- Primitive.Prototype
-         `- Any.Prototype
-```
+#Include <AquaHotkey>
 
-More interestingly, you can modify these prototypes to change the behaviour of
-any deriving object:
-
-```ahk
-Define := {}.DefineProp
-
-; add a `.Length` property for strings
-Define(String.Prototype, "Length", { Get: StrLen })
-
-MsgBox("foo".Length) ; 3
-```
-
-Although this method of adding properties and methods has existing for pretty
-long and can be found mostly in array/map utility libraries, it's tedious work
-when done manually.
-
-This is where AquaHotkey is the perfect tool for you:
-
-### How it Works
-
-Write a new class, make a few changes, done. AquaHotkey will do the rest of
-the job, ensuring your changes land where they need to be.
-
-```ahk
-class StringLength extends AquaHotkey {
+class StringUtil extends AquaHotkey {
     class String {
-        Length => StrLen(this)
-
-        Contains(Pattern)   => InStr(this, Pattern)
-        Sub(Start, Length?) => SubStr(this, Start, Length?)
+        SubStr(Start, Length?) {
+            ; `this` - a string instance
+            return SubStr(this, Start, Length*)
+        }
+        
+        Append(Str) {
+            return (this . Str)
+        }
+        
+        MsgBox() {
+            MsgBox(this)
+        }
     }
 }
-
-"foo".Length        ; 3
-"foo".Contains("o") ; true
-"foo".Sub(2, 2)     ; "oo"
 ```
 
-Arguably the best thing about how everything happens declaratively, and that
-it uses plain and simple "class syntax". In most cases, the use of
-[descriptors](https://www.autohotkey.com/docs/v2/lib/Object.htm#GetOwnPropDesc)
-can be fully avoided.
+## Documentation
+
+Getting started:
+
+- [Beginner's Guide](/docs/basics.md)
+- [Advanced Concepts](/docs/advanced.md)
+
+Optional stuff:
+
+- [Expert Concepts](/docs/expert.md)
+- [Advanced Installation](/docs/installation.md)
+
+Also see:
+
+- [How does this work?](#a-short-insight-into-class-prototyping)
+- [AquaHotkeyX](#aquahotkeyx)
+
+## Why this Matters
+
+With regular AutoHotkey libraries, you usually end up with piles of utility
+functions. you must remember which function works on which type, invent naming
+rules, or write big checks like "if this is a string, else if this is an
+array ...". Works, but it becomes clunky very quickly.
+
+Instead of huge "do-everything" functions, you can write break up things into
+smaller parts. Write a new class, make a few changes, done. AquaHotkey will do
+the heavy lifting of ensuring your changes land where they need to be:
 
 ```ahk
-...
-Contains(Pattern) => InStr(this, Pattern)
+class ToString extends AquaHotkey {
+    class Number {
+        ToString() => String(this)
+    }
+    class String {
+        ToString() => this
+    }
+    class Array {
+        ToString() {
+            Result := "["
+            for Value in this {
+                ; ...
+            }
+            Result .= "]"
+            return Result
+        }
+    }
+    class Object {
+        ToString() { ... }
+    }
+}
 ```
 
-As you'd expect, the `this` keyword is simply a string instance.
+Strings get string methods, arrays get array methods, and so on. The objects
+themselves "know" what to do.
 
-<TODO>
-- if you know what you're doing, you can make groundbreaking changes with just
-  a few classes and properties
-- this library uncovers a huge, beautiful but still vastly unexplored part of
-  AutoHotkey, and it's my job for you to explore
-</TODO>
+We've just successfully made `String(Value)` a feature that works on (almost)
+all data types.
 
-### Modular and Massively Reusable
+This type of meta-programming uncovers a beautiful, but yet still vastly
+unexplored part of AutoHotkey, and it's my job to be your tour guide.
+If you're interested, you can check out [AquaHotkeyX](#aquahotkeyx), where
+these patterns are taken to their extreme.
 
-Once you're done making changes, you can move your AquaHotkey class into a
-separate file and `#Include` them across scripts whenever you need them.
+### Massively Reusable
 
-Write once, use everywhere.
+When you're done writing a class, you can put it into a separate file, and
+`#Include` it across multiple scripts.
 
 **StringUtils.ahk**:
 
@@ -103,6 +118,8 @@ Write once, use everywhere.
 class StringUtils extends AquaHotkey {
     class String {
         Rep(Pat, Rep) => StrReplace(this, Pat, Rep)
+
+        Contains(Pat) => InStr(tihs, Pat)
     }
 }
 ```
@@ -113,70 +130,63 @@ class StringUtils extends AquaHotkey {
 #Include <StringUtils>
 
 Str := "Hello, world!".Rep("l,", "p").Rep("d", "m").Rep("!", "?")
+"foo".Contains("o") ; true
 ```
 
----
+You can start very small, one quick fix other another. And sooner than you
+think, it'll grow into your own language on top of AutoHotkey.
 
 ## Installation
 
-To get started, clone this repository and (preferably) put it in one of the
-AutoHotkey [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib).
+To get started, clone this repository and put it in one of the AutoHotkey
+[lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib).
 
 ```ahk
 #Requires AutoHotkey v2
 #Include <AquaHotkey>
-; #Include path/to/AquaHotkey.ahk
 ```
 
-### Advanced Setup
+For more sophisticated setups, see [installation.md](/docs/installation.md).
 
-This is optional, but will probably save you lots of work in the long run.
-With this setup, both AquaHotkey and anything else that depends on it can
-be imported with `<library>` syntax.
+### A Short Insight Into Class Prototyping
+
+AutoHotkey v2 is a prototype-based language, exactly like JavaScript. Everything
+has an internal link to another object called its prototype, and so on,
+forming a "prototype chain".
+
+Example - the number 42:
 
 ```ahk
-#Include <AquaHotkey>
-#Include <StringUtils>
-#Include <ArrayUtils>
+42
+`- Integer.Prototype
+   `- Number.Prototype
+      `- Primitive.Prototype
+         `- Any.Prototype
 ```
 
-1. Create stub files `AquaHotkey.ahk` and `AquaHotkeyX.ahk` that each contain a
-   single `#Include` pointing to the real source inside the repository folder:
+More interestingly, you can modify these prototypes to change the behaviour of
+any deriving object.
 
-    ```ahk
-    ; ------------- AquaHotkey.ahk (stub)
-    #Include "%A_LineFile%/../AquaHotkey/AquaHotkey.ahk"
-    ; -------------
-  
-    ; ------------- AquaHotkeyX.ahk (stub)
-    #Include "%A_LineFile%/../AquaHotkey/AquaHotkeyX.ahk"
-    ; -------------
-    ```
+The concept behind class prototyping is modifying the internal prototype
+objects to add or change existing properties and methods:
 
-2. Structure your files like this:
+```ahk
+; add a `.Length` property for strings
+({}.DefineProp)(String.Prototype, "Length", { Get: StrLen })
+```
 
-    ```txt
-    lib/
-    |
-    |- AquaHotkey/
-    |  |- AquaHotkey.ahk  <-- the actual source (#Include these)
-    |  `- AquaHotkeyX.ahk
-    |
-    |
-    |- AquaHotkey.ahk     <-- stub files (see above)
-    |- AquaHotkeyX.ahk
-    |
-    |
-    |- StringUtils.ahk    <-- other libs
-    `- ArrayUtils.ahk
-    ```
+We've just successfully added a `Length` property to `String.Prototype`, which
+is the prototype object of all strings.
 
-## Documentation
+You can now use the `Length` property on strings:
 
-- [Beginner's Guide](./docs/basics.md)
-- [Advanced Concepts](./docs/advanced.md)
-- [Expert Concepts](./docs/expert.md)
-- [AquaHotkeyX](#aquahotkeyx)
+```ahk
+MsgBox("foo".Length) ; 3
+```
+
+Thanks to AquaHotkey, this is no longer tedious manual work. You can entirely
+avoid dealing with property descriptors, because everything happens
+declaratively, and with simple "class syntax".
 
 ## AquaHotkeyX
 
@@ -198,38 +208,7 @@ Array("banana", "kiwi", "apple", "lime").Collect(Collector.Group(StrLen))
 Range(5).Stream().Gather(Gatherer.WindowSliding(3))
 ```
 
-For a quick overview, see [API Overview](./docs/api-overview.md).
-
-## Design Philosophy
-
-My opinionated belief:
-> *A perfect tool is one you don't even notice you're using.*
-
-### Goals
-
-1. **Simplicity**
-
-   The framework should be intuitive and easy to grasp conceptually.
-
-2. **Universal**
-
-   Handles anything that you throw at it, without having to think too
-   much about what's going on below the hood.
-
-3. **Bulletproof Reliability**
-
-   No wiggle room for unexpected behavior. Writing this at first was very
-   painful, so you can trust I won't let any weird bugs slip through again.
-
-4. **Elegance**
-
-   Designed to be highly concise, composable and elegant.
-
----
-
-Curious how AquaHotkey actually came to be? Check out
-[About AquaHotkey](./rambling/00_about.md) for the background story, design
-decisions, and the evolution of the library.
+For a quick overview, see [API Overview](/docs/api-overview.md).
 
 ## About
 

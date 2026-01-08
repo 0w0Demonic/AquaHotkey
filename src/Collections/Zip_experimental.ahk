@@ -37,6 +37,26 @@ Zip(Args*) {
     }
 }
 
+#Include <AquaHotkey>
+
+class Test extends AquaHotkey {
+    class Integer {
+        Times(Fn) {
+            GetMethod(Fn)
+            loop this {
+                Fn()
+            }
+            return this
+        }
+    }
+    class String {
+        Shout() => StrUpper(this) . "!!!"
+    }
+}
+
+5.Times(() => MsgBox("Counting: #" . A_Index))
+"ahk".Shout() ; "AHK!!!"
+
 for A, B, C, D in Zip([1, 2], [3, 4], [5, 6], [7, 8]) {
     MsgBox(Format("{} {} {} {}", A, B, C, D))
 }
