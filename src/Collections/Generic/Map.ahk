@@ -1,4 +1,6 @@
-#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
+;#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
+#Include <AquaHotkeyX>
+#Include <AquaHotkey\src\Collections\Generic\Array>
 
 ; TODO type casting
 ; TODO also allow functions instead of doing simple type-checks?
@@ -55,18 +57,18 @@ class GenericMap extends Map {
         }
         Proto := this.Prototype
         Define(Proto, "Check",     { Call: TypeCheck })
-        Define(Proto, "KeyType",   { Get: (_) => K   })
-        Define(Proto, "ValueType", { Get: (_) => V   })
+        Define(Proto, "KeyType",   { Get: (_) => K })
+        Define(Proto, "ValueType", { Get: (_) => V })
 
         TypeCheck(_, Key, Value) {
-            if (!(Key is K)) {
+            if (!Key.Is(K)) {
                 throw TypeError(
-                        "Expected a(n) " . K.Prototype.__Class . " as key",
+                        "Expected a(n) " . K.Name . " as key",
                         -2, Type(Key))
             }
-            if (!(Value is V)) {
+            if (!Value.Is(V)) {
                 throw TypeError(
-                        "Expected a(n) " . V.Prototype.__Class . " as value",
+                        "Expected a(n) " . V.Name . " as value",
                         -2, Type(Value))
             }
         }
@@ -138,7 +140,7 @@ class GenericMap extends Map {
      * @constructor
      * @param   {Any*}  Args  alternating key-value pairs
      */
-    __New(Args*) => this.Set(Args*) ; (aliased)
+    __New(Args*) => this.Set(Args*) ; NOTE: overridden by `static __New()`
 
     /**
      * Sets zero or more items with type-checking.
@@ -175,6 +177,22 @@ class GenericMap extends Map {
 }
 
 class AquaHotkey_GenericMap extends AquaHotkey {
+    class Class {
+        /**
+         * Returns a type-checked map class of this class mapped to the given
+         * class representing the value type of the map class.
+         * 
+         * @param   {Class}  ValueType  type of values
+         * @returns {Class}
+         */
+        MappedTo(ValueType) {
+            if (!(ValueType is Class)) {
+                throw TypeError("Expected a Class",, Type(ValueType))
+            }
+            return Map.OfType(this, ValueType)
+        }
+    }
+
     class Map {
         /**
          * Returns a type-checked map class.

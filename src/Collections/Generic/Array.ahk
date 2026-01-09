@@ -1,7 +1,7 @@
 #Requires AutoHotkey >=v2.1-alpha.3
-#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
+; #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
+#Include <AquaHotkeyX>
 
-; TODO type casting
 /**
  * Introduces type-checked arrays using intuitive array syntax (`[]`).
  * 
@@ -52,6 +52,8 @@ class GenericArray extends Array {
      * Any[(V?) => IsSet(V)]
      */
     static __New(T?, Constraint?) {
+        static Define := {}.DefineProp
+
         if (this == GenericArray) {
             return
         }
@@ -67,20 +69,29 @@ class GenericArray extends Array {
         if (IsSet(Constraint)) {
             GetMethod(Constraint)
             Fn := TypeCheckWithConstraint
+            Define(Proto, "Constraint", { Get: (_) => (Constraint) })
         } else {
             Fn := TypeCheck
         }
-        ({}.DefineProp)(Proto, "Check", { Call: Fn })
+
+        Define(Proto, "Check", { Call: Fn })
+        Define(Proto, "ComponentType", { Get: (_) => (T) })
 
         TypeCheck(_, Val?) {
-            if (IsSet(Val) && !(Val is T)) {
+            if (
+                ; IsSet(Val) && !(Val is T)
+                IsSet(Val) && !Val.Is(T)
+            ) {
                 throw TypeError("Expected a(n) " . T.Prototype.__Class,,
                                 Type(Val))
             }
         }
 
         TypeCheckWithConstraint(_, Val?) {
-            if (IsSet(Val) && !(Val is T)) {
+            if (
+                ; IsSet(Val) && !(Val is T)
+                IsSet(Val) && !Val.Is(T)
+            ) {
                 throw TypeError("Expected a(n) " . T.Prototype.__Class,,
                                 Type(Val))
             }
@@ -90,6 +101,44 @@ class GenericArray extends Array {
             }
         }
     }
+
+    /**
+     * Returns the component type of this generic array. In other words, the
+     * type of class out of which the array consists of.
+     * 
+     * @returns {Class}
+     */
+    static ComponentType => (this.Prototype).ComponentType
+
+    /**
+     * Returns the component type of this generic array. In other words, the
+     * type of class out of which the array consists of.
+     * 
+     * @abstract
+     * @returns {Class}
+     */
+    ComponentType {
+        get {
+            throw PropertyError("component type not found")
+        }
+    }
+
+    /**
+     * Returns the additional constraint of this array class, or `false` if
+     * there is none.
+     * 
+     * @returns {Func}
+     */
+    static Constraint => (this.Prototype).Constraint
+
+    /**
+     * Returns the additional constraint of this array class, or `false` if
+     * there is none.
+     * 
+     * @abstract
+     * @returns {Func}
+     */
+    Constraint => false
 
     /**
      * Creates a new array with additional checking.
@@ -168,35 +217,7 @@ class GenericArray extends Array {
 }
 
 class AquaHotkey_GenericArray extends AquaHotkey {
-    static __New() {
-        if (this != AquaHotkey_GenericArray) {
-            return
-        }
-
-        ; alias Class#ArrayType and Any.__Item
-        ({}.DefineProp)(this.Class.Prototype, "ArrayType",
-                ({}.GetOwnPropDesc)(this.Any, "__Item"))
-        
-        super.__New()
-    }
-
     class Class {
-        /**
-         * Returns the "array class" of this class.
-         * 
-         * @param   {Func?}  Constraint  additional validation function
-         * @returns {Class}
-         * @example
-         * Integer.ArrayType ; class Integer[]
-         */
-        ArrayType[Constraint?] {
-            get {
-                ; (Any) static __Item[]
-            }
-        }
-    }
-
-    class Any {
         /**
          * Returns the "array class" of this class.
          * 
@@ -209,7 +230,7 @@ class AquaHotkey_GenericArray extends AquaHotkey {
          * ; shorthand
          * Number[](23, 1, 45)
          */
-        static __Item[Constraint?] {
+        ArrayType[Constraint?] {
             get {
                 static NONE := false
                 static Classes := Map()
@@ -242,6 +263,20 @@ class AquaHotkey_GenericArray extends AquaHotkey {
                 return ArrayType
             }
         }
+
+        /**
+         * Returns the "array class" of this class.
+         * 
+         * @param   {Func?}  Constraint  additional validation function
+         * @returns {Class}
+         * @example
+         * ArrClass := Number[]
+         * Arr := ArrClass(23, 1, 45)
+         * 
+         * ; shorthand
+         * Number[](23, 1, 45)
+         */
+        __Item[Constraint?] => this.ArrayType[Constraint?]
     }
 
     class Array {
@@ -250,13 +285,13 @@ class AquaHotkey_GenericArray extends AquaHotkey {
          * 
          * @param   {Class}  T           type of elements contained in the array
          * @param   {Func?}  Constraint  additional validation function
-         * @returns {Class<? extends GenericArray>}
+         * @returns {Class}
          */
         static OfType(T, Constraint?) {
             if (!(T is Class)) {
                 throw TypeError("Expected a Class",, Type(T))
             }
-            ArrayClass := T[Constraint?]
+            return T[Constraint?]
         }
     }
 }

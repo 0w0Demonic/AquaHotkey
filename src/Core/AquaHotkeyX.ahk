@@ -24,6 +24,7 @@
 #Include "%A_LineFile%/../../Base/Assertions.ahk"
 #Include "%A_LineFile%/../../Base/ToString.ahk"
 #Include "%A_LineFile%/../../Base/TypeInfo.ahk"
+#Include "%A_LineFile%/../../Base/TypeChecks.ahk"
 
 #Include "%A_LineFile%/../../Primitives/Integer.ahk"
 #Include "%A_LineFile%/../../Primitives/Number.ahk"

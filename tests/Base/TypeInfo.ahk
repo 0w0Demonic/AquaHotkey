@@ -1,4 +1,3 @@
-
 class Test_TypeInfo extends TestSuite
 {
     static __Call_ShouldThrow() {

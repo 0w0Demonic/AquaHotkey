@@ -211,13 +211,20 @@ class AquaHotkey_Ord extends AquaHotkey
             Loop {
                 AHasElements := !!ThisEnumer(&A)
                 BHasElements := !!OtherEnumer(&B)
-                if (AHasElements != BHasElements) {
-                    ; the array with more elements is considered larger
-                    return AHasElements - BHasElements
-                }
-                Result := A.Compare(B)
-                if (Result) {
-                    return Result
+
+                if (AHasElements) {
+                    if (!BHasElements) {
+                        return 1
+                    }
+                    Result := A.Compare(B)
+                    if (Result) {
+                        return Result
+                    }
+                } else { ; (!AHasElements)
+                    if (BHasElements) {
+                        return -1
+                    }
+                    return 0
                 }
             }
         }

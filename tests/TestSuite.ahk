@@ -28,22 +28,30 @@ static __New() {
         if (!HasMethod(this, Name)) {
             continue
         }
-        Fn := ({}.GetOwnPropDesc)(this, Name).Call
-        if (Fn.IsBuiltIn) {
-            continue
-        }
-
-        Err := unset
-        try {
-            Fn(this)
-        } catch as Err {
-
-        }
+        Fn := GetMethod(this, Name)
+        RunWithTimeout(() => Fn(this), &Err)
         Output .= FormatTestResult(Fn, Err?)
     }
     Output .= Ln
     Output .= "`n"
     FileAppend(Output, OutFile)
+
+    static RunWithTimeout(Fn, &Err, TimeoutMs := 1000) {
+        Err := unset
+        try {
+            SetTimer(Timeout, -TimeoutMs)
+            Fn()
+        } catch as Err {
+            ; nop
+        } finally {
+            SetTimer(Timeout, false)
+        }
+
+        Timeout() {
+            throw TimeoutError("timed out on function " . Fn.Name,,
+                               "timeout of " . TimeoutMs . "ms")
+        }
+    }
 
     static FormatTestResult(Fn, E?) {
         static FormatStack(E) => RegExReplace(

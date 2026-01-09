@@ -1,4 +1,3 @@
-
 class Test_Error extends TestSuite {
     static staticThrow() {
         Str := "foo"
