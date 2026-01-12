@@ -335,14 +335,14 @@ class AquaHotkey_Buffer extends AquaHotkey
                 + ((this.Size - 1) // LineLength * (StrLen(Delimiter) - 1)))
 
             if (!LineLength) {
-                Loop this.Size {
+                loop this.Size {
                     Out .= Format("{:02X}", NumGet(this, A_Index - 1, "UChar"))
                     Out .= Delimiter
                 }
                 return Out
             }
             
-            Loop this.Size {
+            loop this.Size {
                 Out .= Format("{:02X}", NumGet(this, A_Index - 1, "UChar"))
                 if (Mod(A_Index, LineLength)) {
                     Out .= Delimiter

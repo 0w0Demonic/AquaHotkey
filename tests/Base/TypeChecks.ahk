@@ -52,33 +52,33 @@ class Test_TypeChecks extends TestSuite {
     }
 
     static Number_assignable_from_Integer() {
-        Number.IsAssignableFrom(Integer)
+        Number.CanCastFrom(Integer)
                 .AssertEquals(true)
     }
 
     static Number_assignable_from_Number() {
-        Number.IsAssignableFrom(Number)
+        Number.CanCastFrom(Number)
                 .AssertEquals(true)
     }
 
     static every_Number_is_Numeric() {
-        Numeric.IsAssignableFrom(Number)
+        Numeric.CanCastFrom(Number)
                 .AssertEquals(true)
     }
 
     static every_Func_is_Callable() {
-        Callable.IsAssignableFrom(Func)
+        Callable.CanCastFrom(Func)
                 .AssertEquals(true)
 
-        Callable.IsAssignableFrom(Enumerator)
+        Callable.CanCastFrom(Enumerator)
                 .AssertEquals(true)
     }
 
     static every_Buffer_is_BufferObject() {
-        BufferObject.IsAssignableFrom(Buffer)
+        BufferObject.CanCastFrom(Buffer)
                 .AssertEquals(true)
                 
-        BufferObject.IsAssignableFrom(ClipboardAll)
+        BufferObject.CanCastFrom(ClipboardAll)
                 .AssertEquals(true)
     }
 }

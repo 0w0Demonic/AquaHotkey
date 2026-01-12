@@ -5,51 +5,95 @@
 /**
  * Introduces type-checked arrays using intuitive array syntax (`[]`).
  * 
- * Calling `__Item[]` on a class (e.g. `Integer[]`) returns its "array class",
- * i.e. a subclass of `GenericArray` which asserts that an element
- * `is <Class>` whenever added or modified.
+ * ### Quick Start
  * 
- * Elements can be further constrained by passing a validation function
- * between the square brackets.
+ * Calling `__Item[]` on a class `T` returns its "array class" `T[]` - a
+ * subclass of `GenericArray` - which asserts that an element `.Is(T)`
+ * whenever added or modified.
  * 
  * ```ahk
- * Assertion(Elem?) => Boolean
+ * Arr := String[]("foo", "bar")
+ * Arr.Push(Buffer(16)) ; Error! Expected a(n) String.
  * ```
+ * 
+ * `unset` is generally allowed, unless the array class specifies additional
+ * constraints.
+ * 
+ * ### Constraints
+ * 
+ * Elements can be further constrained by passing a class between the square
+ * brackets. They are assumed to have their own custom `static IsInstance()`
+ * implementations.
+ * 
+ * ```ahk
+ * class NonNull {
+ *     ; NOTE: for constraints, `Val` is an optional parameter
+ *     static Call(Val?) => IsSet(Val)
+ * }
+ * ```
+ * 
+ * These "constraint classes" can further be narrowed by using subclasses,
+ * for example:
+ * 
+ * ```ahk
+ * class NonNullNonEmpty {
+ *     static Call(Val?) => super(Val?) && (Val != "")
+ * }
+ * ```
+ * 
+ * ### Type-Checking
  * 
  * Existing classes are cached, which means calling e.g. `String[]` will
  * produce the same object, allowing you to use `is String[]` consistently.
  * 
+ * However, it's highly recommended to use `.Is()` instead, in order to support
+ * constraints.
+ * 
  * @module  <Collections/Generic/Array>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
- * 
  * @example
  * ; additional constraint (forbids `unset`)
- * NonNull(Val?) => IsSet(Val?)
+ * class NonNull {
+ *     static Call(Val?) => IsSet(Val)
+ * }
  * 
- * StrArray := String[NonNull]("foo", "bar")
+ * ; a more specific version of `NonNull`
+ * class NonNullNonEmpty {
+ *     static Call(Val) => super(Val?) && (Val != "")
+ * }
  * 
- * MsgBox(StrArray is String[NonNull]) ; true
- * MsgBox(StrArray is String[])        ; false (unfortunately, for now)
+ * Arr := String[NonNullNonEmpty]("foo", "bar")
  * 
- * StrArray.Push([1, 2]) ; Error! Expected a string.
- * StrArray.Push(unset)  ; Error! Failed assertion (NonNull)
- * StrArray.Delete(1)    ; Error! Failed assertion (NonNull)
- * StrArray[1] := "qux"  ; ok.
+ * Arr.Is(String[NonNull]) ; true (`NonNullNonEmpty extends NonNull`)
+ * Arr.Is(String[])        ; true
+ * Arr.Is(Any[])           ; true (`Any.CanCastFrom(String)`)
+ * Arr.Is(Any[NonNull])    ; true
+ * 
+ * ( String[]() ).Is( Any[NonNull] ) ; false (because of `NonNull`)
+ * 
+ * Arr.Push([1, 2]) ; Error! Expected a string.
+ * Arr.Push(unset)  ; Error! Failed assertion (NonNullNonEmpty)
+ * Arr.Delete(1)    ; Error! Failed assertion (NonNullNonEmpty)
+ * Arr[1] := "qux"  ; ok.
  */
 class GenericArray extends Array {
     /**
      * Constructs a new subclass of `GenericArray`.
      * 
-     * @param   {Class}  T           the type to be checked
-     * @param   {Func?}  Constraint  additional constraint to enforce
+     * @param   {Class}   T           the type to be checked
+     * @param   {Class?}  Constraint  additional constraint to enforce
      * @example
+     * ; constraint class
+     * class NonNull {
+     *     static Call(Val?) => IsSet(Val)
+     * }
      * 
      * ; array class containing only strings
-     * StringArray := String[]
+     * Arr := String[]()
      * 
      * ; array class that allows all data types, but not `unset`
-     * Any[(V?) => IsSet(V)]
+     * Arr := Any[NonNull]()
      */
     static __New(T?, Constraint?) {
         static Define := {}.DefineProp
@@ -67,7 +111,9 @@ class GenericArray extends Array {
         Proto := this.Prototype
 
         if (IsSet(Constraint)) {
-            GetMethod(Constraint)
+            if (!(Constraint is Class)) {
+                throw TypeError("Expected a Class",, Type(Constraint))
+            }
             Fn := TypeCheckWithConstraint
             Define(Proto, "Constraint", { Get: (_) => (Constraint) })
         } else {
@@ -88,16 +134,12 @@ class GenericArray extends Array {
         }
 
         TypeCheckWithConstraint(_, Val?) {
-            if (
-                ; IsSet(Val) && !(Val is T)
-                IsSet(Val) && !Val.Is(T)
-            ) {
+            if (IsSet(Val) && !Val.Is(T)) {
                 throw TypeError("Expected a(n) " . T.Prototype.__Class,,
                                 Type(Val))
             }
-            if (!Constraint(Val?)) {
-                throw ValueError("Failed assertion",,
-                                 GetMethod(Constraint).Name)
+            if (!Constraint.IsInstance(Val?)) {
+                throw ValueError("Failed assertion",, Constraint.Name)
             }
         }
     }
@@ -213,6 +255,50 @@ class GenericArray extends Array {
     Delete(Index) {
         this.Check(unset)
         return super.Delete(Index)
+    }
+
+    /**
+     * Determines whether the given class `T` is considered a subclass of this
+     * generic array class.
+     * 
+     * This depends on whether the component type can be assigned to that
+     * of `T`. In other words, `A[].CanCastFrom(B[])`, if
+     * `A.CanCastFrom(B)`.
+     * 
+     * If an array `A[]` has an additional constraint `C`, the component type is
+     * simply seen as a narrower form of `A`. That means, `A[].CanCastFrom(A[C])`
+     * is always `true`.
+     * 
+     * Lastly, `A[C1].CanCastFrom(B[C2])` requires both...
+     * 1. `A.CanCastFrom(B)`
+     * 2. `C1.CanCastFrom(C2)`
+     * 
+     * If this or the other array has additional constraints, they are assumed
+     * to be classes with a method `static Call(Val?)`, and checked for
+     * compatibility in the following way:
+     * 
+     * - `A[].CanCastFrom(B[Cons])` returns `true`
+     * - `A[A_Cons].CanCastFrom(B[B_Cons])` requires`A_Cons.CanCastFrom(B_Cons)`
+     * 
+     * @param   {Class}  T  any class
+     * @returns {Boolean}
+     * @example
+     * ; true (because `String`)
+     * Any[].CanCastFrom(String[])
+     */
+    static CanCastFrom(T) {
+        if (super.CanCastFrom(T)) {
+            return true
+        }
+        if (!HasBase(T, GenericArray)) {
+            return false
+        }
+
+        Cons := this.Constraint
+        if (Cons && !Cons.CanCastFrom(T.Constraint)) {
+            return false
+        }
+        return (this.ComponentType).CanCastFrom(T.ComponentType)
     }
 }
 

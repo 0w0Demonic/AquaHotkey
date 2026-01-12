@@ -57,4 +57,16 @@ class Test_GenericArray extends TestSuite {
     }
 }
 
-NonNull(Val?) => IsSet(Val)
+class NonNull {
+    static IsInstance(Val?) => IsSet(Val)
+}
+
+class NonNullNonEmpty extends NonNull {
+    static IsInstance(Val?) => super(Val?) && (Val != "")
+}
+
+;ApiResponse := Type.Union(
+;    { status: 200, data:  Any    },
+;    { status: 301, to:    String },
+;    { status: 400, error: Error  },
+;)
