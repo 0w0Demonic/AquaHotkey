@@ -1,4 +1,7 @@
 ;@region Optional
+
+; TODO replace with `ObjHasOwnProp()`
+
 /**
  * AquaHotkey - Optional.ahk
  * 
@@ -20,6 +23,19 @@
  * consuming the contained value.
  */
 class Optional {
+    /**
+     * TODO
+     */
+    IsInstance(Val?) {
+        if (!IsSet(Val)) {
+            return true
+        }
+        if (!ObjHasOwnProp(this, "Value")) {
+            throw PropertyError("invalid pattern (optional is empty)")
+        }
+        return this.Value.IsInstance(Val)
+    }
+
     /**
      * Returns an optional with no value present.
      * 

@@ -48,6 +48,9 @@
 ;@region Collections
 
 
+#Include "%A_LineFile%/../../Collections/Generic/Array.ahk"
+#Include "%A_LineFile%/../../Collections/Generic/Map.ahk"
+
 #Include "%A_LineFile%/../../Collections/Array.ahk"
 #Include "%A_LineFile%/../../Collections/DefaultProp.ahk"
 #Include "%A_LineFile%/../../Collections/Map.ahk"

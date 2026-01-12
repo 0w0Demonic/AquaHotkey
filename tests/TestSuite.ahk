@@ -3,7 +3,7 @@
 class TestSuite {
 static __New() {
     static OutFile := (A_LineFile . "\..\result.txt")
-    static Ln := "------------------------------------------------------------"
+    static Ln := "----------------------------------------------------------------------"
 
     if (this == TestSuite) {
         ToolTip("running...")
@@ -61,7 +61,7 @@ static __New() {
 
         Success := !IsSet(E)
         Name    := RegExReplace(Fn.Name, "i)^[a-zA-Z]++_", "")
-        Output  := Format("{:-57}[{}]`n", Name, (Success ? "x" : " "))
+        Output  := Format("{:-67}[{}]`n", Name, (Success ? "x" : " "))
 
         if (!Success) {
             Output .= Ln

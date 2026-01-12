@@ -2,23 +2,45 @@
 #Include <AquaHotkeyX>
 
 ; TODO change `.AssertType()` to use this module's `.Is()` ?
-; TODO allow `unset` inside `static IsInstance()`?
-; TODO String.WithPattern() ?
-; TODO wrappers like `Optional<String>`
-; TODO `Any#IsInstance(T) => this.Eq(T)`?
 ; TODO pattern matching with placeholders like `Variadic(String)`
 
 ;@region Extensions
 /**
- * Provides a flexible type-checking system that extends the `is`-keyword with
- * user-defined types with so-called "traits".
+ * Provides a flexible duck-typing system which extends the functionality
+ * of the `is`-keyword with user-defined pattern-matching.
  * 
- * A value can be tested against a class by calling `Value.Is(Class)`,
- * which delegates to `Class.IsInstance(Value)`.
+ * ```ahk
+ * "foo".Is(String) ; true
+ * ```
  * 
- * You can implement your own custom type checks by overriding the
- * `static IsInstance()` method. The method should return `true`, if the
- * input satisfies the desired semantics.
+ * Instead of relying solely on class inheritance, types can be defined
+ * as *patterns*: a set of required characteristics an object must fulfill to be
+ * considered an instance of that type.
+ * 
+ * ```ahk
+ * ; define a structual type pattern
+ * Person := { Name: String, Age: Integer }
+ * 
+ * ; match our object against the "Person" pattern
+ * ({ Name: "0w0Demonic", Age: 21 }).Is(Person) ; true
+ * ```
+ * 
+ * ## How it works
+ * 
+ * `Value.Is(Type)` delegates to a polymorphic call to `Type.IsInstance(Value)`.
+ * 
+ * User-defined classes may override `static IsInstance(Val?)` to customize how
+ * values are recognized as instances of that type.
+ * 
+ * ```ahk
+ * class Numeric {
+ *     static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
+ * }
+ * ```
+ * 
+ * In addition, `Type.CanCastFrom(OtherType)` determines whether one type can be
+ * considered equivalent to or a subtype of another. This behaves similarly to
+ * `Class#isAssignableFrom(Class)` in Java.
  * 
  * @module  <Base/TypeChecks>
  * @author  0w0Demonic
@@ -26,36 +48,65 @@
  * @example
  * "123".Is(String)      ; true ("123" is String)
  * "123".Is(Numeric)     ; true (IsNumber("123"))
- * "example".Is(Email)   ; false ("example" is String && (example ~= "..."))
  * 
- * ; >>>>
- * ; "trait classes" that represent a specification of what the value should be
- * ; <<<<
- * class Numeric {
- *     static IsInstance(Val) => IsNumber(Val)
- * }
+ * @example
+ * Number.CanCastFrom(Integer) ; true (every integer is also a number)
+ * 
+ * @example
  * class Email {
  *     static IsInstance(Val) => (Val is String)
  *                            && (Val ~= "^[^@]+@[^@]+\.[^@]+$")
  * }
+ * 
+ * "example".Is(Email)   ; false ("example" is String && (example ~= "..."))
  */
 class AquaHotkey_TypeChecks extends AquaHotkey {
     ;@region Any
+
     class Any {
         /**
-         * Determines whether this value is an instance of the given class.
-         * 
-         * The default implementation uses the `is` keyword, but this behaviour
-         * can be customized.
+         * Determines whether this value matches the type pattern specified
+         * by the given object `T`. This method delegates to
+         * `T.IsInstance(this)`, and should not be overridden.
          * 
          * @param   {Class}  T  expected class
          * @returns {Boolean}
          * @example
+         * class Numeric {
+         * }
+         * 
          * "123".Is(String)      ; true
          * "example".Is(Numeric) ; false
          */
         Is(T) => T.IsInstance(this)
+
+        /**
+         * Determines whether the given value matches the type pattern specified
+         * by this value.
+         * 
+         * For non-objects, this is true whenever both values are considered
+         * equal `.Eq()`.
+         * 
+         * @param   {Any?}  Val  any value
+         * @returns {Boolean}
+         * @example
+         * (42).IsInstance(42) ; true (`IsSet(42) && 42.Eq(42)`)
+         */
+        IsInstance(Val?) => IsSet(Val) && this.Eq(Val)
+
+        /**
+         * Determines whether the given value can be "cast" into this value.
+         * 
+         * For non-objects, this is only true if both values are equal `.Eq()`.
+         * 
+         * @param   {Any}  T  any value
+         * @returns {Boolean}
+         * @example
+         * (42).CanCastFrom(42) ; true
+         */
+        CanCastFrom(T) => this.Eq(T)
     }
+
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Object
@@ -74,41 +125,83 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
          * objects are matched using `.IsInstance()`
          * 
          * @augments Any#IsInstance
-         * @param    {Any}  Val  any value
+         * @param    {Any?}  Val  any value
          * @returns  {Boolean}
          * @example
          * Success := { status: 200, data: Any }
          * 
          * Success.IsInstance({ status: 200, data: String }) ; true
          */
-        IsInstance(Val) {
+        IsInstance(Val?) {
             static GetProp := {}.GetOwnPropDesc
-
-            ; this is only meant to work on object literals
-            if (ObjGetBase(this) != Object.Prototype) {
-                MsgBox("not a literal")
+            if (!IsSet(Val) || !IsObject(Val)) {
                 return false
             }
-            for PropName in ObjOwnProps(this) {
-                PropDesc := GetProp(this, PropName)
+
+            if (ObjGetBase(this) != Object.Prototype) {
+                return false
+            }
+            if (ObjGetBase(Val) != Object.Prototype) {
+                return false
+            }
+
+            for Name in ObjOwnProps(this) {
+                ; get patterns of this object
+                PropDesc := GetProp(this, Name)
                 if (!ObjHasOwnProp(PropDesc, "Value")) {
                     continue
                 }
-                PropValue := PropDesc.Value
+                Pattern := PropDesc.Value
 
-                if (!ObjHasOwnProp(Val, PropName)) {
+                ; get the same property of other object, if applicable
+                PropValue := unset
+                if (ObjHasOwnProp(Val, Name)) {
+                    PropDesc := GetProp(Val, Name)
+                    if (ObjHasOwnProp(PropDesc, "Value")) {
+                        PropValue := PropDesc.Value
+                    }
+                }
+
+                ; property value must match pattern
+                if (!Pattern.IsInstance(PropValue?)) {
                     return false
                 }
-                PropDesc := GetProp(Val, PropName)
+            }
+            return true
+        }
+
+        /**
+         * Determines whether the object is considered equivalent to, or
+         * a subtype of this type pattern.
+         * 
+         * @param   {Any}  T  any value
+         * @returns {Boolean}
+         * @example
+         * ({ x: Number, y: Number }).CanCastFrom({ x: Integer, y: Integer })
+         */
+        CanCastFrom(T) {
+            static GetProp := {}.GetOwnPropDesc
+
+            ; this is only meant to work on object literals
+            if (ObjGetBase(T) != Object.Prototype) {
+                return false
+            }
+
+            for Name in ObjOwnProps(this) {
+                PropDesc := GetProp(this, Name)
+                if (!ObjHasOwnProp(PropDesc, "Value")) {
+                    continue
+                }
+                Pattern := PropDesc.Value
+                if (!ObjHasOwnProp(T, Name)) {
+                    return false
+                }
+                PropDesc := GetProp(T, Name)
                 if (!ObjHasOwnProp(PropDesc, "Value")) {
                     return false
                 }
-
-                if (IsObject(PropValue)) {
-                    if (!PropValue.IsInstance(PropDesc.Value)) {
-                        return false
-                    }
-                } else if (!PropValue.Eq(PropDesc.Value)) {
+                PropT := PropDesc.Value
+                if (!Pattern.CanCastFrom(PropT)) {
                     return false
                 }
             }
@@ -122,15 +215,16 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
 
     class Array {
         /**
+         * TODO `unset` behaviour
+         * 
          * Determines whether the given value (an array) can be pattern matched
          * with this array.
          * 
          * This array's elements are used for pattern matching the elements
          * of the other array. Primitive types are matched using `.Eq()`,
-         * objects are matched using `.IsInstance()`. `unset` asserts that the
-         * other array has no value at the same index.
+         * objects are matched using `.IsInstance()`.
          * 
-         * @param   {Any}  Val  any value
+         * @param   {Any?}  Val  any value
          * @returns {Boolean}
          * @example
          * ( ["foo", "bar", 42] ).Is( [String, String, Integer] ) ; true
@@ -138,28 +232,23 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
          * ( [unset, 42] ).Is( [unset, Integer] ) ; true
          * ( ["foo", 42] ).Is( [unset, Integer] ) ; false
          */
-        IsInstance(Val) {
-            if (!(Val is Array)) {
+        IsInstance(Val?) {
+            if (!IsSet(Val) || !(Val is Array) || Val.Length != this.Length) {
+                MsgBox("nope")
                 return false
             }
-            if (Val.Length != this.Length) {
-                return false
-            }
+
             loop this.Length {
                 if (this.Has(A_Index)) {
-                    if (!Val.Has(A_Index)) {
+                    Pattern := this.Get(A_Index)
+                    Elem := Val.Has(A_Index)
+                        ? Val.Get(A_Index)
+                        : unset
+
+                    if (!Pattern.IsInstance(Elem?)) {
                         return false
                     }
-                    ElemThis := this.Get(A_Index)
-                    ElemOther := Val.Get(A_Index)
-                    if (IsObject(ElemThis)) {
-                        if (!ElemThis.IsInstance(ElemOther)) {
-                            return false
-                        }
-                    } else if (!ElemThis.Eq(ElemOther)) {
-                        return false
-                    }
-                } else if (Val.Has(A_Index)) {
+                } else if (Val.Has(A_Index)) { ; does not match `unset`
                     return false
                 }
             }
@@ -179,13 +268,13 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
          * determine if the value uses the prototype of this class as base
          * object.
          * 
-         * @param   {Any}  Val  any value
+         * @param   {Any?}  Val  any value
          * @returns {Boolean}
          * @example
          * "123".Is(String)      ; true
          * "example".Is(Numeric) ; false
          */
-        IsInstance(Val) => (Val is this)
+        IsInstance(Val?) => IsSet(Val) && (Val is this)
 
         /**
          * Determines whether this value is an instance of the given class, or
@@ -207,6 +296,7 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
     ;@region Type
 
     class Type {
+        ; TODO figure out `unset` behaviour
         /**
          * Creates a type class that represents a union of the specified types.
          * 
@@ -220,12 +310,29 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
                 throw UnsetError("no values specified")
             }
             Result := Class()
+            for T in Types {
+                if (!IsSet(T)) {
+                    throw UnsetError("unset value")
+                }
+            }
             ({}.DefineProp)(Result, "IsInstance", { Call: IsInstance })
             return Result
 
-            IsInstance(this, Val) {
+            /**
+             * Returns whether the given value is considered an instance of
+             * this union type.
+             * 
+             * @param   {Any?}  Val  any value
+             * @returns {Boolean}
+             * @example
+             * "42".Is( Type.Union(String, Integer) ) ; true
+             */
+            IsInstance(this, Val?) {
+                if (!IsSet(Val)) {
+                    return false
+                }
                 for T in Types {
-                    if (T.IsInstance(Val)) {
+                    if (T.IsInstance(Val?)) {
                         return true
                     }
                 }
@@ -233,6 +340,7 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
             }
         }
 
+        ; TODO figure out `unset` behaviour
         /**
          * Creates a type class that represents an intersection of the specified
          * types.
@@ -249,13 +357,30 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
             if (!Types.Length) {
                 throw UnsetError("no values specified")
             }
+            for T in Types {
+                if (!IsSet(T)) {
+                    throw UnsetError("unset value")
+                }
+            }
             Result := Class()
             ({}.DefineProp)(Result, "IsInstance", { Call: IsInstance })
             return Result
 
-            IsInstance(this, Val) {
+            /**
+             * Determines whether the given value is considered an instance of
+             * this intersection type.
+             * 
+             * @param   {Any?}  Val  any value
+             * @returns {Boolean}
+             * @example
+             * "42".Is( Type.Intersection(Numeric, String) ) ; true
+             */
+            IsInstance(this, Val?) {
+                if (!IsSet(Val)) {
+                    return false
+                }
                 for T in Types {
-                    if (!T.IsInstance(Val)) {
+                    if (!T.IsInstance(Val?)) {
                         return false
                     }
                 }
@@ -263,6 +388,7 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
             }
         }
 
+        ; TODO figure out `unset` behaviour
         /**
          * Creates a type class which represents an enumeration of the given
          * values. On pattern matching, `.Eq()` is used for comparing values.
@@ -280,12 +406,34 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
                 throw UnsetError("no values specified")
             }
             Result := Class()
+            for V in Values {
+                if (!IsSet(V)) {
+                    throw UnsetError("unset value")
+                }
+            }
             ({}.DefineProp)(Result, "IsInstance", { Call: IsInstance })
             return Result
 
-            IsInstance(this, Val) {
+            ; TODO `unset` behaviour
+
+            /**
+             * Determines whether the given value is considered an instance of
+             * this enum type.
+             * 
+             * @param   {Any?}  Val  any value
+             * @returns {Boolean}
+             * @example
+             * T := Type.Enum("A", "B", "C")
+             * 
+             * MsgBox("A".Is(T)) ; true
+             * MsgBox("?".Is(T)) ; false
+             */
+            IsInstance(this, Val?) {
+                if (!IsSet(Val)) {
+                    return false
+                }
                 for V in Values {
-                    if (V.Eq(Val)) {
+                    if (V.Eq(Val?)) {
                         return true
                     }
                 }
@@ -314,7 +462,7 @@ class Numeric {
      * "example".Is(Numeric)     ; false
      * Numeric.IsInstance("123") ; true
      */
-    static IsInstance(Val) => IsNumber(Val)
+    static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
 
     /**
      * Determines whether the given class is considered a subclass of `Numeric`.
@@ -348,7 +496,7 @@ class Callable {
      * Callable.IsInstance(MsgBox)                   ; true
      * ({ Call: (this) => this.Value }).Is(Callable) ; true
      */
-    static IsInstance(Val) => (IsObject(Val) && HasMethod(Val))
+    static IsInstance(Val?) => IsSet(Val) && IsObject(Val) && HasMethod(Val)
 
     /**
      * Determines whether the given class is considered a subclass of
@@ -375,13 +523,14 @@ class BufferObject {
     /**
      * Determines whether the buffer is buffer-like.
      * 
-     * @param   {Any}  Val  any value
+     * @param   {Any?}  Val  any value
      * @returns {Boolean}
      * @example
      * Buffer(16, 0).Is(BufferObject)        ; true
      * { Ptr: 0, Size: 16 }.Is(BufferObject) ; true
      */
-    static IsInstance(Val) => (
+    static IsInstance(Val?) => (
+            IsSet(Val)
             IsObject(Val) &&
             HasProp(Val, "Ptr") &&
             HasProp(Val, "Size"))
@@ -396,9 +545,7 @@ class BufferObject {
      * ; true (every buffer is a BufferObject)
      * BufferObject.CanCastFrom(Buffer)
      */
-    static CanCastFrom(T) {
-        return (super.CanCastFrom(T) || Buffer.CanCastFrom(T))
-    }
+    static CanCastFrom(T) => (super.CanCastFrom(T) || Buffer.CanCastFrom(T))
 }
 
 ;@endregion
@@ -420,6 +567,22 @@ class BufferObject {
  * MsgBox(Obj.Is(PermissionsMap))
  */
 class Record {
+    /**
+     * Creates a new record type with the given key and value type.
+     * 
+     * @param   {Any}  KeyType    key type
+     * @param   {Any}  ValueType  value type
+     * @returns {Class}
+     * @example
+     * CatName := Type.Enum("Miffy", "Boris", "Mordred")
+     * CatInfo := { Age: Number, Breed: String }
+     * 
+     * Cats := {
+     *    Miffy:   { Age: 10, Breed: "Persian "},
+     *    Boris:   { Age: 5,  Breed: "Maine Coon" },
+     *    Mordred: { Age: 16, Breed: "British Shorthair" }
+     * }
+     */
     static Call(KeyType, ValueType) {
         static Define  := {}.DefineProp
         static GetProp := {}.GetOwnPropDesc
@@ -435,7 +598,21 @@ class Record {
         Define(Result, "IsInstance", { Call: IsInstance })
         return Result
 
-        IsInstance(this, Val) {
+        /**
+         * Determines whether the given value is considered an instance of
+         * this record type. This only applies if the value is a plain object
+         * (inherits directly from `Object.Prototype`).
+         * 
+         * @param   {Any?}  Val  any value
+         * @returns {Boolean}
+         * @example
+         * Record(String, Integer).IsInstance({ Age: 21 })
+         */
+        IsInstance(this, Val?) {
+            if (!IsSet(Val)) {
+                return false
+            }
+
             ; only supposed to work on plain objects, for now.
             if (ObjGetBase(Val) != Object.Prototype) {
                 return false
@@ -460,15 +637,3 @@ class Record {
 }
 
 ;@endregion
-
-Permissions := Type.Enum("Admin", "User", "Guest")
-PermissionsMap := Record(Permissions, Numeric)
-
-
-Obj := {
-    Admin: "123",
-    User: "897",
-    Guest: "98"
-}
-
-MsgBox(Obj.Is(PermissionsMap))

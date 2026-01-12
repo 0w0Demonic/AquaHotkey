@@ -2,6 +2,7 @@
 ; #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
 #Include <AquaHotkeyX>
 
+;@region GenericArray
 /**
  * Introduces type-checked arrays using intuitive array syntax (`[]`).
  * 
@@ -22,7 +23,7 @@
  * ### Constraints
  * 
  * Elements can be further constrained by passing a class between the square
- * brackets. They are assumed to have their own custom `static IsInstance()`
+ * brackets. They are assumed to have their own custom `static IsInstance(Val?)`
  * implementations.
  * 
  * ```ahk
@@ -43,11 +44,8 @@
  * 
  * ### Type-Checking
  * 
- * Existing classes are cached, which means calling e.g. `String[]` will
- * produce the same object, allowing you to use `is String[]` consistently.
- * 
- * However, it's highly recommended to use `.Is()` instead, in order to support
- * constraints.
+ * The `is` keyword won't reliably be able to determine the type of generic
+ * array. Instead, use `.Is()`.
  * 
  * @module  <Collections/Generic/Array>
  * @author  0w0Demonic
@@ -55,12 +53,12 @@
  * @example
  * ; additional constraint (forbids `unset`)
  * class NonNull {
- *     static Call(Val?) => IsSet(Val)
+ *     static IsInstance(Val?) => IsSet(Val)
  * }
  * 
  * ; a more specific version of `NonNull`
- * class NonNullNonEmpty {
- *     static Call(Val) => super(Val?) && (Val != "")
+ * class NonNullNonEmpty extends NonNull {
+ *     static IsInstance(Val?) => super.IsInstance(Val?) && (Val != "")
  * }
  * 
  * Arr := String[NonNullNonEmpty]("foo", "bar")
@@ -78,6 +76,7 @@
  * Arr[1] := "qux"  ; ok.
  */
 class GenericArray extends Array {
+    ;@region Construction
     /**
      * Constructs a new subclass of `GenericArray`.
      * 
@@ -104,9 +103,6 @@ class GenericArray extends Array {
         if (!IsSet(T)) {
             throw UnsetError("unset value")
         }
-        if (!(T is Class)) {
-            throw TypeError("Expected a Class",, Type(T))
-        }
 
         Proto := this.Prototype
 
@@ -124,63 +120,23 @@ class GenericArray extends Array {
         Define(Proto, "ComponentType", { Get: (_) => (T) })
 
         TypeCheck(_, Val?) {
-            if (
-                ; IsSet(Val) && !(Val is T)
-                IsSet(Val) && !Val.Is(T)
-            ) {
-                throw TypeError("Expected a(n) " . T.Prototype.__Class,,
-                                Type(Val))
+            if (IsSet(Val) && !T.IsInstance(Val)) {
+                throw TypeError("Invalid type")
             }
         }
 
         TypeCheckWithConstraint(_, Val?) {
-            if (IsSet(Val) && !Val.Is(T)) {
-                throw TypeError("Expected a(n) " . T.Prototype.__Class,,
-                                Type(Val))
+            if (IsSet(Val) && !T.IsInstance(Val)) {
+                throw TypeError("Invalid type")
             }
             if (!Constraint.IsInstance(Val?)) {
-                throw ValueError("Failed assertion",, Constraint.Name)
+                throw ValueError("Failed assertion")
             }
         }
     }
-
-    /**
-     * Returns the component type of this generic array. In other words, the
-     * type of class out of which the array consists of.
-     * 
-     * @returns {Class}
-     */
-    static ComponentType => (this.Prototype).ComponentType
-
-    /**
-     * Returns the component type of this generic array. In other words, the
-     * type of class out of which the array consists of.
-     * 
-     * @abstract
-     * @returns {Class}
-     */
-    ComponentType {
-        get {
-            throw PropertyError("component type not found")
-        }
-    }
-
-    /**
-     * Returns the additional constraint of this array class, or `false` if
-     * there is none.
-     * 
-     * @returns {Func}
-     */
-    static Constraint => (this.Prototype).Constraint
-
-    /**
-     * Returns the additional constraint of this array class, or `false` if
-     * there is none.
-     * 
-     * @abstract
-     * @returns {Func}
-     */
-    Constraint => false
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Array Methods
 
     /**
      * Creates a new array with additional checking.
@@ -257,6 +213,48 @@ class GenericArray extends Array {
         return super.Delete(Index)
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Type Info
+
+    /**
+     * Returns the component type of this generic array. In other words, the
+     * type of class out of which the array consists of.
+     * 
+     * @returns {Class}
+     */
+    static ComponentType => (this.Prototype).ComponentType
+
+    /**
+     * Returns the component type of this generic array. In other words, the
+     * type of class out of which the array consists of.
+     * 
+     * @abstract
+     * @returns {Class}
+     */
+    ComponentType {
+        get {
+            throw PropertyError("component type not found")
+        }
+    }
+
+    /**
+     * Returns the additional constraint of this array class, or `false` if
+     * there is none.
+     * 
+     * @returns {Func}
+     */
+    static Constraint => (this.Prototype).Constraint
+
+    /**
+     * Returns the additional constraint of this array class, or `false` if
+     * there is none.
+     * 
+     * @abstract
+     * @returns {Func}
+     */
+    Constraint => false
+
     /**
      * Determines whether the given class `T` is considered a subclass of this
      * generic array class.
@@ -300,60 +298,54 @@ class GenericArray extends Array {
         }
         return (this.ComponentType).CanCastFrom(T.ComponentType)
     }
-}
 
+    /**
+     * Determines whether the given value is an instance of this generic array
+     * class.
+     * 
+     * 
+     */
+    static IsInstance(Val?) {
+        if (!IsSet(Val) || !(Val is GenericArray)) {
+            return false
+        }
+        Cons := this.Constraint
+        if (Cons) {
+
+        }
+
+        return (this.ComponentType).CanCastFrom(Val.ComponentType)
+            && (this.Constraint).CanCastFrom(Val.Constraint)
+    }
+
+    ;@endregion
+}
+;@endregion
+
+;@region Extensions
 class AquaHotkey_GenericArray extends AquaHotkey {
+    class Any {
+        /**
+         * Returns the "array class" of this value.
+         * 
+         * @param   {Any?}  Constraint  additional type constraint
+         * @returns {Class}
+         * @example
+         * User    := { name: String, age: Integer }
+         * UserArr := User.ArrayType
+         */
+        ArrayType[Constraint?] => AquaHotkey.CreateClass(
+                GenericArray,
+                (this is Class) ? (this.Prototype.__Class  . "[]") : "",
+                this,
+                Constraint?)
+    }
+
     class Class {
         /**
          * Returns the "array class" of this class.
          * 
-         * @param   {Func?}  Constraint  additional validation function
-         * @returns {Class}
-         * @example
-         * ArrClass := Number[]
-         * Arr := ArrClass(23, 1, 45)
-         * 
-         * ; shorthand
-         * Number[](23, 1, 45)
-         */
-        ArrayType[Constraint?] {
-            get {
-                static NONE := false
-                static Classes := Map()
-
-                if (Classes.Has(this)) {
-                    Variations := Classes.Get(this)
-                    Variation  := (IsSet(Constraint) && Constraint)
-                    if (Variations.Has(Variation)) {
-                        return Variations.Get(Variation)
-                    }
-                }
-
-                ClsName := this.Prototype.__Class . "[]"
-                ArrayType := AquaHotkey.CreateClass(
-                        GenericArray,
-                        ClsName,
-                        this, Constraint?)
-                
-                if (!Classes.Has(this)) {
-                    Classes.Set(this, Map())
-                }
-                Variations := Classes.Get(this)
-
-                if (IsSet(Constraint)) {
-                    GetMethod(Constraint)
-                    Variations.Set(Constraint, ArrayType)
-                } else {
-                    Variations.Set(NONE, ArrayType)
-                }
-                return ArrayType
-            }
-        }
-
-        /**
-         * Returns the "array class" of this class.
-         * 
-         * @param   {Func?}  Constraint  additional validation function
+         * @param   {Any?}  Constraint  additional type constraint
          * @returns {Class}
          * @example
          * ArrClass := Number[]
@@ -367,17 +359,16 @@ class AquaHotkey_GenericArray extends AquaHotkey {
 
     class Array {
         /**
-         * Returns a type-checked array class.
+         * Returns the "array class" of the given type, and optional
+         * type constraint.
          * 
-         * @param   {Class}  T           type of elements contained in the array
-         * @param   {Func?}  Constraint  additional validation function
+         * @param   {Any}   T           type pattern
+         * @param   {Any?}  Constraint  additional type constraint
          * @returns {Class}
+         * @example
+         * Cls := Array.OfType[{ status: 200, data: Any }]
          */
-        static OfType(T, Constraint?) {
-            if (!(T is Class)) {
-                throw TypeError("Expected a Class",, Type(T))
-            }
-            return T[Constraint?]
-        }
+        static OfType(T, Constraint?) => T.ArrayType[Constraint?]
     }
 }
+;@endregion

@@ -49,12 +49,6 @@ class GenericMap extends Map {
         if (!IsSet(V)) {
             throw UnsetError("unset value")
         }
-        if (!(K is Class)) {
-            throw TypeError("Expected a Class",, Type(K))
-        }
-        if (!(V is Class)) {
-            throw TypeError("Expected a Class",, Type(V))
-        }
         Proto := this.Prototype
         Define(Proto, "Check",     { Call: TypeCheck })
         Define(Proto, "KeyType",   { Get: (_) => K })

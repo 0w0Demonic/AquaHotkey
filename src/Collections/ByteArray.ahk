@@ -38,9 +38,8 @@ class ByteArray {
     __New(Buf) {
         static Define := {}.DefineProp
 
-        ; TODO change to .Is(BufferObject) ?
-        if (!(Buf is Buffer)) {
-            throw TypeError("Expected a Buffer",, Type(Buf))
+        if (!Buf.Is(BufferObject)) {
+            throw TypeError("Expected a BufferObject",, Type(Buf))
         }
 
         Define(this, "Ptr", {

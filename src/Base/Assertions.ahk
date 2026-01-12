@@ -30,7 +30,7 @@ class Any {
         }
         throw ValueError("failed assertion", -2)
     }
-    
+
     ; TODO integrate with `AquaHotkey_Eq?`
 
     /**
