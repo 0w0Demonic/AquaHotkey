@@ -73,9 +73,6 @@
 #Include "%A_LineFile%/../../Stream/Collector.ahk"
 #Include "%A_LineFile%/../../Stream/Gatherer.ahk"
 
-#Include "%A_LineFile%/../../Func/Condition.ahk"
-#Include "%A_LineFile%/../../Func/Mapper.ahk"
-
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Mixins

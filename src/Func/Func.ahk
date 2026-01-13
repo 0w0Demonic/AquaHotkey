@@ -84,101 +84,6 @@ class Func {
     }
     ;@endregion
 
-    ;@region Predicates
-    /**
-     * Returns a predicate function that represents a logical AND of this
-     * predicate and `Other`. The resulting predicate short-circuits, if the
-     * first expression evaluates to `false`.
-     * 
-     * @example
-     * GreaterThan5(x) => (x > 5)
-     * LessThan100(x) => (x < 100)
-     * 
-     * Condition := GreaterThan5.And(LessThan100)
-     * Condition(23) ; true
-     * 
-     * @param   {Func}  Other  function that evaluates a condition
-     * @returns {Func}
-     */
-    And(Other) {
-        GetMethod(Other)
-        return (Args*) => this(Args*) && Other(Args*)
-    }
-
-    /**
-     * Returns a predicate function that presents a logical AND NOT of this
-     * predicate and `Other`. The resulting predicate short-circuits, if the
-     * first expression evaluates to `false`.
-     * 
-     * @example
-     * GreaterThan5(x) => (x > 5)
-     * GreaterThan100(x) => (x > 100)
-     * 
-     * Condition := GreaterThan5.AndNot(GreaterThan100)
-     * Condition(56) ; true
-     * 
-     * @param   {Func}  Other  function that evaluates a condition
-     * @returns {Func}
-     */
-    AndNot(Other) {
-        GetMethod(Other)
-        return (Args*) => this(Args*) && !Other(Args*)
-    }
-
-    /**
-     * Returns a predicate function that represents a logical OR of this
-     * predicate and `Other`. The resulting predicate short-circuits, if the
-     * first expression evaluates to `true`
-     * 
-     * @example
-     * GreaterThan5(x) => (x > 5)
-     * EqualsOne(x) => (x == 1)
-     * 
-     * Condition := GreaterThan5.Or(EqualsOne)
-     * Condition(1) ; true
-     * 
-     * @param   {Func}  Other  function that evaluates a condition
-     * @returns {Func}
-     */
-    Or(Other) {
-        GetMethod(Other)
-        return (Args*) => this(Args*) || Other(Args*)
-    }
-
-    /**
-     * Returns a predicate function that represents a logical OR NOT of this
-     * predicate and `Other`. The resulting predicate short-circuits, if the
-     * first expression evaluates to `true`.
-     * 
-     * @example
-     * GreaterThan5(x) => (x > 5)
-     * GreaterThan0(x) => (x > 0)
-     * 
-     * Condition := GreaterThan5.OrNot(GreaterThan0)
-     * Condition(-3) ; true
-     * 
-     * @param   {Func}  Other  function that evaluates a condition
-     * @returns {Func}
-     */
-    OrNot(Other) {
-        GetMethod(Other)
-        return (Args*) => this(Args*) || !Other(Args*)
-    }
-    
-    /**
-     * Returns a predicate that represents a negation of this predicate.
-     * 
-     * @example
-     * IsAdult(Person) => (Person.Age >= 18)
-     * IsNotAdult := IsAdult.Negate()
-     * 
-     * IsNotAdult({ Age: 17 }) ; true
-     * 
-     * @returns {Predicate}
-     */
-    Negate() => ((Args*) => !this(Args*))
-    ;@endregion
-
     ;@region Decorations
     /**
      * Returns a memoized version of this function, caching previously computed
@@ -296,6 +201,7 @@ class Func {
             }
         }
     }
+
     ;@endregion
 } ; class Func
 } ; class AquaHotkey_Func extends AquaHotkey

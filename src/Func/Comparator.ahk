@@ -1,5 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+#Include <AquaHotkey\src\Func\Cast>
+
 /**
  * A comparator is a function that determines a natural ordering between its
  * two input values. This is mainly used for creating custom sorting logic.
@@ -20,37 +22,6 @@ class Comparator extends Func {
         if (this == Comparator) {
             ObjSetBase(StrCompare, Comparator.Prototype)
         }
-    }
-
-    /**
-     * Creates a new comparator from the function to be called.
-     * 
-     * @param   {Func|Object}  Obj  any callable object
-     * @returns {Comparator}
-     * @example
-     * Comp := Comparator((A, B) => (A > B) - (B > A))
-     */
-    static Call(Obj) {
-        GetMethod(Obj)
-        Fn := ObjBindMethod(Obj)
-        ObjSetBase(Fn, this.Prototype)
-        return Fn
-    }
-
-    /**
-     * Casts a function object into a comparator.
-     * 
-     * @param   {Func}  Fn  function object
-     * @returns {Comparator}
-     * @example
-     * Comparator.Cast(StrCompare)
-     */
-    static Cast(Fn) {
-        if (!(Fn is Func)) {
-            throw TypeError("Expected a Func",, Type(Fn))
-        }
-        ObjSetBase(Fn, this.Prototype)
-        return Fn
     }
 
     /**
@@ -117,11 +88,8 @@ class Comparator extends Func {
      * Comparator.By(StrLen).ThenAlpha()
      */
     static By(Mapper, Args*) {
+        return this.Cast(Comp)
         Comp(A?, B?) => Mapper(A?, Args*).Compare(Mapper(B?, Args*))
-
-        GetMethod(Mapper)
-        ObjSetBase(Comp, this.Prototype)
-        return Comp
     }
 
     /**
@@ -134,11 +102,8 @@ class Comparator extends Func {
      * Comp := Comparator.Num().By(StrLen)
      */
     By(Mapper, Args*) {
+        return this.Cast(Comp)
         Comp(A?, B?) => this(Mapper(A?, Args*), Mapper(B?, Args*))
-
-        GetMethod(Mapper)
-        ObjSetBase(Comp, ObjGetBase(this))
-        return Comp
     }
 
     /**
@@ -151,10 +116,8 @@ class Comparator extends Func {
      * Comp := Comparator.Num(StrLen).Then(Comparator.Alpha)
      */
     Then(Other) {
+        return this.Cast(Comp)
         Comp(A?, B?) => this(A?, B?) || Other(A?, B?)
-        GetMethod(Other)
-        ObjSetBase(Comp, ObjGetBase(this))
-        return Comp
     }
 
     /**
@@ -169,12 +132,9 @@ class Comparator extends Func {
      * Comparator.By(StrLen).ThenAlpha()
      */
     ThenBy(Mapper, Args*) {
+        return this.Cast(Comp)
         Comp(A?, B?) => this(A?, B?)
                      || (Mapper(A?, Args*).Compare(Mapper(B?, Args*)))
-
-        GetMethod(Mapper)
-        ObjSetBase(Comp, ObjGetBase(this))
-        return Comp
     }
 
     /**
@@ -203,12 +163,8 @@ class Comparator extends Func {
      * ByStrLen_Desc := Comparator.Num(StrLen).Rev()
      */
     Rev() {
+        return this.Cast(Comp)
         Comp(A?, B?) => this(B?, A?)
-        ObjSetBase(Comp, ObjGetBase(this))
-        ({}.DefineProp)(Comp, "Rev", {
-            Call: (_) => this
-        })
-        return Comp
     }
 
     /**
@@ -220,6 +176,7 @@ class Comparator extends Func {
      * @returns {Comparator}
      */
     NullsFirst() {
+        return this.Cast(Comp)
         Comp(A?, B?) {
             if (IsSet(A)) {
                 if (IsSet(B)) {
@@ -232,8 +189,6 @@ class Comparator extends Func {
             }
             return 0
         }
-        ObjSetBase(Comp, ObjGetBase(this))
-        return Comp
     }
 
     /**
@@ -245,6 +200,7 @@ class Comparator extends Func {
      * @returns {Comparator}
      */
     NullsLast() {
+        return this.Cast(Comp)
         Comp(A?, B?) {
             if (IsSet(A)) {
                 if (IsSet(B)) {
@@ -257,7 +213,5 @@ class Comparator extends Func {
             }
             return 0
         }
-        ObjSetBase(Comp, ObjGetBase(this))
-        return Comp
     }
 }

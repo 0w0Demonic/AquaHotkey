@@ -24,7 +24,7 @@ class AquaHotkey_FuncCasting extends AquaHotkey {
          */
         static Call(Fn) {
             GetMethod(Fn)
-            return this.Cast(ObjBindMethod(this))
+            return this.Cast(ObjBindMethod(Fn))
         }
 
         /**
@@ -40,6 +40,15 @@ class AquaHotkey_FuncCasting extends AquaHotkey {
                 throw TypeError("Expected a Func",, Type(Fn))
             }
             ObjSetBase(Fn, this.Prototype)
+            return Fn
+        }
+
+        ; TODO docs
+        Cast(Fn) {
+            if (!(Fn is Func)) {
+                throw TypeError("Expected a Func",, Type(Fn))
+            }
+            ObjSetBase(Fn, ObjGetBase(this))
             return Fn
         }
     }

@@ -71,7 +71,7 @@ class Optional {
      * 
      * @returns {Boolean}
      */
-    IsPresent => HasProp(this, "Value")
+    IsPresent => ObjHasOwnProp(this, "Value")
 
     /**
      * Returns `true`, if this Optional does not contain a value.
@@ -82,7 +82,7 @@ class Optional {
      * 
      * @returns {Boolean}
      */
-    IsAbsent => !HasProp(this, "Value")
+    IsAbsent => !ObjHasOwnProp(this, "Value")
 
     /**
      * If a value is present, calls the given `Action` function on the value.
@@ -98,7 +98,7 @@ class Optional {
      * @returns {this}
      */
     IfPresent(Action, Args*) {
-        (HasProp(this, "Value") && Action(this.Value, Args*))
+        (ObjHasOwnProp(this, "Value") && Action(this.Value, Args*))
         return this
     }
 
@@ -115,7 +115,7 @@ class Optional {
      * @returns {this}
      */
     IfAbsent(EmptyAction, Args*) {
-        (HasProp(this, "Value") || EmptyAction(Args*))
+        (ObjHasOwnProp(this, "Value") || EmptyAction(Args*))
         return this
     }
 
@@ -131,7 +131,7 @@ class Optional {
      * @returns {Optional}
      */
     RetainIf(Condition, Args*) {
-        if (!HasProp(this, "Value")) {
+        if (!ObjHasOwnProp(this, "Value")) {
             return this
         }
         if (!Condition(this.Value, Args*)) {
@@ -151,7 +151,7 @@ class Optional {
      * @returns {Optional}
      */
     RemoveIf(Condition, Args*) {
-        if (!HasProp(this, "Value")) {
+        if (!ObjHasOwnProp(this, "Value")) {
             return this
         }
         if (Condition(this.Value, Args*)) {
@@ -180,7 +180,7 @@ class Optional {
      * @returns {Optional}
      */
     Map(Mapper, Args*) {
-        if (!HasProp(this, "Value")) {
+        if (!ObjHasOwnProp(this, "Value")) {
             return this
         }
         return Optional(Mapper(this.Value, Args*))
@@ -197,7 +197,7 @@ class Optional {
      * @returns {Any}
      */
     Get() {
-        if (HasProp(this, "Value")) {
+        if (ObjHasOwnProp(this, "Value")) {
             return this.Value
         }
         throw UnsetError("value unset")
@@ -214,7 +214,7 @@ class Optional {
      * @returns {Any}
      */
     OrElse(Default) {
-        if (HasProp(this, "Value")) {
+        if (ObjHasOwnProp(this, "Value")) {
             return this.Value
         }
         return Default
@@ -233,7 +233,7 @@ class Optional {
      * @returns {Any}
      */
     OrElseGet(Supplier, Args*) {
-        if (HasProp(this, "Value")) {
+        if (ObjHasOwnProp(this, "Value")) {
             return this.Value
         }
         return Supplier(Args*)
@@ -253,7 +253,7 @@ class Optional {
      * @returns {Any}
      */
     OrElseThrow(ExceptionSupplier := Error, Args*) {
-        if (HasProp(this, "Value")) {
+        if (ObjHasOwnProp(this, "Value")) {
             return this.Value
         }
         try Err := ExceptionSupplier(Args*)
@@ -272,7 +272,7 @@ class Optional {
      * @returns {String}
      */
     ToString() {
-        if (!HasProp(this, "Value")) {
+        if (!ObjHasOwnProp(this, "Value")) {
             return Type(this) . "{ unset }"
         }
         if (this.Value is String) {

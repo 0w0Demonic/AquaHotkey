@@ -1,8 +1,11 @@
 /**
  * A zero parameter function that represents a supplier of results.
  * 
+ * @module  <Func/Supplier>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
- * RollDice := Supplier(() => Random(1, 6))
+ * RollDice := Supplier(Random, 1, 6)
  * 
  * RollDice() ; 3 (random)
  * RollDice() ; 5 (random)
@@ -11,49 +14,66 @@
  * 
  * TimesTwo() ; 8 (random)
  * TimesTwo() ; 2 (random)
- * 
- * @template T
  */
-class Supplier {
+class Supplier extends Func {
     /**
-     * Creates a new supplier that returns the given value.
+     * Creates a new supplier from an existing function and zero or more
+     * arguments.
      * 
+     * @param   {Callable}  Fn    any function
+     * @param   {Any*}      Args  zero or more arguments
+     * @returns {Supplier}
      * @example
-     * Sup := Supplier.Of(3)
-     * Sup(3)
+     * RollDice := Supplier(Random, 1, 6)
      * 
-     * @template T
-     * @param   {T}  Value  the value to supply  
-     * @returns {Supplier<T>}
+     * RollDice() ; 3 (random)
+     * RollDice() ; 5 (random)
      */
-    static Of(Value) => this(() => Value)
+    static Call(Fn, Args*) {
+        GetMethod(Fn)
+        ObjSetBase(Sup, this.Prototype)
+        return Sup
+
+        Sup() => Fn(Args*)
+    }
 
     /**
-     * Creates a new supplier that requests its values from the given function.
+     * Returns a supplier that constantly returns the given `Value`.
      * 
-     * @param   {() => T}  Sup  the function to be called
+     * @param   {Any}  Value  any value
+     * @returns {Supplier}
+     * @example
+     * S := Supplier.Of(42)
+     * S() ; 42
      */
-    __New(Sup) {
-        GetMethod(Sup)
-        this.DefineProp("Call", {
-            /**
-             * Calls the supplier.
-             * @returns {T}
-             */
-            Call: (_) => Sup()
-        }).DefineProp("Map", {
-            /**
-             * Maps the underlying value by applying the given mapper function.
-             * @template U
-             * @example
-             * Supplier(() => Random(1, 6)).Map(x => (x * 2))
-             * 
-             * @param   {(value: T) => U}  Mapper  the function to apply
-             * @returns {Supplier<U>}
-             */
-            Call: (_, Mapper) => (
-                GetMethod(Mapper) && Supplier(() => Mapper(Sup()))
-            )
-        })
+    static Of(Value) {
+        ObjSetBase(Constantly, this.Prototype)
+        return Constantly
+
+        Constantly() => Value
+    }
+
+    /**
+     * Creates a new supplier that transforms the value of this supplier
+     * using `Mapper`.
+     * 
+     * ```ahk
+     * Mapper(Value: Any) => Any
+     * ```
+     * 
+     * @param   {Func}  Mapper  function that transforms value
+     * @returns {Supplier}
+     * @example
+     * S := Supplier.Of(Random, 1, 6).Map(x => (x * 2))
+     * 
+     * S() ; 4 (random)
+     * S() ; 10 (random)
+     */
+    Map(Mapper, Args*) {
+        GetMethod(Mapper)
+        ObjSetBase(Mapped, ObjGetBase(this))
+        return Mapped
+
+        Mapped() => Mapper(this())
     }
 }

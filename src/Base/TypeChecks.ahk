@@ -328,9 +328,6 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
              * "42".Is( Type.Union(String, Integer) ) ; true
              */
             IsInstance(this, Val?) {
-                if (!IsSet(Val)) {
-                    return false
-                }
                 for T in Types {
                     if (T.IsInstance(Val?)) {
                         return true
@@ -376,9 +373,6 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
              * "42".Is( Type.Intersection(Numeric, String) ) ; true
              */
             IsInstance(this, Val?) {
-                if (!IsSet(Val)) {
-                    return false
-                }
                 for T in Types {
                     if (!T.IsInstance(Val?)) {
                         return false
@@ -429,9 +423,6 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
              * MsgBox("?".Is(T)) ; false
              */
             IsInstance(this, Val?) {
-                if (!IsSet(Val)) {
-                    return false
-                }
                 for V in Values {
                     if (V.Eq(Val?)) {
                         return true
@@ -443,6 +434,30 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
     }
 
     ;@endregion
+
+    class Func {
+        /**
+         * 
+         */
+        Checked(Signature) {
+            ObjSetBase(Checked, ObjGetBase(this))
+            return Checked
+
+            Checked(Args*) {
+                if (Signature.IsInstance(Args)) {
+                    return this(Args*)
+                }
+
+                if (Args.Length == 1) {
+                    Value := (Args.Has(1)) ? Args.Get(1) : unset
+                    if (Signature.IsInstance(Value?)) {
+                        return this(Value?)
+                    }
+                }
+                throw TypeError("Invalid type")
+            }
+        }
+    }
 }
 
 ;@endregion

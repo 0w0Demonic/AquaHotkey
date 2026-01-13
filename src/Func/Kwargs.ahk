@@ -37,7 +37,7 @@ class Class {
 ;@endregion
 
 ;@region Any
-class Any {
+class Object {
     /**
      * To support named parameters, the `.With()` method is introduced
      * to bridge the gap. It lets you pass an object with key-value
@@ -61,9 +61,10 @@ class Any {
      */
     With(ArgObj) {
         GetMethod(this)
-        if (Type(ArgObj) != "Object") {
+        if (ObjGetBase(ArgObj) != Object.Prototype) {
             throw TypeError("Expected an Object literal",, Type(ArgObj))
         }
+
         if (!HasProp(this, "Signature")) {
             throw UnsetError("Missing signature")
         }

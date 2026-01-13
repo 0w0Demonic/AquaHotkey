@@ -1,11 +1,11 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
- * AquaHotkey - Substrings.ahk
+ * Utility for creating substrings.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/Substrings.ahk
+ * @module  <String/Substrings>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Substrings extends AquaHotkey {
 class String {
@@ -13,15 +13,14 @@ class String {
      * Returns a substring that ends just before a specified occurrence
      * of `Pattern`.
      * 
-     * @example
-     * "Hello, world!".Before("world") ; "Hello, "
-     * "abcABCabc".Before("ABC", true) ; "abc"
-     * 
      * @param   {String}      Pattern       substring to search for
      * @param   {Primitive?}  CaseSense     case-sensitivity
      * @param   {Integer?}    StartingPos   position to start from
      * @param   {Integer?}    Occurrence    n-th occurrence to find
      * @returns {String?}
+     * @example
+     * "Hello, world!".Before("world") ; "Hello, "
+     * "abcABCabc".Before("ABC", true) ; "abc"
      */
     Before(Pattern, CaseSense := false, StartingPos := 1, Occurrence := 1) {
         FoundPos := InStr(this, Pattern, CaseSense, StartingPos, Occurrence)
@@ -35,12 +34,11 @@ class String {
      * Returns a substring that ends just before the first match of a
      * regex `Pattern`.
      * 
-     * @example
-     * "Test123Hello".BeforeRegex("\d++") ; "Test"
-     * 
      * @param   {String}    Pattern       regular expression to search for
      * @param   {Integer?}  StartingPos   position to start from
      * @returns {String}
+     * @example
+     * "Test123Hello".BeforeRegex("\d++") ; "Test"
      */
     BeforeRegex(Pattern, StartingPos := 1) {
         if (IsObject(Pattern)) {
@@ -60,14 +58,13 @@ class String {
      * Returns a substring from the beginning to the end of a specified
      * occurrence of `Pattern`.
      * 
-     * @example
-     * "Hello, world!".Until(", ") ; "Hello, "
-     * 
      * @param   {String}      Pattern      substring to search for
      * @param   {Primitive?}  CaseSense    case-sensitivity
      * @param   {Integer?}    StartingPos  position to start from
      * @param   {Integer?}    Occurrence   n-th occurrence to find
      * @param   {String}
+     * @example
+     * "Hello, world!".Until(", ") ; "Hello, "
      */
     Until(Pattern, CaseSense := false, StartingPos := 1, Occurrence := 1) {
         FoundPos := InStr(this, Pattern, CaseSense, StartingPos, Occurrence)
@@ -81,12 +78,11 @@ class String {
      * Returns a substring that ends on the end of the first match of a
      * regex `Pattern`.
      * 
-     * @example
-     * "Test123Hello".UntilRegex("\d++") ; "Test123"
-     * 
      * @param   {String}    Pattern      regular expression to search for
      * @param   {Integer?}  StartingPos  position to start from
      * @returns {String}
+     * @example
+     * "Test123Hello".UntilRegex("\d++") ; "Test123"
      */
     UntilRegex(Pattern, StartingPos := 1) {
         if (IsObject(Pattern)) {
@@ -105,14 +101,13 @@ class String {
     /**
      * Returns a substring that starts at a specified occurrence of `Pattern`.
      * 
-     * @example
-     * "Hello, world!".From(",") ; ", world!"
-     * 
      * @param   {String}      Pattern      substring to search for
      * @param   {Primitive?}  CaseSense    case-sensitivity
      * @param   {Integer?}    StartingPos  position to start from
      * @param   {Integer?}    Occurrence   n-th occurrence to find
      * @param   {String}
+     * @example
+     * "Hello, world!".From(",") ; ", world!"
      */
     From(Pattern, CaseSense := false, StartingPos := 1, Occurrence := 1) {
         FoundPos := InStr(this, Pattern, CaseSense, StartingPos, Occurrence)
@@ -125,12 +120,11 @@ class String {
     /**
      * Returns a substring that starts at the first match of a regex `Pattern`.
      * 
-     * @example
-     * "Test123Hello".FromRegex("\d++") ; "123Hello"
-     * 
      * @param   {String}    Pattern      regular expression to search for
      * @param   {Integer?}  StartingPos  position to start from
      * @returns {String}
+     * @example
+     * "Test123Hello".FromRegex("\d++") ; "123Hello"
      */
     FromRegex(Pattern, StartingPos := 1) {
         if (IsObject(Pattern)) {
@@ -150,14 +144,13 @@ class String {
      * Returns a substring that starts after a specified occurrence of
      * `Pattern`.
      * 
-     * @example
-     * "Hello, world!".After(",") ; " world!"
-     * 
      * @param   {String}      Pattern      substring to search for
      * @param   {Primitive?}  CaseSense    case-sensitivity
      * @param   {Integer?}    StartingPos  position to start from
      * @param   {Integer?}    Occurrence   n-th occurrence to find
      * @param   {String}
+     * @example
+     * "Hello, world!".After(",") ; " world!"
      */
     After(Pattern, CaseSense := false, StartingPos := 1, Occurrence := 1) {
         FoundPos := InStr(this, Pattern, CaseSense, StartingPos, Occurrence)
@@ -171,12 +164,11 @@ class String {
      * Returns a substring that starts after the first match of a regex
      * `Pattern`.
      * 
-     * @example
-     * "Test123Hello".AfterRegex("\d++") ; "Hello"
-     * 
      * @param   {String}    Pattern      regular expression to search for
      * @param   {Integer?}  StartingPos  position to start from
      * @returns {String}
+     * @example
+     * "Test123Hello".AfterRegex("\d++") ; "Hello"
      */
     AfterRegex(Pattern, StartingPos := 1) {
         if (IsObject(Pattern)) {

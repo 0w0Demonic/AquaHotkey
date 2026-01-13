@@ -1,24 +1,23 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
- * AquaHotkey - StringFormatting.ahk
+ * String formatting.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/StringFormatting.ahk
+ * @module  <String/StringFormatting>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_StringFormatting extends AquaHotkey {
 class String {
     /**
      * Inserts `Str` into the string at index `Position`.
      * 
-     * @example
-     * "Hello world!".Insert(",", 6) ; "Hello, world!"
-     * "banaa".Insert("n", -1)       ; "banana"
-     * 
      * @param   {String}    Str       string to insert
      * @param   {Integer?}  Position  index to insert string into
      * @param   {String}
+     * @example
+     * "Hello world!".Insert(",", 6) ; "Hello, world!"
+     * "banaa".Insert("n", -1)       ; "banana"
      */
     Insert(Str, Position := 1) {
         if (IsObject(Str)) {
@@ -45,13 +44,12 @@ class String {
     /**
      * Overwrites `Str` into the string at index `Position`.
      * 
-     * @example
-     * "banaaa".Overwrite("n", 5)  ; "banana"
-     * "appll".Overwrite("e", -1)  ; "apple"
-     * 
      * @param   {String}    Str       string to overwrite with
      * @param   {Integer?}  Position  index to place the new string
      * @returns {String}
+     * @example
+     * "banaaa".Overwrite("n", 5)  ; "banana"
+     * "appll".Overwrite("e", -1)  ; "apple"
      */
     Overwrite(Str, Position := 1) {
         if (IsObject(Str)) {
@@ -78,13 +76,12 @@ class String {
      * Removes a section from the string at index `Position`, `Length`
      * characters long.
      * 
-     * @example
-     * "aapple".Delete(2)       ; "apple"
-     * "banabana".Delete(-4, 2) ; "banana"
-     * 
      * @param   {Integer}   Position  section start
      * @param   {Integer?}  Length    section length
      * @returns {String}
+     * @example
+     * "aapple".Delete(2)       ; "apple"
+     * "banabana".Delete(-4, 2) ; "banana"
      */
     Delete(Position, Length := 1) {
         if (!IsInteger(Position) || !IsInteger(Length)) {
@@ -115,12 +112,11 @@ class String {
     /**
      * Pads this string on the left using `PaddingStr` a total of `n` times.
      * 
-     * @example
-     * "foo".LPad(" ", 5) ; "     foo"
-     * 
      * @param   {String?}   PaddingStr  padding string
      * @param   {Integer?}  n           amount of padding
      * @returns {String}
+     * @example
+     * "foo".LPad(" ", 5) ; "     foo"
      */ 
     LPad(PaddingStr := " ", n := 1) {
         if (!IsInteger(n)) {
@@ -141,12 +137,11 @@ class String {
     /**
      * Pads this string on the right using `PaddingStr` a total of `n` times.
      * 
-     * @example
-     * "foo".RPad(" ", 5) ; "foo     "
-     * 
      * @param   {String?}   PaddingStr  padding string
      * @param   {Integer?}  n           amount of padding
      * @returns {String}
+     * @example
+     * "foo".RPad(" ", 5) ; "foo     "
      */
     RPad(PaddingStr := " ", n := 1) {
         if (!IsInteger(n)) {
@@ -168,13 +163,12 @@ class String {
      * Strips all whitespace from this string and then formats words into lines
      * with a maximum length of `n` characters.
      * 
+     * @param   {Integer?}  n  maximum line length
+     * @returns {String}
      * @example
      * ; (use a really small line length for demonstration purposes)
      * ; "hello,`nworld!"
      * "hello, world!".WordWrap(3)
-     * 
-     * @param   {Integer?}  n  maximum line length
-     * @returns {String}
      */ 
     WordWrap(n := 80) {
         if (!IsInteger(n)) {
@@ -203,64 +197,58 @@ class String {
     /**
      * Trims characters `OmitChars` from the beginning and end of the string.
      * 
-     * @example
-     * " foo ".Trim() ; "foo"
-     * 
      * @param   {String?}  OmitChars  characters to trim
      * @returns {String}
+     * @example
+     * " foo ".Trim() ; "foo"
      */
     Trim(OmitChars?) => Trim(this, OmitChars?)
 
     /**
      * Trims characters `OmitChars` from the beginning of the string.
      * 
-     * @example
-     * " foo ".LTrim() ; "foo "
-     * 
      * @param   {String?}  OmitChars  characters to trim
      * @returns {String}
+     * @example
+     * " foo ".LTrim() ; "foo "
      */
     LTrim(OmitChars?) => LTrim(this, OmitChars?)
 
     /**
      * Trims characters `OmitChars` from the end of the string.
      * 
-     * @example
-     * " foo ".RTrim() ; " foo"
-     * 
      * @param   {String?}  OmitChars  characters to trim
      * @returns {String}
+     * @example
+     * " foo ".RTrim() ; " foo"
      */
     RTrim(OmitChars?) => RTrim(this, OmitChars?)
 
     /**
      * Converts the string to lowercase.
      * 
+     * @returns {String}
      * @example
      * "FOO".ToLower() ; "foo"
-     * 
-     * @returns {String}
      */
-    ToLower()  => StrLower(this)
+    ToLower() => StrLower(this)
 
     /**
      * Converts this string to uppercase.
      * 
+     * @returns {String}
      * @example
      * "foo".ToUpper() ; "FOO"
-     * 
-     * @returns {String}
      */
-    ToUpper()  => StrUpper(this)
+    ToUpper() => StrUpper(this)
 
     /**
      * Converts this string to title case.
      * 
+     * @returns {String}
      * @example
      * "foo".ToTitle() ; "Foo"
-     * 
-     * @returns {String}
      */
-    ToTitle()  => StrTitle(this)
+    ToTitle() => StrTitle(this)
 } ; class String
 } ; class AquaHotkey_StringFormatting extends AquaHotkey
