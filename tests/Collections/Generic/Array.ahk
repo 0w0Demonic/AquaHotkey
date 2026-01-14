@@ -56,9 +56,18 @@ class Test_GenericArray extends TestSuite {
     }
 
     static array_should_work_as_pattern() {
-        Cls := Array.OfType({ foo: Integer, bar: String })
+        Cls := Array.Of({ foo: Integer, bar: String })
 
         Arr := Cls( { foo: 42, bar: "AHK!" } )
+    }
+
+    static generic_eq_generic() {
+        Number[](1, 2, 3).Eq(Number[](1, 2, 3))
+                    .AssertEquals(true)
+    }
+
+    static generic_eq_regular() {
+        Number[](1, 2, 3).Eq([1, 2, 3]).AssertEquals(true)
     }
 }
 

@@ -2,6 +2,8 @@
 ; #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
 #Include <AquaHotkeyX>
 
+;TODO remove constraints completely in favor of type creation?
+
 ;@region GenericArray
 /**
  * Introduces type-checked arrays using intuitive array syntax (`[]`).
@@ -301,20 +303,47 @@ class GenericArray extends Array {
 
     /**
      * Determines whether the given value is an instance of this generic array
-     * class.
+     * class. Regular arrays are checked by their elements, while for generic
+     * arrays, the component type is checked for compatibility via
+     * `CanCastFrom()`.
      * 
-     * 
+     * @param   {Any?}  Val  any value
+     * @returns {Boolean}
+     * @example
+     * ([1, 2, 3]).Is(Integer[])       ; true
+     * Integer[](1, 2, 3).Is(Number[]) ; true
      */
     static IsInstance(Val?) {
-        if (!IsSet(Val) || !(Val is GenericArray)) {
+        if (!IsSet(Val) || !(Val is Array)) {
             return false
         }
-        Cons := this.Constraint
-        if (Cons) {
 
+        ; check non-generic array by their elements
+        if (!(Val is GenericArray)) {
+            T    := this.ComponentType
+            Cons := this.Constraint
+
+            if (Cons) {
+                for Elem in Val {
+                    if (!T.IsInstance(Elem?)) {
+                        return false
+                    }
+                    if (!Cons.IsInstance(Elem?)) {
+                        return false
+                    }
+                }
+            } else {
+                for Elem in Val {
+                    if (!T.IsInstance(Elem?)) {
+                        return false
+                    }
+                }
+            }
+            return true
         }
 
         return (this.ComponentType).CanCastFrom(Val.ComponentType)
+            ; TODO make constraint check less fragile
             && (this.Constraint).CanCastFrom(Val.Constraint)
     }
 
@@ -366,9 +395,9 @@ class AquaHotkey_GenericArray extends AquaHotkey {
          * @param   {Any?}  Constraint  additional type constraint
          * @returns {Class}
          * @example
-         * Cls := Array.OfType[{ status: 200, data: Any }]
+         * Cls := Array.Of({ status: 200, data: Any })
          */
-        static OfType(T, Constraint?) => T.ArrayType[Constraint?]
+        static Of(T, Constraint?) => T.ArrayType[Constraint?]
     }
 }
 ;@endregion

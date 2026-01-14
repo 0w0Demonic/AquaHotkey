@@ -2,63 +2,163 @@
 #Include <AquaHotkeyX>
 
 ; TODO change `.AssertType()` to use this module's `.Is()` ?
-; TODO pattern matching with placeholders like `Variadic(String)`
 
 ;@region Extensions
 /**
- * Provides a flexible duck-typing system which extends the functionality
+ * Provides a flexible duck typing system which extends the functionality
  * of the `is`-keyword with user-defined pattern-matching.
+ * 
+ * Duck typing means we care what a value *does*, not what it *is* as defined
+ * by its base objects.
+ * 
+ * ---
+ * 
+ * ### Simple Type Checking
+ * 
+ * To determine whether a value is considered instance of a given type, you can
+ * use `Value.Is(Type)`, which is equivalent to `Type.IsInstance(Value?)`.
  * 
  * ```ahk
  * "foo".Is(String) ; true
+ * 
+ * ; equivalent:
+ * String.IsInstance("foo") ; true
  * ```
  * 
- * Instead of relying solely on class inheritance, types can be defined
- * as *patterns*: a set of required characteristics an object must fulfill to be
- * considered an instance of that type.
+ * For regular classes, this is evaluated as `("foo" is String)`.
  * 
- * ```ahk
- * ; define a structual type pattern
- * Person := { Name: String, Age: Integer }
+ * ---
  * 
- * ; match our object against the "Person" pattern
- * ({ Name: "0w0Demonic", Age: 21 }).Is(Person) ; true
+ * ### Custom Types
+ * 
+ * Instead of relying solely on class inheritance and base objects, types are
+ * defined using their `IsInstance()` method. It accepts one argument (the
+ * tested value) and determines whether it is considered an instance of that
+ * type.
+ * 
  * ```
- * 
- * ## How it works
- * 
- * `Value.Is(Type)` delegates to a polymorphic call to `Type.IsInstance(Value)`.
- * 
- * User-defined classes may override `static IsInstance(Val?)` to customize how
- * values are recognized as instances of that type.
- * 
- * ```ahk
  * class Numeric {
  *     static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
  * }
+ * "123".Is(Numeric)
  * ```
  * 
- * In addition, `Type.CanCastFrom(OtherType)` determines whether one type can be
- * considered equivalent to or a subtype of another. This behaves similarly to
- * `Class#isAssignableFrom(Class)` in Java.
+ * `Numeric.IsInstance(Val?)` determines whether its input `Val?` - a nullable
+ * argument - is considered an instance of `Numeric`. This should be true, if
+ * the value is non-null and `IsNumber(Val)` returns true.
+ * 
+ * ---
+ * 
+ * ### Pattern Matching
+ * 
+ * Plain objects can be used as structural patterns that check for an object's
+ * key-value mappings, for example:
+ * 
+ * ```ahk
+ * ; any plain object with these fields is considered a "Person"
+ * Person := { Name: String, Age: Integer }
+ * 
+ * Obj := { Name: "0w0Demonic", Age: 21 }
+ * 
+ * ; match our object against the "Person" type
+ * ({ Name: "0w0Demonic", Age: 21 }).Is(Person) ; true
+ * ```
+ * 
+ * To clarify, "plain object" should mean that it directly derives from
+ * `Object.Prototype`, for example object literals such as `{ Value: 42 }`.
+ * 
+ * ---
+ * 
+ * You can also check the "shape" of an array by using patterns, or - more
+ * interestingly - {@link GenericArray generic array classes}.
+ * 
+ * ```ahk
+ * ; T: a size 2 array, 1st element as string, 2nd element as integer
+ * T := [ String, Integer ]
+ * 
+ * ; this pattern is order-specific
+ * ([ "giraffe", 42 ]).Is(T) ; true
+ * ([ 42, "giraffe" ]).Is(T) ; false (wrong order)
+ * 
+ * ; determine whether every element `.Is(Integer)`
+ * ( [ 1, 2, 3, 4 ] ).Is(Integer[]) ; true
+ * 
+ * ; note:
+ * ; on generic arrays, the component type (in other words, the type contained
+ * ; in the generic array), as well as the additional constraint are checked for
+ * ; compatibility, not its elements.
+ * Integer[](1, 2, 3, 4).Is(Number[])
+ * ; -> Number.CanCastFrom(Integer)
+ * ; -> (Integer == Number) || HasBase(Integer, Number)
+ * ; -> true
+ * ```
+ * 
+ * ---
+ * 
+ * These patterns can be arbitrarily complex and used well in conjunction with
+ * AquaHotkey's generic array and map types:
+ * 
+ * ```ahk
+ * ApiResponse := Type.Union(
+ *     { status: 200, data: Any },
+ *     { status: 301, to: String },
+ *     { status: 400, error: Error }
+ * )
+ * 
+ * class Timestamp {
+ *     static IsInstance(Val?) => ...
+ * }
+ * 
+ * Log := Map.OfType(Timestamp, ApiResponse)
+ * ```
+ * 
+ * ---
+ * 
+ * ### Subtypes
+ * 
+ * `Type.CanCastFrom(OtherType)` determines whether one type is considered
+ * equivalent to, or a subtype of another.
+ * 
+ * For example:
+ * 1. `Object` can cast from `Object`, because both types are equivalent.
+ * 2. `Object` can cast from `Array`, because `Array` is a subtype
+ *    (in this case - subclass) of `Object`
+ * 3. `{ Value: Number }` can cast from `{ Value: Integer, OtherValue: Any }`
  * 
  * @module  <Base/TypeChecks>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @see {@link GenericArray}
+ * @see {@link GenericMap}
  * @example
+ * ; user-defined type
+ * class Numeric {
+ *     static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
+ * }
  * "123".Is(String)      ; true ("123" is String)
  * "123".Is(Numeric)     ; true (IsNumber("123"))
  * 
  * @example
- * Number.CanCastFrom(Integer) ; true (every integer is also a number)
+ * ; test if `Integer` is equivalent to, or a subtype of `Number`
+ * ; -> true, because `HasBase(Integer, Number)`
+ * Number.CanCastFrom(Integer) 
  * 
  * @example
- * class Email {
- *     static IsInstance(Val) => (Val is String)
- *                            && (Val ~= "^[^@]+@[^@]+\.[^@]+$")
+ * ; defining a custom constraint (`GreaterThan(0)` as numbers that are `> 0`)
+ * class GreaterThan {
+ *     __New(Num) {
+ *         this.Value := Num
+ *     }
+ *     ; value must be a number and `> Num`
+ *     IsInstance(Val?) {
+ *         return IsSet(Val) && IsNumber(Val) && (Val > this.Value)
+ *     }
+ *     ; For example: every number greater than 1 (`GreaterThan(1)`) is also
+ *     ; greater than 0 (`GreaterThan(0)`).
+ *     CanCastFrom(Other) {
+ *         return (Other is GreaterThan) && (Other.Value >= this.Value)
+ *     }
  * }
- * 
- * "example".Is(Email)   ; false ("example" is String && (example ~= "..."))
  */
 class AquaHotkey_TypeChecks extends AquaHotkey {
     ;@region Any
@@ -652,3 +752,21 @@ class Record {
 }
 
 ;@endregion
+
+
+class Gt {
+    __New(Num) {
+        if (!IsNumber(Num)) {
+            throw TypeError("Expected a Number",, Type(Num))
+        }
+        this.Value := Num
+    }
+    
+    IsInstance(Val?) {
+        return IsSet(Val) && IsNumber(Val) && (Val > this.Value)
+    }
+
+    CanCastFrom(Other) {
+        return (Other is Gt) && (Other.Value != this.Value)
+    }
+}

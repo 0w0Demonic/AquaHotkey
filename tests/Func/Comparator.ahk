@@ -1,12 +1,4 @@
-/**
- * AquaHotkey - Comparator.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - tests/Extensions/Comparator.ahk
- */
-class Comparator {
+class Test_Comparator extends TestSuite {
     static Num() {
         Array(5, 3, 4, 2, 1).Sort(Comparator.Num())
                             .Join(", ").AssertEquals("1, 2, 3, 4, 5")

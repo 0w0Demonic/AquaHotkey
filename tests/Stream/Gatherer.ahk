@@ -1,18 +1,10 @@
-/**
- * AquaHotkey - Gatherer.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - tests/Extensions/Gatherer.ahk
- */
-class Gatherer {
+class Test_Gatherer extends TestSuite {
     static __New() {
         global G := Gatherer
     }
 
     static TimesTwo() {
-        Array(1, 2, 3, 4, 5).Gather(TestSuite.__Gatherer_Times_Two)
+        Array(1, 2, 3, 4, 5).Gather(Gatherer_Times_Two)
                 .Join()
                 .AssertEquals("1122334455")
     }
@@ -39,7 +31,7 @@ class Gatherer {
     }
 }
 
-class __Gatherer_Times_Two extends Gatherer {
+class Gatherer_Times_Two extends Gatherer {
     static Initializer() {
         return ""
     }

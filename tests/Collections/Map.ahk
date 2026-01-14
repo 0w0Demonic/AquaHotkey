@@ -63,7 +63,9 @@ class Test_Map extends TestSuite {
 
         Arr := Array()
         PushToArr := Action.Bind(Arr)
-        Map(2, 4, 1, 3, 6, 7).ForEach(PushToArr)
+        Map(2, 4,
+            1, 3,
+            6, 7).ForEach2(PushToArr)
         Arr.Length.AssertEquals(3)
         Arr[1].AssertEquals(4)
         Arr[2].AssertEquals(6)
@@ -139,44 +141,41 @@ class Test_Map extends TestSuite {
     static All1() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
-        Map(1, 2, 2, 4, 4, 8).All(ValueIsEven).AssertEquals(true)
+        Map(1, 2, 2, 4, 4, 8).All2(ValueIsEven).AssertEquals(true)
     }
 
     static All2() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
-        Map(1, 2, 2, 4, 4, 7).All(ValueIsEven).AssertEquals(false)
+        Map(1, 2, 2, 4, 4, 7).All2(ValueIsEven).AssertEquals(false)
     }
 
     static Any1() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
         Match := Map(1, 1, 3, 3, 5, 6)
-            .Any(ValueIsEven)
-            .AssertType(Object)
-
-        Match.Key.AssertEquals(5)
-        Match.Value.AssertEquals(6)
+            .Any2(ValueIsEven)
+            .AssertEquals(true)
     }
 
     static Any2() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
         Map(1, 1, 3, 3, 5, 5, 7, 7)
-            .Any(ValueIsEven)
+            .Any2(ValueIsEven)
             .AssertEquals(false)
     }
 
     static None1() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
-        Map(1, 1, 3, 3, 5, 5).None(ValueIsEven).AssertEquals(true)
+        Map(1, 1, 3, 3, 5, 5).None2(ValueIsEven).AssertEquals(true)
     }
 
     static None2() {
         static ValueIsEven(Key, Value) => !(Value & 1)
         
-        Map(1, 1, 3, 3, 5, 6).None(ValueIsEven).AssertEquals(false)
+        Map(1, 1, 3, 3, 5, 6).None2(ValueIsEven).AssertEquals(false)
     }
 }
 

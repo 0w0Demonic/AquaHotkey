@@ -1,5 +1,5 @@
 ; v2.0.5: Fixed internal calls to __Enum to not call __Call.
-#Requires AutoHotkey >=v2.0.5
+; #Requires AutoHotkey >=v2.0.5
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**

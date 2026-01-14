@@ -1,12 +1,4 @@
-/**
- * AquaHotkey - Func.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - tests/Builtins/Func.ahk
- */
-class Func {
+class Test_Func extends TestSuite {
     static Constantly() {
         Range(5).Stream().Map(  Func.Constantly(15)  ).Join(", ")
                 .AssertEquals("15, 15, 15, 15, 15")
@@ -72,8 +64,8 @@ class Func {
     static Memoized2() {
         static Identity(x) => x
 
-        Cache1 := TestSuite.CustomMap()
-        Cache2 := TestSuite.CustomMap() 
+        Cache1 := CustomMap()
+        Cache2 := CustomMap() 
 
         Cache1.CaseSense := true
         Cache2.CaseSense := false
@@ -89,27 +81,6 @@ class Func {
 
         Cache1.Hits.AssertEquals(0)
         Cache2.Hits.AssertEquals(1)
-    }
-
-    static __New() {
-        global KwargsTest
-        KwargsTest := (A, B, C) => (A + B + C)
-        KwargsTest.Signature := "A / A1 / A2 , B, C"
-    }
-
-    static With1() {
-        KwargsTest.With({
-            A: 1,
-            B: 2,
-            C: 3
-        }).AssertEquals(6)
-    }
-
-    static With2() {
-        TestSuite.AssertThrows(() => KwargsTest.With({ A: 4 }))
-
-        TestSuite.AssertThrows(() => KwargsTest.With(
-            { A: 1, A1: 2, B: 0, C: 0 }))
     }
 }
 

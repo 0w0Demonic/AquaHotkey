@@ -1,5 +1,9 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+#Include <AquaHotkey\src\Collections\Mixins\Enumerable1>
+#Include <AquaHotkey\src\Collections\Mixins\Enumerable2>
+#Include <AquaHotkey\src\Collections\Mixins\Sizeable>
+
 /**
  * Map utils and stream-like operations.
  * 

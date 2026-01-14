@@ -1,12 +1,8 @@
-/**
- * AquaHotkey - String.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - tests/Builtins/String.ahk
- */
-class String {
+#Include <AquaHotkey\src\String\StringFormatting>
+#Include <AquaHotkey\src\String\StringMatching>
+#Include <AquaHotkey\src\String\Substrings>
+
+class Test_String extends TestSuite {
     static IsEmpty1() {
         "".IsEmpty.AssertEquals(true)
     }
@@ -55,7 +51,7 @@ class String {
     }
 
     static Before3() {
-        TestSuite.AssertThrows(() => (
+        this.AssertThrows(() => (
             "Hello, world!".Before("")
         ))
     }
@@ -69,13 +65,13 @@ class String {
     }
 
     static BeforeRegex3() {
-        TestSuite.AssertThrows(() => (
+        this.AssertThrows(() => (
             "hi".BeforeRegex("")
         ))
     }
 
     static BeforeRegex4() {
-        TestSuite.AssertThrows(() => (
+        this.AssertThrows(() => (
             "hi".BeforeRegex(Object())
         ))
     }

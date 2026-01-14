@@ -1,12 +1,4 @@
-/**
- * AquaHotkey - Stream.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - tests/Extensions/Stream.ahk
- */
-class Stream {
+class Test_Stream extends TestSuite {
     static RetainIf() {
         Array(1, 2, 3, 4, 5)
             .Stream()

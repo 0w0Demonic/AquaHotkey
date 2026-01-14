@@ -1,12 +1,4 @@
-/**
- * AquaHotkey - Optional.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - tests/Extensions/Optional.ahk
- */
-class Optional {
+class Test_Optional extends TestSuite {
     static Empty() {
         Optional.Empty().HasProp("Value").AssertEquals(false)
     }

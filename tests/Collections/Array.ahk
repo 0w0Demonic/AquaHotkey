@@ -372,4 +372,15 @@ class Test_Array extends TestSuite
     static None() {
         Array(1, 2, 3, 4, 5).None(  (x) => (x > 10)  ).AssertEquals(true)
     }
+    
+    static Poll1() {
+        Arr := Array(1, 2, 3)
+        Arr.Poll().AssertEquals(1)
+        Arr.Length.AssertEquals(2)
+    }
+
+    static Poll2() {
+        Arr := Array(unset, 2, 3)
+        this.AssertThrows(() => Arr.Poll())
+    }
 }

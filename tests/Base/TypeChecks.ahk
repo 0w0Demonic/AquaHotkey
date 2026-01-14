@@ -138,27 +138,26 @@ class Test_TypeChecks extends TestSuite {
     static order_type() {
         Order := {
             Id: String,
-            Item: {
-                Name: String,
-                Price: Number
-            }
+            Item: { Name: String, Price: Number }
         }
 
         ({ id: "o1", item: { name: "apple", price: 1.5 } })
-            .Is(Order).AssertEquals(true)
+                    .Is(Order)
+                    .AssertEquals(true)
 
         ({ id: "o1", item: { name: "apple" } })
-            .Is(Order).AssertEquals(false)
+                    .Is(Order)
+                    .AssertEquals(false)
     }
 
     static generic_array_matches_generic_array() {
         Number[](1, 2, 3, 4.5).Is( Number[] ).AssertEquals(true)
     }
 
-    static regular_array_is_not_generic() {
+    static regular_array_can_be_generic() {
         T := Number[]
 
-        ([1, 2, 3]).Is(Number[]).AssertEquals(false)
+        ([1, 2, 3]).Is(Number[]).AssertEquals(true)
     }
 
     static object_can_cast() {

@@ -15,10 +15,7 @@
  * @example
  * 
  * ; create a new map
- * M := Map.OfType(String, Integer)("foo", 12, "bar", 24)
- * 
- * ; you can use `is` to determine the type of map
- * MsgBox(  M is Map.OfType(String, Integer)  ) ; true
+ * M := Map.Of(String, Integer)("foo", 12, "bar", 24)
  * 
  * ; the map enforces keys/values to be the specified type
  * M["foo"] := "qux" ; Error! Expected an Integer.
@@ -183,7 +180,7 @@ class AquaHotkey_GenericMap extends AquaHotkey {
             if (!(ValueType is Class)) {
                 throw TypeError("Expected a Class",, Type(ValueType))
             }
-            return Map.OfType(this, ValueType)
+            return Map.Of(this, ValueType)
         }
     }
 
@@ -195,7 +192,7 @@ class AquaHotkey_GenericMap extends AquaHotkey {
          * @param   {Class}  V  type of values
          * @returns {Class}
          */
-        static OfType(K, V) {
+        static Of(K, V) {
             static Keys := Map()
 
             if (Keys.Has(K)) {

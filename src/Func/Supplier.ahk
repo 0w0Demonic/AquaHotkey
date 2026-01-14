@@ -29,13 +29,7 @@ class Supplier extends Func {
      * RollDice() ; 3 (random)
      * RollDice() ; 5 (random)
      */
-    static Call(Fn, Args*) {
-        GetMethod(Fn)
-        ObjSetBase(Sup, this.Prototype)
-        return Sup
-
-        Sup() => Fn(Args*)
-    }
+    static Call(Fn, Args*) => this.Cast(() => Fn(Args*))
 
     /**
      * Returns a supplier that constantly returns the given `Value`.
@@ -46,12 +40,7 @@ class Supplier extends Func {
      * S := Supplier.Of(42)
      * S() ; 42
      */
-    static Of(Value) {
-        ObjSetBase(Constantly, this.Prototype)
-        return Constantly
-
-        Constantly() => Value
-    }
+    static Of(Value) => this.Cast(() => Value)
 
     /**
      * Creates a new supplier that transforms the value of this supplier
@@ -77,3 +66,16 @@ class Supplier extends Func {
         Mapped() => Mapper(this())
     }
 }
+
+/**
+ * Creates a function which always returns `Value`.
+ * 
+ * @param   {Any}  Value  any value
+ * @returns {Supplier}
+ * @example
+ * Fn := Constantly(42)
+ * Fn() ; 42
+ * Fn() ; 42
+ * Fn() ; 42
+ */
+Constantly(Value) => Supplier.Of(Value)

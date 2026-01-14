@@ -1,12 +1,4 @@
-/**
- * AquaHotkey - Zip.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - tests/Extensions/Zip.ahk
- */
-class Zip {
+class Test_Zip extends TestSuite {
     static Constructor() {
         ZipArray(Tuple(1, 2, 3), Tuple(4, 5, 6), Tuple(7, 8, 9))
             .Narrow((Args*) => Args.Join(", "))
@@ -46,7 +38,7 @@ class Zip {
     static Map1() {
         ZipArray(Tuple(1, 2), Tuple(3, 4))
             .Map((a, b) => Tuple(b, a))
-            .Narrow(Mapper.Arg(1))
+            .Narrow((a, b) => a)
             .Join(", ")
             .AssertEquals("2, 4")
     }
@@ -67,9 +59,11 @@ class Zip {
     static Unzip2() {
         ZipArray(Tuple(), Tuple(1), Tuple(1, 2))
             .Unzip()
-            .Map(Arr => Arr.Map(Mapper.IfAbsent("unset")).Join(", "))
+            .Map(Mapper)
             .Join("; ")
             .AssertEquals("unset, 1, 1; unset, unset, 2")
+        
+        Mapper(Arr) => Arr.Map((E?) => (E ?? "unset")).Join(", ")
     }
 
     static Narrow() {

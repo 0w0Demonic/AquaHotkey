@@ -1,12 +1,4 @@
-/**
- * AquaHotkey - TryOp.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - tests/Extensions/TryOp.ahk
- */
-class TryOp {
+class Test_TryOp extends TestSuite {
     static Succeeded1() {
         TryOp.Value(123).Succeeded.AssertEquals(true)
     }

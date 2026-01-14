@@ -1,19 +1,10 @@
 #Include <AquaHotkey>
 #Include <AquaHotkey\src\Func\Cast>
 
+/**
+ * 
+ */
 class Predicate extends Func {
-    static __New() {
-        (AquaHotkey_FuncCasting)
-        if (this == Predicate) {
-            ({}.DeleteProp)(this, "Call")
-        }
-    }
-
-    ; stop AHK++ from complaining
-    static Call(*) {
-        throw PropertyError("(internal error)")
-    }
-
     static Not(Fn) => this(Fn).Negate()
 
     static All(Fns*) {
@@ -23,7 +14,7 @@ class Predicate extends Func {
         for Fn in Fns {
             GetMethod(Fn)
         }
-        return Predicate(All)
+        return Predicate.Cast(All)
 
         All(Args*) {
             for Fn in Fns {
@@ -42,8 +33,7 @@ class Predicate extends Func {
         for Fn in Fns {
             GetMethod(Fn)
         }
-        return Predicate(None)
-
+        return Predicate.Cast(None)
         None(Args*) {
             for Fn in Fns {
                 if (Fn(Args*)) {
@@ -61,8 +51,7 @@ class Predicate extends Func {
         for Fn in Fns {
             GetMethod(Fn)
         }
-        return Predicate(Any)
-
+        return Predicate.Cast(Any)
         Any(Val?) {
             for Fn in Fns {
                 if (Fn(Val?)) {
@@ -75,51 +64,28 @@ class Predicate extends Func {
 
     And(Other, Args*) {
         GetMethod(Other)
-        return Predicate(
-            (Val?) => (
-                this(Val?) && Other(Val?, Args*)
-            )
-        )
+        return Predicate.Cast((Val?) => (this(Val?) && Other(Val?, Args*)))
     }
 
     AndNot(Other, Args*) {
         GetMethod(Other)
-        return Predicate(
-            (Val?) => (
-                this(Val) && !Other(Val, Args*)
-            )
-        )
+        return Predicate.Cast((Val?) => (this(Val) && !Other(Val, Args*)))
     }
 
     Or(Other, Args*) {
         GetMethod(Other)
-        return Predicate(
-            (Val) => (
-                this(Val) || Other(Val, Args*)
-            )
-        )
+        return Predicate.Cast((Val) => (this(Val) || Other(Val, Args*)))
     }
     
     OrNot(Other, Args*) {
         GetMethod(Other)
-        return Predicate(
-            (Val) => (
-                this(Val) || !Other(Val, Args*)
-            )
-        )
+        return Predicate.Cast((Val) => (this(Val) || !Other(Val, Args*)))
     }
 
     Negate() {
-        Pred := Predicate((Val) => (!this(Val)))
+        Pred := Predicate.Cast((Val) => (!this(Val)))
         ({}.DefineProp)(Pred, "Negate", { Call: (_) => this })
         return Pred
-    }
-}
-
-class AquaHotkey_Predicate extends AquaHotkey {
-    class Object {
-        AsPredicate() => Predicate(this)
-        IsPredicate() => Predicate.Cast(this)
     }
 }
 

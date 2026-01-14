@@ -1,12 +1,4 @@
-/**
- * AquaHotkey - Collector.ahk - TESTS
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - tests/Extensions/Collector.ahk
- */
-class Collector {
+class Test_Collector extends TestSuite {
     static __New() {
         global C := Collector
     }
@@ -195,7 +187,7 @@ class Collector {
     }
 
     static Custom() {
-        Range(5).Collect(TestSuite.__Collector_Average())
+        Range(5).Collect(this.__Collector_Average())
                 .AssertEquals(3.0)
     }
 }

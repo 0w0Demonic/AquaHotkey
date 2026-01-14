@@ -382,6 +382,17 @@ class Array {
         return Result
     }
 
+    /**
+     * Returns and removes the first item from the array.
+     * 
+     * @returns {Any}
+     * @example
+     * Arr := Array("A", "B")
+     * MsgBox(Arr.Poll()) ; "A"
+     * MsgBox(Arr[1])     ; "B"
+     */
+    Poll() => this.RemoveAt(1)
+
     ; TODO add...
     ; - SetAll() ?
     ; - ReplaceAll(Value, NewValue) ?
