@@ -143,8 +143,8 @@ class Properties extends Map
      */
     Transform(Mapper, Args*) {
         GetMethod(Mapper)
-        for Name in this {
-            this.Set(Name, Mapper(this.Get(Name), Args*))
+        for Name, Value in this {
+            this.Set(Name, Mapper(Value, Args*))
         }
     }
 

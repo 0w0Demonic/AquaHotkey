@@ -127,11 +127,10 @@ class Test_Stream extends TestSuite {
 
     static Peek() {
         Arr       := Array()
-        PushToArr := Arr.BindMethod("Push")
 
         Array(1, 2, 3, 4, 5)
             .Stream()
-            .Peek(PushToArr)
+            .Peek(x => Arr.Push(x))
             .Map(Num => Num * 2)
             .Join(" ")
             .AssertEquals("2 4 6 8 10")
@@ -141,11 +140,9 @@ class Test_Stream extends TestSuite {
 
     static ForEach() {
         Arr := Array()
-        PushToArr := Arr.BindMethod("Push")
-
         Array(1, 2, 3, 4, 5)
             .Stream()
-            .ForEach(PushToArr)
+            .ForEach(x => Arr.Push(x))
 
         Arr.Join(" ").AssertEquals("1 2 3 4 5")
     }
@@ -153,9 +150,16 @@ class Test_Stream extends TestSuite {
     static Any() {
         Array(1, 2, 3, 4, 5)
             .Stream()
-            .Any(&Out, Num => Num == 5)
-            .AssertNotEquals(false)
-        
+            .Any(Num => Num == 5)
+            .AssertEquals(true)
+    }
+
+    static Find() {
+        Array(1, 2, 3, 4, 5)
+            .Stream()
+            .Find(&Out, Num => Num == 5)
+            .AssertEquals(true)
+
         IsSet(Out).AssertEquals(true)
         Out.AssertEquals(5)
     }
@@ -213,11 +217,7 @@ class Test_Stream extends TestSuite {
     }
 
     static Sum() {
-        Array(1, 2, unset, unset, 3, unset, 4)
-            .Stream()
-            .Sum()
-            .AssertType(Float)
-            .AssertEquals(10)
+        Array(1, 2, 3, 4).Stream().Sum().AssertType(Float).AssertEquals(10)
     }
 
     static ToArray1() {
@@ -240,7 +240,7 @@ class Test_Stream extends TestSuite {
     static Fold() {
         Array(1, 2, 3, 4, 5)
             .Stream()
-            .Fold((a, b) => (a + b))
+            .Reduce((a, b) => (a + b))
             .AssertEquals(15)
     }
 

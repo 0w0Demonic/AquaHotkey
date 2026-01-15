@@ -7,6 +7,21 @@
  */
 class Sizeable {
     /**
+     * Determines whether a given value is sizeable.
+     * 
+     * @param   {Any?}  Val  any value
+     * @returns {Boolean}
+     * @example
+     * { Size: 0 }.Is(Sizeable)    ; true
+     * Array(1, 2, 3).Is(Sizeable) ; true
+     */
+    static IsInstance(Val?) {
+        return IsSet(Val)
+            && IsObject(Val)
+            && HasProp(Val, "Size")
+    }
+
+    /**
      * Determines whether this object is empty.
      * 
      * @returns {Boolean}

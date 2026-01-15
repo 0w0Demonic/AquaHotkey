@@ -45,6 +45,43 @@ class Map {
     }
 
     /**
+     * Creates a new `Map`.
+     * 
+     * The parameter may be:
+     * - an existing Map returned as-is,
+     * - a callable that produces a Map,
+     * - or the case-sensitivity for a newly created Map
+     * 
+     * The returned Map is guaranteed to be an instance of the calling class,
+     * so for example the return value of `HashMap.Create()` is guaranteed
+     * to be a `HashMap`.
+     * 
+     * @param   {Any}  Param  a map, map factory, or case sensitivity
+     * @returns {Map}
+     * @see {HashMap}
+     * @example
+     * Map.Create()      ; create a normal Map
+     * Map.Create(false) ; create a case-insensitive Map
+     * 
+     * Map.Create(HashMap) ; creates a HashMap (because `HashMap` is callable)
+     * HashMap.Create( Map() ) ; TypeError! Not a HashMap.
+     */
+    static Create(Param := this()) {
+        switch {
+            case (Param is Map):     M := Param
+            case (HasMethod(Param)): M := Param()
+            default:
+                M := this()
+                M.CaseSense := Param
+        }
+        if (!(M is this)) {
+            throw TypeError("Expected a " . this.Prototype.__Class,,
+                            Type(M))
+        }
+        return M
+    }
+
+    /**
      * Returns a new map of all elements that fulfill the given `Condition`.
      * 
      * ```ahk

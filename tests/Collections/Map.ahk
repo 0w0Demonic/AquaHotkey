@@ -177,5 +177,36 @@ class Test_Map extends TestSuite {
         
         Map(1, 1, 3, 3, 5, 6).None2(ValueIsEven).AssertEquals(false)
     }
+
+    static Create_creates_normal_map() {
+        Map.Create().AssertType(Map)
+    }
+
+    static Create_uses_factory() {
+        M := Map()
+        Sup := () => M
+
+        Map.Create(Sup).AssertEquals(M)
+    }
+
+    static Create_uses_case_sense() {
+        M := Map.Create(false)
+        M.Set("a", 1)
+        M.Set("A", 2)
+        M.Get("a").AssertEquals(2)
+    }
+
+    static Create_throws_on_bad_types() {
+        this.AssertThrows(() => Map.Create(() => 34))
+        this.AssertThrows(() => CustomMap.Create(Map()))
+    }
+
+    static Create_can_return_subtypes() {
+        Map.Create(CustomMap)
+    }
+}
+
+class CustomMap extends Map {
+
 }
 

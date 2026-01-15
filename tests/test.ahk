@@ -8,18 +8,28 @@
 ;    #Include "%A_LineFile%/../Base/Error.ahk"
 ;    #Include "%A_LineFile%/../Base/Object.ahk"
 ;    #Include "%A_LineFile%/../Base/Ord.ahk"
-     #Include "%A_LineFile%/../Base/TypeChecks.ahk"
+;    #Include "%A_LineFile%/../Base/TypeChecks.ahk"
 ;    #Include "%A_LineFile%/../Base/TypeInfo.ahk"
 ;    #Include "%A_LineFile%/../Base/VarRef.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Collections/
 ;    @region Generic/
-         #Include "%A_LineFile%/../Collections/Generic/Array.ahk"
-         #Include "%A_LineFile%/../Collections/Generic/Map.ahk"
+;        #Include "%A_LineFile%/../Collections/Generic/Array.ahk"
+;        #Include "%A_LineFile%/../Collections/Generic/Map.ahk"
 ;    @endregion
 ;    #Include "%A_LineFile%/../Collections/Array.ahk"
+;    #Include "%A_LineFile%/../Collections/ByteArray.ahk" ; TODO
+;    #Include "%A_LineFile%/../Collections/DefaultProp.ahk" ; TODO remove?
+;    #Include "%A_LineFile%/../Collections/HashMap.ahk" ; TODO
+;    #Include "%A_LineFile%/../Collections/HashSet.ahk" ; TODO
+;    #Include "%A_LineFile%/../Collections/ImmutableMap.ahk" ; TODO
+;    #Include "%A_LineFile%/../Collections/ImmutableSet.ahk" ; TODO
+;    #Include "%A_LineFile%/../Collections/LinkedList.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/Map.ahk"
+;    #Include "%A_LineFile%/../Collections/OrderedSet.ahk" ; TODO
+;    #Include "%A_LineFile%/../Collections/Properties.ahk" ; TODO
+;    #Include "%A_LineFile%/../Collections/Set.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/Zip.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------
@@ -37,7 +47,7 @@
 ;@region Stream/
 ;    #Include "%A_LineFile%/../Stream/Collector.ahk"
 ;    #Include "%A_LineFile%/../Stream/Gatherer.ahk"
-;    #Include "%A_LineFile%/../Stream/Stream.ahk"
+     #Include "%A_LineFile%/../Stream/Stream.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region String/

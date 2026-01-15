@@ -2,6 +2,7 @@
 #Include <AquaHotkeyX>
 
 ; TODO change `.AssertType()` to use this module's `.Is()` ?
+; TODO provide a way to turn a type pattern into a string ?
 
 ;@region Extensions
 /**
@@ -752,21 +753,3 @@ class Record {
 }
 
 ;@endregion
-
-
-class Gt {
-    __New(Num) {
-        if (!IsNumber(Num)) {
-            throw TypeError("Expected a Number",, Type(Num))
-        }
-        this.Value := Num
-    }
-    
-    IsInstance(Val?) {
-        return IsSet(Val) && IsNumber(Val) && (Val > this.Value)
-    }
-
-    CanCastFrom(Other) {
-        return (Other is Gt) && (Other.Value != this.Value)
-    }
-}

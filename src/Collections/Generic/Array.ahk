@@ -22,6 +22,8 @@
  * `unset` is generally allowed, unless the array class specifies additional
  * constraints.
  * 
+ * ---
+ * 
  * ### Constraints
  * 
  * Elements can be further constrained by passing a class between the square
@@ -35,6 +37,8 @@
  * }
  * ```
  * 
+ * ---
+ * 
  * These "constraint classes" can further be narrowed by using subclasses,
  * for example:
  * 
@@ -43,6 +47,8 @@
  *     static Call(Val?) => super(Val?) && (Val != "")
  * }
  * ```
+ * 
+ * ---
  * 
  * ### Type-Checking
  * 

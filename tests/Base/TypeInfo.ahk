@@ -34,6 +34,43 @@ class Test_TypeInfo extends TestSuite
     }
 
     static Class_Name_Should_Be_String() {
-        (String.Name).AssertEquals("String")
+        (String.Name).AssertType(String).AssertEquals("String")
+    }
+
+    static Hierarchy() {
+        (Object.Hierarchy).Eq([
+                Object,
+                Any,
+                Class.Prototype,
+                Object.Prototype,
+                Any.Prototype ])
+            .AssertEquals(true)
+    }
+
+    static Hierarchy_with_plain_objects() {
+        BaseObj := Object()
+        Obj := Object()
+        ObjSetBase(Obj, BaseObj)
+
+        (Obj.Hierarchy).Eq([ Obj, BaseObj, Object.Prototype, Any.Prototype ])
+                .AssertEquals(true)
+    }
+
+    static Bases() {
+        (Object.Bases).Eq([
+                Any,
+                Class.Prototype,
+                Object.Prototype,
+                Any.Prototype ])
+            .AssertEquals(true)
+    }
+
+    static Bases_with_plain_objects() {
+        BaseObj := Object()
+        Obj := Object()
+        ObjSetBase(Obj, BaseObj)
+
+        (Obj.Bases).Eq([ BaseObj, Object.Prototype, Any.Prototype ])
+                .AssertEquals(true)
     }
 }

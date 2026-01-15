@@ -1,6 +1,13 @@
+#Include "%A_LineFile%\..\Sizeable.ahk"
+
 /**
+ * Mixin class for double-ended queues.
+ * 
+ * @module  <Collections/Mixins/Deque>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @mixin
- * Assumes:
+ * 
  * - `IsEmpty => Boolean`
  * - `Pop()`
  * - `Poll()`

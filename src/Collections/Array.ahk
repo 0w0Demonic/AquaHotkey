@@ -1,6 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 ; TODO add back Swap() with unset handling
+; TODO reverse view?
 
 /**
  * Array stream-like operations.
@@ -298,24 +299,33 @@ class Array {
     }
 
     /**
-     * Searches the array for the specified value using the binary search
-     * algorithm, returning the array index, or `0` if the element could not
-     * be found.
+     * Searches the array for the specified value (as decided by `.Eq()`), using
+     * the binary search algorithm. The index of the first matching element is
+     * returned, or `0` if the element could not be found.
      * 
-     * This method requires...
-     * 1. that the array is sorted (if not, use `ArrayObj.Sort()` first).
-     * 2. that all elements support equality checks (`.Eq()`) and natural
-     *    ordering (`.Compare()`) between each other.
+     * This method assumes that the array is sorted first, using the same
+     * comparator with which it was sorted, if any.
      * 
      * @param   {Any}       Value  the value to check
      * @param   {Integer?}  Low    index of first element to be searched
      * @param   {Integer?}  High   index of last element to be searched
+     * @param   {Func?}     Comp   custom comparator
      * @returns {Integer}
      * @example
      * Array(1, 2, 3, 3, 3, 3, 4, 5, 6).BinarySearch(4) ; 7
      * ;     1  2  3  4  5  6  7  8  9
+     * 
+     * @example
+     * ; custom sort with `Comp`
+     * Arr.Sort(Comp)
+     * 
+     * ; pass `Comp` again, so the binary search knows where to go
+     * Arr.BinarySearch(Value,,, Comp)
      */
-    BinarySearch(Value, Low := 1, High := this.Length) {
+    BinarySearch(Value, Low := 1, High := this.Length, Comp := DefaultComp) {
+        static DefaultComp(A, B) => A.Compare(B)
+
+        GetMethod(Comp)
         if (!IsInteger(Low)) {
             throw TypeError("Expected an Integer",, Type(Low))
         }
@@ -337,7 +347,7 @@ class Array {
             if (Item.Eq(Value)) {
                 return Mid
             }
-            if (Value.Gt(Item)) { ; Value > Item
+            if (Comp(Value, Item) > 0) { ; Value > Item
                 Low := Mid + 1
             } else {
                 High := Mid - 1

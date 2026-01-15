@@ -49,6 +49,7 @@ class HashMap extends Map {
      */
     static CapacityFor(x) => (this.Prototype).CapacityFor(x)
 
+    ; TODO use something less hard-coded than `HasMap.InitialCap`?
     /**
      * Returns the given number if it is a power of 2, otherwise returns the
      * next power of 2.
@@ -295,12 +296,11 @@ class HashMap extends Map {
      * @returns {Enumerator}
      */
     __Enum(n) {
+        Containers := this.Bucket.__Enum(1)
+        Entries    := (*) => false
         return Enumer
 
         Enumer(&Key, &Value?) {
-            static Containers := this.Bucket.__Enum(1)
-            static Entries := (*) => false
-            
             loop {
                 if (Entries(&Entry)) {
                     Key := Entry.Key
@@ -377,5 +377,3 @@ class HashMap extends Map {
         }
     }
 }
-
-MsgBox("result: " . HashMap(1, 2, 1, 2).Count)

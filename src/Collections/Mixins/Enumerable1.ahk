@@ -10,7 +10,9 @@
  * @mixin
  */
 class Enumerable1 {
-    static __New() => this.ApplyOnto(Array, Map, Enumerator)
+    static __New() => this.ApplyOnto(Array, Map, Enumerator, Stream)
+
+    ; TODO static IsInstance(Val?) ?
 
     /**
      * Executes an action for each element.
@@ -22,6 +24,7 @@ class Enumerable1 {
      * Array(1, 2, 3).ForEach(MsgBox, "Listing numbers in array", 0x40)
      */
     ForEach(Action, Args*) {
+        GetMethod(Action)
         for Value in this {
             Action(Value?, Args*)
         }
@@ -36,6 +39,31 @@ class Enumerable1 {
      * Array(1, 2, 3).ToArray() ; [1, 2, 3]
      */
     ToArray() => Array(this*)
+    
+    ; TODO put Stream#Collect() into here
+    /**
+     * Reduces all elements by passing them variadically into the given
+     * `Collector` function which returns the final result.
+     * 
+     * An extended version of this method is available in `<Stream/Collector>`
+     * 
+     * @param   {Func}  Collector  function that collects all values
+     * @returns {Any}
+     * @example
+     * Sum(Args*) {
+     *     Result := Float(0)
+     *     for Arg in Args {
+     *         Result += Arg
+     *     }
+     *     return Result
+     * }
+     * 
+     * Array(1, 2, 3, 4, 5).Stream().Collect(Sum)
+     */
+    Collect(Collector) {
+        GetMethod(Collector)
+        return Collector(this*)
+    }
 
     /**
      * Combines all elements into a final result by repeatedly applying
@@ -58,10 +86,10 @@ class Enumerable1 {
             if ((A_Index == 1) && !IsSet(Result)) {
                 Result := (Value?)
             } else {
-                Result := Combiner(Result, Value?)
+                Result := (Combiner(Result?, Value?)?)
             }
         }
-        return Result
+        return (Result?)
     }
 
     /**
@@ -268,4 +296,11 @@ class Enumerable1 {
      * @returns {String}
      */
     JoinLine() => this.Join("`n")
+
+    /**
+     * Converts all elements into a string.
+     * 
+     * @returns {String}
+     */
+    ToString() => this.Join("`n")
 }

@@ -22,6 +22,9 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
         /**
          * Returns the type of this value as a class object.
          * 
+         * To find the class, this method relies on `.__Class` and dereference
+         * by name.
+         * 
          * @readonly
          * @returns {String}
          * @example
@@ -43,12 +46,10 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
         Hierarchy {
             get {
                 Val := this
-                Result := Array()
-
-                loop {
+                Result := Array(Val)
+                while (Val := ObjGetBase(Val)) {
                     Result.Push(Val)
-                    Val := ObjGetBase(Val)
-                } until (Val == Any.Prototype)
+                }
                 return Result
             }
         }
@@ -64,13 +65,11 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
          */
         Bases {
             get {
-                Val := ObjGetBase(this)
+                Val := this
                 Result := Array()
-
-                loop {
+                while (Val := ObjGetBase(Val)) {
                     Result.Push(Val)
-                    Val := ObjGetBase(Val)
-                } until (Val == Any.Prototype)
+                }
                 return Result
             }
         }

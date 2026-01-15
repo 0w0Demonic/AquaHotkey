@@ -9,7 +9,39 @@
  * @mixin
  */
 class Enumerable2 {
-    static __New() => this.Extend(Array, Map, Enumerator)
+    static __New() {
+        static Clone   := {}.Clone
+        static GetProp := {}.GetOwnPropDesc
+        static Define  := {}.DefineProp
+
+        if (this != Enumerable2) {
+            return
+        }
+
+        Cls := Clone(this)
+        Prot := Clone(this.Prototype)
+        Define(Cls, "Prototype", { Value: Prot })
+
+        WithAlias(Cls)
+        WithAlias(Prot)
+
+        this.Extend(Array, Map, Enumerator)
+        Cls.Extend(DoubleStream)
+
+        static WithAlias(Target) {
+            M := Map()
+            for PropName in ObjOwnProps(Target) {
+                if (PropName ~= "2$") {
+                    M.Set(SubStr(PropName, 1, -1), GetProp(Target, PropName))
+                }
+            }
+            for PropName, PropDesc in M {
+                Define(Target, PropName, PropDesc)
+            }
+        }
+    }
+
+    ; TODO static IsInstance(Val?) ?
 
     /**
      * Calls the given `Action` for each element.
@@ -50,12 +82,13 @@ class Enumerable2 {
      * Map(1, 2, 3, 4).ForEach2((K, V) => MsgBox(K . " => " . V))
      */
     Find2(&Out1, &Out2, Condition, Args*) {
+        GetMethod(Condition)
         Out1 := unset
         Out2 := unset
         for Key, Value in this {
             if (Condition(Key?, Value?, Args*)) {
-                Out1 := Key ?? unset
-                Out2 := Value ?? unset
+                Out1 := (Key?)
+                Out2 := (Value?)
                 return true
             }
         }
@@ -76,6 +109,7 @@ class Enumerable2 {
      * Map(1, 2, 3, 4).Any((K, V) => (K == 1)) ; true
      */
     Any2(Condition, Args*) {
+        GetMethod(Condition)
         for Key, Value in this {
             if (Condition(Key?, Value?, Args*)) {
                 return true
@@ -99,6 +133,7 @@ class Enumerable2 {
      * Map(1, 2, 3, 4).None((K, V) => (K == 3)) ; false
      */
     None2(Condition, Args*) {
+        GetMethod(Condition)
         for Key, Value in this {
             if (Condition(Key?, Value?, Args*)) {
                 return false
@@ -122,6 +157,7 @@ class Enumerable2 {
      * Map(1, 2, 3, 4).All2((K, V) => (K != 6)) ; true
      */
     All2(Condition, Args*) {
+        GetMethod(Condition)
         for Key, Value in this {
             if (!Condition(Key?, Value?, Args*)) {
                 return false
