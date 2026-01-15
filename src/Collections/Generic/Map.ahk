@@ -15,7 +15,7 @@
  * @example
  * 
  * ; create a new map
- * M := Map.Of(String, Integer)("foo", 12, "bar", 24)
+ * M := Map.OfType(String, Integer)("foo", 12, "bar", 24)
  * 
  * ; the map enforces keys/values to be the specified type
  * M["foo"] := "qux" ; Error! Expected an Integer.
@@ -28,7 +28,7 @@ class GenericMap extends Map {
      * @param   {Class}  K  key type
      * @param   {Class}  V  value type
      * @example
-     * Map.Of(String, Integer)
+     * Map.OfType(String, Integer)
      */
     static __New(K?, V?) {
         static Define := {}.DefineProp
@@ -70,7 +70,7 @@ class GenericMap extends Map {
      * 
      * @returns {Class}
      * @example
-     * Map.Of(String, Integer).KeyType ; class String
+     * Map.OfType(String, Integer).KeyType ; class String
      */
     static KeyType => (this.Prototype).KeyType
 
@@ -80,7 +80,7 @@ class GenericMap extends Map {
      * @abstract
      * @returns {Class}
      * @example
-     * M := Map.Of(String, Integer)("foo", 12)
+     * M := Map.OfType(String, Integer)("foo", 12)
      * M.KeyType ; class String
      */
     KeyType {
@@ -94,7 +94,7 @@ class GenericMap extends Map {
      * 
      * @returns {Class}
      * @example
-     * Map.Of(String, Integer).ValueType ; class Integer
+     * Map.OfType(String, Integer).ValueType ; class Integer
      */
     static ValueType => (this.Prototype).ValueType
 
@@ -104,7 +104,7 @@ class GenericMap extends Map {
      * @abstract
      * @returns {Class}
      * @example
-     * M := Map.Of(String, Integer)("foo", 12)
+     * M := Map.OfType(String, Integer)("foo", 12)
      * M.ValueType ; class Integer
      */
     ValueType {
@@ -180,7 +180,7 @@ class AquaHotkey_GenericMap extends AquaHotkey {
             if (!(ValueType is Class)) {
                 throw TypeError("Expected a Class",, Type(ValueType))
             }
-            return Map.Of(this, ValueType)
+            return Map.OfType(this, ValueType)
         }
     }
 
@@ -192,7 +192,7 @@ class AquaHotkey_GenericMap extends AquaHotkey {
          * @param   {Class}  V  type of values
          * @returns {Class}
          */
-        static Of(K, V) {
+        static OfType(K, V) {
             static Keys := Map()
 
             if (Keys.Has(K)) {

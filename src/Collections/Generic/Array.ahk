@@ -395,9 +395,9 @@ class AquaHotkey_GenericArray extends AquaHotkey {
          * @param   {Any?}  Constraint  additional type constraint
          * @returns {Class}
          * @example
-         * Cls := Array.Of({ status: 200, data: Any })
+         * Cls := Array.OfType({ status: 200, data: Any })
          */
-        static Of(T, Constraint?) => T.ArrayType[Constraint?]
+        static OfType(T, Constraint?) => T.ArrayType[Constraint?]
     }
 }
 ;@endregion

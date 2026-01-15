@@ -14,16 +14,20 @@
  * @example
  * LoadConfig := Lazy(() => FileRead("myFile"))
  * 
- * ; "I need to load this only once, but it's expensive"
  * LoadConfig() ; (file contents)
  * LoadConfig() ; (same file contents, but cached)
  */
 class Lazy extends Func {
     /**
-     * Creates a new Lazy function.
+     * Creates a new Lazy function. The first time on which the Lazy is called,
+     * it retrieves its value by calling `Supplier(Args*)`.
      * 
-     * @param   {Func}  Fn    the function to be called
-     * @param   {Any*}  Args  zero or more arguments
+     * ```ahk
+     * Supplier(Args: Any*) => Any
+     * ```
+     * 
+     * @param   {Func}  Supplier  the function to be called
+     * @param   {Any*}  Args      zero or more arguments
      * @returns {Lazy}
      * @example
      * ; when called for the first time, calls `Random(1, 6)`
@@ -40,16 +44,14 @@ class Lazy extends Func {
      * ; them into a `VarRef` or an object to avoid needless copying.
      * LoadConfig := Lazy(() => { Value: FileRead("myFile") })
      */
-    static Call(Fn, Args*) {
-        GetMethod(Fn)
+    static Call(Supplier, Args*) {
+        GetMethod(Supplier)
+        Value := unset
+        return this.Cast(Lazy)
 
-        ; `Lazy` is a different `Closure` on each call, but static variables
-        ; are still shared... for some reason (pls fix?).
-        ; We can fix this by binding `VarRef` that should store the value.
-        return this.Cast(ObjBindMethod(Lazy,, &Value))
-        Lazy(&Value) {
+        Lazy() {
             if (!IsSet(Value)) {
-                Value := Fn(Args*)
+                Value := Supplier(Args*)
             }
             return Value
         }

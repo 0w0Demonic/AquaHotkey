@@ -145,7 +145,7 @@ class String {
     Formatted(Args*) {
         Input := Array()
         for Value in Args {
-            Input.Push(String(Input))
+            Input.Push(String(Value))
         }
         return Format(this, Input*)
     }

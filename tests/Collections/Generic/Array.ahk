@@ -56,7 +56,7 @@ class Test_GenericArray extends TestSuite {
     }
 
     static array_should_work_as_pattern() {
-        Cls := Array.Of({ foo: Integer, bar: String })
+        Cls := Array.OfType({ foo: Integer, bar: String })
 
         Arr := Cls( { foo: 42, bar: "AHK!" } )
     }

@@ -1,14 +1,12 @@
 #Requires AutoHotkey v2.0
 
-class Transducer extends Func {
-    static Call(Reducer) {
-        GetMethod(Reducer)
-        ; TODO use some kind of universal `Cast` method
-        Fn := ObjBindMethod(Reducer)
-        ObjSetBase(Fn, this.Prototype)
-        return Fn
-    }
+#Include <AquaHotkeyX>
+#Include <AquaHotkey\src\Func\Cast>
 
+/**
+ * 
+ */
+class Reducer extends Func {
     Map(Mapper, Args*) {
         GetMethod(Mapper)
         ObjSetBase(Map, ObjGetBase(this))
@@ -45,12 +43,12 @@ class Transducer extends Func {
 }
 
 class FileStream extends Continuation {
-    static Call(Pattern, Mode := "F", Args*) {
+    static Call(Pattern, Mode := "F") {
         return this.Cast(FileLoop)
 
         FileLoop(Downstream) {
             loop files Pattern, Mode {
-                if (!Downstream(Args*)) {
+                if (!Downstream(A_LoopFilePath)) {
                     return
                 }
             }
@@ -64,15 +62,9 @@ class Continuation extends Func {
         return this.Cast(Result)
 
         Result(Downstream) {
-            this(Map)
+            return this(Map)
 
-            Map(Value?) {
-                if (IsSet(Value)) {
-                    return Downstream(Mapper(Value, Args*))
-                } else {
-                    return Downstream(Mapper(Args*))
-                }
-            }
+            Map(Value) => Downstream(Mapper(Value, Args*))
         }
     }
 
@@ -83,14 +75,27 @@ class Continuation extends Func {
         Result(Downstream) {
             this(RetainIf)
 
-            RetainIf(Value?) {
-                if (IsSet(Value)) {
-                    if (Condition(Value, Args*)) {
-                        return Downstream(Value)
-                    }
-                } else if (Condition(Args*)) {
-                    return Downstream()
+            RetainIf(Value) {
+                if (Condition(Value, Args*)) {
+                    return Downstream(Value)
                 }
+                return true
+            }
+        }
+    }
+
+    RemoveIf(Condition, Args*) {
+        GetMethod(Condition)
+        return this.Cast(Result)
+
+        Result(Downstream) {
+            this(RemoveIf)
+
+            RemoveIf(Value) {
+                if (!Condition(Value, Args*)) {
+                    return Downstream(Value)
+                }
+                return true
             }
         }
     }
@@ -102,12 +107,8 @@ class Continuation extends Func {
         Result(Downstream, Value?) {
             this(TakeWhile)
 
-            TakeWhile(Value?) {
-                if (IsSet(Value)) {
-                    return (Condition(Value, Args*) && Downstream(Value))
-                } else {
-                    return (Condition(Args*) && Downstream())
-                }
+            TakeWhile(Value) {
+                return (Condition(Value, Args*) && Downstream(Value))
             }
         }
     }
@@ -116,13 +117,69 @@ class Continuation extends Func {
         GetMethod(Action)
         this(ForEach)
 
-        ForEach(Value?) {
-            if (IsSet(Value)) {
-                Action(Value, Args*)
-            } else {
-                Action(Args*)
-            }
+        ForEach(Value) {
+            Action(Value, Args*)
             return true
         }
     }
+
+    ToArray() {
+        Arr := Array()
+        this.ForEach(Val => Arr.Push(Val))
+        return Arr
+    }
+
+    Reduce(Reducer, Initial?) {
+        this.ForEach(Reduce)
+        return Initial
+
+        Reduce(Value) {
+            if (!IsSet(Initial)) {
+                Initial := Value
+            } else {
+                Initial := Reducer(Initial, Value)
+            }
+        }
+    }
+
+    Join(Delim := "") {
+        Result := ""
+        this.ForEach(Join)
+        return Result
+
+        Join(Value) {
+            if (Result == "") {
+                Result .= String(Value)
+            } else {
+                Result .= Delim
+                Result .= String(Value)
+            }
+        }
+    }
+
+    JoinLine() => this.Join("`r`n")
+
+    __Enum(ArgSize) => this.ToArray().__Enum(ArgSize)
 }
+
+;FileStream("C:\*", "F")
+;        .Map((*) => Format("{:-20} {:20}", A_LoopFileName, A_LoopFileAttrib))
+;        .JoinLine()
+;        .o0(MsgBox)
+
+Factorial(X, Acc := 1) {
+    if (X <= 1) {
+        return Acc
+    }
+    return () => Factorial(X - 1, X * Acc)
+}
+
+Trampoline(Fn, Args*) {
+    Result := Fn(Args*)
+    while (Result is Func) {
+        Result := Result()
+    }
+    return Result
+}
+
+MsgBox(Trampoline(Factorial, 12))

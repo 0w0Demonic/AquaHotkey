@@ -14,51 +14,51 @@ class Test_GenericMap extends TestSuite {
         HasBase(MapCls, GenericMap).AssertEquals(true)
     }
 
-    static Map_Of_should_create_generic_map() {
-        MapCls := Map.Of(String, Array)
+    static Map_OfType_should_create_generic_map() {
+        MapCls := Map.OfType(String, Array)
         MapCls.AssertType(Class)
         HasBase(MapCls, GenericMap).AssertEquals(true)
     }
 
     static Check_method_should_be_overridden() {
-        MapCls := Map.Of(String, String)
+        MapCls := Map.OfType(String, String)
         (MapCls.Prototype.Check).AssertNotEquals(GenericMap.Prototype.Check)
     }
 
     static Is_keyword_should_work() {
-        (Map.Of(String, String)() is Map.Of(String, String))
+        (Map.OfType(String, String)() is Map.OfType(String, String))
                 .AssertEquals(true)
     }
 
     static Is_keyword_should_work_with_traits() {
-        (Map.Of(Email, Email)() is Map.Of(Email, Email))
+        (Map.OfType(Email, Email)() is Map.OfType(Email, Email))
                 .AssertEquals(true)
     }
 
     static staticKeyType_should_return_class() {
-        (Map.Of(Buffer, Buffer)).KeyType
+        (Map.OfType(Buffer, Buffer)).KeyType
             .AssertEquals(Buffer)
     }
 
     static KeyType_should_return_class() {
-        MapCls := (Map.Of(Number, Number))
+        MapCls := (Map.OfType(Number, Number))
         M := MapCls()
         M.KeyType.AssertEquals(Number)
     }
 
     static staticValueType_should_return_class() {
-        (Map.Of(Integer, Integer)).ValueType
+        (Map.OfType(Integer, Integer)).ValueType
             .AssertEquals(Integer)
     }
 
     static ValueType_should_return_class() {
-        MapCls := Map.Of(Email, Any)
+        MapCls := Map.OfType(Email, Any)
         M := MapCls()
         M.ValueType.AssertEquals(Any)
     }
 
     static generic_array_should_do_type_checking() {
-        MapCls := Map.Of(Number, String)
+        MapCls := Map.OfType(Number, String)
         M := MapCls()
 
         this.AssertThrows(() => M[12.4] := [1, 2, 3])
@@ -66,16 +66,16 @@ class Test_GenericMap extends TestSuite {
     }
 
     static __new_throws_on_bad_param_length() {
-        this.AssertThrows(() => Map.Of(Any, Any)(1))
+        this.AssertThrows(() => Map.OfType(Any, Any)(1))
     }
 
     ; TODO
     static should_support_traits() {
-        M := (Map.Of(Email, Callable))("ben.dover@gmail.com", MsgBox)
+        M := (Map.OfType(Email, Callable))("ben.dover@gmail.com", MsgBox)
     }
 
     static should_throw_with_traits_contained() {
-        this.AssertThrows(() => Map.Of(Email, String)("boom!", "bar"))
+        this.AssertThrows(() => Map.OfType(Email, String)("boom!", "bar"))
     }
 }
 
