@@ -770,13 +770,17 @@ class AquaHotkey_Ignore
             }
         }
 
-        Log(Indent, Str, Args*) {
-            Pad := Format("{:" . (Indent * 2) . "}")
-            (AquaHotkey_Ignore.Log)(this, Pad . Str, Args*)
+        static Indent(Level) {
+            static SpacesPerIndent := 2
+            return Format("{: " . (Level * SpacesPerIndent) . "}", "")
         }
 
-        LogVerbose(Str, Args*) {
-            (AquaHotkey_Ignore.LogVerbose)(this, Str, Args*)
+        Log(nIndent, Str, Args*) {
+            (AquaHotkey_Ignore.Log)(this, Indent(nIndent) . Str, Args*)
+        }
+
+        LogVerbose(nIndent, Str, Args*) {
+            (AquaHotkey_Ignore.LogVerbose)(this, Indent(nIndent) . Str, Args*)
         }
 
         Apply(Supplier, Receiver) {
@@ -808,7 +812,7 @@ class AquaHotkey_Ignore
         ; If appropriate, create a custom `__Init()` to declare the variables
         ; of both classes.
 
-        LogVerbose("    # __Init()")
+        LogVerbose(2, "# __Init()")
         if ((Supplier is Class) && (Receiver is Class)
                 && (HasBase(Receiver, Object)))
         {
@@ -824,47 +828,47 @@ class AquaHotkey_Ignore
                     SupplierInit(Instance) ; our new `__Init()`
                 }
 
-                LogVerbose("      merging __Init() methods...")
-                LogVerbose("      1. {1}", ReceiverInitName)
-                LogVerbose("      2. {1}", SupplierInitName)
+                LogVerbose(3, "merging __Init() methods...")
+                LogVerbose(3, "1. {1}", ReceiverInitName)
+                LogVerbose(3, "2. {1}", SupplierInitName)
                 Define(ReceiverProto, "__Init", { Call: __Init })
-                LogVerbose("      done.")
+                LogVerbose(3, "done.")
             } else {
-                LogVerbose("      ignore. both __Init() methods equal {1}",
+                LogVerbose(3, "ignore. both __Init() methods equal {1}",
                             ReceiverInitName)
             }
         } else {
-            LogVerbose("      incompatible.")
+            LogVerbose(3, "incompatible.")
         }
 
         ;@endregion
         ;-----------------------------------------------------------------------
         ;@region Delegation
 
-        LogVerbose("    # Function Delegation")
+        LogVerbose(2, "# Function Delegation")
         if (Supplier is Func) {
             for Name in ObjOwnProps(Func.Prototype) {
                 LogVerbose("      > {1}", Name)
                 Define(Receiver, Name, Delegate(Func.Prototype, Name, Supplier))
             }
         } else {
-            LogVerbose("      ignore - not a function.")
+            LogVerbose(3, "ignore - not a function.")
         }
 
         ;@endregion
         ;-----------------------------------------------------------------------
         ;@region Instance Properties
 
-        LogVerbose("    # Instance Properties")
+        LogVerbose(2, "# Instance Properties")
         for Name in ObjOwnProps(SupplierProto) {
             if (Supplier is Class) {
                 switch (StrLower(Name)) {
                     case "__class", "__init":
-                        LogVerbose("      > {1} (ignored)", Name)
+                        LogVerbose(3, "> {1} (ignored)", Name)
                         continue
                 }
             }
-            LogVerbose("      > {1}", Name)
+            LogVerbose(3, "> {1}", Name)
             Define(ReceiverProto, Name, GetPropDesc(SupplierProto, Name))
         }
 
@@ -872,12 +876,12 @@ class AquaHotkey_Ignore
         ;-----------------------------------------------------------------------
         ;@region Static Properties
 
-        LogVerbose("    # Static Properties")
+        LogVerbose(2, "# Static Properties")
         for Name in ObjOwnProps(Supplier) {
             if (Supplier is Class) {
                 switch (StrLower(Name)) {
                     case "prototype", "__new", "__init":
-                        LogVerbose("      > {1} (ignored)", Name)
+                        LogVerbose(3, "> {1} (ignored)", Name)
                         continue
                 }
             }
@@ -891,7 +895,7 @@ class AquaHotkey_Ignore
             }
 
             if (!DoRecursion) {
-                LogVerbose("      > {1}", Name)
+                LogVerbose(3, "> {1}", Name)
                 Define(Receiver, Name, GetPropDesc(Supplier, Name))
                 continue
             }
@@ -900,17 +904,17 @@ class AquaHotkey_Ignore
             NestedSupplierName := NestedSupplier.Prototype.__Class
             NestedReceiverName := ReceiverName . "." . Name
 
-            LogVerbose("      nested class... {1}", Name)
+            LogVerbose(3, "nested class... {1}", Name)
 
             if (ObjHasOwnProp(Receiver, Name)) {
                 NestedReceiver := GetValueOfProp(Receiver, Name)
                 if (NestedReceiver is Class) {
-                    LogVerbose("      recurse into existing: {1}",
+                    LogVerbose(3, "recurse into existing: {1}",
                                NestedReceiverName)
                     Apply(NestedSupplier, NestedReceiver)
                     continue
                 } else {
-                    LogVerbose("      overwriting existing class: {1}",
+                    LogVerbose(3, "overwriting existing class: {1}",
                                NestedReceiverName)
                 }
             }
@@ -918,12 +922,12 @@ class AquaHotkey_Ignore
             Base := ObjGetBase(NestedSupplier)
             NestedReceiver := AquaHotkey.CreateClass(Base, NestedSupplierName)
             
-            LogVerbose("      creating new class: {1}", NestedReceiverName)
-            LogVerbose("      base class: {1}", Base.Prototype.__Class)
+            LogVerbose(3, "creating new class: {1}", NestedReceiverName)
+            LogVerbose(3, "base class: {1}", Base.Prototype.__Class)
 
             Define(Receiver, Name, NestedClassProperty(NestedReceiver))
 
-            LogVerbose("      recurse into newly created class: {1}",
+            LogVerbose(3, "recurse into newly created class: {1}",
                        NestedReceiverName)
 
             Apply(NestedSupplier, NestedReceiver)

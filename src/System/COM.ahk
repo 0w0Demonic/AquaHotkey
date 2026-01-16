@@ -1,21 +1,12 @@
 /**
- * AquaHotkey - Com.ahk
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Extensions/Com.ahk
+ * A user-friendly framework that wraps COM objects in clean and class-based
+ * interfaces.
  * 
  * ---
  * 
- * **Overview**:
- * 
- * `Com` is a user-friendly framework that wraps COM objects neatly
- * into clean and class-based interfaces.
- * 
  * **How to Use**:
  * 
- * Create a subtype of `Com`, and define one of the following members:
+ * Create a subclass of `Com`, and define one of the following members:
  * 
  * ---
  * 
@@ -104,6 +95,9 @@
  * properties and methods, which have no CLSID and are usually returned
  * by accessing other COM objects.
  * 
+ * @module  <System/COM>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
  * class InternetExplorer extends Com {
  *     ...
@@ -127,16 +121,36 @@
  * Docs.Add()
  */
 class Com {
-    /** (required) CLSID to wrap around. This property must be overwritten. */
+    /**
+     * (required) CLSID to wrap around. This property must be overwritten.
+     * 
+     * @abstract
+     * @returns {String}
+     */
     static CLSID => false
 
-    /** (optional) The default IID used for Com objects (IID-IDispatch). */
+    /**
+     * (optional) The default IID used for Com objects (IID-IDispatch).
+     * 
+     * @abstract
+     * @returns {String}
+     */
     static IID => "{00020400-0000-0000-C000-000000000046}"
 
-    /** (optional) Method signatures to `ComCall()` methods. */
+    /**
+     * (optional) Method signatures to `ComCall()` methods.
+     * 
+     * @abstract
+     * @returns {Object}
+     */
     static MethodSignatures => false
 
-    /** (optional) Maps methods and properties to the given return type. */
+    /**
+     * (optional) Maps methods and properties to the given return type.
+     * 
+     * @abstract
+     * @returns {Object}
+     */
     static ReturnTypes => false
 
     /**
@@ -147,9 +161,9 @@ class Com {
      * 3. Sets up `ComCall()`-methods declared in `static MethodSignatures`.
      */
     static __New() {
-        static GetProp := (Object.Prototype.GetOwnPropDesc)
-        static Define  := (Object.Prototype.DefineProp)
-        static Delete  := (Object.Prototype.DeleteProp)
+        static GetProp := {}.GetOwnPropDesc
+        static Define  := {}.DefineProp
+        static Delete  := {}.DeleteProp
 
         if (this == Com || this == AbstractCom) {
             return
@@ -250,17 +264,16 @@ class Com {
     /**
      * Constructs a new `Com` object from the `static CLSID` and `static IID`
      * properties of the class.
-     * @example
      * 
+     * @param   {Any*}  Args  arguments passed to `__New()`
+     * @returns {Com}
+     * @example
      * class InternetExplorer extends Com {
      *     static CLSID => "InternetExplorer.Application"
      *     ; ...
      * }
      * 
      * ie := InternetExplorer("https://www.autohotkey.com")
-     * 
-     * @param   {Any*}  Args  arguments passed to `__New()`
-     * @returns {Com}
      */
     static Call(Args*) {
         return this.FromObj(ComObject(this.CLSID, this.IID), Args*)
@@ -316,15 +329,14 @@ class Com {
     /**
      * Constructs a new instance of `Com` by using a pointer to the Com object.
      * 
+     * @param   {Integer}  Ptr   pointer to the Com object
+     * @param   {Any*}     Args  arguments passed to `.New()`
+     * @returns {Com}
      * @example
      * ie  := ComObject("InternetExplorer.Application")
      * ptr := ComObjValue(ie)
      * 
      * ie  := InternetExplorer.FromPtr(ptr)
-     * 
-     * @param   {Integer}  Ptr   pointer to the Com object
-     * @param   {Any*}     Args  arguments passed to `.New()`
-     * @returns {Com}
      */
     static FromPtr(Ptr, Args*) => this.FromObj(ComObjFromPtr(Ptr), Args*)
 
@@ -332,11 +344,10 @@ class Com {
      * Constructs a new instance of `Com` using a currently registered
      * Com object (using `ComObjActive()`).
      * 
-     * @example
-     * ie := InternetExplorer.FromActive()
-     * 
      * @param   {Any*}  Args  arguments passed to the `.New()` constructor
      * @returns {Com}
+     * @example
+     * ie := InternetExplorer.FromActive()
      */
     static FromActive(Args*) => this.FromObj(ComObjActive(this.CLSID), Args*)
 
@@ -355,14 +366,14 @@ class Com {
      * `Com.EventSink`. Otherwise, it'll be automatically forced to do so.
      * 
      * ---
-     * @example
-     * 
-     * ie := ComObject("InternetExplorer.Application")
-     * ie := InternetExplorer.FromObj(ie)
      * 
      * @param   {ComObject}  ComObj  the Com object to wrap around
      * @param   {Any*}       Args    arguments passed to `.New()`
      * @returns {Com}
+     * @example
+     * 
+     * ie := ComObject("InternetExplorer.Application")
+     * ie := InternetExplorer.FromObj(ie)
      */
     static FromObj(ComObj, Args*) {
         ; create a new `Com` object
@@ -458,12 +469,11 @@ class Com {
     /**
      * Calls a native interface method of this Com object by index.
      * 
-     * @example
-     * ComObj(3, "Int", 0, "UInt", 1)
-     * 
      * @param   {Integer}  Index  zero-based index of the method
      * @param   {Any*}     Args   zero or more arguments
      * @returns {Any}
+     * @example
+     * ComObj(3, "Int", 0, "UInt", 1)
      */
     Call(Index, Args*) => ComCall(Index, this._, Args*)
 

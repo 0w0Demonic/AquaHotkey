@@ -56,10 +56,6 @@
 #Include "%A_LineFile%/../../Collections/Map.ahk"
 #Include "%A_LineFile%/../../Collections/Zip.ahk"
 
-#Include "%A_LineFile%/../../Collections/Mixins/Indexable.ahk"
-#Include "%A_LineFile%/../../Collections/Mixins/Sizeable.ahk"
-#Include "%A_LineFile%/../../Collections/Mixins/Enumerable1.ahk"
-#Include "%A_LineFile%/../../Collections/Mixins/Enumerable2.ahk"
 
 ;@endregion
 ;-------------------------------------------------------------------------------
@@ -69,14 +65,20 @@
 #Include "%A_LineFile%/../../Monads/TryOp.ahk"
 
 #Include "%A_LineFile%/../../Stream/Range.ahk"
-#Include "%A_LineFile%/../../Stream/Stream.ahk"
 #Include "%A_LineFile%/../../Stream/Collector.ahk"
 #Include "%A_LineFile%/../../Stream/Gatherer.ahk"
+
+#Include "%A_LineFile%/../../Stream/Stream.ahk"
+#Include "%A_LineFile%/../../Stream/BaseStream.ahk"
+#Include "%A_LineFile%/../../Stream/DoubleStream.ahk"
 
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Mixins
 
-#Include "%A_LineFile%/../../Collections/Mixins/Enumerable1.ahk"
+#Include "%A_LineFile%/../../Mixins/Indexable.ahk"
+#Include "%A_LineFile%/../../Mixins/Sizeable.ahk"
+#Include "%A_LineFile%/../../Mixins/Enumerable1.ahk"
+#Include "%A_LineFile%/../../Mixins/Enumerable2.ahk"
 
 ;@endregion

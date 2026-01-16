@@ -1,4 +1,4 @@
-#Include <AquaHotkey>
+#Include <AquaHotkeyX>
 
 /**
  * Mixin class for types that can be enumerated with 1 parameter.
@@ -11,8 +11,6 @@
  */
 class Enumerable1 {
     static __New() => this.ApplyOnto(Array, Map, Enumerator, Stream)
-
-    ; TODO static IsInstance(Val?) ?
 
     /**
      * Executes an action for each element.
@@ -40,7 +38,6 @@ class Enumerable1 {
      */
     ToArray() => Array(this*)
     
-    ; TODO put Stream#Collect() into here
     /**
      * Reduces all elements by passing them variadically into the given
      * `Collector` function which returns the final result.
@@ -264,29 +261,31 @@ class Enumerable1 {
      * 
      * Objects are converted to strings using `.ToString()`.
      * 
-     * @param   {String?}  Delim  delimiter string between elements
+     * @param   {String?}  Delim   delimiter string between elements
+     * @param   {String?}  Prefix  string prefix
+     * @param   {String?}  Suffix  string suffix
      * @returns {String}
      * @see     {@link AquaHotkey_ToString}
      * @example
      * Array([1, 2], [3, 4], 5.6).Join() ; "[1, 2], [3, 4], 5.6"
      */
-    Join(Delim := "") {
+    Join(Delim := "", Prefix := "", Suffix := "") {
         if (IsObject(Delim)) {
             throw TypeError("Expected a String",, Type(Delim))
         }
-        Result := ""
+        Result := Prefix
         if (Delim == "") {
             for Value in this {
                 (IsSet(Value) && Result .= String(Value))
             }
-            return Result
+            return Result . Suffix
         }
 
         for Value in this {
             (IsSet(Value) && Result .= String(Value))
             Result .= Delim
         }
-        return SubStr(Result, 1, -StrLen(Delim))
+        return SubStr(Result, 1, -StrLen(Delim)) . Suffix
     }
 
     /**
@@ -298,9 +297,123 @@ class Enumerable1 {
     JoinLine() => this.Join("`n")
 
     /**
-     * Converts all elements into a string.
+     * Returns a frequency map of all elements.
      * 
-     * @returns {String}
+     * @param   {Func?}  Classifier  function that retrieves map key
+     * @param   {Any?}   MapParam    internal map param
+     * @returns {Map}
+     * @see {@link AquaHotkey_Map.Map.Create Map.Create()}
+     * @example
+     * Array(1, 2, 2, 3).Frequency() ; Map { 1: 1, 2: 2, 3: 1 }
      */
-    ToString() => this.Join("`n")
+    Frequency(Classifier?, MapParam?) {
+        M := Map.Create(MapParam?)
+        if (IsSet(Classifier)) {
+            GetMethod(Classifier)
+            for Value in this {
+                Key := Classifier(Value?)
+                M.Set(Key, M.Get(Key, 0) + 1)
+            }
+        } else {
+            for Value in this {
+                M.Set(Value, M.Get(Value, 0) + 1)
+            }
+        }
+        return M
+    }
+
+    /**
+     * Returns the amount of elements by traversing this enumerator.
+     * 
+     * @returns {Integer}
+     */
+    Count() {
+        Count := 0
+        for Value in this {
+            ++Count
+        }
+        return Count
+    }
+
+    ; TODO ToSet(SetParam?)
+
+    /**
+     * Groups all elements into a map.
+     * 
+     * ```ahk
+     * Classifier(Elem: Any?) => Any
+     * Downstream(Args: Any*) => Any
+     * ```
+     * 
+     * @param   {Func}   Classifier  function that retrieves map key
+     * @param   {Func?}  Downstream  transforms groups of elements
+     * @param   {Any?}   MapParam    internal map param
+     * @returns {Map}
+     * @see {@link AquaHotkey_Map.Map.Create Map.Create()}
+     * @example
+     * ; Map { 0: [2, 4, 6], 1: [1, 3, 5] }
+     * Array(1, 2, 3, 4, 5, 6).Group(x => (x & 1))
+     */
+    Group(Classifier, Downstream?, MapParam?) {
+        GetMethod(Classifier)
+        if (IsSet(Downstream)) {
+            GetMethod(Downstream)
+        }
+
+        M := Map.Create(MapParam?)
+        for Value in this {
+            Key := Classifier(Value?)
+            if (!M.Has(Key)) {
+                M.Set(Key, Array(Value?))
+            } else {
+                M.Get(Key).Push(Value?)
+            }
+        }
+        if (!IsSet(Downstream)) {
+            return M
+        }
+        for Key, Arr in M {
+            M.Set(Key, Downstream(Arr*))
+        }
+        return M
+    }
+
+    /**
+     * Partitions elements into a `Map` with keys `true` and `false`, based on
+     * whether they fulfill the given `Condition`.
+     * 
+     * ```ahk
+     * Classifier(Elem: Any?) => Any
+     * Downstream(Args: Any*) => Any
+     * ```
+     * 
+     * @param   {Func}   Condition   the given condition
+     * @param   {Func?}  Downstream  transforms the `true` and `false` groups
+     * @returns {Map}
+     * @example
+     * Even(X) => !(X & 1)
+     * 
+     * ; Map { true: [2, 4, 6, ..., 1000], false: [1, 3, 5, ..., 999] }
+     * Range(1, 1000).Partition(Even)
+     */
+    Partition(Condition, Downstream?) {
+        GetMethod(Condition)
+        if (IsSet(Downstream)) {
+            GetMethod(Downstream)
+        }
+
+        M := Map(true, Array(), false, Array())
+        for Value in this {
+            M[!!Condition(Value?)].Push(Value?)
+        }
+
+        if (!IsSet(Downstream)) {
+            return M
+        }
+
+        return Map(
+            true, Downstream(M.Get(true)),
+            false, Downstream(M.Get(false))
+        )
+    }
 }

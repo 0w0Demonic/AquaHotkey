@@ -1,115 +1,65 @@
 /**
- * AquaHotkey - DLL.ahk
+ * An object-oriented interface for loading and interacting with DDL files.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Extensions/DLL.ahk
+ * It automatically loads and frees the library, resolve function addresses and
+ * creates methods that `DllCall()` the exposed function with a predefined type
+ * signature.
  * 
  * ---
  * 
- * **Overview**:
- * 
- * The `DLL` class provides an object-oriented interface for dynamically
- * loading and interacting with DLL files in a clean and structured way.
- * It automatically loads and frees the library, resolves function addresses
- * and binds method signatures for type safety.
- * 
  * **How to Use**:
  * 
- * To create a DLL wrapper, define a subclass and specify the target DLL using
- * the `static FilePath` property:
+ * Define a subclass of `DLL` and specify the target DLL using
+ * `static FilePath`:
  * 
- * ```
+ * ```ahk
  * class User32 extends DLL {
  *     static FilePath => "user32.dll"
  * }
  * ```
  * 
- * This automatically resolves all named exports of `user32.dll` by memory
- * address when the class is initialized.
+ * When the class loads, it loads the specified library (`"user32.dll"`) and
+ * resolves all of its named exports by memory address.
  * 
- * **Defining Function Signatures**:
+ * ---
  * 
- * Function parameters can be defined explicitly via:
+ * **Function Signatures**:
  * 
- * 1. Assigning signatures dynamically:
+ * If a function signature is defined (`static TypeSignatures`), a method
+ * for the exported function is created automatically:
  * 
- * ```
- * User32.CharUpper := ["Str", "Str"]
- * ```
- * 
- * 2. Defining them inside the subclass:
- * 
- * ```
+ * ```ahk
  * class User32 extends DLL {
  *     static FilePath => "user32.dll"
  * 
- *     static TypeSignatures => {
- *         MessageBox: ["Ptr", "Str", "Str", "UInt", "Int"],
- *         CharUpper: "Str, Str"
- *         ; ...
- *     }
- * }
- * ```
- * 
- * **Function Resolution Behavior**:
- * 
- * - If a method is **directly defined**, it is used immediately.
- * - If a method is **not available**, the class automatically 
- *   tries **appending "W" (Wide)**.
- * - Once resolved, the function address is retroactively added as property,
- *   improving performance for repeated calls.
- * 
- * **Using Hidden Ordinal Functions**:
- * 
- * The `DLL` class supports calling undocumented functions that are **only
- * accessible via ordinal numbers** rather than exported names. The functions
- * are automatically loaded whenever an entry in the `TypeSignatures` property
- * starts with a **numeric value** (indicating an ordinal).
- * 
- * ```
- * class UXTheme extends DLL {
- *     static FilePath => "uxtheme.dll"
- * 
- *     static TypeSignatures => {
- *         SetPreferredAppMode: [135, "Int"],
- *         FlushMenuThemes:     [136]
- *     }
- * }
- * ```
- * 
- * Note that **hidden functions are undocumented** and may very between Windows
- * versions.
- * 
- * **Limitations**:
- * 
- * Each subclass can only reference a single DLL.
- * 
- * Further subclasses cannot override properties:
- * - `static FilePath`
- * - `static TypeSignatures` 
- * - `static Ptr`
- * 
- * **Example Usage**:
- * 
- * ```
- * class Kernel32 extends DLL {
- *     static FilePath => "kernel32"
- * 
- *     static TypeSignatures {
- *         GetTickCount: ["UInt"]
+ *     static TypeSignature => {
+ *         MessageBox: ["Ptr", "Str", "Str", "UInt", "Int"]
  *     }
  * }
  * 
- * TickCount := Kernel32.GetTickCount()
+ * ; alternatively, you can define it like this:
+ * ; 
+ * ;     User.MessageBox := ["Ptr", "Str", "Str", "UInt", "Int"]
  * 
- * ; defining a function signature
- * Kernel32.Sleep := ["UInt"]
- * 
- * ; sleep for one second
- * Kernel32.Sleep(1000)
+ * User32.MessageBox(...)
  * ```
+ * 
+ * Struct classes in v2.1-alpha are supported, too.
+ * 
+ * ```ahk
+ * class HDC { ... }
+ * class RECT { ... }
+ * 
+ * class Gdi32 {
+ *     static FilePath => "gdi32.dll"
+ * 
+ *     static TypeSignature => { InvertRect: [HDC, RECT, "Int"] }
+ * }
+ * ```
+ * 
+ * @module  <System/DLL>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class DLL extends Any {
     /**
@@ -117,6 +67,8 @@ class DLL extends Any {
      * properties.
      */
     static __New() {
+        static Define := {}.DefineProp
+
         /**
          * Loads the library targeted by `static FilePath` and defines a `Ptr`
          * property containing the module handle.
@@ -145,7 +97,9 @@ class DLL extends Any {
          * Deletes all properties from a class and from its prototype.
          */
         static DeleteAllProperties(DllClass) {
-            static Delete := (Object.Prototype.DeleteProp)
+            static Delete := {}.DefineProp
+
+            ; collect property names in an array before iterating
             for Target in Array(DllClass, DllClass.Prototype) {
                 for PropertyName in Array(ObjOwnProps(Target)*) {
                     Delete(Target, PropertyName)
@@ -159,6 +113,7 @@ class DLL extends Any {
          * https://learn.microsoft.com/de-de/windows/win32/debug/pe-format
          */
         static LoadProperties(DllClass, TypeSignatures) {
+
             ; navigate to the export table via relate memory addresses
             hModule          := DllClass.Ptr
             p_peHeader       := hModule + NumGet(hModule, 0x3C, "UInt")
@@ -195,8 +150,8 @@ class DLL extends Any {
                                   "AStr", Name, "Ptr")
 
                 ; define getter and setter using the name and proc address
-                DllClass.DefineProp(Name, {
-                    Get: CreateGetter(Addr),
+                Define(DllClass, Name, {
+                    Get: CreateSetter(Addr),
                     Set: CreateSetter(Name)
                 })
             }
@@ -242,7 +197,7 @@ class DLL extends Any {
         if (ObjGetBase(this) == DLL) {
             hModule := LoadLibrary(this)
             DeleteAllProperties(this)
-            this.DefineProp("Ptr", { Get: (Instance) => hModule })
+            Define(this, "Ptr", { Get: (_) => hModule })
         }
 
         LoadProperties(this, TypeSignatures)
@@ -250,8 +205,11 @@ class DLL extends Any {
 
     /**
      * Sets a new type signature for a method `PropName` of this DLL class.
-     * @example
      * 
+     * @param   {String}        PropName       name of the property
+     * @param   {Array}         Args           ignored
+     * @param   {String/Array}  TypeSignature  type signature of DLL function
+     * @example
      * class User32 extends DLL {
      *     static FilePath => "user32.dll"
      * }
@@ -260,19 +218,16 @@ class DLL extends Any {
      * User32.CharUpper(StrPtr("Hello, world!")) ; "HELLO, WORLD!"
      * 
      * @example
-     * 
      * class UXTheme extends DLL {
      *     static FilePath => "uxtheme.dll"
      * }
      * 
      * UXTheme.SetPreferredAppMode := [135, "Int"]
      * UXTheme.FlushMenuThemes     := [136]
-     * 
-     * @param   {String}
-     * @param   {Array}
-     * @param   {String/Array}
      */
     static __Set(PropName, Args, TypeSignature) {
+        static Define := {}.DefineProp
+
         if (!IsObject(TypeSignature)) {
             TypeSignature := StrSplit(TypeSignature, ",", A_Space)
         }
@@ -281,6 +236,7 @@ class DLL extends Any {
         }
 
         IsOrdinal := (TypeSignature.Length && IsInteger(TypeSignature[1]))
+
         if (IsOrdinal) {
             Ordinal    := TypeSignature.RemoveAt(1)
             EntryPoint := DllCall("GetProcAddress", "Ptr", this.Ptr,
@@ -289,6 +245,7 @@ class DLL extends Any {
                 throw PropertyError("unable to resolve ordinal " . Ordinal)
             }
         } else if (HasProp(this, PropName)) {
+            ; ehhhh?? good enough. `%` is making me paranoid...
             EntryPoint := this.%PropName%
         } else {
             PropName .= "W"
@@ -303,7 +260,7 @@ class DLL extends Any {
             BaseClass := ObjGetBase(BaseClass)
         }
 
-        BaseClass.DefineProp(PropName, {
+        Define(BaseClass, PropName, {
             Get:  CreateGetter(EntryPoint),
             Set:  CreateSetter(PropName),
             Call: CreateCallback(EntryPoint, TypeSignature)
@@ -311,15 +268,15 @@ class DLL extends Any {
 
         static CreateCallback(EntryPoint, TypeSignature) {
             DllCallback := DLL.Func(EntryPoint, TypeSignature)
-            return (Instance, Args*) => DllCallback(Args*)
+            return (_, Args*) => DllCallback(Args*)
         }
 
         static CreateGetter(Addr) {
-            return (Instance) => Addr
+            return (_) => Addr
         }
 
         static CreateSetter(Name) {
-            return (Instance, Signature) => Instance.__Set(Name, [], Signature)
+            return (Cls, Signature) => Cls.__Set(Name, [], Signature)
         }
     }
 
@@ -330,24 +287,26 @@ class DLL extends Any {
      * If a property was found, it will be retroactively defined for the class
      * to avoid calling this meta-function again.
      * 
+     * @param   {String}  PropName  name of the undefined property
+     * @param   {Array}   Args      zero or more arguments (ignored)
      * @example
-     * 
      * class User32 extends DLL {
      *     static FilePath => "user32.dll"
      * }
      * ; only properties `MessageBoxA` and `MessageBoxW` exist
      * EntryPoint := User32.MessageBox 
-     * 
-     * @param   {String}  PropName  name of the undefined property
-     * @param   {Array}   Args      zero or more arguments (ignored)
      */
-    static __Get(OldPropName, Args) {
-        NewPropName := OldPropName . "W"
+    static __Get(PropName, Args) {
+        static GetProp := {}.GetOwnPropDesc
+        static Define  := {}.DefineProp
+
+        NewPropName := PropName . "W"
         if (HasProp(this, NewPropName)) {
-            this.DefineProp(OldPropName, this.GetOwnPropDesc(NewPropName))
-            return this.%NewPropName%
+            PropDesc := GetProp(this, NewPropName)
+            Define(this, PropName, PropDesc)
+            return (PropDesc.Get)(this)
         }
-        throw PropertyError("DLL function does not exist",, OldPropName)
+        throw PropertyError("DLL function does not exist",, PropName)
     }
 
     /**
@@ -360,13 +319,17 @@ class DLL extends Any {
      * @param   {String}  PropName  name of the undefined method
      * @param   {Array}   Args      zero or more additional arguments
      */
-    static __Call(OldPropName, Args) {
-        NewPropName := OldPropName . "W"
+    static __Call(PropName, Args) {
+        static GetProp := {}.GetOwnPropDesc
+        static Define  := {}.DefineProp
+
+        NewPropName := PropName . "W"
         if (HasProp(this, NewPropName)) {
-            this.DefineProp(OldPropName, this.GetOwnPropDesc(NewPropName))
-            return this.%NewPropName%(Args*)
+            PropDesc := GetProp(this, NewPropName)
+            Define(this, PropName, PropDesc)
+            return (PropDesc.Get)(this)
         }
-        throw PropertyError("DLL function does not exist",, OldPropName)
+        throw PropertyError("DLL function does not exist",, PropName)
     }
 
     /**
@@ -376,9 +339,11 @@ class DLL extends Any {
      * and a variadic list of type parameters and return type (Array or
      * comma-delimited list of strings).
      * 
+     * @param   {String/Integer}  Function  DLL function name or memory address
+     * @param   {Array}           Type      function signature
+     * @returns {BoundFunc}
      * @example
-     * 
-     * sqrt := DLL.Func("msvcrt\sqrtf", "Float", "Float")
+     * sqrt := DLL.Func("msvcrt\sqrtf", ["Float", "Float"])
      * MsgBox(sqrt(9.0)) ; 3.0
      */
     static Func(Function, Types) {
@@ -406,7 +371,7 @@ class DLL extends Any {
         return ObjBindMethod(DllCall,, Function, Mask*)
 
         static IsStruct(Cls) {
-            static GetProp := (Object.Prototype.GetOwnPropDesc)
+            static GetProp := {}.GetOwnPropDesc
             if (VerCompare(A_AhkVersion, "2.1-alpha.3") < 0) {
                 return false
             }

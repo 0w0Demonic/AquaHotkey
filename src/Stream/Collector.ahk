@@ -1,8 +1,13 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+#Include "%A_LineFile%\..\..\Mixins\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Func\Cast.ahk"
+
 ; TODO refactor this into mixins?
 
 /**
+ * @deprecated
+ * 
  * AquaHotkey - Collector.ahk
  * 
  * Author: 0w0Demonic
@@ -827,6 +832,9 @@ class Collector {
     }
 }
 
+/**
+ * @deprecated
+ */
 class AquaHotkey_Collector extends AquaHotkey {
     class Any {
         /**
@@ -841,7 +849,6 @@ class AquaHotkey_Collector extends AquaHotkey {
          */
         Collect(Coll) {
             if (!(Coll is Collector) && !HasBase(Coll, Collector)) {
-
                 throw TypeError("Expected a Collector",, Type(Coll))
             }
             if (!HasProp(this, "__Enum") && !HasProp(this, "Call")) {
@@ -861,6 +868,7 @@ class AquaHotkey_Collector extends AquaHotkey {
 
     static __New() {
         if (IsSet(AquaHotkey_Stream) && (AquaHotkey_Stream is Class)) {
+            Enumerable1.__New()
             return super.__New()
         }
         OutputDebug("[Aqua] Collector.ahk: support for stream disabled.")

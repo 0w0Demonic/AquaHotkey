@@ -1,8 +1,4 @@
 class Test_Gatherer extends TestSuite {
-    static __New() {
-        global G := Gatherer
-    }
-
     static TimesTwo() {
         Array(1, 2, 3, 4, 5).Gather(Gatherer_Times_Two)
                 .Join()
@@ -44,4 +40,8 @@ class Gatherer_Times_Two extends Gatherer {
     static Finisher(*) {
 
     }
+}
+
+class G extends Gatherer {
+
 }

@@ -45,8 +45,8 @@
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Stream/
-;    #Include "%A_LineFile%/../Stream/Collector.ahk"
-;    #Include "%A_LineFile%/../Stream/Gatherer.ahk"
+     #Include "%A_LineFile%/../Stream/Collector.ahk"
+     #Include "%A_LineFile%/../Stream/Gatherer.ahk"
      #Include "%A_LineFile%/../Stream/Stream.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------
