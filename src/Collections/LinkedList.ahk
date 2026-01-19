@@ -6,14 +6,13 @@
  * 
  * Supports negative indexing and `unset` values.
  * 
+ * @module  <Collections/LinkedList>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
  * L := LinkedList(1, 2, 3)
  * L.Pop() ; 3
  * L.Shove("insert first value")
- * 
- * @module  <Collections/LinkedList>
- * @author  0w0Demonic
- * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class LinkedList {
     static __New() {
@@ -22,6 +21,8 @@ class LinkedList {
         }
         this.Backup(Sizeable, Deque)
     }
+
+    ;@region Fields
 
     /**
      * The first node in the list, otherwise `false` when empty.
@@ -55,6 +56,9 @@ class LinkedList {
      */
     Size := 0
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+
     /**
      * Constructs a new linked list containing the specified elements.
      * 
@@ -64,8 +68,6 @@ class LinkedList {
      * Lst := LinkedList(1, 2, 3)
      */
     __New(Values*) => this.Push(Values*)
-
-    ; TODO use "missing node" type?
 
     /**
      * Returns the node at the given index of the list, otherwise throws
@@ -105,7 +107,6 @@ class LinkedList {
             throw TypeError("Expected an Integer",, Type(Index))
         }
         
-        Test := 0
         Size := this.Size
 
         if ((Index == 0) || (Abs(Index) > Size)) {
@@ -394,6 +395,8 @@ class LinkedList {
         Set(Value?) {
             if (IsSet(Value)) {
                 this.DefineProp("Value", { Value: Value })
+            } else {
+                this.DeleteProp("Value")
             }
         }
 

@@ -1,47 +1,38 @@
 class Test_Gatherer extends TestSuite {
     static TimesTwo() {
-        Array(1, 2, 3, 4, 5).Gather(Gatherer_Times_Two)
+        Array(1, 2, 3, 4, 5)
+                .Stream()
+                .Gather(TimesTwo)
                 .Join()
                 .AssertEquals("1122334455")
     }
 
     static WindowFixed() {
         Range(100).Stream()
-                  .Gather(G.WindowFixed(2))
+                  .Gather(WindowFixed(2))
                   .Map(String)
                   .JoinLine()
     }
 
     static WindowSliding() {
         Range(8).Stream()
-                .Gather(G.WindowSliding(6))
+                .Gather(WindowSliding(6))
                 .Map(Array.Prototype.Join)
                 .Join(", ")
                 .AssertEquals("123456, 234567, 345678")
     }
 
     static Scan() {
-        Range(4).Gather(G.Scan(() => "", (a, b) => (a . b)))
+        Range(4).Gather(Scan("", (a, b) => (a . b)))
                 .Join(", ")
                 .AssertEquals("1, 12, 123, 1234")
     }
 }
 
-class Gatherer_Times_Two extends Gatherer {
-    static Initializer() {
-        return ""
+TimesTwo(Upstream, Downstream) {
+    if (!Upstream(&Value)) {
+        return false
     }
-
-    static Integrator(_, Downstream, Val) {
-        Downstream(Val, Val)
-        return true
-    }
-
-    static Finisher(*) {
-
-    }
-}
-
-class G extends Gatherer {
-
+    Downstream(Value?, Value?)
+    return true
 }

@@ -359,7 +359,7 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region
+    ;@region Class
 
     class Class {
         /**

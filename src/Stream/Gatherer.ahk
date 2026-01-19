@@ -1,496 +1,189 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-;@region Gatherer
+
 /**
- * AquaHotkey - Gatherer.ahk
+ * Gatherers are functions that can transform a sequence of input
+ * elements - usually an `Enumerator` or {@link Stream `Stream`} - into
+ * a sequence of output elements.
  * 
- * Author: 0w0Demonic
+ * They are available for use via the `.Gather(Gath)` method which is defined
+ * for all streams.
  * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Extensions/Comparator.ahk
- * 
- * ---
- * 
- * ### Gatherers
- *
- * Gatherers are an interface used for processing a stream of input
- * elements into a stream of output elements.
- *
- * They originate from JDK 24's "Structured Concurrency & Stream Gatherers"
- * feature, now adapted for AquaHotkey. Gatherers shine particularly when
- * working with infinite streams or scenarios where one input produces multiple
- * outputs.
- *
- * ```ahk
+ * ```
  * ; <[1, 2, 3], [2, 3, 4], [3, 4, 5]>
- * Range(5).Gather(Gatherer.WindowSliding(3))
+ * Range(5).Gather(WindowSliding(3))
  * ```
- *
- * ---
- *
- * ### How They Work
- *
- * Gatherers consist of three separate methods, which determine:
- * - how to initialize internal state (`.Initializer()`);
- * - how to integrate new elements into the output stream (`.Integrator()`);
- * - optionally how to finalize after processing (`.Finisher()`).
- *
- * ---
- *
- * #### Internal Flow Example
- *
- * Let's take a look at `Gatherer.WindowFixed` for a quick example of
- * how Stream Gatherers operate internally.
- *
- * ```ahk
- * ; <[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]>
- * Range(10).Gather(Gatherer.WindowFixed(3))
- * ```
- *
- * ---
- *
- * **`.Initializer()`**
- *
- * Initializes the internal state for processing. In this case, we create an
- * array to collect elements into fixed-size windows.
- *
- * ```ahk
- * Initializer() => Array()
- * ```
- *
- * The returned state is passed to `.Integrator()` for each input element,
- * and should generally be an object.
  * 
- * Otherwise, you can wrap strings and numbers into VarRefs (e.g., `&Str`).
- *
  * ---
- *
- * **`.Integrator(State, Next, Args*)`**
- *
- * Contains the core processing logic for every input element.
- *
- * @param  {Any}   State  data initialized by `.Initializer()`
- * @param  {Func}  Next   function pushing results downstream
- * @param  {Any*}  Args   the current stream element(s)
- *
- * - `Next()` refers to the downstream's internal `.Push()` method.
- * - The return value controls stream termination (`true` = continue,
- *   `false` = stop).
- *
+ * 
+ * **How it Works**:
+ * 
+ * Gatherers use the following type signature:
+ * 
  * ```ahk
- * Integrator(State, Next, Val?) {
- *     if (State.Length == Size) {
- *         Next(State.Clone()) ; Push full window downstream
- *         State.Length := 0
+ * GathererOp(Upstream: Enumerator, Downstream: Func) => Boolean
+ * ```
+ * 
+ * `Upstream` resembles the sequence of input elements, in the form of an
+ * Enumerator object.
+ * 
+ * To output a `Value` into the output stream, use `Downstream(Value)`.
+ * 
+ * The return value should be `true`/`1` when successful, otherwise `false`/`0`
+ * to indicate there are no more elements.
+ * 
+ * ---
+ * 
+ * @module  <Stream/Gatherer>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @see {@link Stream}
+ * @example
+ * TimesTwo(Upstream, Downstream) {
+ *     if (!Upstream(&Value)) {
+ *         return false
  *     }
- *     State.Push(Val?)
+ *     Downstream(Value?, Value?)
  *     return true
  * }
- * ```
  * 
- * A convenient way to write gatherers for primitive types is to box/unbox them
- * as VarRefs.
- * 
- * ```ahk
- * Integrator(&Str, Next, Args*) { ... }
- * ```
- *
- * ---
- *
- * **`.Finisher(State, Next)`**
- *
- * Runs after all input elements have been processed.
- *
- * In `WindowFixed`, any remaining collected elements are flushed.
- *
- * ```ahk
- * Finisher(State, Next) {
- *     Next(State.Clone())
- * }
- * ```
- *
- * ---
- *
- * ### Implementing Your Own Gatherers
- *
- * Similar to AquaHotkey's Collector API, there are three ways
- * to create custom gatherers:
- *
- * ---
- *
- * **Method 1 — Direct constructor call (low-level, not recommended)**
- *
- * Even though this works well for some very trivial Collectors, gatherers
- * are usually too complex to construct directly.
- * 
- * ```ahk
- * WF_Initializer() { ... }
- * WF_Integrator(State, Next, Args*) { ... }
- * WF_Finisher(State, Next) { ... }
- *
- * WindowFixed := Gatherer(WF_Initializer,
- *                         WF_Integrator,
- *                         WF_Finisher)
- * ```
- *
- * ---
- *
- * **Method 2 — Subclass (recommended)**
- *
- * - Fully encapsulates state and logic.
- * - Clean, maintainable, reusable.
- * - **If you define you own `.__New()`, you must call `super.__New()`**.
- *
- * ```ahk
- * class WindowFixed extends Gatherer {
- *     __New(Size) {
- *         super.__New() ; important!
- * 
- *         if (!IsInteger(Size)) {
- *             throw ValueError("nope! wrong value.")
- *         }
- *         this.Size := Size
- *     }
- * 
- *     Initializer() {
- *         return Array()
- *     }
- *
- *     Integrator(State, Next, Val) {
- *         if (State.Length == this.Size) {
- *             Next(State.Clone())
- *             State.Length := 0
- *         }
- *         State.Push(Val)
- *         return true
- *     }
- *
- *     Finisher(State, Next) {
- *         Next(State.Clone())
- *     }
- * }
- * 
- * ... MyStream.Gatherer(WindowFixed())
- * ```
- *
- * ---
- *
- * **Method 3 — Static Gatherer Class**
- *
- * - All methods are static.
- * - The class itself is passed as the gatherer.
- * - Simpler for purely stateless or more trivial implementations.
- *
- * ```ahk
- * class MyGatherer extends Gatherer {
- *     static Initializer() { ... }
- *     static Integrator(State, Next, Val) { ... }
- *     static Finisher(State, Next) { ... }
- * }
- * 
- * ; use the class itself as gatherer.
- * ... MyStream.Collect(MyGatherer)
- * ```
+ * ; <1, 1, 2, 2, 3, 3>
+ * Array(1, 2, 3).Stream().Gather(TimesTwo)
  */
-class Gatherer {
-    /**
-     * Initializes static gatherers.
-     */
-    static __New() {
-        for Name in Array("Initializer", "Integrator", "Finisher") {
-            if (!HasProp(this, Name)) {
-                return
-            }
-            PropDesc := this.GetOwnPropDesc(Name)
-            PropDesc.Get := GetterOf(this, this.%Name%)
-            this.DefineProp(Name, PropDesc)
-        }
+class Gatherer extends Func {
+} ; (empty marker class)
 
-        static GetterOf(this, f) => ((_) => ObjBindMethod(f,, this))
+/**
+ * Creates a {@link Gatherer} that collects elements in the form of fixed
+ * windows.
+ * 
+ * @param   {Integer}  Size  window size
+ * @returns {Gatherer}
+ * @example
+ * ; <[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]>
+ * Range(10).Gather(WindowFixed(3))
+ */
+WindowFixed(Size) {
+    if (!IsInteger(Size)) {
+        throw TypeError("Expected an Integer",, Type(Size))
     }
-
-    /**
-     * Create a new gatherer from the given integrator, integrator and
-     * finisher functions.
-     * 
-     * @param   {Func?}  Initializer  initializes data
-     * @param   {Func?}  Integrator   processes input elements
-     * @param   {Func?}  Finisher     final action after stream terminates
-     * @returns {Gatherer}
-     */
-    __New(Initializer?, Integrator?, Finisher?) {
-        Define("Initializer", Initializer?)
-        Define("Integrator",  Integrator?)
-        Define("Finisher",    Finisher?)
-
-        Define(Name, Function?) {
-            if (IsSet(Function)) {
-                GetMethod(Function)
-                this.DefineProp(Name, {
-                    Get:  (_)        => Function,
-                    Call: (_, Args*) => Function(Args*)
-                })
-                return
-            }
-            if (!HasProp(this, Name)) {
-                throw UnsetError("Missing function: " . Name)
-            }
-            this.DefineProp(Name, { Get: GetterOf(this, this.%Name% )})
-        }
-
-        static GetterOf(this, f) => ((_) => ObjBindMethod(f,, this))
+    if (Size <= 0) {
+        throw ValueError("<= 0",, Size)
     }
+    Arr := Array()
+    return Gatherer.Cast(WindowFixed)
 
-    /**
-     * Collects elements in the form of fixed-sized, non-overlapping windows.
-     * 
-     * @example
-     * ; <[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]>
-     * Range(10).Gather(_.WindowFixed(3))
-     * 
-     * @param   {Integer}  Size  window size
-     * @returns {Gatherer}
-     */
-    class WindowFixed extends Gatherer {
-        __New(Size) {
-            super.__New()
-            if (!IsInteger(Size)) {
-                throw TypeError("Expected an Integer",, Type(Size))
-            }
-            if (Size <= 0) {
-                throw TypeError("Invalid window size",, Size)
-            }
-            this.DefineProp("Size", { Get: (_) => Size })
-        }
-
-        Initializer() {
-            return Array()
-        }
-
-        Integrator(Arr, Downstream, Val?) {
-            if (Arr.Length == this.Size) {
-                Downstream(Arr.Clone())
-                Arr.Length := 0
-            }
-            Arr.Push(Val?)
-            return true
-        }
-
-        Finisher(Arr, Downstream) {
+    WindowFixed(Upstream, Downstream) {
+        if (!Upstream(&Value)) {
             Downstream(Arr.Clone())
+            return false
         }
-    }
-
-    /**
-     * Collects elements in the form of fixed-sized, overlapping windows.
-     * 
-     * @example
-     * ; <[1, 2, 3], [2, 3, 4], [3, 4, 5]>
-     * Range(5).Gather(_.WindowSliding(3))
-     * 
-     * @param   {Integer}  Size  window size
-     * @returns {Gatherer}
-     */
-    class WindowSliding extends Gatherer {
-        __New(Size) {
-            super.__New()
-            if (!IsInteger(Size)) {
-                throw TypeError("Expected an Integer",, Type(Size))
-            }
-            if (Size <= 0) {
-                throw TypeError("Invalid window size",, Size)
-            }
-            this.DefineProp("Size", { Get: (_) => Size })
-        }
-
-        Initializer() {
-            return Array()
-        }
-
-        Integrator(Arr, Downstream, Val?) {
-            if (Arr.Length == this.Size) {
-                Downstream(Arr.Clone())
-                Arr.RemoveAt(1)
-            }
-            Arr.Push(Val?)
-            return true
-        }
-
-        Finisher(Arr, Downstream) {
+        Arr.Push(Value?)
+        if (Arr.Length == Size) {
             Downstream(Arr.Clone())
+            Arr.Length := 0
         }
-    }
-
-    /**
-     * Creates a stream gatherer that emits a running result using the given
-     * initial value produced by `Supplier` by repeatedly combining values
-     * using `Combiner`.
-     * 
-     * ```ahk
-     * CrossSums := _.Scan(() => 0, (a, b := 0) => (a + b))
-     * 
-     * ; <1, 3, 6, 10>
-     * Array(1, 2, 3, 4).Gather(CrossSums)
-     * ```
-     * 
-     * @param   {Func}  Supplier  function to produce initial value
-     * @param   {Func}  Combiner  function to merge values with
-     * @returns {Gatherer}
-     */
-    class Scan extends Gatherer {
-        __New(Supplier, Merger) {
-            super.__New()
-            (GetMethod(Supplier) && GetMethod(Merger))
-            this.Obj := Supplier()
-            this.DefineProp("Merger", { Get: (_) => Merger })
-        }
-
-        Initializer() {
-            
-        }
-
-        Integrator(_, Downstream, Val?) {
-            this.Obj := (this.Merger)(this.Obj, Val?)
-            Downstream(this.Obj)
-            return true
-        }
-
-        Finisher(_, Downstream) {
-
-        }
+        return true
     }
 }
-;@endregion
 
-;@region Extensions
+/**
+ * Creates a {@link Gatherer} that collects elements in the form of sliding
+ * windows.
+ * 
+ * @param   {Integer}  Size  window size
+ * @returns {Gatherer}
+ * @example
+ * ; <[1, 2, 3], [2, 3, 4], [3, 4, 5]>
+ * Range(5).Gather(WindowSliding(3))
+ */
+WindowSliding(Size) {
+    if (!IsInteger(Size)) {
+        throw TypeError("Expected an Integer",, Type(Size))
+    }
+    if (Size <= 0) {
+        throw ValueError("<= 0",, Size)
+    }
+    Arr := Array()
+    return Gatherer.Cast(WindowSliding)
+
+    WindowSliding(Upstream, Downstream) {
+        if (!Upstream(&Value)) {
+            Downstream(Arr.Clone())
+            return false
+        }
+        Arr.Push(Value?)
+        if (Arr.Length == Size) {
+            Downstream(Arr.Clone())
+            Arr.RemoveAt(1)
+        }
+        return true
+    }
+}
+
+/**
+ * Creates a {@link Gatherer} that collects a "running result" of its input
+ * elements.
+ * 
+ * ```ahk
+ * Merger(Left: Any, Right: Any?) => Any
+ * ```
+ * 
+ * @param   {Any}   InitialValue  initial value
+ * @param   {Func}  Merger        merges two values
+ * @returns {Gatherer}
+ * @example
+ * ; <1, 3, 6, 10>
+ * Array(1, 2, 3, 4).Stream().Gather(  Scan(0, (A, B) => (A + B))  )
+ */
+Scan(InitialValue, Merger) {
+    GetMethod(Merger)
+    Result := InitialValue
+    return Gatherer.Cast(Scan)
+
+    Scan(Upstream, Downstream) {
+        if (!Upstream(&Value)) {
+            return false
+        }
+        Result := Merger(Result, Value?)
+        Downstream(Result)
+        return true
+    }
+}
+
 class AquaHotkey_Gatherer extends AquaHotkey {
-static __New() {
-    if (IsSet(AquaHotkey_Stream) && (AquaHotkey_Stream is Class)) {
-        return super.__New()
-    }
+    class Stream {
+        /**
+         * Returns a stream consisting of the result of appyling the given
+         * {@link Gatherer} to the elements of this stream.
+         * 
+         * @param   {Gatherer}  Gath  gatherer operation
+         * @returns {Stream}
+         * @example
+         * ; <[1, 2, 3], [2, 3, 4], [3, 4, 5]>
+         * Range(5).Gather(WindowSliding(3))
+         */
+        Gather(Gath) {
+            GetMethod(Gath)
+            Arr        := Array()
+            Downstream := ObjBindMethod(Arr, "Push")
+            Enumer     := (*) => false
+            return this.Cast(Gather)
 
-    MsgBox("
-    (
-    Stream support not found. `.Gather()` will be unavailable.
-    To enable, import the Stream module.
+            Gather(&Out) {
+                loop {
+                    ; drain the array
+                    if (Enumer(&Out)) {
+                        return true
+                    }
+                    Arr.Length := 0
 
-    #Include .../Extensions/Stream.ahk
-    )", "AquaHotkey - Gatherer.ahk", 0x40)
-}
-
-;@region Any
-class Any {
-    /**
-     * Applies the given Gatherer to process the elements of the stream.
-     * 
-     * @param   {Gatherer}  Gath  the gatherer to apply
-     * @returns {Stream}
-     */
-    Gather(Gath) => this.Stream().Gather(Gath)
-} ; class Any
-;@endregion
-
-;@region Stream
-class Stream {
-    /**
-     * Applies the given Gatherer to process the elements of the stream.
-     * 
-     * @param   {Gatherer}  Gath  the gatherer to apply
-     * @returns {Stream}
-     */
-    Gather(Gath) {
-        static S := Stream ?? ""
-        if (!(Gath is Gatherer) && !HasBase(Gath, Gatherer)) {
-            throw TypeError("Expected a Collector",, Type(Gath))
-        }
-        Initializer := Gath.Initializer
-        Integrator  := Gath.Integrator
-        Finisher    := Gath.Finisher
-
-        Downstream := Array()
-        Enumer     := Downstream.__Enum(1)
-        Consumer   := (Array.Prototype.Push).Bind(Downstream)
-
-        State    := Initializer()
-        Finished := false
-
-        f := this.Call
-        return S(Gather)
-
-        Gather(&Out) {
-            Loop {
-                if (Enumer(&Out)) {
-                    return true
+                    ; fill it up again by using our gatherer
+                    if (!Gath(this, Downstream)) {
+                        return false
+                    }
+                    Enumer := Arr.__Enum(1)
                 }
-                Downstream.Length := 0
-                if (!f(&A)) {
-                    break
-                }
-                if (!Integrator(State, Consumer, A?)) {
-                    break
-                }
-                Enumer := Downstream.__Enum(1)
             }
-            if (!Finished) {
-                Finished := true
-                Finisher(State, Consumer)
-                Enumer := Downstream.__Enum(1)
-                return Enumer(&Out)
-            }
-            return false
-        }
-    }
-} ; class Stream
-
-class DoubleStream {
-    /**
-     * Applies the given Gatherer to process the elements of the stream.
-     * 
-     * @param   {Gatherer}  Gath  the gatherer to apply
-     * @returns {DoubleStream}
-     */
-    Gather(Gath) {
-        static S := Stream ?? ""
-        if (!(Gath is Gatherer) && !HasBase(Gath, Gatherer)) {
-            throw TypeError("Expected a Collector",, Type(Gath))
-        }
-        Initializer := Gath.Initializer
-        Integrator  := Gath.Integrator
-        Finisher    := Gath.Finisher
-
-        Downstream := Array()
-        Enumer     := Downstream.__Enum(1)
-        Consumer   := (Array.Prototype.Push).Bind(Downstream)
-
-        State    := Initializer()
-        Finished := false
-
-        f := this.Call
-        return S(Gather)
-        
-        Gather(&Out) {
-            Loop {
-                if (Enumer(&Out)) {
-                    return true
-                }
-                Downstream.Length := 0
-                if (!f(&A, &B)) {
-                    break
-                }
-                if (!Integrator(State, Consumer, A?, B?)) {
-                    break
-                }
-                Enumer := Downstream.__Enum(1)
-            }
-            if (!Finished) {
-                Finished := true 
-                Finisher(State, Consumer)
-                Enumer := Downstream.__Enum(1)
-                return Enumer(&Out)
-            }
-            return false
         }
     }
 }
-;@endregion
-} ; class AquaHotkey_Gatherer extends AquaHotkey
-;@endregion
