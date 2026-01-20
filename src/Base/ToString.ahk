@@ -41,14 +41,7 @@ class AquaHotkey_ToString extends AquaHotkey
      * AquaHotkey_ToString.ToString("foo") ; '"foo"'
      */
     static ToString(&Val) {
-        switch {
-            case (!IsSet(Val)):
-                Val := "unset"
-            case (Val is String):
-                Val := '"' . Val . '"'
-            default:
-                Val := String(Val)
-        }
+        Val := IsSet(Val) ? String(Val) : "unset"
     }
 
     ;@region Any

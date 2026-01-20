@@ -1,8 +1,8 @@
-#Include "%A_LineFile%\..\..\Mixins\Sizeable.ahk"
-#Include "%A_LineFile%\..\..\Mixins\Enumerable1.ahk"
-#Include "%A_LineFile%\..\..\Mixins\Enumerable2.ahk"
-#Include "%A_LineFile%\..\..\Mixins\Deque.ahk"
-#Include "%A_LineFile%\..\..\Mixins\Indexable.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Sizeable.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Deque.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Indexable.ahk"
 
 /**
  * A doubly linked list implementation.

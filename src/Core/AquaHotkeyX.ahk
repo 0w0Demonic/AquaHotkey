@@ -76,9 +76,9 @@
 ;-------------------------------------------------------------------------------
 ;@region Mixins
 
-#Include "%A_LineFile%/../../Mixins/Indexable.ahk"
-#Include "%A_LineFile%/../../Mixins/Sizeable.ahk"
-#Include "%A_LineFile%/../../Mixins/Enumerable1.ahk"
-#Include "%A_LineFile%/../../Mixins/Enumerable2.ahk"
+#Include "%A_LineFile%/../../Interfaces/Indexable.ahk"
+#Include "%A_LineFile%/../../Interfaces/Sizeable.ahk"
+#Include "%A_LineFile%/../../Interfaces/Enumerable1.ahk"
+#Include "%A_LineFile%/../../Interfaces/Enumerable2.ahk"
 
 ;@endregion

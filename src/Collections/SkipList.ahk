@@ -1,4 +1,7 @@
 #Include <AquaHotkeyX>
+#Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
+
+; TODO this, but as a Set
 
 /**
  * Skip lists are probabilistic data structures that combine the advantages
@@ -48,7 +51,7 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class SkipList {
+class SkipList extends IMap {
     /**
      * Class that represents the nodes that make up skip lists.
      */
@@ -56,12 +59,13 @@ class SkipList {
         /**
          * Creates a new skip list node.
          * 
-         * TODO
+         * @constructor
+         * @param   {Any}      Key    node key
+         * @param   {Any}      Value  node value
+         * @param   {Integer}  Level  node level
+         * @returns {SkipList.Node}
          */
-        __New(Key, Value, Level) {
-            this.Key := Key
-            this.Value := Value
-
+        static Call(Key, Value, Level) {
             if (!IsInteger(Level)) {
                 throw TypeError("Expected an Integer",, Type(Level))
             }
@@ -75,29 +79,92 @@ class SkipList {
                 Forward.Push(false)
             }
 
-            this.Forward := Forward
+            Obj := {
+                Key: Key,
+                Value: Value,
+                Forward: Forward
+            }
+            ObjSetBase(Obj, this.Prototype)
+            return Obj
         }
+
+        /**
+         * Returns a string representation of this node.
+         * 
+         * @returns {String}
+         */
+        ToString() => String(this.Key) . " -> " . String(this.Value)
     }
 
-    static WithOptions(Comp     := this.Comp,
-                       MaxLevel := this.MaxLevel,
-                       Prob     := this.Prob)
-    {
-        ; TODO
-    }
-
+    /**
+     * Comparator used for comparing keys (defaults to `Any.Compare`).
+     * 
+     * @returns {Comparator}
+     */
     static Comp => (this.Prototype).Comp
+
+    /**
+     * Comparator used for comparing keys (defaults to `Any.Compare`).
+     * 
+     * @returns {Comparator}
+     */
     Comp => Any.Compare
 
+    /**
+     * The maximum reachable level of the skip list.
+     * 
+     * @returns {Integer}
+     */
     static MaxLevel => (this.Prototype).MaxLevel
+
+    /**
+     * The maximum reachable level of the skip list.
+     * 
+     * @returns {Integer}
+     */
     MaxLevel => 16
 
+    /**
+     * Probability that determines on which level a new node is inserted.
+     * 
+     * @returns {Number}
+     */
     static Prob => (this.Prototype).Prob
+
+    /**
+     * Probability that determines on which level a new node is inserted.
+     * 
+     * @returns {Number}
+     */
     Prob => 0.50
 
-    __New(Args*) {
-        if (Args.Length & 1) {
-            throw ValueError("invalid parameter count",, Args.Length)
+    /**
+     * The amount of elements contained in the skip list.
+     * 
+     * @type {Integer}
+     */
+    Count => this.Size
+
+    /**
+     * The amount of elements contained in the skip list.
+     * 
+     * @readonly
+     * @type {Integer}
+     */
+    Size := 0
+
+    /**
+     * Creates a new skip list that contains the specified elements.
+     * 
+     * @constructor
+     * @param   {Any*}  Values  alternating key and value
+     */
+    __New(Values*) {
+        if (this.Size) {
+            throw Error("This skip list was already initialized")
+        }
+        if (Values.Length & 1) {
+            throw ValueError("invalid parameter count",, Values.Length)
         }
 
         this.Level := 1
@@ -111,12 +178,18 @@ class SkipList {
         ObjSetBase(Head, SkipList.Node.Prototype)
         this.Head := Head
 
-        Enumer := Args.__Enum(1)
+        Enumer := Values.__Enum(1)
         while (Enumer(&Key) && Enumer(&Value)) {
             this.Set(Key, Value)
         }
     }
 
+    /**
+     * Returns the "level" at which a new node should be inserted.
+     * 
+     * @private
+     * @returns {Integer}
+     */
     RandomLevel() {
         Level := 1
         Prob := this.Prob
@@ -127,17 +200,38 @@ class SkipList {
         return Level
     }
 
-    Find(&Out, Key) {
+    /**
+     * Determines whether the skip list has a value associated with the given key.
+     * 
+     * @param   {Any}  Key  the key
+     * @returns {Boolean}
+     * @example
+     * SkipList(1, 2, 3, 4).Has(3, &Out) ; true
+     * MsgBox(Out) ; 4
+     */
+    Has(Key, &OutValue?) {
         Node := this.FindNode(Key)
-        if (!Node) {
-            return false
+        if (Node) {
+            OutValue := Node.Value
+            return true
         }
-        Out := Node.Value
-        return true
+        OutValue := unset
+        return false
     }
 
-    Has(Key) => !!this.FindNode(Key)
-
+    /**
+     * Sets an item. This method returns `true` if a new element was added to the skip
+     * list, otherwise `false`.
+     * 
+     * Equivalent to `__Item[]`.
+     * 
+     * @param   {Any}  Key    the key
+     * @param   {Any}  Value  value associated with key
+     * @returns {Boolean}
+     * @example
+     * SL := SkipList(1, 2, 3, 4)
+     * SL.Set(5, 6) ; or: SL[5] := 6
+     */
     Set(Key, Value) {
         Node := this.FindNode(Key, &Update)
         if (Node) {
@@ -162,9 +256,31 @@ class SkipList {
             Forward[A_Index] := Rightmost.Get(A_Index)
             Rightmost[A_Index] := NewNode
         }
+        ++this.Size
         return true
     }
 
+    /**
+     * Returns the value associated with a key, or a default value.
+     * 
+     * This method either:
+     * 
+     * - returns the value of the element.
+     * - returns `Default`, if specified.
+     * - returns `(SkipListObj).Default`, if specified.
+     * - throws an `UnsetItemError`.
+     * 
+     * @param   {Any}   Key      the requested key
+     * @param   {Any?}  Default  default value
+     * @returns {Any}
+     * @throws  {UnsetItemError} when unable to retrieve element
+     * @example
+     * SL := SkipList(1, 2, 3, 4)
+     * SL.Get(1) ; 2
+     * SL[1]     ; 2
+     * 
+     * SL.Get(7, "no value") ; "no value"
+     */
     Get(Key, Default?) {
         Node := this.FindNode(Key)
         if (Node) {
@@ -179,6 +295,18 @@ class SkipList {
         throw UnsetItemError("item not found",, String(Key))
     }
 
+    /**
+     * Traverses the skip list, returning the node containing the requested key,
+     * otherwise `false`.
+     * 
+     * `OutUpdate` receives an array of the rightmost nodes at each level during
+     * traversal, which are kept track of for insertion and deletion.
+     * 
+     * @private
+     * @param   {Any}             Key        the requested key
+     * @param   {VarRef<Array>?}  OutUpdate  (out) the rightmost nodes at each level
+     * @returns {SkipList.Node}
+     */
     FindNode(Key, &OutUpdate?) {
         Curr  := this.Head
         Level := this.Level
@@ -211,13 +339,26 @@ class SkipList {
         return false
     }
 
-    Delete(Key) {
+    /**
+     * Deletes an item, if present. This method returns `true` if an element was removed
+     * from the skip list, otherwise `false`.
+     * 
+     * @param   {Any}           Key       requested key
+     * @param   {VarRef<Any>?}  OutValue  (out) associated value, if present
+     * @returns {Boolean}
+     * @example
+     * SL := SkipList(1, 2, 3, 4)
+     * SL.Delete(1, &Out) ; true
+     * MsgBox(Out)        ; 2
+     */
+    Delete(Key, &OutValue?) {
         Node := this.FindNode(Key, &Update)
         if (!Node) {
+            OutValue := unset
             return false
         }
 
-        loop this.Level {
+        loop (this.Level) {
             Forward := Update.Get(A_Index).Forward
             if (Forward.Get(A_Index) != Node) {
                 break
@@ -228,40 +369,108 @@ class SkipList {
         while (this.Level > 1 && !this.Head.Forward.Get(this.Level)) {
             this.Level--
         }
+        --this.Size
+        OutValue := Node.Value
         return true
     }
 
+    /**
+     * Creates an {@link Enumerator} object that enumerates the items of the skip list.
+     * 
+     * @param   {Integer}  ArgSize  amount of parameters passed in the for-loop
+     * @returns {Enumerator}
+     * @example
+     * SL := SkipList(...)
+     * 
+     * for Key in SL { ... }
+     * 
+     * for Key, Value in SL { ... }
+     */
     __Enum(ArgSize) {
+        if (!IsInteger(ArgSize)) {
+            throw TypeError("Expected an Integer",, Type(ArgSize))
+        }
         Curr := this.Head
-        return Enumer
+        return (ArgSize < 2) ? Enumer1 : Enumer2
 
-        Enumer(&Out) {
+        Enumer1(&OutKey) {
             Node := Curr.Forward.Get(1)
             if (Node) {
                 Curr := Node
-                Out := Node.Value
+                OutKey := Node.Key
+                return true
+            }
+            return false
+        }
+
+        Enumer2(&OutKey, &OutValue) {
+            Node := Curr.Forward.Get(1)
+            if (Node) {
+                Curr     := Node
+                OutKey   := Node.Key
+                OutValue := Node.Value
                 return true
             }
             return false
         }
     }
 
+    /**
+     * Clears the skip list.
+     */
+    Clear() {
+        Head := this.Head.Forward
+        Curr := Head.Get(1)
+        loop (Head.Length) {
+            Head[A_Index] := false
+        }
+
+        while (Curr) {
+            Next         := Curr.Forward.Get(1)
+            Curr.Forward := unset
+            Curr.Key     := unset
+            Curr.Value   := unset
+
+            Curr         := Next
+        }
+        this.Size := 0
+    }
+
+    /**
+     * Gets and sets items.
+     * 
+     * @param   {Any}  Key    any key
+     * @param   {Any}  Value  value associated with key
+     * @returns {Any}
+     */
     __Item[Key] {
         get => this.Get(Key)
         set {
-            if (IsSet(Value)) {
-                this.Set(Key, Value)
-            } else {
-                this.Delete(Key)
-            }
+            this.Set(Key, Value)
         }
     }
 
+    /**
+     * Returns a string representation of the skip list, based on its elements and
+     * internal structure.
+     * 
+     * @returns {String}
+     * @example
+     * ; SkipList {
+     * ;   Level: 2,
+     * ;   Size: 6,
+     * ;   Structure: [
+     * ;     [   2   ],
+     * ;     [1, 2, 3]
+     * ;   ],
+     * ;   Values: [1 -> 2, 3 -> 4, 5 -> 6]
+     * ; }
+     * SkipList(1, 2, 3, 4, 5, 6).ToString()
+     */
     ToString() {
-        Nodes := Map()
-
-        Values := Map()
-        Curr := this.Head
+        Nodes  := Map()
+        Values := Array()
+        Curr   := this.Head
         loop {
             Next := Curr.Forward.Get(1)
             if (!Next) {
@@ -269,11 +478,11 @@ class SkipList {
             }
             Curr := Next
             Nodes.Set(Curr, A_Index)
-            Values.Set(A_Index, Curr.Value)
+            Values.Push(String(Curr))
         }
 
         Structure := Array()
-        loop this.Level {
+        loop (this.Level) {
             Level := this.Level - A_Index + 1
             Arr := Array()
 
@@ -289,27 +498,12 @@ class SkipList {
 
             Structure.Push(Arr)
         }
-
-        Obj := {
+        return (super.ToString)({
+            Size: this.Size,
             Values: Values,
             Structure: Structure,
             Level: this.Level,
             base: ObjGetBase(this)
-        }
-        return (super.ToString)(Obj)
-    }
-
-    Size {
-        get {
-            Result := 0
-            for Value in this {
-                ++Result
-            }
-            return Result
-        }
+        })
     }
 }
-
-L := SkipList(Range(50)*)
-MsgBox(L.Set(2, 2))
-MsgBox(String(L))

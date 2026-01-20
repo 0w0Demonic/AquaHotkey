@@ -1,7 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Func\Comparator.ahk"
 #Include "%A_LineFile%\..\..\Base\Ord.ahk"
-#Include "%A_LineFile%\..\..\Mixins\Sizeable.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Sizeable.ahk"
 
 /**
  * @mixin

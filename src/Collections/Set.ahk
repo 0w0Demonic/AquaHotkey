@@ -13,21 +13,45 @@ class Set {
             return
         }
         this.IsSizedBy("Count")
-        this.Backup(Enumerable1)
+        this.Backup(Enumerable1, Sizeable)
     }
 
     /**
-     * Constructs a new set containing the given values as elements.
+     * Amount of elements contained in the set.
+     * 
+     * @returns {Integer}
+     */
+    Size => this.M.Count
+
+    /**
+     * Constructs a new set with backing `Map` containing the given
+     * values as elements.
      * 
      * @constructor
      * @param   {Any*}  Values  zero or more elements
      */
-    __New(Values*) {
+    static Call(Values*) {
         M := Map()
-        this.DefineProp("M", { Get: (_) => M })
-        if (Values.Length) {
-            this.Add(Values*)
+        for Value in Values {
+            M.Set(Value, true)
         }
+        return this.FromMap(M)
+    }
+
+    /**
+     * Creates a set using the given backing map.
+     * 
+     * @constructor
+     * @param   {IMap}  M  the backing map
+     * @returns {Set}
+     */
+    static FromMap(M) {
+        if (!M.Is(IMap)) {
+            throw TypeError("Expected an IMap",, Type(M))
+        }
+        Obj := {}.DefineProp("M", { Get: (_) => M })
+        ObjSetBase(Obj, this.Prototype)
+        return Obj
     }
 
     /**
@@ -73,7 +97,7 @@ class Set {
      */
     Clone() {
         M := this.M.Clone()
-        Obj := Object().DefineProp("M", { Get: (_) => M })
+        Obj := {}.DefineProp("M", { Get: (_) => M })
         ObjSetBase(Obj, ObjGetBase(this))
         return Obj
     }
@@ -89,7 +113,7 @@ class Set {
     Delete(Value, Values*) {
         M := this.M
         Changed := M.Has(Value)
-        this.M.Delete(Value)
+        M.Delete(Value)
 
         for V in Values {
             Changed |= M.Has(V)
@@ -108,7 +132,6 @@ class Set {
      */
     Has(Value) => this.M.Has(Value)
 
-    ; TODO what kind of equality check to use?
     /**
      * Determines whether any of the given values is present in the set.
      * 
@@ -177,14 +200,7 @@ class Set {
      * @param   {Integer}  ArgSize  parameter size of for-loop
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) {
-        return Enumer
-
-        Enumer(&Value) {
-            static Values := this.M.__Enum(1)
-            return Values(&Value)
-        }
-    }
+    __Enum(ArgSize) => this.M.__Enum(1)
 
     /**
      * Returns the size of this set.
@@ -192,6 +208,8 @@ class Set {
      * @returns {Integer}
      */
     Count => this.M.Count
+
+    ; TODO remove CaseSense and Capacity?
 
     /**
      * Retrieves and sets the current capacity of the set.
@@ -290,7 +308,7 @@ class AquaHotkey_Set extends AquaHotkey {
             if (SetClass != Set && !HasBase(SetClass, Set)) {
                 throw TypeError("Expected Set or Set subclass")
             }
-            return SetClass(this*)
+            return SetClass.FromMap(this.Clone())
         }
     }
 }

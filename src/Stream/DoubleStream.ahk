@@ -1,5 +1,5 @@
 #Include "%A_LineFile%\..\BaseStream.ahk"
-#Include "%A_LineFile%\..\..\Mixins\Enumerable2.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 
 /**
  * A double-size {@link Stream}.

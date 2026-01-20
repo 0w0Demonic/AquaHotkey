@@ -19,7 +19,8 @@ Zip(Args*) {
             GetMethod(Arg, "__Enum")
             Enumers.Push(Arg.__Enum(1))
         } else {
-            Enumers.Push(GetMethod(Arg))
+            GetMethod(Arg)
+            Enumers.Push(Arg)
         }
     }
     return ZipEnumer

@@ -1,7 +1,7 @@
 /**
  * An object with `Ptr` and `Size` property.
  */
-class BufferObject {
+class IBuffer {
     /**
      * Determines whether the buffer is buffer-like.
      * 
@@ -19,5 +19,16 @@ class BufferObject {
             return true
         }
         return HasProp(Val, "Ptr") && HasProp(Val, "Size")
+    }
+
+    /**
+     * Determines whether the given type should be considered equivalent to, or a
+     * subtype of `BufferObject`.
+     * 
+     * @param   {Any}  T  any value
+     * @returns {Boolean}
+     */
+    static CanCastFrom(T) {
+        return super.CanCastFrom(T) || Buffer.CanCastFrom(T)
     }
 }

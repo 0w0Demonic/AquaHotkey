@@ -30,6 +30,7 @@
 ;    #Include "%A_LineFile%/../Collections/OrderedSet.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/Properties.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/Set.ahk" ; TODO
+     #Include "%A_LineFile%/../Collections/SkipList.ahk"
 ;    #Include "%A_LineFile%/../Collections/Zip.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------

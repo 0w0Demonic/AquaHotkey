@@ -1,8 +1,8 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
-#Include "%A_LineFile%\..\..\Mixins\Enumerable1.ahk"
-#Include "%A_LineFile%\..\..\Mixins\Enumerable2.ahk"
-#Include "%A_LineFile%\..\..\Mixins\Sizeable.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Sizeable.ahk"
 
 /**
  * Map utils and stream-like operations.
@@ -58,7 +58,7 @@ class Map {
      * 
      * @param   {Any}  Param  a map, map factory, or case sensitivity
      * @returns {Map}
-     * @see {HashMap}
+     * @see {@link HashMap}
      * @example
      * Map.Create()      ; create a normal Map
      * Map.Create(false) ; create a case-insensitive Map

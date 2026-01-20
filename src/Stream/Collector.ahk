@@ -1,6 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
-#Include "%A_LineFile%\..\..\Mixins\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
 ; TODO refactor this into mixins?

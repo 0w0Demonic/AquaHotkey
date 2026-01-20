@@ -1,3 +1,5 @@
+; TODO rename "Mixins" to "Interfaces"?
+
 /**
  * @file AquaHotkey.ahk
  * @fileoverview

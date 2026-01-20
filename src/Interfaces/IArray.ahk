@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
 
-class ArrayObject {
+class IArray {
     static IsInstance(Val?) {
         if (!IsSet(Val) || !IsObject(Val)) {
             return false
@@ -19,5 +19,9 @@ class ArrayObject {
             && HasProp(Val, "Length")
             && HasProp(Val, "Capacity")
             && HasProp(Val, "Length")
+    }
+
+    static CanCastFrom(T) {
+        return super.CanCastFrom(T) || Array.CanCastFrom(T)
     }
 }

@@ -1,6 +1,6 @@
-#Requires AutoHotkey v2.0
+#Include <AquaHotkeyX>
 
-class MapObject {
+class IMap {
     static IsInstance(Val?) {
         if (!IsSet(Val)) {
             return false
@@ -15,8 +15,10 @@ class MapObject {
             && HasMethod(Val, "Set")
             && HasMethod(Val, "__Enum")
             && HasProp(Val, "Count")
-            && HasProp(Val, "Capacity")
-            && HasProp(Val, "CaseSense")
             && HasProp(Val, "__Item")
+    }
+
+    static CanCastFrom(T) {
+        return super.CanCastFrom(T) || Map.CanCastFrom(T)
     }
 }

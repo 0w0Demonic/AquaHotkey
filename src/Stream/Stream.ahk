@@ -1,5 +1,5 @@
 ;@region Stream
-#Include "%A_LineFile%\..\..\Mixins\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\BaseStream.ahk"
 #Include "%A_LineFile%\..\DoubleStream.ahk"
 
