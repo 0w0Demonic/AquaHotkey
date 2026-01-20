@@ -1,5 +1,8 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO probably remove this again, unless this becomes a whole wrapper class
+;      and we've figured out how to duck-type "map-like" objects
+
 /**
  * Provides a convenient way to define `Default` properties for arrays and maps.
  * 

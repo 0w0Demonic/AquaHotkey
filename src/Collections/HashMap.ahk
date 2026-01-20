@@ -28,16 +28,31 @@ class HashMap extends Map {
      * Standard load factor to indicate how full the {@link HashMap} is allowed
      * to get before being resized.
      * 
-     * @returns {Float}
+     * @returns {Number}
      */
-    static LoadFactor => 0.75
+    static LoadFactor => (this.Prototype).LoadFactor
+
+    /**
+     * Standard load factor to indicate how full the {@link HashMap} is allowed
+     * to get before being resized.
+     * 
+     * @returns {Number}
+     */
+    LoadFactor => 0.75
 
     /**
      * Initial minimum capacity of the hash table.
      * 
      * @returns {Integer}
      */
-    static InitialCap => 16
+    static InitialCap => (this.Prototype).InitialCap
+
+    /**
+     * Initial minimum capacity of the hash table.
+     * 
+     * @returns {Integer}
+     */
+    InitialCap => 16
 
     ;>> NOTE: this gets replaced by `HashMap#CapacityFor` when class is loaded
     /**

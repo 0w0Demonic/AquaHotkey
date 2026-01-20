@@ -1,4 +1,8 @@
-#Include "%A_LineFile%\..\..\..\src\Collections\LinkedList2.ahk"
+#Include "%A_LineFile%\..\..\..\src\Collections\LinkedList.ahk"
+
+; TODO Enumerable2 tests
+; TODO Deque tests
+; TODO Indexable tests
 
 class Test_LinkedList extends TestSuite {
     static SimpleConstruction() {
@@ -187,7 +191,7 @@ class Test_LinkedList extends TestSuite {
 
         L.RemoveAt(1).AssertEquals(1)
         L.Size.AssertEquals(2)
-        L.Get(2).AssertEquals(2)
+        L.Get(2).AssertEquals(3)
     }
 
     static RemoveAt_Uses_Default_Value() {
@@ -212,8 +216,123 @@ class Test_LinkedList extends TestSuite {
     }
 
     static RemoveAt_Does_Nothing() {
-        LinkedList(1, 2, 3).RemoveAt(2, 0).Size.AssertEquals(3)
+        L := LinkedList(1, 2, 3)
+        L.RemoveAt(2, 0)
+        L.Size.AssertEquals(3)
     }
 
+    static __Delete_Works() {
+        L := LinkedList(1, 2, 3)
 
+        Value := 0
+        ({}.DefineProp)(LinkedList.Node.Prototype, "__Delete", {
+            Call: (Instance) => ++Value
+        })
+
+        L := ""
+        Value.AssertEquals(3)
+    }
+
+    static Sizeable_Properties() {
+        L := LinkedList(1, 2, 3)
+        L.IsEmpty.AssertEquals(false)
+        L.IsNotEmpty.AssertEquals(true)
+    }
+
+    static ForEach() {
+        Arr := Array()
+        LinkedList(1, 2, 3).ForEach(x => Arr.Push(x))
+
+        Arr.Eq([1, 2, 3]).AssertEquals(true)
+    }
+
+    static ToArray() {
+        LinkedList(1, 2, 3).ToArray().Eq([1, 2, 3]).AssertEquals(true)
+    }
+
+    static Collect() {
+        static Sum(Values*) {
+            Result := Float(0)
+            for Value in Values {
+                Result += Value
+            }
+            return Result
+        }
+
+        LinkedList(1, 2, 3).Collect(Sum).AssertEquals(6)
+    }
+
+    static Reduce() {
+        static Sum(A, B) => (A + B)
+
+        LinkedList(1, 2, 3).Reduce(Sum).AssertEquals(6)
+    }
+
+    static Find() {
+        LinkedList(1, 2, 3).Find(&Out, (x) => (x == 3)).AssertEquals(true)
+
+        Out.AssertEquals(3)
+    }
+
+    static Any() {
+        LinkedList(1, 2, 3).Any((x) => (x == 3)).AssertEquals(true)
+
+        LinkedList(1, 2, 3).Any((x) => (x == 10)).AssertEquals(false)
+    }
+
+    static None() {
+        LinkedList(1, 2, 3).None((x) => (x == 7)).AssertEquals(true)
+
+        LinkedList(1, 2, 3).None((x) => (x == 2)).AssertEquals(false)
+    }
+
+    static All() {
+        LinkedList(1, 2, 3).All((x) => (x < 10)).AssertEquals(true)
+
+        LinkedList(1, 2, 3).All((x) => (x < 1)).AssertEquals(false)
+    }
+
+    static Max() {
+        LinkedList(3, 2, 5, 3).Max().AssertEquals(5)
+    }
+
+    static Min() {
+        LinkedList(3, 2, 5, 1).Min().AssertEquals(1)
+    }
+
+    static Sum() {
+        LinkedList(1, 2, 3, 4).Sum().AssertEquals(10)
+    }
+
+    static Average() {
+        LinkedList(1, 2, 3, 4).Average().AssertEquals(2.5)
+    }
+
+    static Join() {
+        LinkedList(1, 2, 3).Join(", ").AssertEquals("1, 2, 3")
+    }
+
+    static Frequency() {
+        M := LinkedList(1, 1, 2, 2).Frequency(x => x)
+
+        M[1].AssertEquals(2)
+        M[2].AssertEquals(2)
+    }
+
+    static Count() {
+        LinkedList(1, 2, 3).Count().AssertEquals(3)
+    }
+
+    static Group() {
+        M := LinkedList(1, 2, 2).Group(x => x)
+        M[1].Eq([1]).AssertEquals(true)
+        M[2].Eq([2, 2]).AssertEquals(true)
+    }
+
+    static Partition() {
+        M := LinkedList("foo", 123).Partition(IsNumber)
+
+        M[true].Eq([123]).AssertEquals(true)
+        M[false].Eq(["foo"]).AssertEquals(true)
+    }
 }

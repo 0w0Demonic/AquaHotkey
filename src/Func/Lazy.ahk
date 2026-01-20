@@ -37,12 +37,7 @@ class Lazy extends Func {
      * Dice() ; 2 (cached value)
      * 
      * @example
-     * ; read the contents of a file lazily
      * LoadConfig := Lazy(() => FileRead("myFile"))
-     * 
-     * ; Note: if you're dealing with huge strings, it's a good idea to wrap
-     * ; them into a `VarRef` or an object to avoid needless copying.
-     * LoadConfig := Lazy(() => { Value: FileRead("myFile") })
      */
     static Call(Supplier, Args*) {
         GetMethod(Supplier)
@@ -79,6 +74,7 @@ class Lazy extends Func {
      */
     Map(Mapper, Args*) {
         return this.Cast(Mapped)
+
         Mapped(&Value) {
             if (!IsSet(Value)) {
                 Value := Mapper(this, Args*)

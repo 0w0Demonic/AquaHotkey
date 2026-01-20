@@ -1,4 +1,4 @@
-#Include <AquaHotkeyX>
+#Include <AquaHotkey>
 
 /**
  * Mixin class for types that can be enumerated with 1 parameter.

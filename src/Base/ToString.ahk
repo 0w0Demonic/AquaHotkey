@@ -69,9 +69,16 @@ class AquaHotkey_ToString extends AquaHotkey
         /**
          * Converts this object into a string.
          * 
+         * Proceed with caution. Whenever possible, you should override this
+         * method to avoid infinite recursion.
+         * 
          * @returns {String}
          * @example
          * ({ Foo: 45, Bar: 123 }) ; "Object { "Bar": 123, "Foo": 45 }"
+         * 
+         * A := { Value: B }
+         * B := { Value: A }
+         * A.ToString() ; don't try this at home...
          */
         ToString() {
             static GetProp := {}.GetOwnPropDesc

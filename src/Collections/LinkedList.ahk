@@ -1,84 +1,31 @@
+#Include "%A_LineFile%\..\..\Mixins\Sizeable.ahk"
+#Include "%A_LineFile%\..\..\Mixins\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Mixins\Enumerable2.ahk"
+#Include "%A_LineFile%\..\..\Mixins\Deque.ahk"
+#Include "%A_LineFile%\..\..\Mixins\Indexable.ahk"
+
 /**
- * @class
- * @template T the value contained
- * @classdesc
- * A simple linked list implementation.
- * 
- * Supports negative indexing and `unset` values.
+ * A doubly linked list implementation.
  * 
  * @module  <Collections/LinkedList>
  * @author  0w0Demonic
- * @see     https://www.github.com/0w0Demonic/AquaHotkey
- * @example
- * L := LinkedList(1, 2, 3)
- * L.Pop() ; 3
- * L.Shove("insert first value")
+ * @see     https://www.github.com/0w0Demonic
  */
 class LinkedList {
     static __New() {
-        if (this != LinkedList) {
-            return
+        if (this == LinkedList) {
+            ({}.DefineProp)(this.Prototype, "__New",
+                    ({}.GetOwnPropDesc)(this.Prototype, "Push"))
+            this.Backup(Sizeable, Deque, Enumerable1, Enumerable2, Indexable)
         }
-        this.Backup(Sizeable, Deque)
     }
 
-    ;@region Fields
-
     /**
-     * The first node in the list, otherwise `false` when empty.
+     * Returns the node at the given index, otherwise throws an `IndexError`.
      * 
-     * @readonly
-     * @type {LinkedList.Node}
-     * @example
-     * LinkedList().Head        ; false
-     * LinkedList(1, 2, 3).Head ; Node(1)
-     */
-    Head := false
-
-    /**
-     * The last node in the list, otherwise `false` when empty.
-     * 
-     * @readonly
-     * @type {LinkedList.Node}
-     * @example
-     * LinkedList().Tail        ; false
-     * LinkedList(1, 2, 3).Tail ; Node(3)
-     */
-    Tail := false
-
-    /**
-     * Amount of elements in the list.
-     * 
-     * @readonly
-     * @type {Integer}
-     * @example
-     * LinkedList(1, 2, 3).Size ; 3
-     */
-    Size := 0
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
-
-    /**
-     * Constructs a new linked list containing the specified elements.
-     * 
-     * @constructor
-     * @param   {Any*}  Values  zero or more elements
-     * @example
-     * Lst := LinkedList(1, 2, 3)
-     */
-    __New(Values*) => this.Push(Values*)
-
-    /**
-     * Returns the node at the given index of the list, otherwise throws
-     * an `UnsetError` if the index is invalid.
-     * 
-     * @protected
-     * @param   {Integer}  Index  index of the element 
+     * @private
+     * @param   {Integer}  Index  index of the node
      * @returns {LinkedList.Node}
-     * 
-     * @example
-     * LinkedList(1, 2).RequiredNodeAt(3) ; IndexError!
      */
     RequiredNodeAt(Index) {
         Node := this.NodeAt(Index)
@@ -89,34 +36,24 @@ class LinkedList {
     }
 
     /**
-     * Returns the node at the given index of the list, otherwise `false`
-     * if the index is invalid.
+     * Returns the node at the given index, otherwise `false`.
      * 
-     * @protected
-     * @param   {Integer}  Index  index of the element
+     * @private
+     * @param   {Integer}  Index  index of the node
      * @returns {LinkedList.Node}
-     * @example
-     * Lst := LinkedList(1, 2, 3, 4)
-     * 
-     * Lst.NodeAt(2)  ; Node(2)
-     * Lst.NodeAt(-2) ; Node(3)
-     * Lst.NodeAt(96) ; false
      */
     NodeAt(Index) {
         if (!IsInteger(Index)) {
             throw TypeError("Expected an Integer",, Type(Index))
         }
-        
-        Size := this.Size
 
+        Size := this.Size
         if ((Index == 0) || (Abs(Index) > Size)) {
             return false
         }
-
         if (Index < 0) {
             Index += Size + 1
         }
-
         if (Index < (Size / 2)) {
             Node := this.Head
             loop (Index - 1) {
@@ -130,318 +67,496 @@ class LinkedList {
         }
         return Node
     }
+    
+    /**
+     * The first node of the list, or `false`.
+     * 
+     * @private
+     * @readonly
+     * @type {LinkedList.Node}
+     */
+    Head := false
 
     /**
-     * Determines whether the given index is valid and there is a valid at that
-     * position.
+     * The last element of the list, or `false`.
      * 
-     * @param   {Index}  Index  index of element
-     * @returns {Boolean}
-     * @example
-     * LinkedList(1, 2, 3, 4).Has(87)           ; false
-     * LinkedList("foo", "bar", "baz").Has(-2)  ; true
-     * LinkedList(unset).Has(1)                 ; false
+     * @private
+     * @readonly
+     * @type {LinkedList.Node}
      */
-    Has(Index) {
-        Node := this.NodeAt(Index)
-        return (Node && Node.Has())
+    Tail := false
+
+    /**
+     * Size of the list.
+     * 
+     * @public
+     * @readonly
+     * @type {Integer}
+     */
+    Size := 0
+
+    /**
+     * Constructs a new list containing the given elements.
+     * 
+     * @constructor
+     * @param   {Any*}  Values  zero or more values.
+     */
+    __New(Values*) => this.Push(Values*)
+
+    /**
+     * Destructor that clears the list and the references between the nodes.
+     */
+    __Delete() => this.Clear()
+
+    /**
+     * Clears the list and the references between the nodes.
+     * 
+     * @example
+     * L := LinkedList(1, 2, 3, 4)
+     * L.Clear()
+     * MsgBox(L.Size) ; 0
+     */
+    Clear() {
+        Node := this.Head
+        while (Node) {
+            Next := Node.Next
+            Node.Next := false
+            Node.Prev := false
+            Node := Next
+        }
+        this.Head := false
+        this.Tail := false
     }
 
     /**
-     * Returns the value at a given index, or a default value.
+     * Determines whether the index is valid and there is a value present at
+     * the given index.
+     * 
+     * @param   {Integer}  Index  index of element
+     * @returns {Boolean}
+     * @example
+     * LinkedList().Has(23)        ; false
+     * LinkedList(1, 2, 3).Has(3)  ; true
+     * LinkedList(1, 2, 3).Has(-2) ; true
+     * LinkedList(unset, 2).Has(1) ; false
+     */
+    Has(Index) {
+        Node := this.NodeAt(Index)
+        return Node && Node.HasValue
+    }
+
+    /**
+     * Retrieves the value at the given index. If there is no value present,
+     * this method will attempt to:
+     * 
+     * - return `Default`, if specified
+     * - return `ListObj.Default`, if specified
+     * - otherwise, throw an `UnsetItemError`
      * 
      * @param   {Integer}  Index    index of element
-     * @param   {T?}       Default  default value
-     * @returns {T}                 element value or a default value
-     * @throws  {IndexError}        if index is invalid
-     * @throws  {UnsetItemError}    if item is unset
+     * @param   {Any?}     Default  default value
+     * @throws  {IndexError}        if the index is invalid
+     * @throws  {UnsetItemError}    when unable to retrieve item
      * @example
-     * LinkedList("foo", "bar", "baz").Get(2) ; "bar"
-     * LinkedList(unset).Get(1, "nothing") ; "nothing"
+     * LinkedList(1, unset, 3).Get(2, "no value") ; "no value"
      * 
-     * Lst := LinkedList()
-     * Lst.Default := false
-     * Lst.Get()
+     * L := LinkedList(1, 2, unset)
+     * L.Default := 3
+     * L.Get() ; 3
+     * 
+     * LinkedList().Get(1)      ; IndexError!
+     * LinkedList(unset).Get(1) ; UnsetItemError!
      */
     Get(Index, Default?) {
         Node := this.RequiredNodeAt(Index)
 
-        if (Node.Has()) {
+        if (Node.HasValue) {
             return Node.Value
         }
         if (IsSet(Default)) {
             return Default
         }
-        if (ObjHasOwnProp(this, "Default")) {
+        if (HasProp(this, "Default")) {
             return this.Default
         }
         throw UnsetItemError("No value present")
     }
 
     /**
-     * Sets the value of an element.
+     * Sets the value of the element at the given index.
      * 
      * @param   {Integer}  Index  index of element
-     * @param   {T?}       Value  new value to set
-     * @throws  {IndexError}      if index is invalid
+     * @param   {Any?}     Value  new value
+     * @throws  {IndexError}      if the index is invalid
      * @example
-     * Lst := LinkedList(1, 2, 3)
-     * 
-     * ; LinkedList("example", 2, 3)
-     * Lst.Set(1, "example")
+     * L := LinkedList(1, 2, 3)
+     * L.Set(3, 4)      ; or: L[3] := 4
+     * MsgBox(L.Get(4)) ; or: MsgBox(L[4])
      */
-    Set(Index, Value?) => this.RequiredNodeAt(Index).Set(Value?)
-
+    Set(Index, Value?) {
+        this.RequiredNodeAt(Index).Value := (Value?)
+    }
+    
     /**
-     * Deletes the element from the list.
+     * Deletes the value of the element at the given index, without removing
+     * the node.
      * 
      * @param   {Integer}  Index  index of element
-     * @throws  {IndexError}      if index is invalid
-     * @returns {T}               value of the element
-     * @example
-     * Lst := LinkedList(1, 2, 3)
-     * 
-     * ; LinkedList(1, 3) 
-     * Lst.Delete(2) ; 2
+     * @returns 
      */
-    Delete(Index) => this.RequiredNodeAt(Index).Delete()
-
+    Delete(Index) {
+        Node := this.RequiredNodeAt(Index)
+        if (Node.HasValue) {
+            Value := Node.Value
+            Node.Value := unset
+            return Value
+        }
+    }
+    
     /**
-     * Enumerates the values contained in this linked list.
+     * Returns a 1-param or 2-param {@link Enumerator} that iterates through
+     * the elements of this list.
      * 
-     * @param   {Integer}  ArgSize  size of enumerator
+     * @param   {Integer}  ArgSize  number of variables passed to for-loop
      * @returns {Enumerator}
      * @example
-     * for Value in MyList ...
-     * for Index, Value in MyList ...
+     * for Value in LinkedList(1, 2, 3) { ... }
+     * 
+     * for Index, Value in LinkedList(3, 5, 2) { ... }
      */
     __Enum(ArgSize) {
         if (!IsInteger(ArgSize)) {
             throw TypeError("Expected an Integer",, Type(ArgSize))
         }
-        return (ArgSize == 1) ? Enumer1 : Enumer2
+        Node := this.Head
+        Idx  := 0
+        return (ArgSize < 2) ? Enumer1 : Enumer2
 
         Enumer1(&Value) {
-            static Node := this.Head
             if (!Node) {
                 return false
             }
-            Value := (Node.Has()) ? Node.Value : unset
-            Node := Node.Next
+            Value := Node.HasValue ? Node.Value : unset
+            Node  := Node.Next
             return true
         }
 
         Enumer2(&Index, &Value) {
-            static Idx := 1
-            static Node := this.Head
-
             if (!Node) {
                 return false
             }
-            Index := Idx++
-            Value := (Node.Has()) ? Node.Value : unset
-            Node := Node.Next
+            Index := ++Idx
+            Value := Node.HasValue ? Node.Value : unset
+            Node  := Node.Next
             return true
         }
     }
 
     /**
-     * Retrieves and gets the value of an element in the linked list.
+     * Gets or retrieves elements at the given index. `unset` is allowed to be
+     * used when setting an element.
      * 
-     * @param   {Integer}  Index  element index
-     * @param   {T?}       Value  the value to set
-     * @returns {T}
+     * @param   {Integer}  Index  index of element
+     * @param   {Any?}     Value  new value
+     * @returns {Any}
+     * @see {@link LinkedList#Get() .Get()}
+     * @see {@link LinkedList#Set() .Set()}
      * @example
-     * Lst := LinkedList(1, 2, 3)
-     * Lst[1] := "example"
-     * MsgBox(Lst[1]) ; "example"
+     * L := LinkedList(1, 2, 3)
+     * L[1] := 23
+     * L[2] := unset
+     * MsgBox(L[3]) ; 3
      */
     __Item[Index] {
         get => this.Get(Index)
-        set => this.Set(Index, value?)
+        set => this.Set(Index, Value?)
     }
-
-    ; TODO
-    Find(&OutValue, Condition, Args*) {
-
-    }
-
-    FindNode(&OutNode, Condition, Args*) {
-
-    }
-
-    ; TODO ignore this?
-    FindIndex(Condition, Args*) {
-
-    }
-
-    ; TODO add method to attach more lists?
-    ; rename to "Bump()"?
 
     /**
-     * Inserts the specified values at the front of the list.
+     * Inserts the specified elements at the beginning of this linked list.
      * 
-     * @param   {T*}  Values  the values to insert
+     * @param   {Any*}  Values  zero or more values
      * @example
-     * Lst := LinkedList(3, 4)
-     * 
-     * ; LinkedList(1, 2, 3, 4)
-     * Lst.Shove(1, 2)
+     * L := LinkedList(3)
+     * L.Shove(2, 1)
+     * L.Stream().Join(", ") ; "3, 2, 1"
      */
     Shove(Values*) {
-        for Value in Values {
-            Node := LinkedList.Node(Value?)
-            if ((A_Index == 1) && this.IsEmpty) {
-                this.DefineProp("Head", { Value: Node })
-                this.DefineProp("Tail", { Value: Node })
-            } else {
-                this.Head.DefineProp("Prev", { Value: Node })
-                Node.DefineProp("Next", { Value: this.Head })
-                this.DefineProp("Head", { Value: Node })
-            }
+        if (!Values.Length) {
+            return
         }
-        Size := (this.Size + Values.Length)
-        this.DefineProp("Size", { Get: (_) => Size })
+        Enumer := Values.__Enum(1)
+        Enumer(&Value)
+        Curr := LinkedList.Node(Value?)
+        if (!this.Size) {
+            this.Tail := Curr
+        } else {
+            this.Head.Prev := Curr
+            Curr.Next := this.Head
+        }
+
+        for Value in Enumer {
+            Node := LinkedList.Node(Value?)
+            Node.Next := Curr
+            Curr.Prev := Node
+            Curr := Node
+        }
+        this.Head := Curr
+        this.Size += Values.Length
     }
 
     /**
-     * Inserts the specified values at the back of the list.
+     * Inserts the specified elements at the end of this linked list.
      * 
-     * @param   {T*}  Values  the values to insert
+     * @param   {Any*}  Values  zero or more values
      * @example
-     * Lst := LinkedList(1, 2)
+     * L := LinkedList(1, 2)
+     * L.Push(3, 4)
      * 
-     * ; LinkedList(1, 2, 3, 4)
-     * Lst.Push(3, 4)
+     * L.Stream().Join(", ") ; "1, 2, 3, 4"
      */
     Push(Values*) {
-        for Value in Values {
-            Node := LinkedList.Node(Value?)
-            if ((A_Index == 1) && this.IsEmpty) {
-                this.DefineProp("Head", { Value: Node })
-                this.DefineProp("Tail", { Value: Node })
-            } else {
-                this.Tail.DefineProp("Next", { Value: Node })
-                Node.DefineProp("Prev", { Value: this.Tail })
-                this.DefineProp("Tail", { Value: Node })
-            }
+        if (!Values.Length) {
+            return
         }
-        Size := (this.Size + Values.Length)
-        this.DefineProp("Size", { Get: (_) => Size })
+        Enumer := Values.__Enum(1)
+        Enumer(&Value)
+        Curr := LinkedList.Node(Value?)
+        if (!this.Size) {
+            this.Head := Curr
+        } else {
+            this.Tail.Next := Curr
+            Curr.Prev := this.Tail
+        }
+
+        for Value in Enumer {
+            Node := LinkedList.Node(Value?)
+            Node.Prev := Curr
+            Curr.Next := Node
+            Curr := Node
+        }
+        this.Tail := Curr
+        this.Size += Values.Length
     }
 
     /**
-     * Removes the first element of the list, returning its value.
+     * Retrieves and removes the head (first element) of this linked list.
      * 
-     * @throws {UnsetError} if the list is empty
-     * @returns {T} value of the first element
-     * 
+     * @returns {Any}
+     * @throws {UnsetItemError} if the list is empty
      * @example
-     * Lst := LinkedList(1, 2, 3)
+     * L := LinkedList(1, 2, 3)
+     * MsgBox(L.Poll()) ; 1
      * 
-     * ; LinkedList(2, 3)
-     * Lst.Poll() ; 1
+     * L.Stream().Join(", ") ; "2, 3"
      */
     Poll() {
-        if (this.IsEmpty) {
-            throw UnsetError("linked list is empty")
+        if (!this.Size) {
+            throw UnsetItemError("linked list is empty")
         }
         Head := this.Head
-        Head.Next.DeleteProp("Prev")
-        Head.DeleteProp("Next")
+        Next := Head.Next
+        Head.Next := false
+        this.Head := Next
+        
+        if (Next) {
+            Next.Prev := false
+        }
+        --this.Size
 
-        Size := (this.Size - 1)
-        this.DefineProp("Size", { Get: (_) => Size })
-
-        if (Head.Has()) {
+        if (Head.HasValue) {
             return Head.Value
         }
     }
 
     /**
-     * Removes the last element of the list, returning its value.
+     * Retrieves and removes the tail (last element) of this linked list.
      * 
-     * @throws {UnsetError} if the list is empty
-     * @returns {T} value of the last element
-     * 
+     * @returns {Any}
+     * @throws {UnsetItemError} if the list is empty
      * @example
-     * Lst := LinkedList(1, 2, 3)
+     * L := LinkedList(1, 2, 3)
+     * MsgBox(L.Pop())
      * 
-     * ; LinkedList(1, 2)
-     * Lst.Pop() ; 3
+     * L.Stream().Join(", ") ; "1, 2"
      */
     Pop() {
-        if (this.IsEmpty) {
-            throw UnsetError("linked list is empty")
+        if (!this.Size) {
+            throw UnsetItemError("linked list is empty")
         }
         Tail := this.Tail
-        Tail.Prev.DeleteProp("Next")
-        Tail.DeleteProp("Prev")
+        Prev := Tail.Prev
+        Tail.Prev := false
+        this.Tail := Prev
 
-        Size := (this.Size - 1)
-        this.DefineProp("Size", { Get: (_) => Size })
-        
-        if (Tail.Has()) {
+        if (Prev) {
+            Prev.Next := false
+        }
+        --this.Size
+
+        if (Tail.HasValue) {
             return Tail.Value
         }
     }
 
     /**
+     * Inserts one or more elements at the given position. If no elements are
+     * specified, this method does nothing.
      * 
+     * @param   {Integer}  Index   position to insert at
+     * @param   {Any*}     Values  one or more values
+     * @example
+     * L := LinkedList(1, 4, 5)
+     * L.InsertAt(2,
+     *            2, 3)
+     * 
+     * L.Stream().Join(", ") ; "1, 2, 3, 4, 5"
+     */
+    InsertAt(Index, Values*) {
+        if (!Values.Length) {
+            return
+        }
+
+        if ((Index == 0) || (Index == this.Size + 1)) {
+            this.Push(Values*)
+            return
+        }
+
+        Tail := this.RequiredNodeAt(Index)
+        Curr := Tail.Prev
+
+        Enumer := Values.__Enum(1)
+        if (!Curr) {
+            Enumer(&Value)
+            Node := LinkedList.Node(Value?)
+            this.Head := Node
+            Curr := Node
+        }
+
+        for Value in Enumer {
+            Node := LinkedList.Node(Value?)
+            Node.Prev := Curr
+            Curr.Next := Node
+            Curr := Curr.Next
+        }
+
+        Curr.Next := Tail
+        Tail.Prev := Curr
+        this.Size += Values.Length
+    }
+
+    /**
+     * Removes items from the list. The removed item is returned, if `Length`
+     * is equal to `1`.
+     * 
+     * @param   {Integer}   Index   index of element
+     * @param   {Integer?}  Length  range of items to remove
+     * @returns {Any}
+     * @example
+     * L := LinkedList(1, 2, 3)
+     * L.RemoveAt(2)  ; 2
+     * MsgBox(L.Size) ; 2
+     * 
+     * L.RemoveAt(1, 2) ; ""
+     * MsgBox(L.Size)   ; 0
+     */
+    RemoveAt(Index, Length := 1) {
+        if (!IsInteger(Length)) {
+            throw TypeError("Expected an Integer",, Type(Length))
+        }
+        if (Length < 0) {
+            throw IndexError("< 0",, Length)
+        }
+        if (Length == 0) {
+            return
+        }
+        if (Length == 1) {
+            Node := this.RequiredNodeAt(Index)
+            Prev := Node.Prev
+            Next := Node.Next
+
+            if (Prev) {
+                Prev.Next := Next
+            } else { ; is first
+                this.Head := Next
+            }
+            if (Next) {
+                Next.Prev := Prev
+            } else {
+                this.Tail := Prev
+            }
+
+            --this.Size
+            if (Node.HasValue) {
+                return Node.Value
+            }
+            return
+        }
+        if ((Index + Length) > (this.Size + 1)) {
+            throw IndexError("Out of bounds")
+        }
+
+        Curr := this.RequiredNodeAt(Index)
+        Prev := Curr.Prev
+
+        loop (Length) {
+            Next := Curr.Next
+            Curr.Next := false
+            Curr.Prev := false
+            Curr := Next
+        }
+
+        if (Prev) {
+            Prev.Next := Next
+        } else {
+            this.Head := Next
+        }
+        if (Next) {
+            Next.Prev := Prev
+        } else {
+            this.Tail := Prev
+        }
+
+        this.Size -= Length
+    }
+
+    /**
+     * This class represents the nodes that make up the linked list.
      */
     class Node {
-        __New(Value?) => this.Set(Value?)
+        /**
+         * The next node, or `false`.
+         * 
+         * @private
+         * @type {LinkedList.Node}
+         */
+        Next := false
 
-        Set(Value?) {
+        /**
+         * The previous node, or `false`.
+         * 
+         * @private
+         * @type {LinkedList.Node}
+         */
+        Prev := false
+
+        /**
+         * Constructs a new node.
+         * 
+         * @constructor
+         * @param   {Any?}  Value  item contained in the node
+         */
+        __New(Value?) {
             if (IsSet(Value)) {
                 this.DefineProp("Value", { Value: Value })
-            } else {
-                this.DeleteProp("Value")
             }
         }
 
-        Get() {
-            if (!ObjHasOwnProp(this, "Value")) {
-                throw UnsetError("Value not found")
-            }
-            return this.Value
-        }
-
-        Has() => (this is LinkedList.Node) && ObjHasOwnProp(this, "Value")
-
-        Delete() {
-            Next := this.Next
-            Prev := this.Prev
-            this.DeleteProp("Next")
-            this.DeleteProp("Prev")
-            if (Next) {
-                Next.DefineProp("Prev", { Value: Prev })
-            }
-            if (Prev) {
-                Prev.DefineProp("Next", { Value: Next })
-            }
-            if (ObjHasOwnProp(this, "Value")) {
-                return this.Value
-            }
-        }
-
-        AttachLeft(Values*) {
-
-        }
-
-        AttachRight(Values*) {
-
-        }
-
-        CutLeft() {
-
-        }
-
-        CutRight() {
-
-        }
-
-        Prev => false
-        Next => false
+        /**
+         * Determines whether this node contains a value.
+         * 
+         * @returns {Boolean}
+         */
+        HasValue => ObjHasOwnProp(this, "Value")
     }
 }
