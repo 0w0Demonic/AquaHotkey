@@ -21,16 +21,16 @@
 ;    #Include "%A_LineFile%/../Collections/Array.ahk"
 ;    #Include "%A_LineFile%/../Collections/ByteArray.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/DefaultProp.ahk" ; TODO remove?
-;    #Include "%A_LineFile%/../Collections/HashMap.ahk" ; TODO
+     #Include "%A_LineFile%/../Collections/HashMap.ahk"
 ;    #Include "%A_LineFile%/../Collections/HashSet.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/ImmutableMap.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/ImmutableSet.ahk" ; TODO
-     #Include "%A_LineFile%/../Collections/LinkedList.ahk"
+;    #Include "%A_LineFile%/../Collections/LinkedList.ahk"
 ;    #Include "%A_LineFile%/../Collections/Map.ahk"
 ;    #Include "%A_LineFile%/../Collections/OrderedSet.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/Properties.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/Set.ahk" ; TODO
-     #Include "%A_LineFile%/../Collections/SkipList.ahk"
+;    #Include "%A_LineFile%/../Collections/SkipList.ahk"
 ;    #Include "%A_LineFile%/../Collections/Zip.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------
@@ -46,9 +46,9 @@
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Stream/
-     #Include "%A_LineFile%/../Stream/Collector.ahk"
-     #Include "%A_LineFile%/../Stream/Gatherer.ahk"
-     #Include "%A_LineFile%/../Stream/Stream.ahk"
+;    #Include "%A_LineFile%/../Stream/Collector.ahk"
+;    #Include "%A_LineFile%/../Stream/Gatherer.ahk"
+;    #Include "%A_LineFile%/../Stream/Stream.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region String/

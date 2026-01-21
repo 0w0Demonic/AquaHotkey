@@ -284,7 +284,7 @@ class Set {
 }
 
 class AquaHotkey_Set extends AquaHotkey {
-    class Map {
+    class IMap {
         /**
          * Returns a mutable set view of this map.
          * 

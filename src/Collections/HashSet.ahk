@@ -13,13 +13,15 @@ class HashSet extends Set {
     /**
      * Constructs a new hash set containing the specified elements.
      * 
-     * @param   {Any*}  Values  zero or more elements
+     * @constructor
+     * @param   {Any*}  Values  zero or more values
+     * @returns {HashSet}
      */
-    __New(Values*) {
+    static Call(Values*) {
         M := HashMap()
-        this.DefineProp("M", { Get: (_) => M })
-        if (Values.Length) {
-            this.Add(Values*)
+        for Value in Values {
+            M[Value] := true
         }
+        return this.FromMap(M)
     }
 }

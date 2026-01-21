@@ -1,10 +1,36 @@
 #Include "%A_LineFile%\..\..\..\src\Collections\LinkedList.ahk"
 
-; TODO Enumerable2 tests
-; TODO Deque tests
 ; TODO Indexable tests
 
 class Test_LinkedList extends TestSuite {
+    static Slurp() {
+        L := LinkedList(1, 2, 3)
+        L.Slurp().Join(", ").AssertEquals("1, 2, 3")
+        L.Size.AssertEquals(0)
+    }
+
+    static Slice() {
+        L := LinkedList(1, 2, 3)
+        L.Slice(1, 2).Eq([1, 2]).AssertEquals(true)
+    }
+
+    static Swap() {
+        L := LinkedList(1, 2, 3)
+        L.Swap(1, 2)
+        L.Get(1).AssertEquals(2)
+        L.Get(2).AssertEquals(1)
+    }
+
+    static Drain() {
+        L := LinkedList(1, 2, 3)
+        L.Drain().Join(", ").AssertEquals("3, 2, 1")
+        L.Size.AssertEquals(0)
+    }
+
+    static Enumerable2_exists() {
+        LinkedList(1, 2, 3).Any(x => x > 2)
+    }
+
     static SimpleConstruction() {
         L := LinkedList(1, 2, 3)
     }

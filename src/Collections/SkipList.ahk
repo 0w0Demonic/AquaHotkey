@@ -201,7 +201,8 @@ class SkipList extends IMap {
     }
 
     /**
-     * Determines whether the skip list has a value associated with the given key.
+     * Determines whether the skip list has a value associated with the given
+     * key.
      * 
      * @param   {Any}  Key  the key
      * @returns {Boolean}
@@ -220,8 +221,8 @@ class SkipList extends IMap {
     }
 
     /**
-     * Sets an item. This method returns `true` if a new element was added to the skip
-     * list, otherwise `false`.
+     * Sets an item. This method returns `true` if a new element was added to
+     * the skip list, otherwise `false`.
      * 
      * Equivalent to `__Item[]`.
      * 
@@ -304,7 +305,7 @@ class SkipList extends IMap {
      * 
      * @private
      * @param   {Any}             Key        the requested key
-     * @param   {VarRef<Array>?}  OutUpdate  (out) the rightmost nodes at each level
+     * @param   {VarRef<Array>?}  OutUpdate  (out) rightmost nodes at each level
      * @returns {SkipList.Node}
      */
     FindNode(Key, &OutUpdate?) {
@@ -340,8 +341,8 @@ class SkipList extends IMap {
     }
 
     /**
-     * Deletes an item, if present. This method returns `true` if an element was removed
-     * from the skip list, otherwise `false`.
+     * Deletes an item, if present. This method returns `true` if an element
+     * was removed from the skip list, otherwise `false`.
      * 
      * @param   {Any}           Key       requested key
      * @param   {VarRef<Any>?}  OutValue  (out) associated value, if present
@@ -375,9 +376,10 @@ class SkipList extends IMap {
     }
 
     /**
-     * Creates an {@link Enumerator} object that enumerates the items of the skip list.
+     * Creates an {@link Enumerator} object that enumerates the items of
+     * the skip list.
      * 
-     * @param   {Integer}  ArgSize  amount of parameters passed in the for-loop
+     * @param   {Integer}  ArgSize  parmeter size of for-loop
      * @returns {Enumerator}
      * @example
      * SL := SkipList(...)
@@ -451,8 +453,8 @@ class SkipList extends IMap {
     }
 
     /**
-     * Returns a string representation of the skip list, based on its elements and
-     * internal structure.
+     * Returns a string representation of the skip list, based on its
+     * elements and internal structure.
      * 
      * @returns {String}
      * @example

@@ -3,6 +3,7 @@
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Sizeable.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 /**
  * Map utils and stream-like operations.
@@ -12,7 +13,7 @@
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Map extends AquaHotkey {
-class Map {
+class IMap {
     /**
      * Creates a new empty map with the same base object, case sensitivity and
      * `Default` property of the given map. None of the actual map elements
@@ -307,5 +308,5 @@ class Map {
         return this
     }
     ;@endregion
-} ; class Map
+} ; class IMap
 } ; class AquaHotkey_Map extends AquaHotkey

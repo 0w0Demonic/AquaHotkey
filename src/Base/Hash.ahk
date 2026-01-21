@@ -175,11 +175,12 @@ class AquaHotkey_Hash extends AquaHotkey
                         ? PropDesc.Value
                         : unset
 
-                    Result ^= (!IsSet(Value) && Value.HashCode())
+                    Result ^= (IsSet(Value) && Value.HashCode())
                     Result *= Prime
                 }
                 Obj := ObjGetBase(Obj)
             } until (!Obj)
+            return Result
         }
     }
 

@@ -38,6 +38,9 @@
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @see {@link Stream}
  * @example
+ * ; <1, 1, 2, 2, 3, 3>
+ * Array(1, 2, 3).Stream().Gather(TimesTwo)
+ * 
  * TimesTwo(Upstream, Downstream) {
  *     if (!Upstream(&Value)) {
  *         return false
@@ -45,9 +48,6 @@
  *     Downstream(Value?, Value?)
  *     return true
  * }
- * 
- * ; <1, 1, 2, 2, 3, 3>
- * Array(1, 2, 3).Stream().Gather(TimesTwo)
  */
 class Gatherer extends Func {
 } ; (empty marker class)

@@ -1,24 +1,25 @@
 #Include <AquaHotkeyX>
 
 class IMap {
-    static IsInstance(Val?) {
-        if (!IsSet(Val)) {
-            return false
+    static __New() {
+        if (this != IMap) {
+            return
         }
-        if ((Val is Map) || (Val is this)) {
-            return true
-        }
-        return HasMethod(Val, "Clear")
-            && HasMethod(Val, "Delete")
-            && HasMethod(Val, "Get")
-            && HasMethod(Val, "Has")
-            && HasMethod(Val, "Set")
-            && HasMethod(Val, "__Enum")
-            && HasProp(Val, "Count")
-            && HasProp(Val, "__Item")
+        ObjSetBase(this,           ObjGetBase(Map))
+        ObjSetBase(this.Prototype, ObjGetBase(Map.Prototype))
+        ObjSetBase(Map,            this)
+        ObjSetBase(Map.Prototype,  this.Prototype)
     }
 
-    static CanCastFrom(T) {
-        return super.CanCastFrom(T) || Map.CanCastFrom(T)
-    }
+    static IsInstance(Val?) => super.IsInstance(Val?)
+            || (this == IMap)
+                && IsSet(Val) && IsObject(Val)
+                && HasMethod(Val, "Clear")
+                && HasMethod(Val, "Delete")
+                && HasMethod(Val, "Get")
+                && HasMethod(Val, "Has")
+                && HasMethod(Val, "Set")
+                && HasMethod(Val, "__Enum")
+                && HasProp(Val, "Count")
+                && HasProp(Val, "__Item")
 }
