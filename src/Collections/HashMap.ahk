@@ -100,6 +100,14 @@ class HashMap extends IMap {
         if (Values.Length & 1) {
             throw ValueError("invalid param count",, Values.Length)
         }
+        Cap := this.InitialCap
+        this.DefineProp("Capacity", { Get: (_) => Cap })
+        Buckets := this.Buckets
+        Buckets.Capacity := Cap
+        loop (Cap) {
+            Buckets.Push(false)
+        }
+
         this.Set(Values*)
     }
 
@@ -115,19 +123,28 @@ class HashMap extends IMap {
     }
 
     /**
-     * Creates a clone of the HashMap.
+     * Creates a shallow clone of the HashMap; the keys and values themselves are not
+     * cloned.
      * 
      * @returns {HashMap}
      */
     Clone() {
-        Result := HashMap()
+        Result := Object()
+        ObjSetBase(Result, ObjGetBase(this))
         Result.Size := this.Size
-        Result.Resize(this.Size)
 
-        Buckets := Result.Buckets
-        for Bucket in this.Buckets {
+        Cap := this.Capacity
+        Result.DefineProp("Capacity", { Get: (_) => Cap })
+
+        NewBuckets := Array()
+        OldBuckets := this.Buckets
+
+        NewBuckets.Length := 0
+        NewBuckets.Capacity := OldBuckets.Capacity
+
+        for Bucket in OldBuckets {
             if (!Bucket) {
-                Bucket.Push(false)
+                NewBuckets.Push(false)
                 continue
             }
             NewBucket := Array()
@@ -135,8 +152,10 @@ class HashMap extends IMap {
             for Entry in Bucket {
                 NewBucket.Push(Entry.Clone())
             }
-            Buckets.Push(NewBucket)
+            NewBuckets.Push(NewBucket)
         }
+
+        Result.Buckets := NewBuckets
         return Result
     }
 
@@ -153,9 +172,9 @@ class HashMap extends IMap {
         if (Bucket) {
             for Entry in Bucket {
                 if (Key.Eq(Entry.Key)) {
-                    Entry.RemoveAt(A_Index)
+                    Bucket.RemoveAt(A_Index)
                     --this.Size
-                    return true
+                    return Entry.Value
                 }
             }
         }
@@ -292,7 +311,7 @@ class HashMap extends IMap {
      * @returns {Enumerator}
      */
     __Enum(ArgSize) {
-        Buckets := this.buckets
+        Buckets := this.Buckets.__Enum(1)
         Entries := (*) => false
         return Enumer
 

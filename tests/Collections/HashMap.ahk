@@ -47,9 +47,13 @@ class Test_HashMap extends TestSuite {
 
     static Clone() {
         HM := HashMap(1, 2, 3, 4)
+        HM.Has(1).AssertEquals(true)
+        HM.Has(3).AssertEquals(true)
+
         Copy := HM.Clone()
         Copy.Has(1).AssertEquals(true)
         Copy.Has(3).AssertEquals(true)
+
     }
 
     static Delete() {

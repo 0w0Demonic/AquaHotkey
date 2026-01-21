@@ -335,7 +335,21 @@ class Enumerable1 {
         return Count
     }
 
-    ; TODO ToSet(SetParam?)
+    /**
+     * Returns a set of all elements.
+     * 
+     * @param   {Class<? extends ISet>}  SetClass  the type of set to create
+     * @returns {ISet}
+     */
+    ToSet(SetClass := Set) {
+        if (!(SetClass is Class)) {
+            throw TypeError("Expected a Class",, Type(SetClass))
+        }
+        if (ISet.CanCastFrom(SetClass)) {
+            throw TypeError("Expected a Set type",, )
+        }
+        return SetClass(this*)
+    }
 
     /**
      * Groups all elements into a map.

@@ -54,6 +54,8 @@
 #Include "%A_LineFile%/../../Collections/Array.ahk"
 #Include "%A_LineFile%/../../Collections/DefaultProp.ahk"
 #Include "%A_LineFile%/../../Collections/Map.ahk"
+#Include "%A_LineFile%/../../Collections/Set.ahk"
+#Include "%A_LineFile%/../../Collections/HashMap.ahk"
 #Include "%A_LineFile%/../../Collections/Zip.ahk"
 
 
@@ -80,5 +82,7 @@
 #Include "%A_LineFile%/../../Interfaces/Sizeable.ahk"
 #Include "%A_LineFile%/../../Interfaces/Enumerable1.ahk"
 #Include "%A_LineFile%/../../Interfaces/Enumerable2.ahk"
+
+#Include "%A_LineFile%/../../Interfaces/ISet.ahk"
 
 ;@endregion
