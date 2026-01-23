@@ -6,6 +6,7 @@
 ; TODO decide on `.Distinct()` behaviour
 ;      - default on HashMap() ?
 ;      - use Set instead of Map ?
+;      - generalize `static Size` => BaseStream ?
 
 /**
  * Streams are a powerful abstraction for processing sequences of data in a

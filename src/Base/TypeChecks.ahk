@@ -6,8 +6,8 @@
 
 ;@region Extensions
 /**
- * Provides a flexible duck typing system which extends the functionality
- * of the `is`-keyword with user-defined pattern-matching.
+ * Provides a flexible and customizable duck typing system which extends the functionality
+ * of the `is`-keyword.
  * 
  * Duck typing means we care what a value *does*, not what it *is* as defined
  * by its base objects.
@@ -100,16 +100,19 @@
  * AquaHotkey's generic array and map types:
  * 
  * ```ahk
+ * ; an object that matches any of these three shapes
  * ApiResponse := Type.Union(
  *     { status: 200, data: Any },
  *     { status: 301, to: String },
  *     { status: 400, error: Error }
  * )
  * 
+ * ; custom type for timestamps (also see: `IsSet()` in AHK docs)
  * class Timestamp {
- *     static IsInstance(Val?) => ...
+ *     static IsInstance(Val?) => IsSet(Val) && IsTime(Val)
  * }
  * 
+ * ; create a generic Map class
  * Log := Map.OfType(Timestamp, ApiResponse)
  * ```
  * 

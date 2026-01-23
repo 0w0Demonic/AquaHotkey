@@ -1,8 +1,7 @@
 #Requires AutoHotkey >=v2.1-alpha.3
 ; #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
+; TODO fix this import
 #Include <AquaHotkeyX>
-
-;TODO remove constraints completely in favor of type creation?
 
 ;@region GenericArray
 /**

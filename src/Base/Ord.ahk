@@ -161,7 +161,7 @@ class AquaHotkey_Ord extends AquaHotkey
          */
         Compare(Other) {
             if (!(Other is Number)) {
-                throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                throw TypeError("Expected a(n) " . Type(this),,
                                 Type(Other))
             }
             return (this > Other) - (Other > this)

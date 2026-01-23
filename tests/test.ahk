@@ -2,7 +2,7 @@
 #Include "%A_LineFile%/../TestSuite.ahk"
 
 ;@region Base/
-     #Include "%A_LineFile%/../Base/Buffer.ahk"
+;    #Include "%A_LineFile%/../Base/Buffer.ahk"
 ;    #Include "%A_LineFile%/../Base/ComValue.ahk"
 ;    #Include "%A_LineFile%/../Base/Eq.ahk"
 ;    #Include "%A_LineFile%/../Base/Error.ahk"
@@ -26,11 +26,10 @@
 ;    #Include "%A_LineFile%/../Collections/ImmutableMap.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/ImmutableSet.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/LinkedList.ahk"
-;    #Include "%A_LineFile%/../Collections/Map.ahk"
-;    #Include "%A_LineFile%/../Collections/OrderedSet.ahk" ; TODO
+     #Include "%A_LineFile%/../Collections/Map.ahk"
 ;    #Include "%A_LineFile%/../Collections/Properties.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/Set.ahk" ; TODO
-;    #Include "%A_LineFile%/../Collections/SkipList.ahk"
+     #Include "%A_LineFile%/../Collections/SkipListMap.ahk"
 ;    #Include "%A_LineFile%/../Collections/Zip.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------

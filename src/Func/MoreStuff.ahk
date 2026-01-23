@@ -57,17 +57,6 @@ class FileStream extends Continuation {
 }
 
 class Continuation extends Func {
-    Map(Mapper, Args*) {
-        GetMethod(Mapper)
-        return this.Cast(Result)
-
-        Result(Downstream) {
-            return this(Map)
-
-            Map(Value) => Downstream(Mapper(Value, Args*))
-        }
-    }
-
     RetainIf(Condition, Args*) {
         GetMethod(Condition)
         return this.Cast(Result)
@@ -75,9 +64,9 @@ class Continuation extends Func {
         Result(Downstream) {
             this(RetainIf)
 
-            RetainIf(Value) {
-                if (Condition(Value, Args*)) {
-                    return Downstream(Value)
+            RetainIf(Value?) {
+                if (Condition(Value?, Args*)) {
+                    return Downstream(Value?)
                 }
                 return true
             }
@@ -91,12 +80,88 @@ class Continuation extends Func {
         Result(Downstream) {
             this(RemoveIf)
 
-            RemoveIf(Value) {
-                if (!Condition(Value, Args*)) {
-                    return Downstream(Value)
+            RemoveIf(Value?) {
+                if (!Condition(Value?, Args*)) {
+                    return Downstream(Value?)
                 }
                 return true
             }
+        }
+    }
+
+    /**
+     * Creates a new Continuation that transforms its element with the given
+     * mapper function before passing it onto the next stage.
+     * 
+     * ```ahk
+     * Mapper(Value: Any) => Any
+     * ```
+     * 
+     * @param   {Func}  Mapper  mapper function
+     * @returns {Continuation}
+     * @example
+     * FileLoop(A_Desktop . "\*", "DR").Map((*) => A_LoopFileName).ForEach(MsgBox)
+     */
+    Map(Mapper, Args*) {
+        GetMethod(Mapper)
+        return this.Cast(Result)
+
+        Result(Downstream) {
+            return this(Map)
+
+            Map(Value?) => Downstream(Mapper(Value?, Args*))
+        }
+    }
+
+    FlatMap(Mapper, Args*) {
+        GetMethod(Mapper)
+        return this.Cast(Result)
+
+        Result(Downstream) {
+            return this(FlatMap)
+
+            FlatMap(Value?) {
+                for Elem in Mapper(Value?, Args*) {
+                    if (Downstream(Elem?)) {
+                        return false
+                    }
+                }
+                return true
+            }
+        }
+    }
+
+    Limit(n) {
+        if (!IsInteger(n)) {
+            throw TypeError("Expected an Integer",, Type(n))
+        }
+        if (n < 0) {
+            throw ValueError("n < 0",, n)
+        }
+        Count := 0
+        return this.Cast(Result)
+
+        Result(Downstream) {
+            return this(Limit)
+
+            Limit(Value?) => (++Count <= n) && Downstream(Value?)
+        }
+    }
+
+    Skip(n) {
+        if (!IsInteger(n)) {
+            throw TypeError("Expected an Integer",, Type(n))
+        }
+        if (n < 0) {
+            throw ValueError("n < 0",, n)
+        }
+        Count := 0
+        return this.Cast(Result)
+
+        Result(Downstream) {
+            return this(Skip)
+
+            Skip(Value?) => (++Count <= n) || Downstream(Value?)
         }
     }
 
@@ -104,14 +169,51 @@ class Continuation extends Func {
         GetMethod(Condition)
         return this.Cast(Result)
 
-        Result(Downstream, Value?) {
+        Result(Downstream) {
             this(TakeWhile)
 
-            TakeWhile(Value) {
-                return (Condition(Value, Args*) && Downstream(Value))
+            TakeWhile(Value?) {
+                return (Condition(Value?, Args*) && Downstream(Value?))
             }
         }
     }
+
+    DropWhile(Condition, Args*) {
+        GetMethod(Condition)
+        Drop := true
+        return this.Cast(Result)
+
+        Result(Downstream) {
+            return this(DropWhile)
+
+            DropWhile(Value?) {
+                if (Drop && (Drop &= Condition(Value?, Args*))) {
+                    return true
+                }
+                return Downstream(Value?)
+            }
+        }
+    }
+
+    Distinct(KeyExtractor?, MapParam?) {
+        ; TODO
+    }
+
+    Peek(Action, Args*) {
+        GetMethod(Action)
+        return this.Cast(Result)
+
+        Result(Downstream) {
+            return this(Peek)
+
+            Peek(Value?) {
+                Action(Value?, Args*)
+                return Downstream(Value?)
+            }
+        }
+    }
+
+    ; TODO same as `.Peek()`, but using the return value as termination flag
 
     ForEach(Action, Args*) {
         GetMethod(Action)
@@ -142,9 +244,74 @@ class Continuation extends Func {
         }
     }
 
-    Join(Delim := "") {
+    Find(&OutValue, Condition, Args*) {
+        GetMethod(Condition)
+        OutValue := unset
+
+        Found := false
+        this(Find)
+        return Found
+
+        Find(Value?) {
+            if (Condition(Value?, Args*)) {
+                OutValue := (Value?)
+                Found := true
+                return false
+            }
+            return true
+        }
+    }
+
+    Any(Condition, Args*) {
+        GetMethod(Condition)
+        Found := false
+        this(Any)
+        return Found
+
+        Any(Value?) {
+            if (Condition(Value?, Args*)) {
+                Found := true
+                return false
+            }
+            return true
+        }
+    }
+
+    All(Condition, Args*) {
+        GetMethod(Condition)
+        ReturnValue := true
+        this(All)
+
+        All(Value?) {
+            if (!Condition(Value?, Args*)) {
+                ReturnValue := false
+                return false
+            }
+            return true
+        }
+    }
+
+    None(Condition, Args*) {
+        GetMethod(Condition)
+        ReturnValue := true
+        this(None)
+        
+        None(Value?) {
+            if (Condition(Value?, Args*)) {
+                ReturnValue := false
+                return false
+            }
+            return true
+        }
+    }
+
+    Join(Delim := "", Prefix := "", Suffix := "") {
         Result := ""
+        Result .= Prefix
+
         this.ForEach(Join)
+
+        Result .= Suffix
         return Result
 
         Join(Value) {
@@ -161,25 +328,3 @@ class Continuation extends Func {
 
     __Enum(ArgSize) => this.ToArray().__Enum(ArgSize)
 }
-
-;FileStream("C:\*", "F")
-;        .Map((*) => Format("{:-20} {:20}", A_LoopFileName, A_LoopFileAttrib))
-;        .JoinLine()
-;        .o0(MsgBox)
-
-Factorial(X, Acc := 1) {
-    if (X <= 1) {
-        return Acc
-    }
-    return () => Factorial(X - 1, X * Acc)
-}
-
-Trampoline(Fn, Args*) {
-    Result := Fn(Args*)
-    while (Result is Func) {
-        Result := Result()
-    }
-    return Result
-}
-
-MsgBox(Trampoline(Factorial, 12))

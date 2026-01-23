@@ -2,8 +2,7 @@
 #Include <AquaHotkeyX>
 #Include <AquaHotkey\src\Collections\Generic\Array>
 
-; TODO type casting
-; TODO also allow functions instead of doing simple type-checks?
+; TODO generalize this by just making this a Map wrapper, easy and simple.
 
 /**
  * Introduces type-checked maps, in which key-value pairs are enforced to
