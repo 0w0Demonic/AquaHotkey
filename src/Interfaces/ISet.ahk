@@ -285,3 +285,4 @@ class AquaHotkey_ISet extends AquaHotkey {
         }
     }
 }
+

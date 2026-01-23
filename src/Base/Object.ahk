@@ -184,3 +184,4 @@ class Object {
     }
 } ; class Object
 } ; class AquaHotkey_Object extends AquaHotkey
+

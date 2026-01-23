@@ -17,26 +17,26 @@ class Set extends ISet {
      * @constructor
      * @param   {Any*}  Values  zero or more elements
      */
-    static Call(Values*) {
-        M := this.FromMap(Map())
-        M.Set(Values*)
-        return M
-    }
+    static Call(Values*) => this.FromMap(Map(), Values*)
 
     /**
      * Creates a set using the given backing map.
      * 
      * @constructor
-     * @param   {IMap}  M  the backing map
+     * @param   {IMap}  M       the backing map
+     * @param   {Any*}  Values  zero or more elements to be added
      * @returns {Set}
      */
-    static FromMap(M) {
+    static FromMap(M, Values*) {
         if (!M.Is(IMap)) {
             throw TypeError("Expected an IMap",, Type(M))
         }
         Obj := Object()
         Obj.DefineProp("M", { Get: (_) => M })
         ObjSetBase(Obj, this.Prototype)
+        if (Values.Length) {
+            Obj.Add(Values*)
+        }
         return Obj
     }
 
@@ -121,7 +121,7 @@ class Set extends ISet {
      * 
      * @returns {Integer}
      */
-    Size => this.M.Count
+    Size => this.M.Size
 
     /**
      * Returns a mutable map view of the set.

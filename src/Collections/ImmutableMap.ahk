@@ -1,7 +1,8 @@
-#Include <AquaHotkey>
+#Include <AquaHotkeyX>
+#Include <AquaHotkey\src\Collections\Map>
 
 /**
- * An immutable subclass of `Map`.
+ * An immutable view of an {@link IMap}.
  * 
  * @module  <Collections/ImmutableMap>
  * @author  0w0Demonic
@@ -11,17 +12,33 @@
  * 
  * M.Set("foo", "bar") ; Error! This map is immutable.
  */
-class ImmutableMap extends Map {
+class ImmutableMap extends IMap {
     /**
-     * Creates an immutable map with the given key-value pairs.
+     * Creates a new immutable map consisting of the specified elements.
+     * The elements themselves are still mutable.
      * 
-     * @param   {Any*}  Values  alternating key and value
+     * @param   {Any*}  Values  zero or more elements
+     * @returns {ImmutableMap}
      */
-    __New(Values*) {
-        if (this.Count) {
-            throw ValueError("This map is immutable", -2)
+    static Call(Values*) => this.FromMap(Map(Values*))
+
+    /**
+     * Creates a new immutable map by wrapping over an existing {@link IMap}.
+     * 
+     * @param   {IMap}  M  a map to be wrapped over
+     * @returns {ImmutableMap}
+     */
+    static FromMap(M) {
+        if (!M.Is(IMap)) {
+            throw TypeError("Expected an IMap",, Type(M))
         }
-        super.__New(Values*)
+        if (M is ImmutableMap) {
+            return M
+        }
+        Obj := Object()
+        Obj.DefineProp("M", { Get: (_) => M })
+        ObjSetBase(Obj, this.Prototype)
+        return Obj
     }
 
     /**
@@ -39,6 +56,23 @@ class ImmutableMap extends Map {
     }
 
     /**
+     * Returns the value to which the specified key is mapped, otherwise
+     * `Default` or `MapObj.Default`.
+     * 
+     * @param   {Any}  Key  any key
+     * @returns {Any}
+     */
+    Get(Key, Default?) => this.M.Get(Key, Default?)
+
+    /**
+     * Determines whether the given key is mapped to a value.
+     * 
+     * @param   {Any}  Key  any key
+     * @returns {Any}
+     */
+    Has(Key) => this.M.Has(Key)
+
+    /**
      * Unsupported `.Set()`.
      */
     Set(*) {
@@ -46,18 +80,40 @@ class ImmutableMap extends Map {
     }
 
     /**
+     * Returns an `Enumerator` that enumerates the items of the map.
+     * 
+     * @param   {Integer}  ArgSize  param-size of for-loop
+     * @returns {Enumerator}
+     */
+    __Enum(ArgSize) => this.M.ArgSize()
+
+    /**
+     * Returns the size of the map.
+     * 
+     * @returns {Integer}
+     */
+    Count => this.M.Count
+
+    /**
+     * Returns the size of the map.
+     * 
+     * @returns {Integer}
+     */
+    Size => this.M.Size
+
+    /**
      * Readonly `CaseSense`.
      * 
      * @returns {Primitive}
      */
-    CaseSense => super.CaseSense
+    CaseSense => this.M.CaseSense
 
     /**
      * Readonly `Default`.
      * 
      * @returns {Any}
      */
-    Default => super.Default
+    Default => this.M.Default
 
     /**
      * Readonly `.__Item[]`.
@@ -69,42 +125,24 @@ class ImmutableMap extends Map {
         set {
             throw PropertyError("This map is immutable")
         }
+        get => (this.M)[Key]
     }
 }
 
-class AquaHotkey_ImmutableMap {
-    static __New() => (this == AquaHotkey_ImmutableMap)
-                    && (IsSet(AquaHotkey)) && (AquaHotkey is Class)
-                    && (AquaHotkey.__New)(this)
-
-    class Map {
+class AquaHotkey_ImmutableMap extends AquaHotkey {
+    class IMap {
         /**
-         * Turns a map immutable by changing its base object.
-         * 
-         * @returns {this}
-         * @example
-         * M := Map(1, 2, 3, 4).Freeze()
-         */
-        Freeze() {
-            ObjSetBase(this, ImmutableMap.Prototype)
-            return this
-        }
-
-        /**
-         * Returns an immutable snapshot of the map.
+         * Returns a read-only view of the map. The original map may still
+         * be modified elsewhere.
          * 
          * @returns {Map}
          * @example
          * M := Map(1, 2, 3, 4)
-         * Clone := M.Frozen()
-         */
-        Frozen() => this.Clone().Freeze()
-
-        /**
-         * Whether the map is mutable.
+         * Clone := M.Freeze()
          * 
-         * @returns {Boolean}
+         * M.Set(5, 6)     ; ok.
+         * Clone.Set(5, 6) ; Error!
          */
-        IsMutable => !(this is ImmutableMap)
+        Freeze() => ImmutableMap.FromMap(this)
     }
 }

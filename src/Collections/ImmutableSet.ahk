@@ -3,26 +3,43 @@
 /**
  * 
  */
-class ImmutableSet extends Set
+class ImmutableSet extends ISet
 {
-    __New(Values*) {
-        if (this.Count) {
-            throw Error("This set is immutable", -2)
+    static FromSet(S) {
+        if (!S.Is(ISet)) {
+            throw TypeError("Expected an ISet",, Type(S))
         }
-        super(Values*)
+        if (S is ImmutableSet) {
+            return S
+        }
+        Obj := Object()
+        Obj.DefineProp("S", { Get: (_) => S })
+        ObjSetBase(Obj, this.Prototype)
+        return Obj
+    }
+
+    static Call(Values*) => this.FromSet(Set(Values*))
+
+    Add(*) {
+        throw PropertyError("This set is immutable", -2)
     }
 
     Clear() {
         throw PropertyError("This set is immutable", -2)
     }
 
+    Clone() {
+        S := this.S.Clone()
+        Obj := Object()
+        Obj.DefineProp("S", { Get: (_) => S })
+        ObjSetBase(Obj, ObjGetBase(this))
+        return Obj
+    }
+
     Delete(*) {
         throw PropertyError("This set is immutable", -2)
     }
 
-    Add(*) {
-        throw PropertyError("This set is immutable", -2)
-    }
 }
 
 class AquaHotkey_ImmutableSet {
@@ -31,11 +48,7 @@ class AquaHotkey_ImmutableSet {
                 && (AquaHotkey.__New)(this)
 
     class Set {
-        Immutable() => ImmutableSet.FromMap(this.M)
-    }
-
-    class ImmutableSet {
-        Immutable() => this
+        Freeze() => ImmutableSet.FromSet(this)
     }
 }
 

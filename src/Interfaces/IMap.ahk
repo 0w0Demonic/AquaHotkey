@@ -1,5 +1,7 @@
 #Include <AquaHotkeyX>
 
+; TODO support for universal `Size` property
+
 /**
  * @interface
  * @description
@@ -21,7 +23,6 @@ class IMap {
         ObjSetBase(Map,            this)
         ObjSetBase(Map.Prototype,  this.Prototype)
 
-        this.IsSizedBy("Count")
         this.Backup(Enumerable1, Enumerable2)
     }
 
@@ -42,7 +43,6 @@ class IMap {
                 && HasMethod(Val, "Set")
                 && HasMethod(Val, "__Enum")
                 && HasProp(Val, "Count")
-                && HasProp(Val, "__Item")
     
     /**
      * Returns an array of all keys in the map.
@@ -88,8 +88,10 @@ class IMap {
      * @param   {Func}  Mapper  mapper function
      * @param   {Any*}  Args    zero or more arguments
      * @example
+     * Mul(A, B) => (A * B)
+     * 
      * M := Map()
-     * M.ComputeIfAbsent(1, Key => (Key * 2))
+     * M.ComputeIfAbsent(1, Mul, 2)
      */
     ComputeIfAbsent(Key, Mapper, Args*) {
         if (!this.Has(Key)) {
@@ -162,13 +164,12 @@ class IMap {
      * M := Map()
      * M.Merge("foo", 1, Sum)
      */
-    Merge(Key, Value, Combiner) {
+    Merge(Key, Value, Combiner, Args*) {
         if (this.Has(Key)) {
             GetMethod(Combiner)
-            this.Set(Key, Combiner(this.Get(Key), Value))
+            this.Set(Key, Combiner(this.Get(Key), Value, Args*))
         } else {
-            this.Set(Key, Value)
+            this.Set(Key, Value, Args*)
         }
     }
-
 }

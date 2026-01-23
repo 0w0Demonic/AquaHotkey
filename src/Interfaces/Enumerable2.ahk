@@ -25,6 +25,8 @@ class Enumerable2 {
         WithAlias(Cls)
         WithAlias(Prot)
 
+        Define(this, "Strict", { Get: (_) => Cls })
+
         this.Extend(Array, Map, Enumerator)
         Cls.Extend(DoubleStream)
 

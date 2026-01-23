@@ -345,7 +345,7 @@ class Enumerable1 {
         if (!(SetClass is Class)) {
             throw TypeError("Expected a Class",, Type(SetClass))
         }
-        if (ISet.CanCastFrom(SetClass)) {
+        if (!ISet.CanCastFrom(SetClass)) {
             throw TypeError("Expected a Set type",, )
         }
         return SetClass(this*)

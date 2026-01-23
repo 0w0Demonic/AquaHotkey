@@ -3,6 +3,8 @@
 #Include "%A_LineFile%\..\..\Base\Ord.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Sizeable.ahk"
 
+; TODO `BaseIndex` to support both 0- and 1-indexing
+
 /**
  * @mixin
  * Assumes:

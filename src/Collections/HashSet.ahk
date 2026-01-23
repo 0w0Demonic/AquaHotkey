@@ -17,11 +17,5 @@ class HashSet extends Set {
      * @param   {Any*}  Values  zero or more values
      * @returns {HashSet}
      */
-    static Call(Values*) {
-        M := HashMap()
-        for Value in Values {
-            M[Value] := true
-        }
-        return this.FromMap(M)
-    }
+    static Call(Values*) => this.FromMap(HashMap(), Values*)
 }

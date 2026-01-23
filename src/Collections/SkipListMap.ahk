@@ -1,7 +1,7 @@
 #Include <AquaHotkeyX>
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
-; TODO this, but as a Set
+; TODO make using custom comparators easier
 
 /**
  * Skip lists are probabilistic data structures that combine the advantages
@@ -47,11 +47,11 @@
  * Head   1    2    3    4    5    6    7    8    9   Null
  * ```
  * 
- * @module  <Collections/SkipList>
+ * @module  <Collections/SkipListMap>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class SkipList extends IMap {
+class SkipListMap extends IMap {
     /**
      * Class that represents the nodes that make up skip lists.
      */
@@ -63,7 +63,7 @@ class SkipList extends IMap {
          * @param   {Any}      Key    node key
          * @param   {Any}      Value  node value
          * @param   {Integer}  Level  node level
-         * @returns {SkipList.Node}
+         * @returns {SkipListMap.Node}
          */
         static Call(Key, Value, Level) {
             if (!IsInteger(Level)) {
@@ -175,7 +175,7 @@ class SkipList extends IMap {
         }
 
         Head := { Forward: Forward }
-        ObjSetBase(Head, SkipList.Node.Prototype)
+        ObjSetBase(Head, SkipListMap.Node.Prototype)
         this.Head := Head
 
         Enumer := Values.__Enum(1)
@@ -207,7 +207,7 @@ class SkipList extends IMap {
      * @param   {Any}  Key  the key
      * @returns {Boolean}
      * @example
-     * SkipList(1, 2, 3, 4).Has(3, &Out) ; true
+     * SkipListMap(1, 2, 3, 4).Has(3, &Out) ; true
      * MsgBox(Out) ; 4
      */
     Has(Key, &OutValue?) {
@@ -230,7 +230,7 @@ class SkipList extends IMap {
      * @param   {Any}  Value  value associated with key
      * @returns {Boolean}
      * @example
-     * SL := SkipList(1, 2, 3, 4)
+     * SL := SkipListMap(1, 2, 3, 4)
      * SL.Set(5, 6) ; or: SL[5] := 6
      */
     Set(Key, Value) {
@@ -250,7 +250,7 @@ class SkipList extends IMap {
         }
         this.Level := Level
 
-        NewNode := SkipList.Node(Key, Value, NewLevel)
+        NewNode := SkipListMap.Node(Key, Value, NewLevel)
         Forward := NewNode.Forward
         loop NewLevel {
             Rightmost := Update.Get(A_Index).Forward
@@ -268,7 +268,7 @@ class SkipList extends IMap {
      * 
      * - returns the value of the element.
      * - returns `Default`, if specified.
-     * - returns `(SkipListObj).Default`, if specified.
+     * - returns `(SkipListMapObj).Default`, if specified.
      * - throws an `UnsetItemError`.
      * 
      * @param   {Any}   Key      the requested key
@@ -276,7 +276,7 @@ class SkipList extends IMap {
      * @returns {Any}
      * @throws  {UnsetItemError} when unable to retrieve element
      * @example
-     * SL := SkipList(1, 2, 3, 4)
+     * SL := SkipListMap(1, 2, 3, 4)
      * SL.Get(1) ; 2
      * SL[1]     ; 2
      * 
@@ -306,7 +306,7 @@ class SkipList extends IMap {
      * @private
      * @param   {Any}             Key        the requested key
      * @param   {VarRef<Array>?}  OutUpdate  (out) rightmost nodes at each level
-     * @returns {SkipList.Node}
+     * @returns {SkipListMap.Node}
      */
     FindNode(Key, &OutUpdate?) {
         Curr  := this.Head
@@ -348,7 +348,7 @@ class SkipList extends IMap {
      * @param   {VarRef<Any>?}  OutValue  (out) associated value, if present
      * @returns {Boolean}
      * @example
-     * SL := SkipList(1, 2, 3, 4)
+     * SL := SkipListMap(1, 2, 3, 4)
      * SL.Delete(1, &Out) ; true
      * MsgBox(Out)        ; 2
      */
@@ -382,7 +382,7 @@ class SkipList extends IMap {
      * @param   {Integer}  ArgSize  parmeter size of for-loop
      * @returns {Enumerator}
      * @example
-     * SL := SkipList(...)
+     * SL := SkipListMap(...)
      * 
      * for Key in SL { ... }
      * 
@@ -458,7 +458,7 @@ class SkipList extends IMap {
      * 
      * @returns {String}
      * @example
-     * ; SkipList {
+     * ; SkipListMap {
      * ;   Level: 2,
      * ;   Size: 6,
      * ;   Structure: [
@@ -467,7 +467,7 @@ class SkipList extends IMap {
      * ;   ],
      * ;   Values: [1 -> 2, 3 -> 4, 5 -> 6]
      * ; }
-     * SkipList(1, 2, 3, 4, 5, 6).ToString()
+     * SkipListMap(1, 2, 3, 4, 5, 6).ToString()
      */
     ToString() {
         Nodes  := Map()
