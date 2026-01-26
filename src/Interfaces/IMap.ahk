@@ -1,7 +1,5 @@
 #Include <AquaHotkeyX>
 
-; TODO support for universal `Size` property
-
 /**
  * @interface
  * @description
@@ -14,6 +12,8 @@
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class IMap {
+    ; TODO integrate Sizeable mixin into this
+
     static __New() {
         if (this != IMap) {
             return
@@ -25,6 +25,73 @@ class IMap {
 
         this.Backup(Enumerable1, Enumerable2)
     }
+
+    ;@region Construction
+
+    /**
+     * Returns an array of all keys in the map.
+     * 
+     * @returns {Array}
+     * @example
+     * Map(1, 2, "foo", "bar").Keys() ; [1, "foo"]
+     */
+    Keys() => Array(this*)
+
+    /**
+     * Returns an array of all values in the map.
+     * 
+     * @returns {Array}
+     * @example
+     * Map(1, 2, "foo", "bar").Values() ; [2, "bar"]
+     */
+    Values() => Array(this.__Enum(2).Bind(&Ignore)*)
+
+    /**
+     * Creates a new `IMap`.
+     * 
+     * The parameter may be:
+     * 
+     * - an existing Map returned as-is;
+     * - a callable that produces a Map;
+     * - or the case-sensitivity for a newly created Map.
+     * 
+     * The returned Map is guaranteed to be an instance of the calling class.
+     * For example, the return value of `HashMap.Create()` is guaranteed to be a
+     * `HashMap` (as decided by `.Is()`).
+     * 
+     * @param   {Any?}  Param  map, factory, or case-sensitivity
+     * @returns {IMap}
+     * @see {@link HashMap}
+     * @see {@link AquaHotkey_TypeChecks `.Is()`}
+     * @example
+     * 
+     * Map.Create()      ; a normal Map
+     * Map.Create(false) ; case-insensitive Map
+     * HashMap.Create()  ; creates a HashMap
+     * 
+     * IMap.Create( () => Map() ) ; use a Map factory
+     * 
+     * HashMap.Create( Map() ) ; TypeError! Not a HashMap.
+     */
+    static Create(Param := this()) {
+        switch {
+            case (Param.Is(IMap)):
+                M := Param
+            case (HasMethod(Param)):
+                M := Param()
+            default:
+                M := this()
+                M.CaseSense := Param
+        }
+        if (!M.Is(this)) {
+            throw TypeError("Expected a " . this.Prototype.__Class,, Type(M))
+        }
+        return M
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Type Info
 
     /**
      * Determines whether the given value is a map, or implements map
@@ -44,23 +111,9 @@ class IMap {
                 && HasMethod(Val, "__Enum")
                 && HasProp(Val, "Count")
     
-    /**
-     * Returns an array of all keys in the map.
-     * 
-     * @returns {Array}
-     * @example
-     * Map(1, 2, "foo", "bar").Keys() ; [1, "foo"]
-     */
-    Keys() => Array(this*)
-
-    /**
-     * Returns an array of all values in the map.
-     * 
-     * @returns {Array}
-     * @example
-     * Map(1, 2, "foo", "bar").Values() ; [2, "bar"]
-     */
-    Values() => Array(this.__Enum(2).Bind(&Ignore)*)
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Default Methods
 
     /**
      * If absent, adds a new map element.
@@ -172,4 +225,48 @@ class IMap {
             this.Set(Key, Value, Args*)
         }
     }
+
+    /**
+     * Replaces all values in the map *in place* by applying `Mapper` to
+     * each element.
+     * 
+     * ```ahk
+     * Mapper(Key, Value, Args*) => Any
+     * ```
+     * 
+     * @param   {Func}  Mapper  function that returns a new value
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {this}
+     * @example
+     * ; Map { 1 => 4, 3 => 8 }
+     * Map(1, 2, 3, 4).ReplaceAll((Key, Value) => (Value * 2))
+     */
+    ReplaceAll(Mapper, Args*) {
+        GetMethod(Mapper)
+        for Key, Value in this {
+            this[Key] := Mapper(Key, Value, Args*)
+        }
+        return this
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Default Properties
+
+    /**
+     * Gets and retrieves items from the Map.
+     * 
+     * @param   {Any?}  Key    map key
+     * @param   {Any?}  Value  associated value
+     * @returns {Any}
+     */
+    __Item[Key?] {
+        get => this.Get(Key?)
+        set {
+            this.Set(Key?, Value?)
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
 }

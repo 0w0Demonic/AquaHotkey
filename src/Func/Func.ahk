@@ -1,207 +1,174 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
- * AquaHotkey - Func.ahk
+ * Basic function composition.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Builtins/Func.ahk
+ * @module  <Func/Func>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Func extends AquaHotkey {
-class Func {
-    ;@region Suppliers
-    /**
-     * Returns a function that always returns its input argument.
-     * @returns {Func}
-     */
-    static Self => ((x) => x)
-
-    /**
-     * Returns a function that always returns the given input `x`
-     * @param   {Any}  x  the value to return
-     * @returns {Func}
-     */
-    static Constantly(x) => ((*) => x)
-
-    /**
-     * Returns a function that always returns the given input `x`. If the value
-     * is an object, a fresh copy is returned each time.
-     * 
-     * @param   {Any}  x  the value to return (and optionally clone)
-     * @returns {Func}
-     */
-    static Replicate(x) {
-        if (IsObject(x)) {
-            x := x.Clone()
-            return ((*) => x.Clone())
+    class Func {
+        ;@region Composition
+        /**
+         * Returns a composed function that first applies this function with
+         * the given input, and then forwards the result to `After` as first
+         * parameter, followed by zero or more additional arguments
+         * `NextArgs*`.
+         * 
+         * @param   {Func}  After     function to apply after this function
+         * @param   {Any*}  NextArgs  zero or more additional arguments
+         * @returns {Func}
+         * @example
+         * TimesTwo(x) => (x * 2)
+         * PlusFive(x) => (x + 5)
+         * 
+         * TimesTwoPlusFive := TimesTwo.AndThen(PlusFive)
+         * TimesTwoPlusFive(3) ; 11
+         */
+        AndThen(After, NextArgs*) {
+            GetMethod(After)
+            return (Args*) => After( this(Args*), NextArgs* )
         }
-        return ((*) => x)
-    }
-    ;@endregion
 
-    ;@region Composition
-    /**
-     * Returns a composed function that first applies this function with the
-     * given input, and then forwards the result to `After` as first parameter,
-     * followed by zero or more additional arguments `NextArgs*`.
-     * 
-     * @example
-     * TimesTwo(x) => (x * 2)
-     * PlusFive(x) => (x + 5)
-     * 
-     * TimesTwoPlusFive := TimesTwo.AndThen(PlusFive)
-     * TimesTwoPlusFive(3) ; 11
-     * 
-     * @param   {Func}  After     function to apply after this function
-     * @param   {Any*}  NextArgs  zero or more additional arguments
-     * @returns {Func}
-     */
-    AndThen(After, NextArgs*) {
-        GetMethod(After)
-        return (Args*) => After( this(Args*), NextArgs* )
-    }
+        /**
+         * Returns a composed function that first applies `Before` with
+         * the given input, and then forwards the result to this function,
+         * followed by zero or more additional arguments `NextArgs*`.
+         * 
+         * @param   {Func}  Before    function to apply before this function
+         * @param   {Any*}  NextArgs  zero or more additional arguments
+         * @returns {Func}
+         * @example
+         * TimesTwo(x) => (x * 2)
+         * PlusFive(x) => (x + 5)
+         * 
+         * PlusFiveTimesTwo := TimesTwo.Compose(PlusFive)
+         * PlusFiveTimesTwo(3) ; 16
+         */
+        Compose(Before, NextArgs*) {
+            GetMethod(Before)
+            return (Args*) => this( Before(Args*), NextArgs* )
+        }
+        ;@endregion
 
-    /**
-     * Returns a composed function that first applies `Before` with the
-     * given input, and then forwards the result to this function, followed
-     * by zero or more additional arguments `NextArgs*`.
-     * 
-     * @example
-     * TimesTwo(x) => (x * 2)
-     * PlusFive(x) => (x + 5)
-     * 
-     * PlusFiveTimesTwo := TimesTwo.Compose(PlusFive)
-     * PlusFiveTimesTwo(3) ; 16
-     * 
-     * @param   {Func}  Before    function to apply before this function
-     * @param   {Any*}  NextArgs  zero or more additional arguments
-     * @returns {Func}
-     */
-    Compose(Before, NextArgs*) {
-        GetMethod(Before)
-        return (Args*) => this( Before(Args*), NextArgs* )
-    }
-    ;@endregion
+        ;@region Memoization
+        /**
+         * Returns a memoized version of this function, caching previously
+         * computed results in a Map to avoid redundant computation.
+         * 
+         * ```ahk
+         * Hasher(Args: Any*) => Any
+         * ```
+         * 
+         * @param   {Func?}  Hasher    creates map keys
+         * @param   {Any?}   MapParam  internal map options
+         * @returns {Func}
+         * @example
+         * Fibonacci(x) {
+         *     if (x > 1) {
+         *         ; If you recurse, you need to call the memoized version.
+         *         return FibonacciMemo(x - 2) + FibonacciMemo(x - 1)
+         *     }
+         *     return 1
+         * }
+         * FibonacciMemo := Fibonacci.Memoized()
+         * FibonacciMemo(80) ; 23416728348467685
+         */
+        Memoized(Hasher?, MapParam := Map()) {
+            Cache := IMap.Create(MapParam)
 
-    ;@region Decorations
-    /**
-     * Returns a memoized version of this function, caching previously computed
-     * results in a Map to avoid redundant computation.
-     * 
-     * Customize key generation by passing a `Hasher` - a function
-     * that takes the input arguments and returns a key (preferably a string).
-     * 
-     * You can also customize the internal Map behavior by passing `MapParam`,
-     * which can be:
-     * - a map (used directly),
-     * - function returning a map,
-     * - or a case-sensitivity option.
-     * 
-     * @example
-     * Fibonacci(x) {
-     *     if (x > 1) {
-     *         ; If you recurse, you need to call the memoized version.
-     *         return FibonacciMemo(x - 2) + FibonacciMemo(x - 1)
-     *     }
-     *     return 1
-     * }
-     * FibonacciMemo := Fibonacci.Memoized()
-     * FibonacciMemo(80) ; 23416728348467685
-     * 
-     * @param   {Func?}                  Hasher    function creating map keys
-     * @param   {Map?/Func?/Primitive?}  MapParam  specifies map options
-     * @returns {Func}
-     */
-    Memoized(Hasher?, MapParam := Map()) {
-        switch {
-            case (MapParam is Map):
-                Cache := MapParam
-            case (HasMethod(MapParam)):
-                Cache := MapParam()
-                if (!(Cache is Map)) {
-                    throw ValueError("Expected a Map",, Type(Cache))
+            Result := IsSet(Hasher) ? HashedMemoized : Memoized
+            Result.DefineProp("Memoized", { Call: x => x })
+            return Result
+
+            Memoized(Key) {
+                if (!Cache.Has(Key)) {
+                    Value := this(Key)
+                    Cache.Set(Key, Value)
+                    return Value
                 }
-            default:
-                Cache := Map()
-                Cache.CaseSense := MapParam
-        }
+                return Cache.Get(Key)
+            }
 
-        Result := IsSet(Hasher) ? HashedMemoized : Memoized
-        (Object.Prototype.DefineProp)(Result, "Memoized", { Call: x => x })
-        return Result
-
-        Memoized(Arg) {
-            return Cache.Has(Arg) ? Cache[Arg]
-                                  : Cache[Arg] := this(Arg)
-        }
-
-        HashedMemoized(Args*) {
-            Key := Hasher(Args*)
-            return Cache.Has(Key) ? Cache[Key]
-                                  : Cache[Key] := this(Args*)
-        }
-    }
-
-    /**
-     * Wraps the function with `try/catch/finally` logic.
-     * 
-     * `OnCatch` accepts the error object as first parameter, while
-     * `OnFinally` runs with 0 parameters.
-     * 
-     * @example
-     * Divide(a, b) => (a / b)
-     * SafeDivide := Divide.WithCatch(
-     *     (Err) => MsgBox(Err.Message),
-     *     () => MsgBox("finished")
-     * )
-     * 
-     * @param   {Func?}  OnCatch    error handler called if error is thrown
-     * @param   {Func?}  OnFinally  callback that resembles `finally` block
-     * @returns {Func}
-     */
-    WithCatch(OnCatch := DefaultOnCatch, OnFinally := DefaultOnFinally) {
-        static DefaultOnCatch(*) {
-        } ; do nothing
-        static DefaultOnFinally() {
-        } ; do nothing
-
-        GetMethod(OnCatch)
-        GetMethod(OnFinally)
-        return WithCatch
-
-        WithCatch(Args*) {
-            try {
-                return this(Args*)
-            } catch as Err {
-                OnCatch(Err)
-            } finally {
-                OnFinally()
+            HashedMemoized(Args*) {
+                Key := Hasher(Args*)
+                if (!Cache.Has(Key)) {
+                    Value := this(Args*)
+                    Cache.Set(Key, Value)
+                    return Value
+                }
+                return Cache.Get(Key)
             }
         }
-    }
 
-    /**
-     * Wraps the function so that it executes multiple times in a loop.
-     * The resulting function gains access to `A_Index`.
-     * 
-     * @example
-     * Print() => MsgBox(A_Index)
-     * Print.Loop(100).Call()
-     * 
-     * @param   {Integer}  Amount  the number of times to invoke the function
-     * @returns {Func}
-     */
-    Loop(Amount) {
-        return WithLoop
+        /**
+         * Wraps the function with `try/catch/finally` logic.
+         * 
+         * ```ahk
+         * OnCatch(Err: Error) => void
+         * OnFinally() => void
+         * ```
+         * 
+         * @param   {Func?}  OnCatch    error handler called if error is thrown
+         * @param   {Func?}  OnFinally  callback that resembles `finally` block
+         * @returns {Func}
+         * @example
+         * Divide(a, b) => (a / b)
+         * SafeDivide := Divide.WithCatch(
+         *     (Err) => MsgBox(Err.Message),
+         *     () => MsgBox("finished")
+         * )
+         */
+        WithCatch(OnCatch := DefaultOnCatch, OnFinally := DefaultOnFinally) {
+            static DefaultOnCatch(*) {
+            } ; do nothing
+            static DefaultOnFinally() {
+            } ; do nothing
 
-        WithLoop(Args*) {
-            Loop (Amount) {
-                this(Args*)
+            GetMethod(OnCatch)
+            GetMethod(OnFinally)
+            return WithCatch
+
+            WithCatch(Args*) {
+                try {
+                    return this(Args*)
+                } catch as Err {
+                    OnCatch(Err)
+                } finally {
+                    OnFinally()
+                }
             }
         }
-    }
 
-    ;@endregion
-} ; class Func
-} ; class AquaHotkey_Func extends AquaHotkey
+        /**
+         * Wraps the function so that it executes multiple times in a loop.
+         * The resulting function gains access to `A_Index`.
+         * 
+         * @param   {Integer}  Count  number of repeats
+         * @returns {Func}
+         * @example
+         * Print() => MsgBox(A_Index)
+         * Print.Loop(100).Call()
+         */
+        Loop(Count) {
+            return WithLoop
+
+            WithLoop(Args*) {
+                loop (Count) {
+                    this(Args*)
+                }
+            }
+        }
+
+        ;@endregion
+    }
+}
+
+/**
+ * Represents the identity function which always returns its input argument.
+ * 
+ * @param   {Any}  x  any value
+ * @returns {Any}
+ */
+Self(x) => x

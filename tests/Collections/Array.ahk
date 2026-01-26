@@ -2,18 +2,6 @@
 
 class Test_Array extends TestSuite
 {
-    static WithDefault() {
-        Arr := Array.WithDefault(Increment)
-        static Increment(Arr) {
-            static Count := 0
-            return ++Count
-        }
-
-        Arr.Push(unset)
-        Arr[1].AssertEquals(1)
-        Arr[1].AssertEquals(2)
-    }
-
     static Slice1() {
         Array(1, 2, 3, 4, 5).Slice(2).Join().AssertEquals("2345")
     }

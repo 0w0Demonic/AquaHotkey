@@ -171,7 +171,6 @@ class Test_SkipListMap extends TestSuite {
 
     static ComputeIfAbsent() {
         TimesTwo(x) => (x * 2)
-
         SL := SkipListMap()
         SL.ComputeIfAbsent(2, TimesTwo)
         SL.Size.AssertEquals(1)

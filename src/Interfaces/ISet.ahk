@@ -32,6 +32,49 @@ class ISet {
     }
 
     /**
+     * Creates a new `ISet`.
+     * 
+     * The parameter may be:
+     * 
+     * - an existing Set returned as-is;
+     * - a callable that produces a Set;
+     * - or the case-sensitivity for a newly created Set.
+     * 
+     * The returned Set is guaranteed to be an instance of the calling class.
+     * For example, the return value of `HashSet.Create()` is guaranteed to
+     * be a `HashSet` (as decided by `.Is()`).
+     * 
+     * @param   {Any?}  Param  set, factory, or case-sensitivity
+     * @returns {ISet}
+     * @see {@link HashSet}
+     * @see {@link AquaHotkey_TypeChecks `.Is()`}
+     * @example
+     * 
+     * Set.Create() ; a normal Set
+     * Set.Create(false) ; case-insensitive Set
+     * HashSet.Create() ; creates a HashSet
+     * 
+     * ISet.Create(() => Set()) ; use a Set factory
+     * 
+     * HashSet.Create( Set() ) ; TypeError! Not a HashSet.
+     */
+    static Create(Param := this()) {
+        switch {
+            case (Param.Is(ISet)):
+                S := Param
+            case (HasMethod(Param)):
+                S := Param()
+            default:
+                S := this()
+                S.CaseSense := Param
+        }
+        if (!S.Is(this)) {
+            throw TypeError("Expected a " . this.Prototype.__Class,, Type(S))
+        }
+        return S
+    }
+
+    /**
      * Determines whether the given value is a set, or supports set operations.
      * 
      * @param   {Any?}  Val  any value

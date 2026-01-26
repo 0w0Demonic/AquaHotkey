@@ -19,8 +19,8 @@ class AquaHotkey_FuncCasting extends AquaHotkey {
          * @returns {Func}
          * @example
          * Pred := Predicate(IsNumber)
-         * MsgBox(Pred is Predicate)     ; true
-         * MsgBox(IsNumber is Predicate) ; false
+         * Pred.Is(Predicate) ; true
+         * IsNumber.Is(Predicate) ; false
          */
         static Call(Fn) {
             GetMethod(Fn)
@@ -31,9 +31,11 @@ class AquaHotkey_FuncCasting extends AquaHotkey {
          * Casts the given `Func` into an instance of this class.
          * 
          * @param   {Func}  Fn  a function object
-         * @returns {Fun}
+         * @returns {Func}
          * @example
          * Predicate.Cast(IsNumber)
+         * 
+         * IsNumber.Is(Predicate) ; true
          */
         static Cast(Fn) {
             if (!(Fn is Func)) {
@@ -43,7 +45,12 @@ class AquaHotkey_FuncCasting extends AquaHotkey {
             return Fn
         }
 
-        ; TODO docs
+        /**
+         * Casts the given `Func` into the same type of this function.
+         * 
+         * @param   {Func}  Fn  a function object
+         * @returns {Func}
+         */
         Cast(Fn) {
             if (!(Fn is Func)) {
                 throw TypeError("Expected a Func",, Type(Fn))

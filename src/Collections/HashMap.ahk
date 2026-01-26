@@ -29,6 +29,8 @@
  * MsgBox(M.Get([1, 2])) ; "new value"
  */
 class HashMap extends IMap {
+    ;@region Configuration
+
     /**
      * Standard load factor to indicate the percentage of full the HashMap
      * is allowed to become before being resized.
@@ -36,6 +38,13 @@ class HashMap extends IMap {
      * @returns {Number}
      */
     static LoadFactor => (this.Prototype).LoadFactor
+
+    /**
+     * Initial minimum capacity of the HashMap.
+     * 
+     * @returns {Integer}
+     */
+    static InitialCap => (this.Prototype).InitialCap
 
     /**
      * Standard load factor to indicate the percentage of full the HashMap
@@ -50,22 +59,11 @@ class HashMap extends IMap {
      * 
      * @returns {Integer}
      */
-    static InitialCap => (this.Prototype).InitialCap
-
-    /**
-     * Initial minimum capacity of the HashMap.
-     * 
-     * @returns {Integer}
-     */
     InitialCap => 16
 
-    /**
-     * Bit mask used for creating index.
-     * 
-     * @private
-     * @returns {Integer}
-     */
-    Mask => (this.Capacity - 1)
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Fields
 
     /**
      * Retrieves the size of this HashMap.
@@ -83,12 +81,60 @@ class HashMap extends IMap {
     Size := 0
 
     /**
+     * Bit mask used for creating index.
+     * 
+     * @private
+     * @returns {Integer}
+     */
+    Mask => (this.Capacity - 1)
+
+    /**
      * The buckets which contain the elements of the HashMap.
      * 
      * @private
      * @type {Array}
      */
     Buckets := Array()
+
+    /**
+     * Resizes the HashMap based on the given amount of elements that it
+     * should hold.
+     * 
+     * @private
+     * @param   {Integer}  Cap  minimum capacity
+     */
+    Resize(CurrentSize) {
+        Cap := this.Capacity
+        while (CurrentSize > (Cap * this.LoadFactor)) {
+            Cap <<= 1
+        } else {
+            return
+        }
+
+        OldBuckets       := this.Buckets
+        Buckets          := Array()
+        Buckets.Capacity := Cap
+
+        loop (Cap) {
+            Buckets.Push(false)
+        }
+
+        this.Buckets  := Buckets
+        this.DefineProp("Capacity", { Get: (_) => Cap })
+
+        for Bucket in OldBuckets {
+            if (!Bucket) {
+                continue
+            }
+            for Entry in Bucket {
+                this.Set(Entry.Ket, Entry.Value)
+            }
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Construction
 
     /**
      * Creates a new HashMap, containing the specified elements.
@@ -103,13 +149,17 @@ class HashMap extends IMap {
         Cap := this.InitialCap
         this.DefineProp("Capacity", { Get: (_) => Cap })
         Buckets := this.Buckets
-        Buckets.Capacity := Cap
+        Buckets.Length := Cap
         loop (Cap) {
-            Buckets.Push(false)
+            Buckets[A_Index] := false
         }
 
         this.Set(Values*)
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Methods
 
     /**
      * Clears this HashMap.
@@ -269,42 +319,6 @@ class HashMap extends IMap {
     }
 
     /**
-     * Resizes the HashMap based on the given amount of elements that it
-     * should hold.
-     * 
-     * @private
-     * @param   {Integer}  Cap  minimum capacity
-     */
-    Resize(CurrentSize) {
-        Cap := this.Capacity
-        while (CurrentSize > (Cap * this.LoadFactor)) {
-            Cap <<= 1
-        } else {
-            return
-        }
-
-        OldBuckets       := this.Buckets
-        Buckets          := Array()
-        Buckets.Capacity := Cap
-
-        loop (Cap) {
-            Buckets.Push(false)
-        }
-
-        this.Buckets  := Buckets
-        this.DefineProp("Capacity", { Get: (_) => Cap })
-
-        for Bucket in OldBuckets {
-            if (!Bucket) {
-                continue
-            }
-            for Entry in Bucket {
-                this.Set(Entry.Ket, Entry.Value)
-            }
-        }
-    }
-
-    /**
      * Returns an `Enumerator` that enumerates the elements of this HashMap.
      * 
      * @param   {Integer}  ArgSize  param size of for-loop
@@ -331,6 +345,10 @@ class HashMap extends IMap {
             }
         }
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Properties
 
     /**
      * Gets and retrieves the capacity of the HashMap.
@@ -360,4 +378,6 @@ class HashMap extends IMap {
             this.Set(Key, Value)
         }
     }
+
+    ;@endregion
 }

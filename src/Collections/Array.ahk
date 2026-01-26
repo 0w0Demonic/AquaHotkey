@@ -2,6 +2,7 @@
 
 ; TODO add back Swap() with unset handling
 ; TODO reverse view?
+; TODO just remove stream-like ops completely?
 
 /**
  * Array stream-like operations.

@@ -42,6 +42,7 @@ class Set extends ISet {
 
     /**
      * Adds one or more values to the set.
+     * 
      * @param   {Any}   Value   any value
      * @param   {Any*}  Values  zero or more values
      * @returns {Boolean}

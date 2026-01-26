@@ -323,33 +323,32 @@ class GenericArray extends Array {
             return false
         }
 
-        ; check non-generic array by their elements
-        if (!(Val is GenericArray)) {
-            T    := this.ComponentType
-            Cons := this.Constraint
-
-            if (Cons) {
-                for Elem in Val {
-                    if (!T.IsInstance(Elem?)) {
-                        return false
-                    }
-                    if (!Cons.IsInstance(Elem?)) {
-                        return false
-                    }
-                }
-            } else {
-                for Elem in Val {
-                    if (!T.IsInstance(Elem?)) {
-                        return false
-                    }
-                }
-            }
-            return true
+        if (Val is GenericArray) {
+            return (this.ComponentType).CanCastFrom(Val.ComponentType)
+                && (this.Constraint).CanCastFrom(Val.Constraint)
         }
 
-        return (this.ComponentType).CanCastFrom(Val.ComponentType)
-            ; TODO make constraint check less fragile
-            && (this.Constraint).CanCastFrom(Val.Constraint)
+        ; check non-generic array by their elements
+        T    := this.ComponentType
+        Cons := this.Constraint
+
+        if (Cons) {
+            for Elem in Val {
+                if (!T.IsInstance(Elem?)) {
+                    return false
+                }
+                if (!Cons.IsInstance(Elem?)) {
+                    return false
+                }
+            }
+        } else {
+            for Elem in Val {
+                if (!T.IsInstance(Elem?)) {
+                    return false
+                }
+            }
+        }
+        return true
     }
 
     ;@endregion

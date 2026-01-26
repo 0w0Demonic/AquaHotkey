@@ -16,12 +16,11 @@
 ;@region Collections/
 ;    @region Generic/
 ;        #Include "%A_LineFile%/../Collections/Generic/Array.ahk"
-;        #Include "%A_LineFile%/../Collections/Generic/Map.ahk"
+         #Include "%A_LineFile%/../Collections/Generic/Map.ahk"
 ;    @endregion
-;    #Include "%A_LineFile%/../Collections/Array.ahk"
+     #Include "%A_LineFile%/../Collections/Array.ahk"
 ;    #Include "%A_LineFile%/../Collections/ByteArray.ahk" ; TODO
-;    #Include "%A_LineFile%/../Collections/DefaultProp.ahk" ; TODO remove?
-;    #Include "%A_LineFile%/../Collections/HashMap.ahk"
+     #Include "%A_LineFile%/../Collections/HashMap.ahk"
 ;    #Include "%A_LineFile%/../Collections/HashSet.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/ImmutableMap.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/ImmutableSet.ahk" ; TODO

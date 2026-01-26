@@ -5,6 +5,8 @@
 #Include "%A_LineFile%\..\..\Interfaces\Sizeable.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
+; TODO remove stream ops?
+
 /**
  * Map utils and stream-like operations.
  * 
@@ -43,43 +45,6 @@ class Map {
             Define(Result, PropertyName, GetProp(M, PropertyName))
         }
         return Result
-    }
-
-    /**
-     * Creates a new `Map`.
-     * 
-     * The parameter may be:
-     * - an existing Map returned as-is,
-     * - a callable that produces a Map,
-     * - or the case-sensitivity for a newly created Map
-     * 
-     * The returned Map is guaranteed to be an instance of the calling class,
-     * so for example the return value of `HashMap.Create()` is guaranteed
-     * to be a `HashMap`.
-     * 
-     * @param   {Any}  Param  a map, map factory, or case sensitivity
-     * @returns {Map}
-     * @see {@link HashMap}
-     * @example
-     * Map.Create()      ; create a normal Map
-     * Map.Create(false) ; create a case-insensitive Map
-     * 
-     * Map.Create(HashMap) ; creates a HashMap (because `HashMap` is callable)
-     * HashMap.Create( Map() ) ; TypeError! Not a HashMap.
-     */
-    static Create(Param := this()) {
-        switch {
-            case (Param is Map):     M := Param
-            case (HasMethod(Param)): M := Param()
-            default:
-                M := this()
-                M.CaseSense := Param
-        }
-        if (!(M is this)) {
-            throw TypeError("Expected a " . this.Prototype.__Class,,
-                            Type(M))
-        }
-        return M
     }
 
     /**
@@ -127,29 +92,6 @@ class Map {
             (Condition(Key, Value, Args*) || Result[Key] := Value)
         }
         return Result
-    }
-
-    /**
-     * Replaces all values in the map *in place* by applying `Mapper` to
-     * each element.
-     * 
-     * ```ahk
-     * Mapper(Key, Value, Args*) => Any
-     * ```
-     * 
-     * @param   {Func}  Mapper  function that returns a new value
-     * @param   {Any*}  Args    zero or more additional arguments
-     * @returns {this}
-     * @example
-     * ; Map { 1 => 4, 3 => 8 }
-     * Map(1, 2, 3, 4).ReplaceAll((Key, Value) => (Value * 2))
-     */
-    ReplaceAll(Mapper, Args*) {
-        GetMethod(Mapper)
-        for Key, Value in this {
-            this[Key] := Mapper(Key, Value, Args*)
-        }
-        return this
     }
 
     /**

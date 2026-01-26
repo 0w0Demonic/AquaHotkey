@@ -1,13 +1,15 @@
 #Include <AquaHotkey>
 
+; TODO step into transducers to cut down on code size
+
 /**
+ * @mixin
+ * @description
+ * 
  * Mixin class for types that can be enumerated with 1 parameter.
  * 
- * ```ahk
+ * @example
  * for Value in Obj { ... }
- * ```
- * 
- * @mixin
  */
 class Enumerable1 {
     static __New() => this.ApplyOnto(Array, Map, Enumerator, Stream)
@@ -67,7 +69,7 @@ class Enumerable1 {
      * the given `Combiner`.
      * 
      * ```ahk
-     * Combiner(Result, Value?) => Any
+     * Combiner(Left: Any, Right: Any?) => Any
      * ```
      * 
      * @param   {Func}  Combiner  combiner function
@@ -95,12 +97,13 @@ class Enumerable1 {
      * If present, `&Out` receives the value of the first matching element.
      * 
      * ```ahk
-     * Condition(Element?, Args*)
+     * Condition(Element: Any?, Args: Any*) => Boolean
      * ```
      * 
      * @param   {VarRef<Any>}  Out        (out) first matching element
      * @param   {Func}         Condition  the given condition
      * @param   {Any*}         Args       zero or more arguments
+     * @returns {Boolean}
      * @see     {@link Enumerable1#Any .Any()}
      * @example
      * Array(1, 2, 3, 4).Find(&Out, x => (x > 2)) ; true
@@ -122,11 +125,12 @@ class Enumerable1 {
      * Determines whether any of the elements fulfill the given `Condition`.
      * 
      * ```ahk
-     * Condition(Element?, Args*)
+     * Condition(Element: Any?, Args: Any*) => Boolean
      * ```
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more arguments
+     * @returns {Boolean}
      * @see     {@link Enumerable1#Find .Find()}
      * @example
      * Array(1, 2, 3, 4).Any(x => (x > 2))
@@ -146,7 +150,7 @@ class Enumerable1 {
      * otherwise `false`.
      * 
      * ```ahk
-     * Condition(Element?, Args*)
+     * Condition(Element: Any?, Args: Any*) => Boolean
      * ```
      * 
      * @param   {Func}  Condition  the given condition
@@ -170,7 +174,7 @@ class Enumerable1 {
      * `false`.
      * 
      * ```ahk
-     * Condition(Element?, Args*)
+     * Condition(Element: Any?, Args: Any*) => Boolean
      * ```
      * 
      * @param   {Func}  Condition  the given condition
@@ -336,19 +340,15 @@ class Enumerable1 {
     }
 
     /**
-     * Returns a set of all elements.
+     * Collects elements into an {@link ISet}.
      * 
-     * @param   {Class<? extends ISet>}  SetClass  the type of set to create
+     * @param   {Any?}  SetParam  internal set options
      * @returns {ISet}
      */
-    ToSet(SetClass := Set) {
-        if (!(SetClass is Class)) {
-            throw TypeError("Expected a Class",, Type(SetClass))
-        }
-        if (!ISet.CanCastFrom(SetClass)) {
-            throw TypeError("Expected a Set type",, )
-        }
-        return SetClass(this*)
+    ToSet(SetParam := Set()) {
+        S := ISet.Create(SetParam)
+        S.Add(this*)
+        return S
     }
 
     /**
