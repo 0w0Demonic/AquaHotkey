@@ -1,12 +1,12 @@
 
 /**
+ * @mixin
+ * @description
+ * 
  * Mixin class for types that can enumerated with 2 parameters.
  * 
- * ```ahk
+ * @example
  * for Value1, Value2 in Obj { ... }
- * ```
- * 
- * @mixin
  */
 class Enumerable2 {
     static __New() {

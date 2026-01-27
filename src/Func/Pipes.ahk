@@ -45,12 +45,12 @@ class AquaHotkey_Pipes extends AquaHotkey
          * Whenever an undefined method is called, forwards the variable to a
          * global function as its first parameter.
          * 
-         * @example 
-         * MyVariable.DoThis().DoThat("foo", "bar").MsgBox()
-         * 
+         * @deprecated
          * @param   {String}  Name  name of the global function
          * @param   {Any*}    Args  additional arguments
          * @returns {Any}
+         * @example 
+         * MyVariable.DoThis().DoThat("foo", "bar").MsgBox()
          */
         __Call(Name, Args) {
             ; try to do name-dereference
@@ -94,16 +94,14 @@ class AquaHotkey_Pipes extends AquaHotkey
     class Class {
         /**
          * Override of `Any.Prototype.__Call()` that throws an error.
-         * @override `Any.Prototype.__Call()`
-         * 
-         * @example
-         * Foo(Value) {
-         *     MsgBox(Type(Value))
-         * }
-         * String.Foo() ; Error!
          * 
          * @param   {String}  MethodName  the name of the undefined method
          * @param   {Array}   Args        zero or more additional arguments
+         * @override `Any.Prototype.__Call()`
+         * @deprecated
+         * @example
+         * Foo(Value) => ...
+         * String.Foo() ; Error!
          */
         __Call(MethodName, *) {
             throw MethodError("undefined static method: " . MethodName,,

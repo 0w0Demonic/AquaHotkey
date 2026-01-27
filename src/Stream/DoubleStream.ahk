@@ -289,6 +289,10 @@ class DoubleStream extends BaseStream
         }
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Cutting
+
     /**
      * Returns a new double stream that returns not more than `n` elements
      * before terminating.
@@ -379,6 +383,10 @@ class DoubleStream extends BaseStream
         }
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region .Distinct()
+
     /**
      * Returns a stream of unique elements by keeping track of them in a Map.
      * 
@@ -450,6 +458,8 @@ class DoubleStream extends BaseStream
     ;@endregion
 }
 
+;@region Extensions
+
 class AquaHotkey_DoubleStream extends AquaHotkey {
     class Any {
         /**
@@ -462,3 +472,5 @@ class AquaHotkey_DoubleStream extends AquaHotkey {
         DoubleStream() => DoubleStream(this)
     }
 }
+
+;@endregion

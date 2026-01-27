@@ -64,8 +64,8 @@ class Test_Func extends TestSuite {
     static Memoized2() {
         static Identity(x) => x
 
-        Cache1 := CustomMap()
-        Cache2 := CustomMap() 
+        Cache1 := Test_Func_CustomMap()
+        Cache2 := Test_Func_CustomMap() 
 
         Cache1.CaseSense := true
         Cache2.CaseSense := false
@@ -84,7 +84,7 @@ class Test_Func extends TestSuite {
     }
 }
 
-class CustomMap extends Map {
+class Test_Func_CustomMap extends Map {
     Hits := 0
 
     Get(Key, DefaultValue?) {

@@ -319,7 +319,9 @@ class AquaHotkey_Properties extends AquaHotkey {
         ValueProps => Properties.Find(this, (_, Prop) => Prop.IsValueProp)
 
         /**
-         * Returns a view of all value properties of th
+         * Returns a view of all read-only properties of this object.
+         * 
+         * A readonly property is one that describes `Get`, but not `Set`.
          */
         ReadOnlyProps => Properties.Find(this, (_, Prop) => Prop.IsReadOnlyProp)
 

@@ -1,4 +1,6 @@
-class Test_Map extends TestSuite {
+
+class Test_Map extends TestSuite
+{
     static Keys() {
         Arr := Map("hotel", "trivago", "apple", "banana").Keys()
         Arr.Length.AssertEquals(2)
@@ -68,68 +70,79 @@ class Test_Map extends TestSuite {
     }
     
     static PutIfAbsent1() {
-        M := Map(1, 2).PutIfAbsent(1, 4)
+        M := Map(1, 2)
+        M.PutIfAbsent(1, 4)
         M[1].AssertEquals(2)
     }
 
     static PutIfAbsent2() {
-        M := Map(1, 2).PutIfAbsent(2, 4)
+        M := Map(1, 2)
+        M.PutIfAbsent(2, 4)
         M[2].AssertEquals(4)
     }
 
     static ComputeIfAbsent1() {
         static Mapper(Key) => Key * 2
 
-        M := Map(1, 23).ComputeIfAbsent(1, Mapper)
+        M := Map(1, 23)
+        M.ComputeIfAbsent(1, Mapper)
         M[1].AssertEquals(23)
     }
 
     static ComputeIfAbsent2() {
         static Mapper(Key) => Key * 2
 
-        M := Map(1, 23).ComputeIfAbsent(2, Mapper)
+        M := Map(1, 23)
+        M.ComputeIfAbsent(2, Mapper)
         M[2].AssertEquals(4)
     }
 
     static ComputeIfPresent1() {
         static Mapper(Key, OldValue) => (Key + Oldvalue)
 
-        M := Map(1, 23).ComputeIfPresent(2, Mapper)
+        M := Map(1, 23)
+        M.ComputeIfPresent(2, Mapper)
         M.Count.AssertEquals(1)
     }
 
     static ComputeIfPresent2() {
         static Mapper(Key, OldValue) => (Key + OldValue)
 
-        M := Map(1, 23).ComputeIfPresent(1, Mapper)
+        M := Map(1, 23)
+        M.ComputeIfPresent(1, Mapper)
         M[1].AssertEquals(24)
     }
 
     static Compute1() {
         static Mapper(Key, OldValue) => (Key + OldValue)
 
-        M := Map(1, 23).Compute(1, Mapper)
+        M := Map(1, 23)
+        M.Compute(1, Mapper)
+
         M[1].AssertEquals(24)
     }
 
     static Compute2() {
         static Mapper(Key, OldValue := 0) => (Key + OldValue)
 
-        M := Map(1, 23).Compute(2, Mapper)
+        M := Map(1, 23)
+        M.Compute(2, Mapper)
         M[2].AssertEquals(2)
     }
 
     static Merge1() {
         static Mapper(OldValue, NewValue) => (OldValue + NewValue)
 
-        M := Map(1, 23).Merge(1, 1, Mapper)
+        M := Map(1, 23)
+        M.Merge(1, 1, Mapper)
         M[1].AssertEquals(24)
     }
 
     static Merge2() {
         static Mapper(OldValue, NewValue) => (OldValue + NewValue)
 
-        M := Map(1, 23).Merge(2, 1, Mapper)
+        M := Map(1, 23)
+        M.Merge(2, 1, Mapper)
         M[2].AssertEquals(1)
     }
 

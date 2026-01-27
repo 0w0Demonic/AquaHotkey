@@ -66,7 +66,6 @@
 #Include "%A_LineFile%/../../Monads/TryOp.ahk"
 
 #Include "%A_LineFile%/../../Stream/Range.ahk"
-#Include "%A_LineFile%/../../Stream/Collector.ahk"
 #Include "%A_LineFile%/../../Stream/Gatherer.ahk"
 
 #Include "%A_LineFile%/../../Stream/Stream.ahk"
@@ -83,5 +82,6 @@
 #Include "%A_LineFile%/../../Interfaces/Enumerable2.ahk"
 
 #Include "%A_LineFile%/../../Interfaces/ISet.ahk"
+#Include "%A_LineFile%/../../Interfaces/IMap.ahk"
 
 ;@endregion

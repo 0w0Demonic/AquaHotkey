@@ -135,7 +135,7 @@ class AquaHotkey_ImmutableMap extends AquaHotkey {
          * Returns a read-only view of the map. The original map may still
          * be modified elsewhere.
          * 
-         * @returns {Map}
+         * @returns {ImmutableMap}
          * @example
          * M := Map(1, 2, 3, 4)
          * Clone := M.Freeze()

@@ -22,6 +22,9 @@ class Error {
      * @param   {Primitive?}  Extra  additional details about the error
      */
     static Throw(Msg?, What?, Extra?) {
+        if (IsInteger(What) && (What < 0)) {
+            --What
+        }
         throw this(Msg?, What?, Extra?)
     }
 

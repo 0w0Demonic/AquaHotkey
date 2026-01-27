@@ -1,4 +1,3 @@
-;@region Stream
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\BaseStream.ahk"
 #Include "%A_LineFile%\..\DoubleStream.ahk"
@@ -6,7 +5,9 @@
 ; TODO decide on `.Distinct()` behaviour
 ;      - default on HashMap() ?
 ;      - use Set instead of Map ?
+;      - generalize `static Size` => BaseStream ?
 
+;@region Stream
 /**
  * Streams are a powerful abstraction for processing sequences of data in a
  * declarative way.
@@ -454,8 +455,23 @@ class Stream extends BaseStream
     }
 
     /**
-     * Returns a new stream that skips elements as long as its elements
-     * fulfill the given `Condition`.
+     * Returns a new stream that terminates as soon as an element fulfills
+     * the given `Condition`.
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
+     * @returns {Stream}
+     * @example
+     * Array(1, -2, 4, 6, 2, 1).Stream().TakeUntil(x => x > 5) ; <1, -2, 4>
+     */
+    TakeUntil(Condition, Args*) {
+        GetMethod(Condition)
+        return this.Cast(  (&Out) => this(&Out) && !Condition(Out?, Args*)  )
+    }
+
+    /**
+     * Returns a new stream that skips the first elements as long as its
+     * elements fulfill the given `Condition`.
      * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more arguments for the condition
@@ -478,22 +494,48 @@ class Stream extends BaseStream
         }
     }
 
+    /**
+     * Returns a new stream that skips the first elements as long as its
+     * elements do not fulfill the given `Condition`.
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
+     * @returns {Stream}
+     * @example
+     * Array(1, 2, 3, 4, 2, 1).Stream().DropUntil(x => x >= 3) ; <4, 2, 1>
+     */
+    DropUntil(Condition, Args*) {
+        GetMethod(Condition)
+        NoDrop := false
+        return this.Cast(DropUntil)
+
+        DropUntil(&Out) {
+            while (this(&Out)) {
+                if (NoDrop || (NoDrop |= !!Condition(Out?, Args*))) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
+
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region .Distinct()
 
     /**
-     * Returns a stream of unique elements by keeping track of them in a `Map`.
+     * Returns a stream of unique elements by keeping track of them in an
+     * `ISet`.
      * 
-     * If specified, `KeyExtractor` retrieves the map key to store the value
-     * with. `MapParam` determines what kind of `Map` should be used for
-     * internal storage (see {@link AquaHotkey_Map.Map.Create Map.Create()})
+     * If specified, `KeyExtractor` retrieves the key with which the value
+     * should be stored. `SetParam` determines what kind of `Set` should
+     * be used for storage.
      * 
      * @param   {Func?}  KeyExtractor    function to create map keys
-     * @param   {Any?}   MapParam        internal map options
+     * @param   {Any?}   SetParam        internal map options
      * @returns {Stream}
      * @see {@link HashMap}
-     * @see {@link AquaHotkey_Map.Map.Create Map.Create()}
+     * @see {@link ISet.Create()}
      * @example
      * ; <"foo">
      * Array("foo", "Foo", "FOO").Distinct(StrLower)
@@ -505,10 +547,10 @@ class Stream extends BaseStream
      * ; equivalence checks using `.Eq()`).
      * ; 
      * ; -> <{ x: 12 }, ["2"]>
-     * Array({ x: 12 }, { x: 12 }, ["2"], ["2"] ).Distinct(unset, HashMap)
+     * Array({ x: 12 }, { x: 12 }, ["2"], ["2"] ).Distinct(unset, HashSet)
      */
-    Distinct(KeyExtractor?, MapParam?) {
-        Cache := Map.Create(MapParam?)
+    Distinct(KeyExtractor?, SetParam := Set()) {
+        Cache := IMap.Create(SetParam)
 
         if (!IsSet(KeyExtractor)) {
             return this.Cast(Distinct)

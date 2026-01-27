@@ -1,9 +1,12 @@
 ;#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
+#Requires AutoHotkey >=v2.1-alpha.3
 #Include <AquaHotkeyX>
 #Include <AquaHotkey\src\Collections\Generic\Array>
+#Include <AquaHotkey\src\Interfaces\IDelegatingMap>
 
+;@region GenericMap
 /**
- * Introduces type-checked maps, in which key-value pairs are enforced to
+ * Introduces generic maps, in which key-value pairs are enforced to
  * be instanced of the given types.
  * 
  * @module  <Collections/Generic/Map>
@@ -18,33 +21,37 @@
  * M["foo"] := "qux" ; Error! Expected an Integer.
  * M[123]   := 23456 ; Error! Expected a String.
  */
-class GenericMap extends Map {
+class GenericMap extends IDelegatingMap {
+    ;@region Construction
+
     /**
      * Constructs a new subclass of `GenericMap`.
      * 
+     * @param   {Class}  M  map type
      * @param   {Class}  K  key type
      * @param   {Class}  V  value type
      * @example
      * Map.OfType(String, Integer)
      */
-    static __New(K?, V?) {
+    static __New(M := Map, K?, V?) {
         static Define := {}.DefineProp
 
         if (this == GenericMap) {
-            ; alias `.__New()` and `.Set()`
-            ({}.DefineProp)(this.Prototype, "__New",
-                    ({}.GetOwnPropDesc)(this.Prototype, "Set"))
             return
         }
-
         if (!IsSet(K)) {
             throw UnsetError("unset value")
         }
         if (!IsSet(V)) {
             throw UnsetError("unset value")
         }
+        if (!IMap.CanCastFrom(M)) {
+            throw TypeError("Expected an IMap class",, String(M))
+        }
+
         Proto := this.Prototype
         Define(Proto, "Check",     { Call: TypeCheck })
+        Define(Proto, "MapType",   { Get: (_) => M })
         Define(Proto, "KeyType",   { Get: (_) => K })
         Define(Proto, "ValueType", { Get: (_) => V })
 
@@ -62,8 +69,70 @@ class GenericMap extends Map {
         }
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Type Info
+
     /**
-     * Returns the key type associated with this checked map.
+     * Determines whether the given value is an instance of the generic
+     * map class.
+     * 
+     * @param   {Any?}  Val  any value
+     * @returns {Boolean}
+     * @example
+     * HashMap(1, 2, 34.5, 4,6).Is(  HashMap.OfType(Number, Number)  ) ; true
+     */
+    static IsInstance(Val?) {
+        if (!IsSet(Val) || !Val.Is(IMap)) {
+            return false
+        }
+
+        if (Val is GenericMap) {
+            return (this.MapType).CanCastFrom(Val.MapType)
+                && (this.KeyType).CanCastFrom(Val.KeyType)
+                && (this.ValueType).CanCastFrom(Val.ValueType)
+        }
+        if (!Val.Is(this.MapType)) {
+            return false
+        }
+
+        K := this.KeyType
+        V := this.ValueType
+
+        for Key, Value in Val {
+            if (!K.IsInstance(Key?) || !V.IsInstance(Value?)) {
+                return false
+            }
+        }
+        return true
+    }
+
+
+    /**
+     * Returns the map type this class wraps around.
+     * 
+     * @returns {Class}
+     * @example
+     * HashMap.OfType(String, Integer).MapType ; class HashMap
+     */
+    static MapType => (this.Prototype).MapType
+
+    /**
+     * Returns the map type which the generic map wraps around.
+     * 
+     * @returns {Class}
+     * @example
+     * M := SkipListMap.OfType(String, { Value: Integer })
+     * M.MapType ; SkipListMap
+     */
+    MapType {
+        get {
+            throw PropertyError("abstract property")
+        }
+    }
+
+    /**
+     * Returns the key type associated with this generic map.
      * 
      * @returns {Class}
      * @example
@@ -72,7 +141,7 @@ class GenericMap extends Map {
     static KeyType => (this.Prototype).KeyType
 
     /**
-     * Returns the key type associated with this checked map.
+     * Returns the key type associated with this generic map.
      * 
      * @abstract
      * @returns {Class}
@@ -87,7 +156,7 @@ class GenericMap extends Map {
     }
 
     /**
-     * Returns the value type associated with this checked map.
+     * Returns the value type associated with this generic map.
      * 
      * @returns {Class}
      * @example
@@ -96,7 +165,7 @@ class GenericMap extends Map {
     static ValueType => (this.Prototype).ValueType
 
     /**
-     * Returns the value type associated with this checked map.
+     * Returns the value type associated with this generic map.
      * 
      * @abstract
      * @returns {Class}
@@ -110,6 +179,10 @@ class GenericMap extends Map {
         }
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Implementation
+
     /**
      * Determines whether the given key-value is valid for this map.
      * This method should be overridden by subclasses.
@@ -122,104 +195,42 @@ class GenericMap extends Map {
     }
 
     /**
-     * Constructs a new checked map with the given elements.
+     * Creates a new generic map containing the given elements.
      * 
      * @constructor
      * @param   {Any*}  Args  alternating key-value pairs
      */
-    __New(Args*) => this.Set(Args*) ; NOTE: overridden by `static __New()`
-
-    /**
-     * Sets zero or more items with type-checking.
-     * 
-     * @param   {Any*}  Args  alternating key-value pairs.
-     */
-    Set(Args*) {
-        if (Args.Length & 1) {
-            throw ValueError("invalid param count",, Args.Length)
-        }
-        Enumer := Args.__Enum(1)
-        while (Enumer(&K) && Enumer(&V)) {
-            this.Check(K, V)
-        }
-        super.Set(Args*)
-    }
-
-    /**
-     * Sets an element.
-     * 
-     * @param   {Any}  Key    map key
-     * @param   {Any}  Value  new value
-     */
-    __Item[Key] {
-        set {
-            if (IsSet(value)) {
-                this.Check(Key, value)
-                super[Key] := value
-            } else {
-                super[Key] := unset
-            }
-        }
+    __New(Args*) {
+        M := (this.MapType)()
+        ({}.DefineProp)(this, "M", { Get: (_) => M })
+        M.Set(Args*)
     }
 }
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Extensions
 
 class AquaHotkey_GenericMap extends AquaHotkey {
-    class Class {
+    class IMap {
+        ; TODO use overrides of `Any#Class`, which depends on `__Class`?
         /**
-         * Returns a type-checked map class of this class mapped to the given
-         * class representing the value type of the map class.
+         * Returns a generic map class.
          * 
-         * @param   {Class}  ValueType  type of values
-         * @returns {Class}
-         */
-        MappedTo(ValueType) {
-            if (!(ValueType is Class)) {
-                throw TypeError("Expected a Class",, Type(ValueType))
-            }
-            return Map.OfType(this, ValueType)
-        }
-    }
-
-    class Map {
-        /**
-         * Returns a type-checked map class.
-         * 
-         * @param   {Class}  K  type of keys
-         * @param   {Class}  V  type of values
-         * @returns {Class}
+         * @param   {Any}  K  type of keys
+         * @param   {Any}  V  type of values
+         * @returns {Class<? extends IMap>}
          */
         static OfType(K, V) {
-            static Keys := Map()
-
-            if (Keys.Has(K)) {
-                Values := Keys.Get(K)
-                if (Values.Has(V)) {
-                    return Values.Get(V)
-                }
-            }
-
-            if (!(K is Class)) {
-                throw TypeError("Expected a Class",, Type(K))
-            }
-            if (!(V is Class)) {
-                throw TypeError("Expected a Class",, Type(V))
-            }
-
-            ClsName := Format("{}<{}, {}>",
-                    this.Prototype.__Class,
-                    K.Prototype.__Class, V.Prototype.__Class)
-
-            MapType := AquaHotkey.CreateClass(
+            OwnName   := this.Prototype.__Class
+            KeyName   := (K is Class) ? K.Prototype.__Class : String(K)
+            ValueName := (V is Class) ? V.Prototype.__Class : String(V)
+            return AquaHotkey.CreateClass(
                     GenericMap,
-                    ClsName,
-                    K, V)
-
-            if (!Keys.Has(K)) {
-                Keys.Set(K, Map())
-            }
-            Values := Keys.Get(K)
-            Values.Set(V, MapType)
-            return MapType
+                    OwnName . "<" . KeyName . ", " . ValueName . ">",
+                    this, K, V)
         }
     }
 }
+
+;@endregion
