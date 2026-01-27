@@ -4,7 +4,7 @@
 ;@region Base/
 ;    #Include "%A_LineFile%/../Base/Buffer.ahk"
 ;    #Include "%A_LineFile%/../Base/ComValue.ahk"
-;    #Include "%A_LineFile%/../Base/Eq.ahk"
+     #Include "%A_LineFile%/../Base/Eq.ahk"
 ;    #Include "%A_LineFile%/../Base/Error.ahk"
 ;    #Include "%A_LineFile%/../Base/Object.ahk"
 ;    #Include "%A_LineFile%/../Base/Ord.ahk"
@@ -16,19 +16,19 @@
 ;@region Collections/
 ;    @region Generic/
 ;        #Include "%A_LineFile%/../Collections/Generic/Array.ahk"
-         #Include "%A_LineFile%/../Collections/Generic/Map.ahk"
+;        #Include "%A_LineFile%/../Collections/Generic/Map.ahk"
 ;    @endregion
-     #Include "%A_LineFile%/../Collections/Array.ahk"
+;    #Include "%A_LineFile%/../Collections/Array.ahk"
 ;    #Include "%A_LineFile%/../Collections/ByteArray.ahk" ; TODO
-     #Include "%A_LineFile%/../Collections/HashMap.ahk"
+;    #Include "%A_LineFile%/../Collections/HashMap.ahk"
 ;    #Include "%A_LineFile%/../Collections/HashSet.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/ImmutableMap.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/ImmutableSet.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/LinkedList.ahk"
-     #Include "%A_LineFile%/../Collections/Map.ahk"
+;    #Include "%A_LineFile%/../Collections/Map.ahk"
 ;    #Include "%A_LineFile%/../Collections/Properties.ahk" ; TODO
 ;    #Include "%A_LineFile%/../Collections/Set.ahk" ; TODO
-     #Include "%A_LineFile%/../Collections/SkipListMap.ahk"
+;    #Include "%A_LineFile%/../Collections/SkipListMap.ahk"
 ;    #Include "%A_LineFile%/../Collections/Zip.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------

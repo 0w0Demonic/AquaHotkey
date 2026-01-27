@@ -1,13 +1,34 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
- * Adds a universal `.HashCode()` function.
+ * Adds a universal `.HashCode()` function on which collections like
+ * {@link HashMap} and {@link HashSet} rely on.
  * 
- * In general, this class uses FNV-1a to create hashes.
+ * For consistency, the `.HashCode()` function must adhere to the following
+ * rules:
  * 
+ * - The result of `.HashCode()` must not change, unless the values change
+ * - If two values are equal ({@link AquaHotkey_Eq `.Eq()`}), they must produce the
+ *   same hash code.
+ * 
+ * `Any.Hash()` can be used for conveniently creating a hash code from
+ * multiple values.
  * @module  <Base/Hash>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @see {@link HashMap}
+ * @see {@link HashSet}
+ * @see {@link https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash FNV-1a}
+ * @see {@link AquaHotkey_Eq `.Eq()`}
+ * @example
+ * class Version {
+ *     __New(Major, Minor, Patch) {
+ *         this.Major := Major
+ *         this.Minor := Minor
+ *         this.Patch := Patch
+ *     }
+ *     HashCode() => Any.Hash(this.Major, this.Minor, this.Patch)
+ * }
  */
 class AquaHotkey_Hash extends AquaHotkey
 {

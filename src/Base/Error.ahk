@@ -14,12 +14,11 @@ class Error {
     /**
      * Throws an error of the given error type.
      * 
-     * @example
-     * TargetError.Throw("unable to find window", -1, "ahk_exe notepad.exe")
-     * 
      * @param   {String?}     Msg    message of the error object
      * @param   {Primitive?}  What   what threw the exception
      * @param   {Primitive?}  Extra  additional details about the error
+     * @example
+     * TargetError.Throw("unable to find window", -1, "ahk_exe notepad.exe")
      */
     static Throw(Msg?, What?, Extra?) {
         if (IsInteger(What) && (What < 0)) {
@@ -78,8 +77,9 @@ class Error {
             }
             if (!IsSet(value)) {
                 ({}.DeleteProp)(this, "Cause")
+            } else {
+                ({}.DefineProp)(this, "Cause", { Get: (_) => value })
             }
-            ({}.DefineProp)(this, "Cause", { Get: (_) => value })
         }
     }
 

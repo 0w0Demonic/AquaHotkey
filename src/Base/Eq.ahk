@@ -1,52 +1,144 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO (GenericArray, GenericMap) static Eq(Other)
+; TODO (find-by-value methods)
+; TODO static Eq() for duck types
+; TODO refactor things to use `Any.Eq` OR custom predicates
+; TODO make overriding `static Eq()` less work and copy-pasting
+
 /**
  * Adds a universal `.Eq()` method for checking whether two values are
  * equivalent.
  * 
  * ```ahk
- * ([1, 2, 3]).Eq([1, 2, 3]) ; true
+ * ; --> true (structural equality)
+ * ([1, 2, 3]).Eq([1, 2, 3])
+ * 
+ * ; --> true (properties are case-insensitive)
+ * ({ foo: "bar" }).Eq({ FOO: "bar" })
  * ```
  * 
  * ---
  * 
- * **How to Implement**:
+ * `.Eq()` is a method with one optional parameter `Other` - the
+ * value to be compared.
  * 
- * In general, these rules should apply for things to work correctly:
+ * ```ahk
+ * Eq(Other?) => Boolean
+ * ```
  * 
- * 1. `A.Eq(A)` is **always** `true`
- * 2. `A.Eq(unset)` is **always** `false`
- * 3. (symmetric) `A.Eq(B)` must equal `B.Eq(A)`
- * 4. (transitive) if `A.Eq(B)` and `B.Eq(C)`, then `A.Eq(C)`
- * 5. (consistent) the result of `A.Eq(B)`, when unmodified, must be
- *    **consistently** either `true` or `false`.
+ * Introducing this polymorphic and semantic equality has some of the
+ * following benefits:
+ * 
+ * - custom equality checks
+ * - custom map/set semantics (such as {@link HashMap} and {@link HashSet})
+ * - generic "find" and "contains" methods for collections
  * 
  * ---
  * 
- * **Any.Eq(A?, B?)**:
+ * For consistency, implementations of `.Eq()` should satisfy the following
+ * set of rules:
  * 
- * Determines whether two values are equal, even if they're both `unset`.
- * Depending on the class on which this method is called, additional
- * type checking is performed. For example, `Number.Eq("foo", "bar")` throws
- * an error because `!("foo" is Number)`.
+ * 1. (unset handling) `A.Eq(unset)` is **always** `false`; `unset == unset`
+ * 2. (reflexive) `A.Eq(A)` is **always** `true`
+ * 3. (symmetric) `A.Eq(B)` must equal `B.Eq(A)`
+ * 4. (transitive) if `A.Eq(B)` and `B.Eq(C)`, then `A.Eq(C)`
+ * 5. (consistent) the result must not change, unless the values change
  * 
- * You can retrieve the equality function directly by using `<MyClass>.Eq`.
+ * ---
  * 
- * @example
- * ({ foo: "bar" }).Eq({ FOO: "BAR" }) ; true
+ * **Example: Custom `.Eq() Method`**:
  * 
- * ; (unset == unset)
- * Any.Eq(unset, unset) ; true
+ * ```ahk
+ * class Version {
+ *     __New(Major, Minor, Patch) {
+ *         this.Major := Major
+ *         this.Minor := Minor
+ *         this.Patch := Patch
+ *     }
  * 
- * ; <Class>.Eq() does type-checking.
- * Object.Eq(124, 45) ; Error! Expected an Object.
+ *     Eq(Other?) {
+ *         ; rule #1: a non-null value can NEVER equal `unset`
+ *         if (!IsSet(Other)) {
+ *             return false
+ *         }
+ *         ; rule #2: a value is ALWAYS equal to itself
+ *         if (this == Other) {
+ *             return true
+ *         }
+ *         return (this.Major).Eq(Other.Major)
+ *             && (this.Minor).Eq(Other.Major)
+ *             && (this.Patch).Eq(Other.Patch)
+ *     }
+ * }
+ * ```
  * 
- * ; returns the equality function
- * MapEquality := Map.Eq ; Eq(Map A?, Map B?) { ... }
+ * ---
+ * 
+ * To ensure both values are instances of a type `T`, you can use
+ * `T.Equals(A?, B?)`. This asserts that the two input values are either
+ * `unset`, or an instance of the calling class `T`. It also allows support
+ * for `unset`, where `T.Equals(unset, unset)` always equals `true`.
+ * 
+ * In the example above, the return statement can be rewritten to assert
+ * that all three fields are `Integer`s:
+ * 
+ * ```ahk
+ * return Integer.Equals(this.Major, Other.Major)
+ *     || Integer.Equals(this.Minor, Other.Minor)
+ *     || Integer.Equals(this.Patch, Other.Patch)
+ * ```
+ * 
+ * ---
+ * 
+ * Because {@link AquaHotkey_TypeChecks duck types} might not necessarily
+ * inherit the proper `.Equals()` method, you must implement a custom
+ * `static Eq()` for the duck type. These overrides should use
+ * {@link AquaHotkey_TypeChecks.Any#Is `.Is()`} for type-checking.
+ * 
+ * ```ahk
+ * ; duck type for any buffer-like object
+ * class BufferLike {
+ *     static IsInstance(Val?) {
+ *         return IsSet(Val) && IsObject(Val)
+ *             && HasProp(Val, "Ptr") && HasProp(Val, "Size")
+ *     }
+ * 
+ *     static Equals(A?, B?) {
+ *         if (!IsSet(A)) {
+ *             return !IsSet(B)
+ *         }
+ *         if (!IsSet(B)) {
+ *             return false
+ *         }
+ *         if (A.Is(this) && B.Is(this)) {
+ *             return (A.Ptr).Eq(B.Ptr)
+ *                 && (A.Size).Eq(B.Size)
+ *         }
+ *         throw TypeError("Expected a " . this.Name,,
+ *                         Type(A) . " " . Type(B))
+ *     }
+ * }
+ * ```
  * 
  * @module  <Base/Eq>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @see {@link AquaHotkey_TypeChecks duck types}
+ * @see {@link HashMap}
+ * @see {@link HashSet}
+ * @example
+ * ; --> true (object shares the same fields and values)
+ * ({ foo: "bar" }).Eq({ FOO: "bar" })
+ * 
+ * ; --> true (because `unset == unset`)
+ * Any.Eq(unset, unset)
+ * 
+ * ; Error! Expected an Object.
+ * Object.Eq(124, 45)
+ * 
+ * ; function `AquaHotkey_Eq.Map.Eq`
+ * MapEquality := Map.Eq 
  */
 class AquaHotkey_Eq extends AquaHotkey
 {
@@ -58,9 +150,9 @@ class Any {
      * Determines whether this value is equal to the `Other` value.
      * 
      * If not otherwise overridden, two values `A` and `B` are
-     * equal, if `A = B`.
+     * equal, if `A == B`.
      * 
-     * In other words, regular (case-insensitive) equality checks are used,
+     * In other words, regular (case-sensitive) equality checks are used,
      * unless specified otherwise.
      * 
      * @param   {Any}  Other  any value
@@ -71,10 +163,10 @@ class Any {
      * Obj := {}
      * Obj.Eq(Obj) ; true
      */
-    Eq(Other?) => (IsSet(Other) && (this = Other))
+    Eq(Other?) => (IsSet(Other) && (this == Other))
 
     /**
-     * Determines whether this vaue is not equal to the `Other` value.
+     * Determines whether this value is not equal to the `Other` value.
      * 
      * @param   {Any?}  Other  any value
      * @returns {Boolean}
@@ -95,57 +187,43 @@ class Class {
      * 
      * @returns {Func}
      * @example
-     * Eq := Map.Eq
+     * Eq := Map.Equals
      * 
      * Eq(Map(1, 2), Map(1, 2)) ; true
      * Eq(unset, unset)         ; true
      * Eq("foo", "bar")         ; TypeError! Expected a Map.
      */
-    Eq => (A?, B?) => this.Eq(A?, B?)
-    
-    ; TODO use duck-typing (`.Is(T)`)?
+    Equals => ObjBindMethod(this, "Equals")
 
     /**
-     * If called with 1 parameter, determines whether this class is equal to the
-     * other class. Otherwise, determines whether two given values are equal.
+     * Determines whether two given values are equal.
      * 
-     * Type-checking based on the class on which the method is called. This
-     * method supports `unset` values.
+     * Both inputs are asserted to be *instances* of the calling class.
+     * For example, `Array.Equals(A, B)` will assert that both `A` and `B`
+     * are arrays.
      * 
-     * @param   {Any*}  Args  a class object, or two values
+     * This method supports `unset` values.
+     * 
+     * @param   {Any?}  A  value 1
+     * @param   {Any?}  B  value 2
      * @returns {Boolean}
      * @example
-     * String.Eq(String) ; regular `Class.Eq(Class)` method
-     * 
-     * String.Eq("foo", "bar") ; false
-     * String.Eq(unset, unset) ; true
-     * String.Eq([1, 2], "")   ; TypeError! Expected a String.
+     * String.Equals("foo", "bar") ; false
+     * String.Equals(unset, unset) ; true
+     * String.Equals([1, 2], "")   ; TypeError! Expected a String.
      */
-    Eq(Args*) {
-        switch (Args.Length) {
-            case 1:
-                return Args.Has(1) && (Args.Pop() = this)
-            case 2:
-                if (!Args.Has(1)) {
-                    return (!Args.Has(2))
-                }
-                if (!Args.Has(2)) {
-                    return false
-                }
-                A := Args[1]
-                if (!(A is this)) {
-                    throw TypeError("Expected a(n) " . this.Prototype.__Class,,
-                            Type(A))
-                }
-                B := Args[2]
-                if (!(B is this)) {
-                    throw TypeError("Expected a(n) " . this.Prototype.__Class,,
-                            Type(B))
-                }
-                return (A = B) || A.Eq(B)
-            default:
-                throw ValueError("invalid param count: " . Args.Length)
+    Equals(A?, B?) {
+        if (!IsSet(A)) {
+            return (!IsSet(B))
         }
+        if (!IsSet(B)) {
+            return false
+        }
+        if ((A is this) && (B is this)) {
+            throw (A == B) || A.Eq(B)
+        }
+        throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                        Type(A) . " " . Type(B))
     }
 }
 
@@ -157,10 +235,9 @@ class Array {
     /**
      * Determines whether this array is equal to the `Other` value.
      * 
-     * This happens when...
-     * 
-     * - `Other` is an array with the same length;
-     * - elements on the same index are equivalent (`Arr1[i].Eq(Arr2[i])`)
+     * This happens when `this == Other`, or...
+     * - `Other` is an array with the same `.Length`;
+     * - all elements are equivalent (`Any.Equals` for each index)
      * 
      * @param   {Any?}  Other  any value
      * @returns {Boolean}
@@ -172,8 +249,6 @@ class Array {
      * ([1]).Eq("example") ; false
      */
     Eq(Other?) {
-        static AnyEq := (Any.Eq)
-
         if (!IsSet(Other)) {
             return false
         }
@@ -219,15 +294,14 @@ class Object {
      * This happens when `this == Other`, or...
      * 
      * - `ObjGetBase(this) == ObjGetBase(Other)`
-     * - `this` and `Other` share the same set of properties
-     * - properties with `Value` descriptor are equal (`.Eq()`)
+     * - `this` and `Other` share the same set of properties (case-insensitive)
+     * - the values of each field (properties with `Value` descriptor) are
+     *   equal, as determined by `Any.Equals()`
      * 
      * @param   {Any?}  Other  any value
      * @returns {Boolean}
      * @example
-     * ; true
-     * ; - foo equals FOO (case-insensitive properties)
-     * ; - "bar" equals "BAR" (`String#Eq()`)
+     * ; --> true (because of case-insensitive properties)
      * ({ foo: "bar" }).Eq({ FOO: "BAR" })
      */
     Eq(Other?) {
@@ -302,7 +376,7 @@ class ByReference extends AquaHotkey_MultiApply {
      * @param   {Any?}  Other  any value
      * @returns {Boolean}
      */
-    Eq(Other?) => (IsSet(Other) && (this = Other))
+    Eq(Other?) => (IsSet(Other) && (this == Other))
 }
 
 ;@endregion
@@ -354,17 +428,16 @@ class VarRef {
     /**
      * Determines whether this `VarRef` equals to the `Other` value.
      * 
-     * This happens when `Other` is also a `VarRef` and the underlying values
-     * are equal.
+     * This happens when `this == Other`, or when `Other` is also a `VarRef`
+     * and the underlying values are equal.
      * 
+     * @param   {Any?}  Other  any value
+     * @returns {Boolean}
      * @example
      * A := &(StrA := "foo")
      * B := &(StrB := "foo")
      * 
      * MsgBox(A.Eq(B)) ; true
-     * 
-     * @param   {Any?}  Other  any value
-     * @returns {Boolean}
      */
     Eq(Other?) {
         if (!IsSet(Other)) {

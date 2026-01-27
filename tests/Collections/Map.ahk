@@ -217,4 +217,3 @@ class Test_Map extends TestSuite
 class CustomMap extends Map {
 
 }
-

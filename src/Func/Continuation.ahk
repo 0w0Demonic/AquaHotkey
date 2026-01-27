@@ -527,5 +527,3 @@ class Continuation extends Func {
      */
     __Enum(ArgSize) => this.ToArray().__Enum(ArgSize)
 }
-
-LoopFiles("C:\*", "D").RetainIf(InStr, "x").ForEach(MsgBox)

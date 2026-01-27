@@ -161,6 +161,7 @@ class AquaHotkey_Buffer extends AquaHotkey
         ;-----------------------------------------------------------------------
         ;@region Slicing and Filling
 
+        ; TODO move this method elsewhere?
         /**
          * Returns a new buffer containing a subsection of the current buffer.
          * 
@@ -187,8 +188,7 @@ class AquaHotkey_Buffer extends AquaHotkey
             if (this is ClipboardAll) {
                 Buf := ClipboardAll(Ptr, Size)
             } else {
-                Buf := Buffer.FromMemory(Ptr, Size)
-                ; TODO move this somewhere?
+                Buf := Buffer(Size)
                 DllCall("RtlCopyMemory",
                         "Ptr", Buf.Ptr,
                         "Ptr", Ptr,

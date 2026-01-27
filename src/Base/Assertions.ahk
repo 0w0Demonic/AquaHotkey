@@ -1,7 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
-; TODO replace entire thing with `Should` similar to FluentAssertions?
-
 /**
  * Provides a wide range of chainable assertion methods.
  * 
@@ -20,12 +18,13 @@ class Any {
      * throws an error.
      * 
      * @param   {Func}  Condition  the condition to assert
+     * @param   {Any*}  Args       zero or more arguments
      * @returns {this}
      * @example
      * MyVariable.Assert(IsNumber)
      */
-    Assert(Condition) {
-        if (Condition(this)) {
+    Assert(Condition, Args*) {
+        if (Condition(this, Args*)) {
             return this
         }
         throw ValueError("failed assertion", -2)

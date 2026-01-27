@@ -62,8 +62,8 @@ class Test_Eq extends TestSuite {
         Obj.Eq({ foo: "bar", baz: "qux" }).AssertEquals(false)
     }
 
-    static String_is_case_insensitive() {
-        "bar".Eq("BAR").AssertEquals(true)
+    static String_is_case_sensitive() {
+        "bar".Eq("BAR").AssertEquals(false)
     }
 
     static Class_eq_class() {
@@ -71,15 +71,15 @@ class Test_Eq extends TestSuite {
     }
 
     static Class_eq_a_b() {
-        String.Eq("", "").AssertEquals(true)
+        String.Equals("", "").AssertEquals(true)
     }
 
     static Class_eq_a_b_supports_unset() {
-        String.Eq(unset, unset).AssertEquals(true)
+        String.Equals(unset, unset).AssertEquals(true)
     }
 
     static Class_eq_a_b_type_checking() {
-        this.AssertThrows(() => String.Eq([1, 2], [1, 2]))
+        this.AssertThrows(() => String.Equals([1, 2], [1, 2]))
     }
 
     static Class_eq_prop_is_2_param() {
@@ -90,7 +90,7 @@ class Test_Eq extends TestSuite {
     }
 
     static Class_eq_throws_on_too_many_params() {
-        this.AssertThrows(() => String.Eq("a", "b", "c"))
+        this.AssertThrows(() => String.Equals("a", "b", "c"))
     }
 
     static ByReference_should_exist() {

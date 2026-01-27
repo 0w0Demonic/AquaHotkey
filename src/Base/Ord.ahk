@@ -3,6 +3,7 @@
 
 ; TODO allow generic arrays to be sorted when they contain duck types
 ; TODO implement `static Compare()` on duck types
+; TODO Class#Name
 
 /**
  * Introduces an interface for imposing the natural order between two
@@ -31,8 +32,7 @@
  * 
  * ---
  * 
- * `.Compare()` works very similarly to a {@link Comparator} function, which
- * must adhere to the following rules:
+ * The `.Compare()` method must adhere to the following rules:
  * 
  * - takes one parameter `Other`, which is *strictly* the same type as `this`.
  *   this also forbids type coercion like `"123"` (string) into `123` (number);
@@ -77,7 +77,7 @@
  * calling class `T`.
  * 
  * In the example above, the return statement can be rewritten to assert that
- * all fields are `Integer`s:
+ * all three fields are `Integer`s:
  * 
  * ```ahk
  * return Integer.Compare(this.Major, Other.Major)
@@ -86,8 +86,9 @@
  * ```
  * 
  * Because {@link AquaHotkey_TypeChecks duck types} might not necessarily
- * inherit the necessary `.Compare()` method, you must use `static Compare()`,
- * and use {@link AquaHotkey_TypeChecks.Any#Is `.Is()`} for type-checking.
+ * inherit the proper `.Compare()` method, you must implement a custom
+ * `static Compare()` for the duck type. These overrides should use
+ * {@link AquaHotkey_TypeChecks.Any#Is `.Is()`} for type-checking.
  * 
  * ```ahk
  * ; duck type for numbers and numeric strings
@@ -95,13 +96,11 @@
  *     static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
  * 
  *     static Compare(A, B) {
- *         if (!A.Is(this)) {
- *             throw TypeError("Expected a Numeric",, Type(A))
+ *         if (A.Is(this) && B.Is(this)) {
+ *             return ( Number(A) ).Compare( Number(B) )
  *         }
- *         if (!B.Is(this)) {
- *             throw TypeError("Expected a Numeric",, Type(B))
- *         }
- *         return ( Number(A) ).Compare( Number(B) )
+ *         throw TypeError("Expected a " . this.Name,,
+ *                         Type(A) . " " . Type(B))
  *     }
  * }
  * ```
@@ -126,6 +125,10 @@
  * @module  <Base/Ord>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @see {@link Comparator}
+ * @see {@link SkipListMap}
+ * @see {@link SkipListSet}
+ * @see {@link AquaHotkey_TypeChecks duck types}
  * @example
  * ; result: [1.98, 23, 123, 3455]
  * Array(123, 23, 1.98, 3455).Sort()
