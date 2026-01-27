@@ -1,65 +1,143 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Func\Comparator.ahk"
 
+; TODO allow generic arrays to be sorted when they contain duck types
+; TODO implement `static Compare()` on duck types
+
 /**
- * Provides an interface for comparing two values by order, which allows
- * precise control over sorting arrays and other collections.
+ * Introduces an interface for imposing the natural order between two
+ * types. This is useful for sorting arrays and other collections.
  * 
- * In general, two values can be ordered by using `A.Compare(B)`.
- * This is done with so-called "comparators".
- * 
- * ---
- * 
- * **Comparator Functions**:
- * 
- * A function is considered a comparator, if it...
- * 
- * 1. takes two parameters `A` and `B` of the same type;
- * 2. returns an integer that specifies the order of the two values:
- *    - `x < 0`, if `A < B`;
- *    - `x == 0`, if `A == B`;
- *    - `x > 0`, if `A > B`.
- * 
- * Primitive types are provided a standard comparator function.
+ * This feature is exposed via the `.Compare()` method, which is implemented
+ * for some of the built-in types like `String`, `Number` and `Array`.
  * 
  * ---
  * 
- * **<MyClass>.Compare()**:
+ * Any type that defines `.Compare()` is considered *comparable*, which
+ * grants the following advantages:
  * 
- * Allows two values to be compared by their natural ordering. Depending on
- * the calling class (e.g. `Number.Compare()`), input values are type-checked
- * to ensure a value `is <MyClass>`.
+ * - arrays are sortable without a custom {@link Comparator};
+ * - instances of that type can be used as key inside an ordered
+ *   collection such as {@link SkipListMap} or {@link SkipListSet};
+ * - access to ordering functions such as `.Gt()` and `.Lt()`.
+ * 
+ * ```ahk
+ * Arr := ["pear", "banana", "apple", "dragonfruit"]
+ * Arr.Sort() ; ["apple", "banana", "dragonfruit", "pear"]
+ * 
+ * ; --> ["bar", "baz", "foo", "qux"]
+ * SkipListSet("foo", "bar", "baz", "qux").ToArray()
+ * ```
  * 
  * ---
  * 
- * **How to Implement**:
+ * `.Compare()` works very similarly to a {@link Comparator} function, which
+ * must adhere to the following rules:
  * 
- * - Create a method with the signature `Compare(Other)`
- * - `Other` should **always** be the same type or subtype, without any coercion
- *   (e.g. converting a numeric string into a number).
- * - Return an integer based on the ordering of the two values.
- * - It's **strongly recommended** that if `A.Compare(B) == 0`, then `A.Eq(B)`.
+ * - takes one parameter `Other`, which is *strictly* the same type as `this`.
+ *   this also forbids type coercion like `"123"` (string) into `123` (number);
+ * - `Other` is a mandatory parameter and not allowed to be `unset`;
+ * - returns...
+ *    - a negative integer, if `this < Other`;
+ *    - `0`, if `this == Other`;
+ *    - a positive integer, if `this > Other`.
+ * 
+ * It is **strongly** recommended - but not mandatory - that if
+ * `A.Compare(B) == 0`, then `A.Eq(B)` (see {@link AquaHotkey_Eq `.Eq()`}).
+ * Otherwise, sorted sets or maps might behave "strangely", because they are
+ * defined in terms of `.Eq()`.
  * 
  * ---
  * 
- * @example
- * ; << easy array sorting >>
- * ; result: [1.98, 23, 123, 3455]
- * Array(123, 23, 1.98, 3455).Sort(Number.Compare)
+ * **Example**:
  * 
- * ; << using `static Compare(A, B)` >>
- * Number.Compare(-1, 2) ; -1
- * Object.Compare(Object) ; Error! Type "Class" is not comparable.
+ * ```ahk
+ * class Version {
+ *     __New(Major, Minor, Patch) {
+ *         this.Major := Major
+ *         this.Minor := Minor
+ *         this.Patch := Patch
+ *     }
  * 
- * ; << `static Compare()` does type checking >>
- * Array.Compare(1, 2) ; TypeError! Expected an Array.
+ *     Compare(Other) {
+ *         if (!(Other is Version)) {
+ *             throw TypeError("Expected a Version",, Type(Other))
+ *         }
+ *         return (this.Major).Compare(Other.Major)
+ *             || (this.Minor).Compare(Other.Minor)
+ *             || (this.Patch).Compare(Other.Patch)
+ *     }
+ * }
+ * ``` 
  * 
- * ; retrieve the comparator function
- * ArrCompare := Array.Compare
+ * ---
+ * 
+ * To ensure both values are instances of a type `T`, you can use
+ * `T.Compare(A, B)`. This asserts that both `A` and `B` are instances of the
+ * calling class `T`.
+ * 
+ * In the example above, the return statement can be rewritten to assert that
+ * all fields are `Integer`s:
+ * 
+ * ```ahk
+ * return Integer.Compare(this.Major, Other.Major)
+ *     || Integer.Compare(this.Minor, Other.Minor)
+ *     || Integer.Compare(this.Patch, Other.Patch)
+ * ```
+ * 
+ * Because {@link AquaHotkey_TypeChecks duck types} might not necessarily
+ * inherit the necessary `.Compare()` method, you must use `static Compare()`,
+ * and use {@link AquaHotkey_TypeChecks.Any#Is `.Is()`} for type-checking.
+ * 
+ * ```ahk
+ * ; duck type for numbers and numeric strings
+ * class Numeric {
+ *     static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
+ * 
+ *     static Compare(A, B) {
+ *         if (!A.Is(this)) {
+ *             throw TypeError("Expected a Numeric",, Type(A))
+ *         }
+ *         if (!B.Is(this)) {
+ *             throw TypeError("Expected a Numeric",, Type(B))
+ *         }
+ *         return ( Number(A) ).Compare( Number(B) )
+ *     }
+ * }
+ * ```
+ * 
+ * Lastly, `*ClassObject*.Compare` returns a {@link Comparator} which can be
+ * conveniently used as configuration inside ordered collections, or as
+ * parameter for `.Sort()` methods. `Any.Compare` is type-agnostic, meaning
+ * "use any natural ordering, if present".
+ * 
+ * ```ahk
+ * Arr := ["24.2", 45, 0, "0", 22.0, "-3"]
+ * 
+ * ; e.g.: ("0", 0) => (true).Compare(false) => 1.Compare(0) => 1
+ * NumbersFirst := (A, B) => (A is String).Compare(B is String)
+ * 
+ * Comp := (Numeric.Compare).Then(StringsLast)
+ * 
+ * ; -> ["-3", 0, "0", 22.0, "24.2", 45]
+ * Arr.Sort(Numeric.Compare)
+ * ```
  * 
  * @module  <Base/Ord>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @example
+ * ; result: [1.98, 23, 123, 3455]
+ * Array(123, 23, 1.98, 3455).Sort()
+ * 
+ * ; -1
+ * Number.Compare(-1, 2)
+ * 
+ * ; TypeError! Expected an String.
+ * "123".Compare(123)
+ * 
+ * ; TypeError! Expected an Array.
+ * Array.Compare(1, 2)
  */
 class AquaHotkey_Ord extends AquaHotkey
 {
@@ -208,7 +286,7 @@ class AquaHotkey_Ord extends AquaHotkey
             ThisEnumer := this.__Enum(1)
             OtherEnumer := Other.__Enum(1)
 
-            Loop {
+            loop {
                 AHasElements := !!ThisEnumer(&A)
                 BHasElements := !!OtherEnumer(&B)
 

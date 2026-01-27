@@ -2,8 +2,6 @@
 #Include "%A_LineFile%\..\..\Base\Hash.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
-; TODO use a different data structure as bucket?
-
 /**
  * A simple hash table implementation.
  * 

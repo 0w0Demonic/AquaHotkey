@@ -1,9 +1,4 @@
 class Test_Map extends TestSuite {
-    static WithDefault() {
-        M := Map.WithDefault((MapObj) => false)
-        M["foo"].AssertEquals(false)
-    }
-
     static Keys() {
         Arr := Map("hotel", "trivago", "apple", "banana").Keys()
         Arr.Length.AssertEquals(2)

@@ -2,8 +2,6 @@
 ; #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
 #Include <AquaHotkeyX>
 
-;TODO remove constraints completely in favor of type creation?
-
 ;@region GenericArray
 /**
  * Introduces type-checked arrays using intuitive array syntax (`[]`).

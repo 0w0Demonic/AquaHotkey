@@ -2,9 +2,6 @@
 #Include <AquaHotkeyX>
 #Include <AquaHotkey\src\Collections\Generic\Array>
 
-; TODO type casting
-; TODO also allow functions instead of doing simple type-checks?
-
 /**
  * Introduces type-checked maps, in which key-value pairs are enforced to
  * be instanced of the given types.
@@ -113,7 +110,6 @@ class GenericMap extends Map {
         }
     }
 
-    ; TODO let this return boolean in the future?
     /**
      * Determines whether the given key-value is valid for this map.
      * This method should be overridden by subclasses.

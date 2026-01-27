@@ -1,7 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 ; TODO add back Swap() with unset handling
-; TODO reverse view?
 
 /**
  * Array stream-like operations.
@@ -52,13 +51,12 @@ class Array {
      * Mapper(ArrElement?, Args*)
      * ```
      * 
-     * @example
-     * Array(1, 2, 3, 4).Map(x => x * 2)         ; [2, 4, 6, 8]
-     * Array("hello", "world").Map(SubStr, 1, 1) ; ["h", "w"]
-     * 
      * @param   {Func}  Mapper  function that returns a new element
      * @param   {Any*}  Args    zero or more additional arguments
      * @returns {Array}
+     * @example
+     * Array(1, 2, 3, 4).Map(x => x * 2)         ; [2, 4, 6, 8]
+     * Array("hello", "world").Map(SubStr, 1, 1) ; ["h", "w"]
      */
     Map(Mapper, Args*) {
         GetMethod(Mapper)
@@ -77,15 +75,14 @@ class Array {
      * Mapper(ArrElement?, Args*)
      * ```
      * 
+     * @param   {Func}  Mapper  function that returns a new element
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {this}
      * @example
      * Arr := Array(1, 2, 3)
      * 
      * Arr.ReplaceAll(x => (x * 2))
      * Arr.Join(", ").MsgBox() ; "2, 4, 6"
-     * 
-     * @param   {Func}  Mapper  function that returns a new element
-     * @param   {Any*}  Args    zero or more additional arguments
-     * @returns {this}
      */
     ReplaceAll(Mapper, Args*) {
         GetMethod(Mapper)
@@ -107,14 +104,13 @@ class Array {
      * The method defaults to flattening existing array elements, if no `Mapper`
      * is given.
      * 
+     * @param   {Func?}  Mapper  function to convert and flatten elements
+     * @param   {Any*}   Args    zero or more additional arguments
+     * @returns {Array}
      * @example
      * Array("hel", "lo").FlatMap(StrSplit)       ; ["h", "e", "l", "l", "o"]
      * Array([1, 2], [3, 4]).FlatMap()            ; [1, 2, 3, 4]
      * Array("a,b", "c,d").FlatMap(StrSplit, ",") ; ["a", "b", "c", "d"]
-     * 
-     * @param   {Func?}  Mapper  function to convert and flatten elements
-     * @param   {Any*}   Args    zero or more additional arguments
-     * @returns {Array}
      */
     FlatMap(Mapper?, Args*) {
         Result := Array.BasedFrom(this)
@@ -152,13 +148,12 @@ class Array {
      * Condition(ArrElement?, Args*)
      * ```
      * 
-     * @example
-     * Array(1, 2, 3, 4).RetainIf(x => x > 2)    ; [3, 4]
-     * Array("foo", "bar").RetainIf(InStr, "f")  ; ["foo"]
-     * 
      * @param   {Func}  Condition  the given condition
      * @param   {Any*}  Args       zero or more additional arguments
      * @returns {Array}
+     * @example
+     * Array(1, 2, 3, 4).RetainIf(x => x > 2)    ; [3, 4]
+     * Array("foo", "bar").RetainIf(InStr, "f")  ; ["foo"]
      */
     RetainIf(Condition, Args*) {
         GetMethod(Condition)
@@ -177,13 +172,12 @@ class Array {
      * Condition(ArrElement, Args*)
      * ```
      * 
-     * @example
-     * Array(1, 2, 3, 4).RemoveIf(x => x > 2)    ; [1, 2]
-     * Array("foo", "bar").RemoveIf(InStr, "f")  ; ["bar"]
-     * 
      * @param   {Predicate}  Condition  the given condition
      * @param   {Any*}       Args       zero or more additional arguments
      * @returns {Array}
+     * @example
+     * Array(1, 2, 3, 4).RemoveIf(x => x > 2)    ; [1, 2]
+     * Array("foo", "bar").RemoveIf(InStr, "f")  ; ["bar"]
      */
     RemoveIf(Condition, Args*) {
         GetMethod(Condition)
@@ -195,24 +189,21 @@ class Array {
     }
 
     /**
-     * Returns a new array of unique elements by keeping track of them in a Map.
+     * Returns a new array of unique elements by keeping track of them in an
+     * {@link ISet}.
      * 
-     * A custom `Hasher` can be used to specify the map key to be used.
+     * A custom `Hasher` can be used to retrieve map keys that should be used
+     * to keep track of unique elements with.
      * 
      * ```ahk
-     * Hasher(ArrElement?)
+     * Hasher(ArrElement: Any?) => Any
      * ```
      * 
-     * You can determine the behavior of the internal Map by passing either...
-     * - the map to be used;
-     * - a function that returns the map to be used;
-     * - a case-sensitivity option
-     * 
-     * ...as value for the `MapParam` parameter.
-     * 
+     * @param   {Func?}  Hasher    function to create map keys
+     * @param   {Any?}   SetParam  internal set options
+     * @returns {Array}
      * @example
-     * ; [1, 2, 3]
-     * Array(1, 2, 3, 1).Distinct()
+     * Array(1, 2, 3, 1).Distinct() ; [1, 2, 3]
      * 
      * ; ["foo"]
      * Array("foo", "Foo", "FOO").Distinct(StrLower)
@@ -220,44 +211,26 @@ class Array {
      * ; [{ Value: 1 }, { Value: 2 }]
      * Array({ Value: 1 }, { Value: 2 }, { Value: 1 })
      *         .Distinct(  (Obj) => Obj.Value )
-     * 
-     * @param   {Func?}                  Hasher    function to create map keys
-     * @param   {Map?/Func?/Primitive?}  MapParam  internal map options
-     * @returns {Array}
      */
-    Distinct(Hasher?, MapParam := Map()) {
-        ; TODO rethink how values are saved
-        switch {
-            case (MapParam is Map):
-                Cache := MapParam
-            case (HasMethod(MapParam)):
-                Cache := MapParam()
-                if (!(Cache is Map)) {
-                    throw TypeError("Expected a Map",, Type(Cache))
-                }
-            default:
-                Cache := Map()
-                Cache.CaseSense := MapParam
-        }
-
+    Distinct(Hasher?, SetParam := Set()) {
+        S := ISet.Create(SetParam)
         Result := Array.BasedFrom(this)
+
         if (IsSet(Hasher)) {
             for Value in this {
-                Key := Hasher(Value?)
-                if (!Cache.Has(Key)) {
-                    Result.Push(Value)
-                    Cache[Key] := true
+                if (S.Add(Hasher(Value?))) {
+                    Result.Push(Value?)
                 }
             }
             return Result
         }
         for Value in this {
-            if (IsSet(Value) && !Cache.Has(Value)) {
-                Result.Push(Value)
-                Cache[Value] := true
+            if (S.Add(Value?)) {
+                Result.Push(Value?)
             }
         }
         return Result
+
     }
 
     /**
@@ -356,6 +329,7 @@ class Array {
         return 0
     }
 
+    ; TODO move .Fill() and .Repeat() somewhere else?
     /**
      * Fills the array with the specified value.
      * 
@@ -380,9 +354,11 @@ class Array {
      * [ [3].Repeat(3) ].Repeat(3) ; [[3, 3, 3], [3, 3, 3], [3, 3, 3]]
      */
     Repeat(X) {
-        ; TODO move this somewhere else?
         if (!IsInteger(X)) {
             throw TypeError("Expected an Integer",, Type(X))
+        }
+        if (X < 0) {
+            throw ValueError("< 0",, X)
         }
         Result := Array()
         Result.Capacity := X * this.Length
@@ -402,9 +378,5 @@ class Array {
      * MsgBox(Arr[1])     ; "B"
      */
     Poll() => this.RemoveAt(1)
-
-    ; TODO add...
-    ; - SetAll() ?
-    ; - ReplaceAll(Value, NewValue) ?
 } ; class Array
 } ; class AquaHotkey_Array extends AquaHotkey

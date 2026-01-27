@@ -1,5 +1,8 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO repurpose all of the `.Define...` methods into stuff
+;      that creates prop descs?
+
 /**
  * Object utilities.
  * 
@@ -47,6 +50,30 @@ class Object {
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region DefineProp
+
+    /**
+     * Defines one or more properties.
+     * 
+     * `Props` is required to be a plain object.
+     * 
+     * @param   {Object}  Props  object containing property descriptors
+     * @returns {this}
+     * @example
+     * this.DefineProps({
+     *     Capacity: { Get: (_) => 16 },
+     *     SayHello: { Call: (_) => MsgBox("Hello, world!")},
+     *     ...
+     * })
+     */
+    DefineProps(Props) {
+        if (ObjGetBase(Props) != Object.Prototype) {
+            throw TypeError("Expected a plain object",, Type(Props))
+        }
+        for PropName in ObjOwnProps(Props) {
+            this.DefineProp(PropName, Props.GetOwnPropDesc(PropName))
+        }
+        return this
+    }
 
     /**
      * Defines a new read-only property by the name of `PropertyName` for this
@@ -168,8 +195,8 @@ class Object {
      * 
      * @param   {String}  PropName  name of the property
      * @returns {Object}
+     * @see {@link AquaHotkey_TypeChecks}
      * @example
-     * ; (see AquaHotkey_TypeChecks)
      * (42).GetPropDesc("Is") ; { Call: AquaHotkey_TypeChecks.Any.Prototype.Is }
      */
     GetPropDesc(PropName) {

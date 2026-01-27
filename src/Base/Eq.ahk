@@ -4,6 +4,10 @@
  * Adds a universal `.Eq()` method for checking whether two values are
  * equivalent.
  * 
+ * ```ahk
+ * ([1, 2, 3]).Eq([1, 2, 3]) ; true
+ * ```
+ * 
  * ---
  * 
  * **How to Implement**:
@@ -99,6 +103,8 @@ class Class {
      */
     Eq => (A?, B?) => this.Eq(A?, B?)
     
+    ; TODO use duck-typing (`.Is(T)`)?
+
     /**
      * If called with 1 parameter, determines whether this class is equal to the
      * other class. Otherwise, determines whether two given values are equal.
@@ -154,7 +160,7 @@ class Array {
      * This happens when...
      * 
      * - `Other` is an array with the same length;
-     * - Elements in this array are equal to elements in `Other` (`.Eq()`).
+     * - elements on the same index are equivalent (`Arr1[i].Eq(Arr2[i])`)
      * 
      * @param   {Any?}  Other  any value
      * @returns {Boolean}

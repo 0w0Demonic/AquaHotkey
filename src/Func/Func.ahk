@@ -9,6 +9,10 @@
  * - src/Builtins/Func.ahk
  */
 class AquaHotkey_Func extends AquaHotkey {
+
+/**
+ * @extends {#Func}
+ */
 class Func {
     ;@region Suppliers
     /**
@@ -46,16 +50,15 @@ class Func {
      * given input, and then forwards the result to `After` as first parameter,
      * followed by zero or more additional arguments `NextArgs*`.
      * 
+     * @param   {Func}  After     function to apply after this function
+     * @param   {Any*}  NextArgs  zero or more additional arguments
+     * @returns {Func}
      * @example
      * TimesTwo(x) => (x * 2)
      * PlusFive(x) => (x + 5)
      * 
      * TimesTwoPlusFive := TimesTwo.AndThen(PlusFive)
      * TimesTwoPlusFive(3) ; 11
-     * 
-     * @param   {Func}  After     function to apply after this function
-     * @param   {Any*}  NextArgs  zero or more additional arguments
-     * @returns {Func}
      */
     AndThen(After, NextArgs*) {
         GetMethod(After)
