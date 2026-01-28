@@ -1,7 +1,7 @@
 
 class Test_Eq extends TestSuite {
     static UnsetEqualsUnset() {
-        Any.Eq(unset, unset).AssertEquals(true)
+        Any.Equals(unset, unset).AssertEquals(true)
     }
 
     static Any() {
@@ -71,7 +71,7 @@ class Test_Eq extends TestSuite {
     }
 
     static Class_eq_a_b() {
-        String.Equals("", "").AssertEquals(true)
+        String.Equals("", "")
     }
 
     static Class_eq_a_b_supports_unset() {

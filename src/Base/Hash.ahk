@@ -1,8 +1,29 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO allow hash codes in HashMap/HashSet to be customizable?
+
 /**
- * Adds a universal `.HashCode()` function on which collections like
- * {@link HashMap} and {@link HashSet} rely on.
+ * Adds a universal `.HashCode()` function which generates an (reasonably)
+ * unique integer out of a unique value.
+ * 
+ * ---
+ * 
+ * Implementing custom hash codes for a given type allows collections like
+ * {@link HashMap} and {@link HashSet} to use them more easily as key.
+ * 
+ * ```ahk
+ * M := HashMap()
+ * M.Set([1, 2], "value1")
+ * M.Set([1, 2], "value2")
+ * 
+ * MsgBox(M.Count) ; 1
+ * MsgBox(M.Get([1, 2])) ; "value2"
+ * ```
+ * 
+ * In the example above, the HashMap is able to determine that `[1, 2]` is
+ * already present, because `A.HashCode() == B.HashCode()` and `A.Eq(B)`.
+ * 
+ * ---
  * 
  * For consistency, the `.HashCode()` function must adhere to the following
  * rules:
@@ -10,9 +31,31 @@
  * - The result of `.HashCode()` must not change, unless the values change
  * - If two values are equal ({@link AquaHotkey_Eq `.Eq()`}), they must produce the
  *   same hash code.
+ * - `.HashCode()` should - generally speaking - always be consistent with
+ *   `.Eq()` in terms of what fields or characteristics are used.
+ * 
+ * ```ahk
+ * class Version {
+ *     __New(Major, Minor, Patch) {
+ *         this.Major := Major
+ *         this.Minor := Minor
+ *         this.Patch := Patch
+ *     }
+ *     
+ *     HashCode() {
+ *         return Any.Hash(this.Major, this.Minor, this.Patch)
+ *     }
+ * }
+ * ```
+ * 
+ * ---
  * 
  * `Any.Hash()` can be used for conveniently creating a hash code from
- * multiple values.
+ * multiple values. You should generally use this method for writing your own
+ * hash codes.
+ * 
+ * Much like in {@link AquaHotkey_Eq} or {@link AquaHotkey_Ord}, `Any.Hash()`
+ * asserts that every argument `is Any`.
  * @module  <Base/Hash>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
