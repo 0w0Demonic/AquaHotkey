@@ -24,7 +24,12 @@
 #Include "%A_LineFile%/../../Base/Assertions.ahk"
 #Include "%A_LineFile%/../../Base/ToString.ahk"
 #Include "%A_LineFile%/../../Base/TypeInfo.ahk"
-#Include "%A_LineFile%/../../Base/TypeChecks.ahk"
+#Include "%A_LineFile%/../../Base/DuckTypes.ahk"
+
+#Include "%A_LineFile%/../../Base/DuckTypes/BufferObject.ahk"
+#Include "%A_LineFile%/../../Base/DuckTypes/Callable.ahk"
+#Include "%A_LineFile%/../../Base/DuckTypes/Numeric.ahk"
+#Include "%A_LineFile%/../../Base/DuckTypes/Record.ahk"
 
 #Include "%A_LineFile%/../../Primitives/Integer.ahk"
 #Include "%A_LineFile%/../../Primitives/Number.ahk"

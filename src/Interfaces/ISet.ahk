@@ -47,7 +47,7 @@ class ISet {
      * @param   {Any?}  Param  set, factory, or case-sensitivity
      * @returns {ISet}
      * @see {@link HashSet}
-     * @see {@link AquaHotkey_TypeChecks `.Is()`}
+     * @see {@link AquaHotkey_DuckTypes `.Is()`}
      * @example
      * 
      * Set.Create() ; a normal Set

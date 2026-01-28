@@ -75,7 +75,7 @@ class AquaHotkey_ToString extends AquaHotkey
          */
         ToString() {
             static GetProp := {}.GetOwnPropDesc
-            Result := ""
+            Result := Type(this) . " { "
             Count := 0
             for PropName in ObjOwnProps(this) {
                 PropDesc := GetProp(this, PropName)
@@ -90,22 +90,9 @@ class AquaHotkey_ToString extends AquaHotkey
                 AquaHotkey_ToString.ToString(&Value)
                 Result .= PropName . ": " . Value
             }
-
-            return Type(this) . " { " . Result . " }"
+            Result .= " }"
+            return Result
         }
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Primitive
-
-    class Primitive {
-        /**
-         * Returns this number as string.
-         * 
-         * @returns {String}
-         */
-        ToString() => String(this)
     }
 
     ;@endregion
@@ -134,16 +121,6 @@ class AquaHotkey_ToString extends AquaHotkey
          * Array(1, 2, 3, 4).ToString() ; "[1, 2, 3, 4]" 
          */
         ToString() {
-            static Mapper(Value?) {
-                if (!IsSet(Value)) {
-                    return "unset"
-                }
-                if (Value is String) {
-                    return '"' . Value . '"'
-                }
-                return String(Value)
-            }
-
             Result := "["
             for Value in this {
                 if (A_Index != 1) {
@@ -228,7 +205,7 @@ class AquaHotkey_ToString extends AquaHotkey
          */
         ToString(Args*) {
             if (!Args.Length) {
-                return "Class " . this.Prototype.__Class
+                return "Class " . this.Name
             }
             if (Args.Length != 1) {
                 throw ValueError("invalid param count: " . Args.Length)
@@ -310,7 +287,7 @@ class AquaHotkey_ToString extends AquaHotkey
          * Bar.ToString() ; "VarRef<2>"
          */
         ToString() {
-            Result := "VarRef<"
+            Result := Type(this) . "<"
             if (IsSetRef(this)) {
                 Value := %this%
                 AquaHotkey_ToString.ToString(&Value)

@@ -1,8 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
-; TODO repurpose all of the `.Define...` methods into stuff
-;      that creates prop descs?
-
 /**
  * Object utilities.
  * 
@@ -17,20 +14,21 @@ class Object {
      * Creates a `BoundFunc` which calls a method `MethodName` bound to this
      * particular instance, followed by zero or more arguments `Args*`.
      * 
+     * @param   {String}  MethodName  the name of a method
+     * @param   {Any*}    Args        zero or more additional arguments
+     * @returns {BoundFunc}
      * @example
      * Arr       := Array()
      * PushToArr := Arr.BindMethod("Push")
      * PushToArr("Hello, world!")
-     * 
-     * @param   {String}  MethodName  the name of a method
-     * @param   {Any*}    Args        zero or more additional arguments
-     * @returns {BoundFunc}
      */
     BindMethod(MethodName, Args*) => ObjBindMethod(this, MethodName, Args*)
 
     /**
      * Sets the base of this object.
      * 
+     * @param   {Any}  BaseObj  the new base of this object
+     * @returns {this}
      * @example
      * class Foo {
      * 
@@ -38,9 +36,6 @@ class Object {
      * 
      * Obj := Object().SetBase(Foo.Prototype)
      * MsgBox(Obj is Foo) ; true
-     * 
-     * @param   {Any}  BaseObj  the new base of this object
-     * @returns {this}
      */
     SetBase(BaseObj) {
         ObjSetBase(this, BaseObj)
@@ -79,15 +74,14 @@ class Object {
      * Defines a new read-only property by the name of `PropertyName` for this
      * object, which returns a constant `Value`.
      * 
+     * @param   {String}  PropertyName  name of the new property
+     * @param   {Any}     Value         value that is returned by this property
+     * @returns {this}
      * @example
      * class Foo {
      *     ; property "Bar" becomes immutable
      *     __New(Bar) => this.DefineConstant("Bar", Bar)
      * }
-     * 
-     * @param   {String}  PropertyName  name of the new property
-     * @param   {Any}     Value         value that is returned by this property
-     * @returns {this}
      */
     DefineConstant(PropertyName, Value) {
         return this.DefineProp(PropertyName, { Get: (_) => Value })
@@ -96,19 +90,14 @@ class Object {
     /**
      * Defines a new read-only property by the name of `PropertyName`.
      * 
-     * @example
-     * TwoTimesValue(this) {
-     *     return this.Value * 2
-     * }
-     * 
-     * Obj := { Value: 3 }
-     * Obj.DefineGetter("TwoTimesValue", TwoTimesValue)
-     * 
-     * MsgBox(Obj.TwoTimesValue) ; 6
-     * 
      * @param   {String}  PropertyName  name of the property
      * @param   {Func}    Getter        the function to be called
      * @returns {this}
+     * @example
+     * Obj := { Value: 3 }
+     * Obj.DefineGetter("TwoTimesValue", (this) => (this.Value * 2))
+     * MsgBox(Obj.TwoTimesValue) ; 6
+     * 
      */
     DefineGetter(PropertyName, Getter) {
         GetMethod(Getter)
@@ -119,6 +108,10 @@ class Object {
      * Defines a new property by the name of `PropertyName` with `Getter` and
      * `Setter` methods.
      * 
+     * @param   {String}  PropertyName  name of the new property
+     * @param   {Func}    Getter        getter function
+     * @param   {Func}    Setter        setter function
+     * @returns {this}
      * @example
      * Getter(this) {
      *     ++this.Count
@@ -135,11 +128,6 @@ class Object {
      * Obj.Foo := 3
      * MsgBox(Obj.Foo)   ; 3
      * MsgBox(Obj.Count) ; 2
-     * 
-     * @param   {String}  PropertyName  name of the new property
-     * @param   {Func}    Getter        getter function
-     * @param   {Func}    Setter        setter function
-     * @returns {this}
      */
     DefineGetterSetter(PropertyName, Getter, Setter) {
         (GetMethod(Getter) && GetMethod(Setter))
@@ -150,6 +138,9 @@ class Object {
      * Defines a new property by the name of `PropertyName` with the given
      * `Setter` function.
      * 
+     * @param   {String}  PropertyName  name of the new property
+     * @param   {Func}    Setter        setter function
+     * @returns {this}
      * @example
      * Setter(this, Value) {
      *     return this.Value := Value.Assert(IsInteger)
@@ -158,10 +149,6 @@ class Object {
      * Obj     := ({ Value: 42 }).DefineSetter("Foo", Setter)
      * Obj.Foo := 2
      * Obj.Foo := "bar" ; Error!
-     * 
-     * @param   {String}  PropertyName  name of the new property
-     * @param   {Func}    Setter        setter function
-     * @returns {this}
      */
     DefineSetter(PropertyName, Setter) {
         GetMethod(Setter)
@@ -171,15 +158,14 @@ class Object {
     /**
      * Defines a new method by the name of `PropertyName`.
      * 
+     * @param   {String}  PropertyName  name of property
+     * @param   {Func}    Method        the function to be called
+     * @returns {this}
      * @example
      * PrintValue(this) => MsgBox(this.Value)
      * 
      * Obj := ({ Value: 42 }).DefineMethod("PrintValue", PrintValue)
      * Obj.PrintValue()
-     * 
-     * @param   {String}  PropertyName  name of property
-     * @param   {Func}    Method        the function to be called
-     * @returns {this}
      */
     DefineMethod(PropertyName, Method) {
         GetMethod(Method)
@@ -195,9 +181,9 @@ class Object {
      * 
      * @param   {String}  PropName  name of the property
      * @returns {Object}
-     * @see {@link AquaHotkey_TypeChecks}
+     * @see {@link AquaHotkey_DuckTypes}
      * @example
-     * (42).GetPropDesc("Is") ; { Call: AquaHotkey_TypeChecks.Any.Prototype.Is }
+     * (42).GetPropDesc("Is") ; { Call: AquaHotkey_DuckTypes.Any.Prototype.Is }
      */
     GetPropDesc(PropName) {
         if (!HasProp(this, PropName)) {
@@ -211,4 +197,3 @@ class Object {
     }
 } ; class Object
 } ; class AquaHotkey_Object extends AquaHotkey
-

@@ -26,7 +26,7 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
          * by name.
          * 
          * @readonly
-         * @returns {String}
+         * @returns {Class}
          * @example
          * "foo".Class ; String (class)
          */

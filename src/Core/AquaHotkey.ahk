@@ -28,6 +28,11 @@
  * scripts to detect its presence at runtime (for example via
  * `IsSet(MyFeature)`), making features optional and loosely coupled.
  * 
+ * ## Misc
+ * 
+ * To activate verbose logging, define the class `AquaHotkey_Verbose` as
+ * marker class somewhere in the script.
+ * 
  * @module   <Core/AquaHotkey>
  * @author   0w0Demonic
  * @see      https://www.github.com/0w0Demonic/AquaHotkey
@@ -138,16 +143,17 @@ class AquaHotkey extends AquaHotkey_Ignore
      * }
      */
     static __New() {
+        ;----
         static GetProp(Obj, Name) => ({}.GetOwnPropDesc)(Obj, Name)
-
+        static Delete(Obj, Name)  => ({}.DeleteProp)(Obj, Name)
         Log(Str, Args*) => (AquaHotkey_Ignore.Log)(this, Str, Args*)
+        ;----
+
         Log("# Extension Class: {1}", this.Prototype.__Class)
-
         Classes := Array()
-
         for PropertyName in ObjOwnProps(this)
         {
-            PropDesc := ({}.GetOwnPropDesc)(this, PropertyName)
+            PropDesc := GetProp(this, PropertyName)
             switch {
                 case (ObjHasOwnProp(PropDesc, "Value")):
                     Supplier := PropDesc.Value
@@ -167,9 +173,10 @@ class AquaHotkey extends AquaHotkey_Ignore
             Classes.Push(PropertyName)
             (AquaHotkey_Ignore.Apply)(this, Supplier, Receiver)
         }
+        ; TODO deleting might be overkill. for now, let's just be safe.
         if (this == AquaHotkey) {
             for Cls in Classes {
-                ({}.DeleteProp)(this, Cls)
+                Delete(this, Cls)
             }
         }
         return this
@@ -195,6 +202,8 @@ class AquaHotkey extends AquaHotkey_Ignore
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Extensions
+
+    ; TODO rethink mixins / .Implements(), yet again.
 
     class Any {
         ;@region Implements()
@@ -236,6 +245,7 @@ class AquaHotkey extends AquaHotkey_Ignore
          * 
          * @public
          * @abstract
+         * @readonly
          * @type {Map}
          */
         Mixins => Map()
@@ -566,9 +576,14 @@ class AquaHotkey_Ignore
     ;@region static Requires()
 
     /**
-     * Asserts that the given symbol is present, otherwise deletes one
-     * or more properties from the class by their property path.
+     * Asserts that the given symbol is present in global namespace, otherwise
+     * deletes one or more properties from the class by their property path.
      * 
+     * For this method, you must use the question mark (for example,
+     * `MyClass?`) to resolve a symbol either to its value, or to `unset` (see
+     * example below).
+     * 
+     * @public
      * @param   {Any?}     Symbol         any global variable
      * @param   {String*}  PropertyPaths  affected property paths
      * @returns {this}
@@ -641,7 +656,10 @@ class AquaHotkey_Ignore
      * Transfers all of the properties owned by the `Supplier` and overwrites
      * them into the given `Receiver`.
      * 
-     * @protected
+     * To activate verbose logging, define the class `AquaHotkey_Verbose` as
+     * marker class somewhere in the script.
+     * 
+     * @private
      * @param   {Class|Func}  Supplier  contains the properties to be applied
      * @param   {Class|Func}  Receiver  receives the new properties
      */
@@ -772,19 +790,45 @@ class AquaHotkey_Ignore
             }
         }
 
+        /**
+         * Indendation with spaces.
+         * 
+         * @param   {Integer}  Level  level of indentation
+         * @returns {String}
+         */
         static Indent(Level) {
             static SpacesPerIndent := 2
             return Format("{: " . (Level * SpacesPerIndent) . "}", "")
         }
 
+        /**
+         * Logging.
+         * 
+         * @param   {Integer}  nIndent  level of indentation
+         * @param   {String}   Str      format string
+         * @param   {Any*}     Args     zero or more arguments
+         */
         Log(nIndent, Str, Args*) {
             (AquaHotkey_Ignore.Log)(this, Indent(nIndent) . Str, Args*)
         }
 
+        /**
+         * Verbose logging.
+         * 
+         * @param   {Integer}  nIndent  level of indentation
+         * @param   {String}   Str      format string
+         * @param   {Any*}     Args     zero or more arguments
+         */
         LogVerbose(nIndent, Str, Args*) {
             (AquaHotkey_Ignore.LogVerbose)(this, Indent(nIndent) . Str, Args*)
         }
 
+        /**
+         * Performs an overwrite from `Supplier` to `Receiver`.
+         * 
+         * @param   {Class|Func}  Supplier  where to copy properties from
+         * @param   {Class|Func}  Receiver  where to copy properties into
+         */
         Apply(Supplier, Receiver) {
             (AquaHotkey_Ignore.Apply)(this, Supplier, Receiver)
         }

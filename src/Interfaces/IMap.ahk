@@ -62,7 +62,7 @@ class IMap {
      * @param   {Any?}  Param  map, factory, or case-sensitivity
      * @returns {IMap}
      * @see {@link HashMap}
-     * @see {@link AquaHotkey_TypeChecks `.Is()`}
+     * @see {@link AquaHotkey_DuckTypes `.Is()`}
      * @example
      * 
      * Map.Create()      ; a normal Map

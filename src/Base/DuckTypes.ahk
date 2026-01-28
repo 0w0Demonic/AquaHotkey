@@ -4,10 +4,9 @@
 ; TODO change `.AssertType()` to use this module's `.Is()` ?
 ; TODO provide a way to turn a type pattern into a string ?
 
-;@region Extensions
 /**
- * Provides a flexible and customizable duck typing system which extends the functionality
- * of the `is`-keyword.
+ * Provides a flexible and customizable duck typing system which extends
+ * the functionality of the `is`-keyword.
  * 
  * Duck typing means we care what a value *does*, not what it *is* as defined
  * by its base objects.
@@ -129,7 +128,7 @@
  *    (in this case - subclass) of `Object`
  * 3. `{ Value: Number }` can cast from `{ Value: Integer, OtherValue: Any }`
  * 
- * @module  <Base/TypeChecks>
+ * @module  <Base/DuckTypes>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @see {@link GenericArray}
@@ -164,7 +163,7 @@
  *     }
  * }
  */
-class AquaHotkey_TypeChecks extends AquaHotkey {
+class AquaHotkey_DuckTypes extends AquaHotkey {
     ;@region Any
 
     class Any {
@@ -228,7 +227,6 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
          * of the given object. Primitive types are matched using `.Eq()`,
          * objects are matched using `.IsInstance()`
          * 
-         * @augments Any#IsInstance
          * @param    {Any?}  Val  any value
          * @returns  {Boolean}
          * @example
@@ -381,10 +379,10 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
         IsInstance(Val?) => IsSet(Val) && (Val is this)
 
         /**
-         * Determines whether this value is an instance of the given class, or
-         * its superclass.
+         * Determines whether the given value is equal to this class, or
+         * its subclass.
          * 
-         * @param   {Class}  T  expected class
+         * @param   {Class}  T  any class
          * @returns {Boolean}
          * @example
          * 
@@ -563,196 +561,3 @@ class AquaHotkey_TypeChecks extends AquaHotkey {
         }
     }
 }
-
-;@endregion
-;-------------------------------------------------------------------------------
-;@region Numeric
-
-/**
- * A number or numeric string (as determined by `IsNumber()`).
- */
-class Numeric {
-    /**
-     * Determines whether the value is numeric.
-     * 
-     * @param   {Any}  Val  any value
-     * @returns {Boolean}
-     * @example
-     * "example".Is(Numeric)     ; false
-     * Numeric.IsInstance("123") ; true
-     */
-    static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
-
-    /**
-     * Determines whether the given class is considered a subclass of `Numeric`.
-     * 
-     * @param   {Class}  T  any class
-     * @returns {Boolean}
-     * @example
-     * Numeric.CanCastFrom(Numeric) ; true
-     * Numeric.CanCastFrom(Integer) ; true (every integer is numeric)
-     */
-    static CanCastFrom(T) {
-        return super.CanCastFrom(T) || Number.CanCastFrom(T)
-    }
-}
-
-;@endregion
-;-------------------------------------------------------------------------------
-;@region Callable
-
-/**
- * An object with `Call` property (`HasMethod()`).
- */
-class Callable {
-    /**
-     * Determines whether the value is callable, excluding `.__Call()`.
-     * 
-     * @param   {Any}  Value  any value
-     * @returns {Boolean}
-     * @example
-     * "example".Is(Callable)                        ; false
-     * Callable.IsInstance(MsgBox)                   ; true
-     * ({ Call: (this) => this.Value }).Is(Callable) ; true
-     */
-    static IsInstance(Val?) => IsSet(Val) && IsObject(Val) && HasMethod(Val)
-
-    /**
-     * Determines whether the given class is considered a subclass of
-     * `Callable`.
-     * 
-     * @param   {Any}  Value  any value
-     * @returns {Boolean}
-     * @example
-     * Callable.CanCastFrom(Func) ; true (every function is callable)
-     */
-    static CanCastFrom(T) {
-        return (super.CanCastFrom(T) || Func.CanCastFrom(T))
-    }
-}
-
-;@endregion
-;-------------------------------------------------------------------------------
-;@region BufferObject
-
-/**
- * An object with `Ptr` and `Size` property.
- */
-class BufferObject {
-    /**
-     * Determines whether the buffer is buffer-like.
-     * 
-     * @param   {Any?}  Val  any value
-     * @returns {Boolean}
-     * @example
-     * Buffer(16, 0).Is(BufferObject)        ; true
-     * { Ptr: 0, Size: 16 }.Is(BufferObject) ; true
-     */
-    static IsInstance(Val?) => (
-            IsSet(Val)
-            IsObject(Val) &&
-            HasProp(Val, "Ptr") &&
-            HasProp(Val, "Size"))
-    
-    /**
-     * Determines whether the given class is considered a subtype of
-     * `BufferObject`.
-     * 
-     * @param   {Class}  T  any class
-     * @returns {Boolean}
-     * @example
-     * ; true (every buffer is a BufferObject)
-     * BufferObject.CanCastFrom(Buffer)
-     */
-    static CanCastFrom(T) => (super.CanCastFrom(T) || Buffer.CanCastFrom(T))
-}
-
-;@endregion
-;-------------------------------------------------------------------------------
-;@region Record
-
-/**
- * A `Record<K, V>` is an object with properties of type `K` and values `V`.
- * 
- * @example
- * Permissions := Type.Enum("Admin", "User", "Guest")
- * PermissionsMap := Record(Permissions, String)
- * 
- * Obj := {
- *     Admin: "just do what you want lol",
- *     User: "okay, you're allowed in",
- *     Guest: "fine. but don't touch anything"
- * }
- * MsgBox(Obj.Is(PermissionsMap))
- */
-class Record {
-    /**
-     * Creates a new record type with the given key and value type.
-     * 
-     * @param   {Any}  KeyType    key type
-     * @param   {Any}  ValueType  value type
-     * @returns {Class}
-     * @example
-     * CatName := Type.Enum("Miffy", "Boris", "Mordred")
-     * CatInfo := { Age: Number, Breed: String }
-     * 
-     * Cats := {
-     *    Miffy:   { Age: 10, Breed: "Persian "},
-     *    Boris:   { Age: 5,  Breed: "Maine Coon" },
-     *    Mordred: { Age: 16, Breed: "British Shorthair" }
-     * }
-     */
-    static Call(KeyType, ValueType) {
-        static Define  := {}.DefineProp
-        static GetProp := {}.GetOwnPropDesc
-
-        if (!HasMethod(KeyType, "IsInstance")) {
-            throw TypeError("not a valid pattern")
-        }
-        if (!HasMethod(ValueType, "IsInstance")) {
-            throw TypeError("not a valid pattern")
-        }
-
-        Result := Class()
-        Define(Result, "IsInstance", { Call: IsInstance })
-        return Result
-
-        /**
-         * Determines whether the given value is considered an instance of
-         * this record type. This only applies if the value is a plain object
-         * (inherits directly from `Object.Prototype`).
-         * 
-         * @param   {Any?}  Val  any value
-         * @returns {Boolean}
-         * @example
-         * Record(String, Integer).IsInstance({ Age: 21 })
-         */
-        IsInstance(this, Val?) {
-            if (!IsSet(Val)) {
-                return false
-            }
-
-            ; only supposed to work on plain objects, for now.
-            if (ObjGetBase(Val) != Object.Prototype) {
-                return false
-            }
-
-            for PropName in ObjOwnProps(Val) {
-                PropDesc := GetProp(Val, PropName)
-                if (!ObjHasOwnProp(PropDesc, "Value")) {
-                    continue
-                }
-                PropVal := PropDesc.Value
-                if (!KeyType.IsInstance(PropName)) {
-                    return false
-                }
-                if (!ValueType.IsInstance(PropVal)) {
-                    return false
-                }
-            }
-            return true
-        }
-    }
-}
-
-;@endregion

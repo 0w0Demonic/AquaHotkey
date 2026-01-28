@@ -2,9 +2,8 @@
 
 ; TODO (GenericArray, GenericMap) static Eq(Other)
 ; TODO (find-by-value methods)
-; TODO static Eq() for duck types
-; TODO refactor things to use `Any.Eq` OR custom predicates
-; TODO make overriding `static Eq()` less work and copy-pasting
+; TODO static Equals() for duck types
+; TODO refactor things to use `Any.Equals` OR custom predicates
 
 /**
  * Adds a universal `.Eq()` method for checking whether two values are
@@ -91,10 +90,10 @@
  * 
  * ---
  * 
- * Because {@link AquaHotkey_TypeChecks duck types} might not necessarily
+ * Because {@link AquaHotkey_DuckTypes duck types} might not necessarily
  * inherit the proper `.Equals()` method, you must implement a custom
  * `static Eq()` for the duck type. These overrides should use
- * {@link AquaHotkey_TypeChecks.Any#Is `.Is()`} for type-checking.
+ * {@link AquaHotkey_DuckTypes.Any#Is `.Is()`} for type-checking.
  * 
  * ```ahk
  * ; duck type for any buffer-like object
@@ -111,7 +110,7 @@
  *         if (!IsSet(B)) {
  *             return false
  *         }
- *         if (A.Is(this) && B.Is(this)) {
+ *         if (A.Is(this) && B.Is(this)) { ; `Val.Is(T)` instead of `Val is T`
  *             return (A.Ptr).Eq(B.Ptr)
  *                 && (A.Size).Eq(B.Size)
  *         }
@@ -124,7 +123,7 @@
  * @module  <Base/Eq>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
- * @see {@link AquaHotkey_TypeChecks duck types}
+ * @see {@link AquaHotkey_DuckTypes duck types}
  * @see {@link HashMap}
  * @see {@link HashSet}
  * @example
@@ -132,13 +131,13 @@
  * ({ foo: "bar" }).Eq({ FOO: "bar" })
  * 
  * ; --> true (because `unset == unset`)
- * Any.Eq(unset, unset)
+ * Any.Equals(unset, unset)
  * 
  * ; Error! Expected an Object.
- * Object.Eq(124, 45)
+ * Object.Equals(124, 45)
  * 
- * ; function `AquaHotkey_Eq.Map.Eq`
- * MapEquality := Map.Eq 
+ * ; function `AquaHotkey_Eq.Map.Equals`
+ * MapEquality := Map.Equals
  */
 class AquaHotkey_Eq extends AquaHotkey
 {
@@ -220,10 +219,9 @@ class Class {
             return false
         }
         if ((A is this) && (B is this)) {
-            throw (A == B) || A.Eq(B)
+            return (A == B) || A.Eq(B)
         }
-        throw TypeError("Expected a(n) " . this.Prototype.__Class,,
-                        Type(A) . " " . Type(B))
+        throw TypeError("Expected a(n) " . this.Name,, Type(A) . ", " . Type(B))
     }
 }
 

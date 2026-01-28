@@ -3,36 +3,35 @@
 ; TODO allow hash codes in HashMap/HashSet to be customizable?
 
 /**
- * Adds a universal `.HashCode()` function which generates an (reasonably)
- * unique integer out of a unique value.
+ * Adds a universal `.HashCode()` function which generates a stable,
+ * well-distributed integer from a value.
  * 
  * ---
  * 
  * Implementing custom hash codes for a given type allows collections like
- * {@link HashMap} and {@link HashSet} to use them more easily as key.
+ * {@link HashMap} and {@link HashSet} to efficiently use its instances
+ * as keys.
  * 
  * ```ahk
  * M := HashMap()
  * M.Set([1, 2], "value1")
  * M.Set([1, 2], "value2")
  * 
- * MsgBox(M.Count) ; 1
+ * MsgBox(M.Count)       ; 1
  * MsgBox(M.Get([1, 2])) ; "value2"
  * ```
  * 
- * In the example above, the HashMap is able to determine that `[1, 2]` is
- * already present, because `A.HashCode() == B.HashCode()` and `A.Eq(B)`.
+ * In the example above, the HashMap determines that `[1, 2]` is already
+ * present, because `A.HashCode() == B.HashCode()` and `A.Eq(B)`.
  * 
  * ---
  * 
- * For consistency, the `.HashCode()` function must adhere to the following
- * rules:
+ * `.HashCode()` must adhere to the following rules in order to work properly:
  * 
- * - The result of `.HashCode()` must not change, unless the values change
- * - If two values are equal ({@link AquaHotkey_Eq `.Eq()`}), they must produce the
- *   same hash code.
- * - `.HashCode()` should - generally speaking - always be consistent with
- *   `.Eq()` in terms of what fields or characteristics are used.
+ * - The result of `.HashCode()` must not change, unless the value changes.
+ * - If two values are equal ({@link AquaHotkey_Eq `.Eq()`}), they must produce
+ *   the same hash code.
+ * - `.HashCode()` should work on the same fields or characteristics as `.Eq()`
  * 
  * ```ahk
  * class Version {
@@ -41,21 +40,41 @@
  *         this.Minor := Minor
  *         this.Patch := Patch
  *     }
- *     
- *     HashCode() {
- *         return Any.Hash(this.Major, this.Minor, this.Patch)
+ * 
+ *     Eq(Other?) {
+ *         return IsSet(Other) && ((this == Other) ||
+ *              (Other is Version)
+ *           && ((this.Major).Eq(Other.Major))
+ *           && ((this.Minor).Eq(Other.Minor))
+ *           && ((this.Patch).Eq(Other.Patch)))
  *     }
+ *     
+ *     ; - result for an instance only depends on its three fields
+ *     ; - consistent with `.Eq()`
+ *     ; - value is consistent, because `Any.Hash()` is a pure function
+ *     HashCode() => Any.Hash(this.Major, this.Minor, this.Patch)
  * }
  * ```
  * 
  * ---
  * 
- * `Any.Hash()` can be used for conveniently creating a hash code from
- * multiple values. You should generally use this method for writing your own
- * hash codes.
+ * `Any.Hash()` conveniently combined multiple values into a single hash code.
+ * You should generally use this method when implementing custom hash codes.
  * 
  * Much like in {@link AquaHotkey_Eq} or {@link AquaHotkey_Ord}, `Any.Hash()`
- * asserts that every argument `is Any`.
+ * asserts that every argument `is Any`. If all fields are known to be
+ * integers, the method can be specialized:
+ * 
+ * ```ahk
+ * HashCode() => Integer.Hash(this.Major, this.Minor, this.Patch)
+ * ```
+ * 
+ * ---
+ * 
+ * For {@link AquaHotkey_DuckTypes duck types}, `static Hash()` must be
+ * overridden on the class, which should use {@link AquaHotkey_Eq `.Is()`}
+ * instead of regular `is`.
+ * 
  * @module  <Base/Hash>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
@@ -63,6 +82,7 @@
  * @see {@link HashSet}
  * @see {@link https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash FNV-1a}
  * @see {@link AquaHotkey_Eq `.Eq()`}
+ * @see {@link AquaHotkey_DuckTypes duck types}
  * @example
  * class Version {
  *     __New(Major, Minor, Patch) {
@@ -70,7 +90,7 @@
  *         this.Minor := Minor
  *         this.Patch := Patch
  *     }
- *     HashCode() => Any.Hash(this.Major, this.Minor, this.Patch)
+ *     HashCode() => Integer.Hash(this.Major, this.Minor, this.Patch)
  * }
  */
 class AquaHotkey_Hash extends AquaHotkey

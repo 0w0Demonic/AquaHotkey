@@ -1,9 +1,10 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Func\Comparator.ahk"
 
+; TODO rename to `Compare`/`Comparable`?
 ; TODO allow generic arrays to be sorted when they contain duck types
-; TODO implement `static Compare()` on duck types
-; TODO Class#Name
+; ---- (although this should work because we're putting this into IArray)
+; ------------
 
 /**
  * Introduces an interface for imposing the natural order between two
@@ -63,6 +64,9 @@
  *         if (!(Other is Version)) {
  *             throw TypeError("Expected a Version",, Type(Other))
  *         }
+ *         ; NOTE: logical OR (`||`) works, because the method should
+ *         ;       return `0` whenever both values are equal, and therefore
+ *         ;       the expression is evaluated to `false`.
  *         return (this.Major).Compare(Other.Major)
  *             || (this.Minor).Compare(Other.Minor)
  *             || (this.Patch).Compare(Other.Patch)
@@ -85,10 +89,10 @@
  *     || Integer.Compare(this.Patch, Other.Patch)
  * ```
  * 
- * Because {@link AquaHotkey_TypeChecks duck types} might not necessarily
+ * Because {@link AquaHotkey_DuckTypes duck types} might not necessarily
  * inherit the proper `.Compare()` method, you must implement a custom
  * `static Compare()` for the duck type. These overrides should use
- * {@link AquaHotkey_TypeChecks.Any#Is `.Is()`} for type-checking.
+ * {@link AquaHotkey_DuckTypes.Any#Is `.Is()`} for type-checking.
  * 
  * ```ahk
  * ; duck type for numbers and numeric strings
@@ -99,7 +103,7 @@
  *         if (A.Is(this) && B.Is(this)) {
  *             return ( Number(A) ).Compare( Number(B) )
  *         }
- *         throw TypeError("Expected a " . this.Name,,
+ *         throw TypeError("Expected a(n) " . this.Name,,
  *                         Type(A) . " " . Type(B))
  *     }
  * }
@@ -114,12 +118,11 @@
  * Arr := ["24.2", 45, 0, "0", 22.0, "-3"]
  * 
  * ; e.g.: ("0", 0) => (true).Compare(false) => 1.Compare(0) => 1
- * NumbersFirst := (A, B) => (A is String).Compare(B is String)
+ * NumbersFirst(A, B) => (A is String).Compare(B is String)
  * 
- * Comp := (Numeric.Compare).Then(StringsLast)
- * 
+ * Arr.Sort( (Numeric.Compare).Then(NumbersFirst) )
  * ; -> ["-3", 0, "0", 22.0, "24.2", 45]
- * Arr.Sort(Numeric.Compare)
+ * ;           ^ (number zero comes before string zero)
  * ```
  * 
  * @module  <Base/Ord>
@@ -128,7 +131,8 @@
  * @see {@link Comparator}
  * @see {@link SkipListMap}
  * @see {@link SkipListSet}
- * @see {@link AquaHotkey_TypeChecks duck types}
+ * @see {@link AquaHotkey_DuckTypes duck types}
+ * @see {@link AquaHotkey_Eq `.Eq()`}
  * @example
  * ; result: [1.98, 23, 123, 3455]
  * Array(123, 23, 1.98, 3455).Sort()
@@ -183,7 +187,10 @@ class AquaHotkey_Ord extends AquaHotkey
          * the other value. Unlike `.Eq()`, this method does NOT check actual
          * object equality.
          * 
-         * It's strongly recommended that if `A.Eq(B)`, then also `A.OrdEq(B)`.
+         * **NOTE**:
+         * 
+         * This method should *usually* be obsolete, because it's strongly
+         * recommended that if `A.Eq(B)`, then also `A.OrdEq(B)`.
          * 
          * @param   {Any}  Other  other value
          * @returns {Boolean}
@@ -196,6 +203,11 @@ class AquaHotkey_Ord extends AquaHotkey
          * Determines whether this value has a natural ordering that is not equal
          * to the other value, i.e. whether the value is greater or less than the
          * other.
+         * 
+         * **NOTE**:
+         * 
+         * This method should *usually* be obsolete, because it's strongly
+         * recommended that if `A.Ne(B)`, then also `A.OrdNe(B)`.
          * 
          * @param   {Any}  Other  other value
          * @returns {Boolean}
@@ -295,7 +307,7 @@ class AquaHotkey_Ord extends AquaHotkey
 
                 if (AHasElements) {
                     if (!BHasElements) {
-                        return 1
+                        return 1 ; this array has more elements -> (this > other)
                     }
                     Result := A.Compare(B)
                     if (Result) {
@@ -303,7 +315,7 @@ class AquaHotkey_Ord extends AquaHotkey
                     }
                 } else { ; (!AHasElements)
                     if (BHasElements) {
-                        return -1
+                        return -1 ; other array has more elements -> (this < other)
                     }
                     return 0
                 }
@@ -335,6 +347,8 @@ class AquaHotkey_Ord extends AquaHotkey
          * String.Compare([1, 2], Buffer(16)) ; TypeError!
          */
         Compare(A, B) {
+            ; NOTE: using the same method name is fine, because `Class`
+            ;       is not comparable.
             if ((A is this) && (B is this)) {
                 return A.Compare(B)
             }
