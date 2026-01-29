@@ -2,52 +2,80 @@
 #Include <AquaHotkeyX>
 
 ; TODO change `.AssertType()` to use this module's `.Is()` ?
-; TODO provide a way to turn a type pattern into a string ?
+; TODO use a subclass `TypePredicate` instead of `Func`?
 
 /**
- * Provides a flexible and customizable duck typing system which extends
- * the functionality of the `is`-keyword.
+ * Provides a flexible and customizable duck typing system which extends the
+ * functionality of the `is`-keyword.
  * 
- * Duck typing means we care what a value *does*, not what it *is* as defined
- * by its base objects.
+ * ```ahk
+ * User := { age: Integer, name: String }
+ * Pattern := Array.Of(User)
  * 
- * ---
+ * Obj := [{ age: 21, name: "Sasha" },
+ *         { age: 37, name: "Sofia" }]
  * 
- * ### Simple Type Checking
+ * Obj.Is(Pattern) ; true
+ * ```
  * 
- * To determine whether a value is considered instance of a given type, you can
- * use `Value.Is(Type)`, which is equivalent to `Type.IsInstance(Value?)`.
+ * Instead of caring about the base object, duck types can impose any
+ * arbitrary set of characteristics which a type must fulfill in order to
+ * be considered *member* of that type.
+ * 
+ * To determine the *membership* of a value `V` to a duck type `T`, you can
+ * use `V.Is(T)`.
  * 
  * ```ahk
  * "foo".Is(String) ; true
+ * ```
  * 
- * ; equivalent:
+ * ---
+ * 
+ * ### How it Works
+ * 
+ * A duck type is defined by its `.IsInstance()` function, a predicate that
+ * determines whether a value is instance of the type. `"foo".Is(String)`
+ * immediately dispatches to `String.IsInstance("foo")`, which determines
+ * whether it "is" a string.
+ * 
+ * ```
+ * "foo".Is(String) ; true
+ * 
+ * ; --> same as...
  * String.IsInstance("foo") ; true
  * ```
  * 
- * For regular classes, this is evaluated as `("foo" is String)`.
+ * Because this system is predicate-based, it becomes extremely flexible
+ * and customizable. To implement a duck type, define a new class, and
+ * a method `static IsInstance(Val?)`:
  * 
- * ---
- * 
- * ### Custom Types
- * 
- * Instead of relying solely on class inheritance and base objects, types are
- * defined using their `IsInstance()` method. It accepts one argument (the
- * tested value) and determines whether it is considered an instance of that
- * type.
- * 
- * ```
+ * ```ahk
  * class Numeric {
+ *     ; note: `Val` should always be an optional parameter.
  *     static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
  * }
- * "123".Is(Numeric)
+ * 
+ * 42.Is(Numeric)      ; true
+ * "235.5".Is(Numeric) ; true
+ * 
  * ```
  * 
- * `Numeric.IsInstance(Val?)` determines whether its input `Val?` - a nullable
- * argument - is considered an instance of `Numeric`. This should be true, if
- * the value is non-null and `IsNumber(Val)` returns true.
+ * We've just implemented a simple duck type `Numeric`. A value is instance
+ * of `Numeric`, if it's...
+ * - 1. not `unset`;
+ * - 2. a `Number`, or a numeric `String`.
  * 
  * ---
+ * 
+ * ### Literals
+ * 
+ * Primitive types, such as strings or number are used as literals which
+ * are checked for equality ({@link AquaHotkey_Eq `.Eq()`}).
+ * 
+ * ```ahk
+ * ; --> true
+ * ({ Value: 1, foo: "bar", baz: Integer[](1, 2, 3) }).Is({ Value: 1 })
+ * ```
  * 
  * ### Pattern Matching
  * 
@@ -55,13 +83,9 @@
  * key-value mappings, for example:
  * 
  * ```ahk
- * ; any plain object with these fields is considered a "Person"
- * Person := { Name: String, Age: Integer }
+ * Success := { status: 200, data: Any }
  * 
- * Obj := { Name: "0w0Demonic", Age: 21 }
- * 
- * ; match our object against the "Person" type
- * ({ Name: "0w0Demonic", Age: 21 }).Is(Person) ; true
+ * Obj := { status 200, data: "example" }
  * ```
  * 
  * To clarify, "plain object" should mean that it directly derives from
@@ -85,8 +109,8 @@
  * 
  * ; note:
  * ; on generic arrays, the component type (in other words, the type contained
- * ; in the generic array), as well as the additional constraint are checked for
- * ; compatibility, not its elements.
+ * ; in the generic array), as well as the additional constraint are checked
+ * ; for compatibility, not its elements.
  * Integer[](1, 2, 3, 4).Is(Number[])
  * ; -> Number.CanCastFrom(Integer)
  * ; -> (Integer == Number) || HasBase(Integer, Number)
@@ -119,14 +143,16 @@
  * 
  * ### Subtypes
  * 
- * `Type.CanCastFrom(OtherType)` determines whether one type is considered
- * equivalent to, or a subtype of another.
+ * `T1.CanCastFrom(T2)` determines whether `T1 == T2`, or if `T2` is
+ * considered a subtype of `T1`.
  * 
- * For example:
- * 1. `Object` can cast from `Object`, because both types are equivalent.
- * 2. `Object` can cast from `Array`, because `Array` is a subtype
- *    (in this case - subclass) of `Object`
- * 3. `{ Value: Number }` can cast from `{ Value: Integer, OtherValue: Any }`
+ * ```ahk
+ * Number.CanCastFrom(Number)  ; --> true (because `Number == Number`)
+ * Number.CanCastFrom(Integer) ; --> true (because `HasBase(Integer, Number)`)
+ * 
+ * ; --> true
+ * ({ Value: Number }).CanCastFrom({ Value: Integer, OtherValue: Any })
+ * ```
  * 
  * @module  <Base/DuckTypes>
  * @author  0w0Demonic
@@ -163,7 +189,8 @@
  *     }
  * }
  */
-class AquaHotkey_DuckTypes extends AquaHotkey {
+class AquaHotkey_DuckTypes extends AquaHotkey
+{
     ;@region Any
 
     class Any {
@@ -176,6 +203,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
          * @returns {Boolean}
          * @example
          * class Numeric {
+         *     static IsInstance(Val?) => (IsSet(Val) && IsNumber(Val))
          * }
          * 
          * "123".Is(String)      ; true
@@ -317,8 +345,6 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
 
     class Array {
         /**
-         * TODO `unset` behaviour
-         * 
          * Determines whether the given value (an array) can be pattern matched
          * with this array.
          * 
@@ -336,7 +362,6 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
          */
         IsInstance(Val?) {
             if (!IsSet(Val) || !(Val is Array) || Val.Length != this.Length) {
-                MsgBox("nope")
                 return false
             }
 
@@ -351,6 +376,49 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
                         return false
                     }
                 } else if (Val.Has(A_Index)) { ; does not match `unset`
+                    return false
+                }
+            }
+            return true
+        }
+
+        /**
+         * Determines whether the given type `Other` is equal to the pattern
+         * imposed by this array, or its subtype.
+         * 
+         * Each element of this array is compared to the corresponding element
+         * of the other array. For each pair of elements, `.CanCastFrom()` is
+         * called on the pattern element (from this array) with the other
+         * element as argument. Both arrays must have identical length, as
+         * well as matching elements at each index position.
+         * 
+         * @param   {Any}  Val  any value
+         * @returns {Boolean}
+         * @example
+         * ([Number, Integer]).CanCastFrom([Integer, Integer]) ; true
+         * 
+         * ([unset]).CanCastFrom([unset]) ; true
+         * ([unset]).CanCastFrom([String]) ; false
+         * ([String]).CanCastFrom([unset]) ; false
+         * 
+         * ([{ Value: Number }]).CanCastFrom([{ Value: Integer }])
+         * ; --> `({ Value: Number }).CanCastFrom({ Value: Integer })`
+         * ; --> true
+         */
+        CanCastFrom(Other) {
+            if (!(Other is Array) || (this.Length != Other.Length)) {
+                return false
+            }
+
+            loop (this.Length) {
+                if (this.Has(A_Index)) {
+                    if (!Other.Has(A_Index)) {
+                        return false
+                    }
+                    if (!(this.Get(A_Index).CanCastFrom(Other.Get(A_Index)))) {
+                        return false
+                    }
+                } else if (Other.Has(A_Index)) {
                     return false
                 }
             }
@@ -398,7 +466,6 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
     ;@region Type
 
     class Type {
-        ; TODO figure out `unset` behaviour
         /**
          * Creates a type class that represents a union of the specified types.
          * 
@@ -411,14 +478,12 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
             if (!Types.Length) {
                 throw UnsetError("no values specified")
             }
-            Result := Class()
             for T in Types {
                 if (!IsSet(T)) {
                     throw UnsetError("unset value")
                 }
             }
-            ({}.DefineProp)(Result, "IsInstance", { Call: IsInstance })
-            return Result
+            return IsInstance
 
             /**
              * Returns whether the given value is considered an instance of
@@ -429,7 +494,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
              * @example
              * "42".Is( Type.Union(String, Integer) ) ; true
              */
-            IsInstance(this, Val?) {
+            IsInstance(Val?) {
                 for T in Types {
                     if (T.IsInstance(Val?)) {
                         return true
@@ -439,7 +504,6 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
             }
         }
 
-        ; TODO figure out `unset` behaviour
         /**
          * Creates a type class that represents an intersection of the specified
          * types.
@@ -461,9 +525,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
                     throw UnsetError("unset value")
                 }
             }
-            Result := Class()
-            ({}.DefineProp)(Result, "IsInstance", { Call: IsInstance })
-            return Result
+            return IsInstance
 
             /**
              * Determines whether the given value is considered an instance of
@@ -474,7 +536,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
              * @example
              * "42".Is( Type.Intersection(Numeric, String) ) ; true
              */
-            IsInstance(this, Val?) {
+            IsInstance(Val?) {
                 for T in Types {
                     if (!T.IsInstance(Val?)) {
                         return false
@@ -484,7 +546,6 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
             }
         }
 
-        ; TODO figure out `unset` behaviour
         /**
          * Creates a type class which represents an enumeration of the given
          * values. On pattern matching, `.Eq()` is used for comparing values.
@@ -501,16 +562,12 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
             if (!Values.Length) {
                 throw UnsetError("no values specified")
             }
-            Result := Class()
             for V in Values {
                 if (!IsSet(V)) {
                     throw UnsetError("unset value")
                 }
             }
-            ({}.DefineProp)(Result, "IsInstance", { Call: IsInstance })
-            return Result
-
-            ; TODO `unset` behaviour
+            return IsInstance
 
             /**
              * Determines whether the given value is considered an instance of
@@ -524,7 +581,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
              * MsgBox("A".Is(T)) ; true
              * MsgBox("?".Is(T)) ; false
              */
-            IsInstance(this, Val?) {
+            IsInstance(Val?) {
                 for V in Values {
                     if (V.Eq(Val?)) {
                         return true
@@ -539,7 +596,16 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
 
     class Func {
         /**
+         * Returns a wrapped function that checks whether its arguments
+         * conform to the given type `Signature`.
          * 
+         * @param   {Any}  Signature  the expected type of the first argument
+         * @returns {Closure}
+         * @example
+         * Sum(A, B) => (A + B)
+         * 
+         * CheckedSum := Sum.Checked(Numeric, Numeric)
+         * CheckedSum(2, 2)
          */
         Checked(Signature) {
             ObjSetBase(Checked, ObjGetBase(this))
@@ -559,5 +625,18 @@ class AquaHotkey_DuckTypes extends AquaHotkey {
                 throw TypeError("Invalid type")
             }
         }
+
+        /**
+         * Determines whether the given value matches the type imposed by
+         * this function.
+         * 
+         * @param   {Any?}  Val  any value
+         * @returns {Boolean}
+         * @example
+         * Callable := (Val?) => IsSet(Val) && HasMethod(Val)
+         * 
+         * MsgBox.Is(Callable) ; true
+         */
+        IsInstance(Val?) => this(Val?)
     }
 }

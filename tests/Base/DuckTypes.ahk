@@ -217,7 +217,7 @@ class Test_DuckTypes extends TestSuite {
 
         ObjSetBase(Inst, BaseCls) ; no longer an object literal anymore
 
-        Inst.Is(Pattern).AssertEquals(true)
+        Inst.Is(Pattern).AssertEquals(false)
     }
 
     static object_requires_val_to_be_object() {
@@ -316,6 +316,9 @@ class Test_DuckTypes extends TestSuite {
         ([1, "a", "not number"]).Is(Pattern).AssertEquals(false)
     }
 
+    ; TODO add a marker class `Null`/`Nothing`, so I don't ever need to
+    ;      reinvent stuff in methods for the sake of handling `unset`?
+
     static array_unset_pattern_element_must_match_unset_value() {
         ; unset in pattern requires unset in array (not 0, not empty, literal unset)
         Pattern := [unset, Integer, unset]
@@ -329,12 +332,12 @@ class Test_DuckTypes extends TestSuite {
     static array_sparse_arrays() {
         ; Sparse array handling: missing indices should be treated as unset
         SparseArray := []
-        SparseArray[1] := 42
+        SparseArray.Push(42)
 
         Pattern1 := [Integer]
         SparseArray.Is(Pattern1).AssertEquals(true)
 
-        SparseArray[2] := "ignored"
+        SparseArray.Push("ignored")
         Pattern2 := [Integer, String]
         SparseArray.Is(Pattern2).AssertEquals(true)
 
@@ -354,6 +357,8 @@ class Test_DuckTypes extends TestSuite {
 
     ; --- Generic Array type checking ---
 
+    ; TODO oddload this into separate files?
+
     static generic_array_component_type_subtyping() {
         ; Integer[] should be compatible with Number[] because Integer is subtype of Number
         IntArray := Integer[](1, 2, 3)
@@ -371,13 +376,12 @@ class Test_DuckTypes extends TestSuite {
     }
 
     static generic_array_empty_arrays() {
-        EmptyInt := Integer[]()
-        EmptyNum := Number[]()
-        EmptyStr := String[]()
+        Int := Integer[]()
+        Num := Number[]()
 
-        EmptyInt.Is(Integer[]).AssertEquals(true)
-        EmptyInt.Is(Number[]).AssertEquals(true)  ; empty should be compatible
-        EmptyNum.Is(Integer[]).AssertEquals(false)
+        Int.Is(Integer[]).AssertEquals(true)
+        Int.Is(Number[]).AssertEquals(true)
+        Num.Is(Integer[]).AssertEquals(false)
     }
 
     static regular_array_casting_to_generic() {
@@ -398,6 +402,7 @@ class Test_DuckTypes extends TestSuite {
 
         MixedArray.Is(Integer[]).AssertEquals(false)
         MixedArray.Is(String[]).AssertEquals(false)
+        MixedArray.Is(Primitive[]).AssertEquals(true) ; common denominator
     }
 
     ; --- Class inheritance and subtyping ---
@@ -419,7 +424,7 @@ class Test_DuckTypes extends TestSuite {
     static class_isinstance_uses_is_keyword() {
         ; Should use strict `is` keyword semantics
         "test".Is(String).AssertEquals(true)
-        "test".Is(Object).AssertEquals(true)  ; String derives from Object
+        "test".Is(Object).AssertEquals(false)
         "test".Is(Array).AssertEquals(false)
 
         ([1, 2, 3]).Is(Array).AssertEquals(true)
@@ -448,6 +453,7 @@ class Test_DuckTypes extends TestSuite {
         T.IsInstance({}).AssertEquals(false)
     }
 
+    ; TODO rethink this, probably with a marker class just for `unset`
     static union_rejects_unset() {
         T := Type.Union(Integer, String)
 
@@ -476,6 +482,8 @@ class Test_DuckTypes extends TestSuite {
         T.IsInstance(42).AssertEquals(false)
     }
 
+    ; TODO again, rethink this
+
     static intersection_rejects_unset() {
         T := Type.Intersection(String, Object)
 
@@ -501,6 +509,7 @@ class Test_DuckTypes extends TestSuite {
         T.IsInstance(4).AssertEquals(false)
     }
 
+    ; TODO rethink this
     static enum_rejects_unset() {
         T := Type.Enum("A", "B", "C")
 
@@ -608,13 +617,13 @@ class Test_DuckTypes extends TestSuite {
     }
 
     static pattern_matching_with_any() {
-        ; Any should match anything
+        ; Any should match anything non-null
         Pattern := { value: Any }
 
         ({ value: 1 }).Is(Pattern).AssertEquals(true)
         ({ value: "string" }).Is(Pattern).AssertEquals(true)
         ({ value: [] }).Is(Pattern).AssertEquals(true)
-        ({ value: unset }).Is(Pattern).AssertEquals(true)
+        ({ value: unset }).Is(Pattern).AssertEquals(false)
     }
 
     ; --- Type mismatch error handling ---
@@ -637,15 +646,12 @@ class Test_DuckTypes extends TestSuite {
 
     static object_pattern_with_getters() {
         ; Property descriptors without "Value" should be skipped
-        PatternWithGetter := {}
-        ObjDefineProperty(PatternWithGetter, "computed", {
-            Get: ComputedGetter
+        PatternWithGetter := { name: String }
+        PatternWithGetter.DefineProp("computed", {
+            Get: (*) => "computed"
         })
-        PatternWithGetter.name := String
 
         ({ name: "test" }).Is(PatternWithGetter).AssertEquals(true)
-
-        ComputedGetter() => "computed"
     }
 
     ; --- Boundary cases ---
@@ -665,6 +671,9 @@ class Test_DuckTypes extends TestSuite {
 
         ([]).Is(Pattern).AssertEquals(true)
         ([1]).Is(Pattern).AssertEquals(false)
+
+        ; however, the Array class works just fine
+        Pattern.Is(Array).AssertEquals(true)
     }
 
     static single_element_patterns() {
@@ -678,8 +687,11 @@ class Test_DuckTypes extends TestSuite {
         ([42, 99]).Is(ArrPattern).AssertEquals(false)
     }
 
+    ; TODO add `Boolean` class?
     static zero_and_false_as_values() {
         ; Verify 0 and false are not treated as unset
+        Boolean := Type.Union(true, false)
+
         Pattern := [Integer, Boolean]
 
         ([0, false]).Is(Pattern).AssertEquals(true)
@@ -693,5 +705,30 @@ class Test_DuckTypes extends TestSuite {
 
         (["", 42]).Is(Pattern).AssertEquals(true)
         ([unset, 42]).Is(Pattern).AssertEquals(false)
+    }
+
+    static array_cancastfrom_rejects_non_arrays() {
+        ([Number]).CanCastFrom("not an array").AssertEquals(false)
+        ([Number]).CanCastFrom(123).AssertEquals(false)
+    }
+
+    static array_cancastfrom_length_must_be_same() {
+        ([Number]).CanCastFrom([Number, Number]).AssertEquals(false)
+        ([]).CanCastFrom([Number]).AssertEquals(false)
+        ([Number]).CanCastFrom([]).AssertEquals(false)
+    }
+
+    static array_cancastfrom_checks_elements() {
+        ([Number]).CanCastFrom([Integer]).AssertEquals(true)
+        ([Numeric]).CanCastFrom([Number]).AssertEquals(true)
+
+        ([Primitive, Primitive]).CanCastFrom([Integer, Integer])
+            .AssertEquals(true)
+    }
+
+    static func_isinstance_calls_self() {
+        Callable(Val?) => IsSet(Val) && IsObject(Val) && HasMethod(Val)
+
+        MsgBox.Is(Callable).AssertEquals(true)
     }
 }

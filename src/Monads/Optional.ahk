@@ -1,40 +1,60 @@
 ;@region Optional
 
-; TODO replace with `ObjHasOwnProp()`
+; TODO find a way to accomodate using the optional to match
+;      both `unset` or other `Optional`s
 
 /**
- * AquaHotkey - Optional.ahk
+ * Represents an optional value: either a value is present, or it is absent.
  * 
- * Author: 0w0Demonic
+ * @module  <Monads/Optional>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @example
+ * MaybeValue := Optional(42)
+ * MaybeValue.IsPresent ; true
+ * MaybeValue.Get()     ; 42
  * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Extensions/Optional.ahk
+ * MaybeValue.IfPresent(MsgBox) ; displays "42"
  * 
- * ---
+ * ; equality checks
+ * OptA := Optional(4)
+ * OptB := Optional(4)
+ * MsgBox(OptA.Eq(OptB)) ; true
  * 
- * **Overview**:
  * 
- * The `Optional` class provides a container object which may or may not
- * contain a non-null value. It is directly inspired by Java's
- * `java.util.Optional` type but tailored for AquaHotkey's ecosystem.
- * 
- * Commonly used for safe handling of potentially `unset` values, the
- * `Optional` class includes operations for mapping, filtering, and
- * consuming the contained value.
+ * Optional(Optional("test")).Is(Optional(Any))
  */
 class Optional {
     /**
-     * TODO
+     * Determines whether this optional is equal to another `Other` optional.
+     * This is true, when both optionals are empty, or when both contain
+     * equal values.
+     * 
+     * @param   {Any?}  Other  another optional
+     * @returns {Boolean}
      */
-    IsInstance(Val?) {
-        if (!IsSet(Val)) {
+    Eq(Other?) {
+        if (!IsSet(Other)) {
+            return false
+        }
+        if (this == Other) {
             return true
         }
-        if (!ObjHasOwnProp(this, "Value")) {
-            throw PropertyError("invalid pattern (optional is empty)")
+        if (!(Other is Optional)) {
+            return false
         }
-        return this.Value.IsInstance(Val)
+        if (ObjHasOwnProp(Other, "Value")) {
+            return ObjHasOwnProp(this, "Value") && (this.Value).Eq(Other.Value)
+        }
+        return (!ObjHasOwnProp(this, "Value"))
     }
+
+    /**
+     * Returns a hash code for this optional.
+     * 
+     * @returns {Integer}
+     */
+    HashCode() => ObjHasOwnProp(this, "Value") && this.Value.HashCode()
 
     /**
      * Returns an optional with no value present.

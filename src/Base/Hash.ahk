@@ -58,7 +58,7 @@
  * 
  * ---
  * 
- * `Any.Hash()` conveniently combined multiple values into a single hash code.
+ * `Any.Hash()` conveniently combines multiple values into a single hash code.
  * You should generally use this method when implementing custom hash codes.
  * 
  * Much like in {@link AquaHotkey_Eq} or {@link AquaHotkey_Ord}, `Any.Hash()`
@@ -308,11 +308,10 @@ class AquaHotkey_Hash extends AquaHotkey
          * This method is type-checked, depending on the calling class. For
          * example:
          * 
-         * @example
-         * Integer.Hash(1, 2435, 123, "foo") ; Error! Expected an Integer.
-         * 
          * @param   {Any*}  Values  zero or more values
          * @returns {Integer}
+         * @example
+         * Integer.Hash(1, 2435, 123, "foo") ; Error! Expected an Integer.
          */
         Hash(Values*) {
             static Offset := AquaHotkey_Hash.Offset
@@ -342,7 +341,7 @@ class AquaHotkey_Hash extends AquaHotkey
          * 
          * @returns {Integer}
          */
-        HashCode() => ComValue.Hash(ComObjType(this), ComObjValue(this))
+        HashCode() => Integer.Hash(ComObjType(this), ComObjValue(this))
     }
 
     ;@endregion
