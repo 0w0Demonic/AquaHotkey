@@ -1,7 +1,6 @@
 ;@region Optional
 
-; TODO find a way to accomodate using the optional to match
-;      both `unset` or other `Optional`s
+; TODO refactor to `Maybe`/`Just`/`None`?
 
 /**
  * Represents an optional value: either a value is present, or it is absent.
@@ -20,9 +19,6 @@
  * OptA := Optional(4)
  * OptB := Optional(4)
  * MsgBox(OptA.Eq(OptB)) ; true
- * 
- * 
- * Optional(Optional("test")).Is(Optional(Any))
  */
 class Optional {
     /**
@@ -54,7 +50,7 @@ class Optional {
      * 
      * @returns {Integer}
      */
-    HashCode() => ObjHasOwnProp(this, "Value") && this.Value.HashCode()
+    HashCode() => (ObjHasOwnProp(this, "Value") && this.Value.HashCode())
 
     /**
      * Returns an optional with no value present.

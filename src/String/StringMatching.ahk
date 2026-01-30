@@ -23,7 +23,7 @@ class String {
     IsTime   => IsTime(this)
 
     /**
-     * Returns `true`, if this string is empty.
+     * Determines whether the string is empty.
      * 
      * @returns {Boolean}
      * @example
@@ -31,6 +31,13 @@ class String {
      * "".IsEmpty              ; true
      */
     IsEmpty => (this == "")
+
+    /**
+     * Determines whether the string is *not* empty.
+     * 
+     * @returns {Boolean}
+     */
+    IsNotEmpty => (this != "")
 
     /**
      * Determines whether the string matches the given regex `Pattern`.

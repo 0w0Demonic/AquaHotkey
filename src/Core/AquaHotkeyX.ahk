@@ -28,6 +28,7 @@
 
 #Include "%A_LineFile%/../../Base/DuckTypes/BufferObject.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes/Callable.ahk"
+#Include "%A_LineFile%/../../Base/DuckTypes/Nullable.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes/Numeric.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes/Record.ahk"
 

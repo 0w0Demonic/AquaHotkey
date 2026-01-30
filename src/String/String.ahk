@@ -7,8 +7,12 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
+ * for Character in "Hello, world!" {
+ *     ...
+ * }
  * 
- * TODO
+ * @example
+ * "apple banana pear".Split(" ").ForEach(MsgBox)
  */
 class AquaHotkey_String extends AquaHotkey {
 class String {
@@ -29,10 +33,7 @@ class String {
     __Enum(n) {
         Pos := 0
         Len := StrLen(this)
-        if (n == 1) {
-            return Enumer1
-        }
-        return Enumer2
+        return (n > 1) ? Enumer2 : Enumer1
         
         ; for Character in ...
         Enumer1(&Out) {
@@ -66,7 +67,6 @@ class String {
      * )".Lines() ; ["Hello,", "world!"]
      */
     Lines() => StrSplit(this, "`n", "`r")
-    ; TODO figure out how to make this lazy-eval
 
     /**
      * Returns this string prepended by `Before`.
@@ -202,7 +202,7 @@ class String {
      * ("foo bar")[5] ; "b"
      */
     __Item[Start, Length := 1] {
-        Get {
+        get {
             if (Abs(Start) > StrLen(this)) {
                 throw ValueError("index out of bounds",, Start)
             }
@@ -219,6 +219,7 @@ class String {
      */
     Length => StrLen(this)
 
+    ; TODO rename this property because of `Sizeable`?
     /**
      * Returns the length of this string in bytes with the specified `Encoding`.
      * 
@@ -229,7 +230,7 @@ class String {
      * "foo".Size["UTF-8"]  ; 4
      */
     Size[Encoding?] {
-        Get {
+        get {
             if (!IsSet(Encoding)) {
                 return StrPut(this)
             }

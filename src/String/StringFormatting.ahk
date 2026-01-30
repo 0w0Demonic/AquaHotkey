@@ -26,7 +26,7 @@ class String {
         if (!IsInteger(Position)) {
             throw TypeError("Expected an Integer",, Type(Position))
         }
-        tLen     := StrLen(this)
+        tLen := StrLen(this)
         if (Abs(Position) > tLen) {
             Msg     := "index out of bounds"
             Pattern := "index {} (length of this string: {})"
@@ -112,13 +112,13 @@ class String {
     /**
      * Pads this string on the left using `PaddingStr` a total of `n` times.
      * 
-     * @param   {String?}   PaddingStr  padding string
      * @param   {Integer?}  n           amount of padding
+     * @param   {String?}   PaddingStr  padding string
      * @returns {String}
      * @example
      * "foo".LPad(" ", 5) ; "     foo"
      */ 
-    LPad(PaddingStr := " ", n := 1) {
+    LPad(n := 1, PaddingStr := A_Space) {
         if (!IsInteger(n)) {
             throw TypeError("Expected an Integer",, Type(n))
         }
@@ -137,13 +137,13 @@ class String {
     /**
      * Pads this string on the right using `PaddingStr` a total of `n` times.
      * 
-     * @param   {String?}   PaddingStr  padding string
      * @param   {Integer?}  n           amount of padding
+     * @param   {String?}   PaddingStr  padding string
      * @returns {String}
      * @example
      * "foo".RPad(" ", 5) ; "foo     "
      */
-    RPad(PaddingStr := " ", n := 1) {
+    RPad(n := 1, PaddingStr := A_Space) {
         if (!IsInteger(n)) {
             throw TypeError("Expected an Integer",, Type(n))
         }
@@ -166,9 +166,9 @@ class String {
      * @param   {Integer?}  n  maximum line length
      * @returns {String}
      * @example
-     * ; (use a really small line length for demonstration purposes)
-     * ; "hello,`nworld!"
      * "hello, world!".WordWrap(3)
+     * ; --> "hello,
+     * ;      world!"
      */ 
     WordWrap(n := 80) {
         if (!IsInteger(n)) {
