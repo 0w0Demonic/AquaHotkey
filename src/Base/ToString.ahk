@@ -112,7 +112,7 @@ class AquaHotkey_ToString extends AquaHotkey
     ;---------------------------------------------------------------------------
     ;@region Array
 
-    class Array {
+    class IArray {
         /**
          * Returns the string representation of the array.
          * 

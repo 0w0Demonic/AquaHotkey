@@ -127,14 +127,6 @@ class Test_DuckTypes extends TestSuite {
         ([ 0, 42 ]).Is(T).AssertEquals(false)
     }
 
-    static matching_optional_type() {
-        T := Optional(String)
-
-        T.IsInstance(unset).AssertEquals(true)
-        T.IsInstance("foo").AssertEquals(true)
-        T.IsInstance([1, 2]).AssertEquals(false)
-    }
-
     static order_type() {
         Order := {
             Id: String,

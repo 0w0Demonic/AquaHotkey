@@ -15,8 +15,8 @@
 ;-------------------------------------------------------------------------------
 ;@region Collections/
 ;    @region Generic/
-;        #Include "%A_LineFile%/../Collections/Generic/Array.ahk"
-;        #Include "%A_LineFile%/../Collections/Generic/Map.ahk"
+         #Include "%A_LineFile%/../Collections/Generic/Array.ahk"
+         #Include "%A_LineFile%/../Collections/Generic/Map.ahk"
 ;    @endregion
 ;    #Include "%A_LineFile%/../Collections/Array.ahk"
 ;    #Include "%A_LineFile%/../Collections/ByteArray.ahk" ; TODO

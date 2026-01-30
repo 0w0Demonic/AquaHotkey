@@ -253,7 +253,7 @@ class Array {
         if (this == Other) {
             return true
         }
-        if (!(Other is Array)) {
+        if (!Other.Is(IArray)) {
             return false
         }
 

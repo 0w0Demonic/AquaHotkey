@@ -1,7 +1,9 @@
 ;#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
+
 #Requires AutoHotkey >=v2.1-alpha.3
 #Include <AquaHotkeyX>
-#Include <AquaHotkey\src\Collections\Generic\Array>
+
+; TODO remove IDelegatingMap again?
 #Include <AquaHotkey\src\Interfaces\IDelegatingMap>
 
 ;@region GenericMap

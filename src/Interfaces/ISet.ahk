@@ -1,4 +1,5 @@
 ; TODO Intersection(), Disjunction(), Union(), etc.
+; TODO rename `Has` to `Contains`?
 
 /**
  * @interface
@@ -15,7 +16,7 @@
  * Clear() => void
  * Clone() => ISet
  * Delete(Value: Any, Values: Any*) => Boolean
- * Has(Value: Any) => Boolean
+ * Contains(Value: Any) => Boolean
  * __Enum(ArgSize: Integer) => Enumerator
  * Size => Integer
  * ```
@@ -88,7 +89,7 @@ class ISet {
             && HasMethod(Val, "Clear")
             && HasMethod(Val, "Clone")
             && HasMethod(Val, "Delete")
-            && HasMethod(Val, "Has")
+            && HasMethod(Val, "Contains")
             && HasMethod(Val, "__Enum")
             && HasProp(Val, "Size")
     }
@@ -153,7 +154,7 @@ class ISet {
     }
 
     /**
-     * Unimplemented `.Has()` method.
+     * Unimplemented `.Contains()` method.
      * 
      * ---
      * 
@@ -162,9 +163,9 @@ class ISet {
      * @param   {Any}  Value  any value
      * @returns {Boolean}
      * @example
-     * Set(1, 2, 3).Has(3) ; true
+     * Set(1, 2, 3).Contains(3) ; true
      */
-    Has(Value) {
+    Contains(Value) {
         throw PropertyError("not implemented")
     }
 
@@ -215,12 +216,12 @@ class ISet {
      * @example
      * Set(1, 2, 3).HasAll(1, 2, 3) ; true
      */
-    HasAll(Value, Values) {
+    ContainsAll(Value, Values) {
         if (!this.Has(Value)) {
             return false
         }
         for V in Values {
-            if (!this.Has(V)) {
+            if (!this.Contains(V)) {
                 return false
             }
         }
@@ -230,11 +231,11 @@ class ISet {
     /**
      * Determines whether the given value is present in the set.
      * 
-     * @alias {@link ISet#Has `.Has()`}
+     * @alias {@link ISet#Contains `.Contains()`}
      * @param   {Any}  Value  any value
      * @returns {Boolean}
      */
-    __Item[Value] => this.Has(Value)
+    __Item[Value] => this.Contains(Value)
 
     /**
      * Creates a hash code based on the elements contained in the set.
@@ -266,7 +267,7 @@ class ISet {
             return false
         }
         for Value in this {
-            if (!Other.Has(Value)) {
+            if (!Other.Contains(Value)) {
                 return false
             }
         }

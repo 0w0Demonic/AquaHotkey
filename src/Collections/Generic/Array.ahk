@@ -1,223 +1,114 @@
-#Requires AutoHotkey >=v2.1-alpha.3
-; #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
-; TODO fix this import
+
+; TODO add documentation for type wrappers somewhere
+; TODO fix this import when everything is done for v3
+
 #Include <AquaHotkeyX>
 
 ;@region GenericArray
+
 /**
- * Introduces type-checked arrays using intuitive array syntax (`[]`).
+ * Introduces a type-checked wrapper for {@link IArray} classes with intuitive
+ * array syntax (for example, `String[]`).
  * 
- * ### Quick Start
- * 
- * Calling `__Item[]` on a class `T` returns its "array class" `T[]` - a
- * subclass of `GenericArray` - which asserts that an element `.Is(T)`
- * whenever added or modified.
- * 
- * ```ahk
- * Arr := String[]("foo", "bar")
- * Arr.Push(Buffer(16)) ; Error! Expected a(n) String.
- * ```
- * 
- * `unset` is generally allowed, unless the array class specifies additional
- * constraints.
- * 
- * ---
- * 
- * ### Constraints
- * 
- * Elements can be further constrained by passing a class between the square
- * brackets. They are assumed to have their own custom `static IsInstance(Val?)`
- * implementations.
+ * Calling `.__Item[]` on a class `T` (in other words, `T.__Item[]` or `T[]`)
+ * returns its "array class" - a subclass of {@link IArray} - which asserts
+ * that elements are instance of `T`.
  * 
  * ```ahk
- * class NonNull {
- *     ; NOTE: for constraints, `Val` is an optional parameter
- *     static Call(Val?) => IsSet(Val)
- * }
+ * Arr := String[]("foo", "bar", "baz")
+ * 
+ * MsgBox(Type(Arr)) ; "String[]"
  * ```
  * 
  * ---
  * 
- * These "constraint classes" can further be narrowed by using subclasses,
- * for example:
+ * Elements can be further constrained by passing a *type wrapper* like
+ * {@link Nullable} between the square brackets.
  * 
  * ```ahk
- * class NonNullNonEmpty {
- *     static Call(Val?) => super(Val?) && (Val != "")
- * }
+ * Arr_String := String[]
+ * Arr_MaybeString := String[Nullable] ; array of `Nullable(String)`
  * ```
- * 
- * ---
- * 
- * ### Type-Checking
- * 
- * The `is` keyword won't reliably be able to determine the type of generic
- * array. Instead, use `.Is()`.
  * 
  * @module  <Collections/Generic/Array>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
- * @example
- * ; additional constraint (forbids `unset`)
- * class NonNull {
- *     static IsInstance(Val?) => IsSet(Val)
+ * @example <caption>Array of Strings</caption>
+ * Arr_String := String[]("foo", "bar")
+ * Arr_String.Push("baz")
+ * Arr_String.Push(Buffer(16, 0)) ; TypeError! Expected a(n) String.
+ * Arr_String.Push(unset)         ; UnsetError!
+ * 
+ * @example <caption>Array of Nullable Strings</caption>
+ * Arr_MaybeString := String[Nullable]("foo", "bar", unset)
+ * 
+ * ; equivalent to:
+ * Arr_MaybeString := Nullable(String)[]("foo", "bar", unset)
+ * 
+ * @example <caption>Support With Duck Types</caption>
+ * Arr_String := String[]("foo", "bar")
+ * 
+ * Arr_String.Is(String[])         ; true
+ * Arr_String.Is(String[Nullable]) ; true (because of `Nullable#IsInstance()`)
+ * Arr_String.Is(Any[])            ; true
+ * 
+ * @example <caption>Using `IArray.OfType()`</caption>
+ * class Email extends String {
+ *     static IsInstance(Val?) => String.IsInstance(Val?) && (Val ~= "(regex)")
  * }
  * 
- * ; a more specific version of `NonNull`
- * class NonNullNonEmpty extends NonNull {
- *     static IsInstance(Val?) => super.IsInstance(Val?) && (Val != "")
- * }
+ * User := { name: String, age: Integer, email: Nullable(Email) }
+ * WaitingLine := LinkedList.OfType(User)
  * 
- * Arr := String[NonNullNonEmpty]("foo", "bar")
- * 
- * Arr.Is(String[NonNull]) ; true (`NonNullNonEmpty extends NonNull`)
- * Arr.Is(String[])        ; true
- * Arr.Is(Any[])           ; true (`Any.CanCastFrom(String)`)
- * Arr.Is(Any[NonNull])    ; true
- * 
- * ( String[]() ).Is( Any[NonNull] ) ; false (because of `NonNull`)
- * 
- * Arr.Push([1, 2]) ; Error! Expected a string.
- * Arr.Push(unset)  ; Error! Failed assertion (NonNullNonEmpty)
- * Arr.Delete(1)    ; Error! Failed assertion (NonNullNonEmpty)
- * Arr[1] := "qux"  ; ok.
+ * @template A the array class
+ * @template T type contained in the array
  */
-class GenericArray extends Array {
+class GenericArray extends IArray {
     ;@region Construction
     /**
-     * Constructs a new subclass of `GenericArray`.
+     * Constructs a new subclass of `GenericArray` from the given array class
+     * and type.
      * 
-     * @param   {Class}   T           the type to be checked
-     * @param   {Class?}  Constraint  additional constraint to enforce
-     * @example
-     * ; constraint class
-     * class NonNull {
-     *     static Call(Val?) => IsSet(Val)
-     * }
+     * @param   {Class<? extends IArray>}  A  array class
+     * @param   {Any}                      T  element type
+     * @param   {Any?}                     C  additional constraint
+     * @constructor
+     * @example <caption>Array of Nullable Strings</caption>
+     * Arr_MaybeString := String[Nullable]
      * 
-     * ; array class containing only strings
-     * Arr := String[]()
-     * 
-     * ; array class that allows all data types, but not `unset`
-     * Arr := Any[NonNull]()
+     * ; equivalent to:
+     * Arr_MaybeString := GenericArray(Array, String, Nullable)
      */
-    static __New(T?, Constraint?) {
-        static Define := {}.DefineProp
-
+    static __New(A?, T?, C?) {
         if (this == GenericArray) {
             return
         }
+
+        static Define := {}.DefineProp
+        if (!IsSet(A)) {
+            throw UnsetError("unset; Expected an IArray class")
+        }
         if (!IsSet(T)) {
-            throw UnsetError("unset value")
+            throw UnsetError("unset; Expected element type")
+        }
+
+        if (!IArray.CanCastFrom(A)) {
+            throw TypeError("Expected an IArray class",, String(A))
+        }
+
+        if (IsSet(C)) {
+            if (!(C is Class)) {
+                throw TypeError("Expected a Class",, Type(C))
+            }
+            if (!HasBase(C, Class)) {
+                throw TypeError("Expected a type wrapper",, C.Name)
+            }
+            T := C(T) ; e.g.: `T := Nullable(String)`
         }
 
         Proto := this.Prototype
-
-        if (IsSet(Constraint)) {
-            if (!(Constraint is Class)) {
-                throw TypeError("Expected a Class",, Type(Constraint))
-            }
-            Fn := TypeCheckWithConstraint
-            Define(Proto, "Constraint", { Get: (_) => (Constraint) })
-        } else {
-            Fn := TypeCheck
-        }
-
-        Define(Proto, "Check", { Call: Fn })
-        Define(Proto, "ComponentType", { Get: (_) => (T) })
-
-        TypeCheck(_, Val?) {
-            if (IsSet(Val) && !T.IsInstance(Val)) {
-                throw TypeError("Invalid type")
-            }
-        }
-
-        TypeCheckWithConstraint(_, Val?) {
-            if (IsSet(Val) && !T.IsInstance(Val)) {
-                throw TypeError("Invalid type")
-            }
-            if (!Constraint.IsInstance(Val?)) {
-                throw ValueError("Failed assertion")
-            }
-        }
-    }
-    ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Array Methods
-
-    /**
-     * Creates a new array with additional checking.
-     * 
-     * @param   {Any*}  Values  zero or more values
-     */
-    __New(Values*) {
-        for Value in Values {
-            this.Check(Value?)
-        }
-        super.__New(Values*)
-    }
-
-    /**
-     * Determines whether the given value is a valid array element.
-     * 
-     * This method should be overridden by subclasses.
-     * 
-     * @abstract
-     * @param   {Any?}  Val   the value
-     * @returns {Boolean}
-     */
-    Check(Val?) {
-        ; nop
-    }
-
-    /**
-     * Pushes zero or more elements to the array with additional checking.
-     * 
-     * @param   {Any*}  Values  zero or more values to be pushed
-     */
-    Push(Values*) {
-        for Value in Values {
-            this.Check(Value?)
-        }
-        return super.Push(Values*)
-    }
-
-    /**
-     * Inserts elements into the array at the given index.
-     * 
-     * @param   {Integer}  Idx     index at which to insert
-     * @param   {Any*}     Values  the values to be inserted
-     */
-    InsertAt(Idx, Values*) {
-        for Value in Values {
-            this.Check(Value?)
-        }
-        return super.InsertAt(Idx, Values*)
-    }
-
-    /**
-     * Sets a value in the array.
-     * 
-     * @param   {Integer}  Index  array index
-     * @param   {Any?}     value  the new value
-     */
-    __Item[Index] {
-        set {
-            this.Check(value?)
-            super[Index] := (value ?? unset)
-        }
-    }
-
-    /**
-     * Deletes an item from the array, returning the previously contained
-     * value.
-     * 
-     * @param   {Integer}  Index  a valid array index
-     * @returns {Any}
-     */
-    Delete(Index) {
-        this.Check(unset)
-        return super.Delete(Index)
+        Define(Proto, "ComponentType", { Get: (_) => T })
+        Define(Proto, "ArrayType",     { Get: (_) => A })
     }
 
     ;@endregion
@@ -226,18 +117,25 @@ class GenericArray extends Array {
 
     /**
      * Returns the component type of this generic array. In other words, the
-     * type of class out of which the array consists of.
+     * type which the array holds elements of.
      * 
-     * @returns {Class}
+     * @returns {Any}
+     * @see {@link GenericArray#ComponentType}
      */
     static ComponentType => (this.Prototype).ComponentType
-
+    
     /**
      * Returns the component type of this generic array. In other words, the
-     * type of class out of which the array consists of.
+     * type which the array holds elements of.
+     * 
+     * This property should be overridden by subclasses of `GenericArray`.
      * 
      * @abstract
-     * @returns {Class}
+     * @returns {Any}
+     * @example
+     * StrArr := String[]("foo", "bar")
+     * 
+     * MsgBox(String(StrArr.ComponentType)) ; "class String"
      */
     ComponentType {
         get {
@@ -246,162 +144,340 @@ class GenericArray extends Array {
     }
 
     /**
-     * Returns the additional constraint of this array class, or `false` if
-     * there is none.
+     * The type of array wrapped around.
      * 
-     * @returns {Func}
+     * @returns {Any}
+     * @see {@link GenericArray#ArrayType}
      */
-    static Constraint => (this.Prototype).Constraint
+    static ArrayType => (this.Prototype).ArrayType
 
     /**
-     * Returns the additional constraint of this array class, or `false` if
-     * there is none.
+     * The type of array wrapped around.
+     * 
+     * This property should be overridden by subclasses of `GenericArray`.
      * 
      * @abstract
-     * @returns {Func}
+     * @returns {Any}
+     * @example
+     * LL := LinkedList.OfType(String)
+     * 
+     * MsgBox(String(LL.ArrayType)) ; "class LinkedList"
      */
-    Constraint => false
+    ArrayType {
+        get {
+            throw PropertyError("array type not found")
+        }
+    }
 
     /**
-     * Determines whether the given class `T` is considered a subclass of this
-     * generic array class.
+     * Determines whether the given class `T` is equal to this generic array
+     * class, or considered its subtype.
      * 
-     * This depends on whether the component type can be assigned to that
-     * of `T`. In other words, `A[].CanCastFrom(B[])`, if
-     * `A.CanCastFrom(B)`.
+     * This depends on the array and component type used by the class.
      * 
-     * If an array `A[]` has an additional constraint `C`, the component type is
-     * simply seen as a narrower form of `A`. That means, `A[].CanCastFrom(A[C])`
-     * is always `true`.
-     * 
-     * Lastly, `A[C1].CanCastFrom(B[C2])` requires both...
-     * 1. `A.CanCastFrom(B)`
-     * 2. `C1.CanCastFrom(C2)`
-     * 
-     * If this or the other array has additional constraints, they are assumed
-     * to be classes with a method `static Call(Val?)`, and checked for
-     * compatibility in the following way:
-     * 
-     * - `A[].CanCastFrom(B[Cons])` returns `true`
-     * - `A[A_Cons].CanCastFrom(B[B_Cons])` requires`A_Cons.CanCastFrom(B_Cons)`
-     * 
-     * @param   {Class}  T  any class
+     * @param   {Class<? extends IArray>}  Other  other generic array class
      * @returns {Boolean}
      * @example
-     * ; true (because `String`)
-     * Any[].CanCastFrom(String[])
+     * Any[Nullable].CanCastFrom(String[])
+     * ; --> Array.CanCastFrom(Array)
+     * ;  && Nullable(Any).CanCastFrom(String)
+     * ;
+     * ; --> true
      */
-    static CanCastFrom(T) {
-        if (super.CanCastFrom(T)) {
+    static CanCastFrom(Other) {
+        ; note: super.CanCastFrom(Other) == Class#CanCastFrom(Other)
+        if (super.CanCastFrom(Other)) {
             return true
         }
-        if (!HasBase(T, GenericArray)) {
+        if (!HasBase(Other, GenericArray)) {
             return false
         }
-
-        Cons := this.Constraint
-        if (Cons && !Cons.CanCastFrom(T.Constraint)) {
-            return false
-        }
-        return (this.ComponentType).CanCastFrom(T.ComponentType)
+        return (this.ArrayType).CanCastFrom(Other.ArrayType)
+            && (this.ComponentType).CanCastFrom(Other.ComponentType)
     }
 
     /**
      * Determines whether the given value is an instance of this generic array
      * class. Regular arrays are checked by their elements, while for generic
-     * arrays, the component type is checked for compatibility via
-     * `CanCastFrom()`.
+     * arrays, the array and component type are checked for compatibility.
      * 
      * @param   {Any?}  Val  any value
      * @returns {Boolean}
      * @example
-     * ([1, 2, 3]).Is(Integer[])       ; true
-     * Integer[](1, 2, 3).Is(Number[]) ; true
+     * ([1, 2, 3]).Is(Integer[])
+     * ; --> true (each element is checked `Val.Is(Integer)`)
+     * 
+     * Integer[](1, 2, 3).Is(Number[]) 
+     * ; --> true (because `Number.CanCastFrom(Integer)`)
      */
     static IsInstance(Val?) {
-        if (!IsSet(Val) || !(Val is Array)) {
+        if (!IsSet(Val) || !Val.Is(IArray)) {
             return false
         }
 
         if (Val is GenericArray) {
-            return (this.ComponentType).CanCastFrom(Val.ComponentType)
-                && (this.Constraint).CanCastFrom(Val.Constraint)
+            return (this.ArrayType).CanCastFrom(Val.ArrayType)
+                && (this.ComponentType).CanCastFrom(Val.ComponentType)
         }
 
-        ; check non-generic array by their elements
-        T    := this.ComponentType
-        Cons := this.Constraint
-
-        if (Cons) {
-            for Elem in Val {
-                if (!T.IsInstance(Elem?)) {
-                    return false
-                }
-                if (!Cons.IsInstance(Elem?)) {
-                    return false
-                }
-            }
-        } else {
-            for Elem in Val {
-                if (!T.IsInstance(Elem?)) {
-                    return false
-                }
+        T := this.ComponentType
+        for Elem in Val {
+            if (!T.IsInstance(Elem?)) {
+                return false
             }
         }
         return true
     }
 
     ;@endregion
-}
-;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Commons
 
-;@region Extensions
-class AquaHotkey_GenericArray extends AquaHotkey {
-    class Any {
-        /**
-         * Returns the "array class" of this value.
-         * 
-         * @param   {Any?}  Constraint  additional type constraint
-         * @returns {Class}
-         * @example
-         * User    := { name: String, age: Integer }
-         * UserArr := User.ArrayType
-         */
-        ArrayType[Constraint?] => AquaHotkey.CreateClass(
-                GenericArray,
-                (this is Class) ? (this.Prototype.__Class  . "[]") : "",
-                this,
-                Constraint?)
+    /**
+     * Creates a hash code for this generic array.
+     * 
+     * @returns {Integer}
+     */
+    HashCode() => (this.A).HashCode()
+
+    /**
+     * Determines whether this generic array is equal to the other array.
+     * 
+     * @param   {Any?}  Val  any value
+     * @returns {Boolean}
+     * @example
+     */
+    Eq(Val?) => (this.A).Eq(Val?)
+
+    /**
+     * 
+     */
+    ToString() => Type(this) . String(this.A)
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Type Checking
+
+    /**
+     * Determines whether the given value is a valid array element.
+     * 
+     * @param   {Any?}  Val  the value
+     */
+    Check(Val?) {
+        if (!this.ComponentType.IsInstance(Val?)) {
+            throw TypeError("Expected " . String(this.ComponentType),,
+                    Type(Val))
+        }
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Array Methods
+
+    /**
+     * Returns a shallow copy of the array.
+     * 
+     * @returns {GenericArray<A, T>}
+     */
+    Clone() {
+        Copy := (this.A).Clone()
+
+        Obj := Object()
+        Obj.DefineProp("A", { Get: (_) => Copy })
+
+        ; same class; `ArrayType` and `ComponentType` should already be there.
+        ObjSetBase(Obj, ObjGetBase(this))
+        return Obj
+    }
+
+    /**
+     * Deletes an item from the array, returning the previously contained
+     * value.
+     * 
+     * @param   {Integer}  Index  a valid array index
+     * @returns {T}
+     */
+    Delete(Index) {
+        this.Check(unset)
+        return (this.A).Delete(Index)
+    }
+
+    ; TODO restrict `Default?` to type `T`?
+    /**
+     * Retrieves an item from the generic array.
+     * 
+     * @param   {Integer}  Index    array index
+     * @param   {Any?}     Default  default value
+     * @returns {Any}
+     */
+    Get(Index, Default?) => (this.A).Get(Index, Default?)
+
+    /**
+     * Determines whether the index is valid and there is a non-null value at
+     * that array index.
+     * 
+     * @param   {Integer}  Index  array index
+     * @returns {Boolean}
+     */
+    Has(Index) => (this.A).Has(Index)
+
+    /**
+     * Inserts elements into the array at the given index.
+     * 
+     * @param   {Integer}  Index   index at which to insert
+     * @param   {T*}     Values  the values to be inserted
+     */
+    InsertAt(Index, Values*) {
+        for Value in Values {
+            this.Check(Value?)
+        }
+        return (this.A).InsertAt(Index, Values*)
+    }
+
+    /**
+     * Removes and returns the last array element.
+     * 
+     * @returns {T}
+     */
+    Pop() => (this.A).Pop()
+
+    /**
+     * Pushes zero or more elements to the array.
+     * 
+     * @param   {T*}  Values  zero or more values to be pushed
+     */
+    Push(Values*) {
+        for Value in Values {
+            this.Check(Value?)
+        }
+        return (this.A).Push(Values*)
+    }
+
+    /**
+     * Removes items from the array.
+     * 
+     * @param   {Integer}   Index   array index
+     * @param   {Integer?}  Length  length of the range of values to remove
+     * @returns {T}
+     */
+    RemoveAt(Index, Length?) => (this.A).RemoveAt(Index, Length?)
+
+    /**
+     * Creates a new instance of this generic array class.
+     * 
+     * @constructor
+     * @param   {T*}  Values  zero or more values
+     */
+    __New(Values*) {
+        A := (this.ArrayType)()
+
+        this.DefineProp("A", { Get: (_) => A })
+        this.Push(Values*)
+    }
+
+    /**
+     * Returns an {@link Enumerator} for the array.
+     * 
+     * @param   {Integer}  ArgSize  arg-size of for-loop
+     * @returns {Enumerator}
+     */
+    __Enum(ArgSize) => (this.A).__Enum(ArgSize)
+
+    /**
+     * Retrieves and sets items in the array.
+     * 
+     * @param   {Integer}  Index  array index
+     * @param   {T}        value  new array element
+     * @returns {T}
+     */
+    __Item[Index] {
+        get => (this.A)[Index]
+        set {
+            this.Check(value?)
+            (this.A)[Index] := (value?)
+        }
+    }
+
+    /**
+     * Retrieves and sets the length of the array.
+     * 
+     * @param   {Integer}  value  new length
+     * @returns {Integer}
+     */
+    Length {
+        get => (this.A).Length
+        set {
+            (this.A).Length := (value?)
+        }
+    }
+
+    /**
+     * Retrieves and sets the capacity of the array.
+     * 
+     * @param   {Integer}  value  new capacity
+     * @returns {Integer}
+     */
+    Capacity {
+        get => (this.A).Capacity
+        set {
+            (this.A).Capacity := (value?)
+        }
+    }
+
+    ; TODO restrict default value to type `T`?
+    /**
+     * Retrieves and sets the `Default` property of the array.
+     * 
+     * @param   {Any}  value  value of default property
+     * @returns {Any}
+     */
+    Default {
+        get => (this.A).Default
+        set {
+            (this.A).Default := (value?)
+        }
+    }
+
+    ;@endregion
+}
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Extensions
+
+class AquaHotkey_GenericArray extends AquaHotkey {
     class Class {
         /**
          * Returns the "array class" of this class.
          * 
-         * @param   {Any?}  Constraint  additional type constraint
-         * @returns {Class}
-         * @example
-         * ArrClass := Number[]
-         * Arr := ArrClass(23, 1, 45)
-         * 
-         * ; shorthand
-         * Number[](23, 1, 45)
+         * @param   {Class?}  Constraint  additional type constraint
+         * @returns {Class<? extends GenericArray<Array, this>>}
          */
-        __Item[Constraint?] => this.ArrayType[Constraint?]
+        __Item[Constraint?] => Array.OfType(this, Constraint?)
     }
 
-    class Array {
+    class IArray {
         /**
-         * Returns the "array class" of the given type, and optional
-         * type constraint.
+         * Returns the "array class" of the given type, and optional type
+         * constraint.
          * 
          * @param   {Any}   T           type pattern
          * @param   {Any?}  Constraint  additional type constraint
-         * @returns {Class}
+         * @returns {Class<? extends GenericArray<Array, this>>}
          * @example
-         * Cls := Array.OfType({ status: 200, data: Any })
+         * User := { name: String, age: Integer }
+         * T := LinkedList.OfType(Nullable(User))
          */
-        static OfType(T, Constraint?) => T.ArrayType[Constraint?]
+        static OfType(T, Constraint?) {
+            OuterType     := "IArray"
+            try OuterType := this.Name
+
+            InnerType := (T is Class) ? T.Name : String(T)
+            return AquaHotkey.CreateClass(
+                    GenericArray, (OuterType . "<" . InnerType . ">"),
+                    this, T, Constraint?)
+        }
     }
 }
+
 ;@endregion

@@ -4,6 +4,8 @@
 #Include "%A_LineFile%\..\..\Interfaces\Deque.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Indexable.ahk"
 
+; TODO fully complete IArray contract
+
 /**
  * A doubly linked list implementation.
  * 
@@ -11,7 +13,7 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic
  */
-class LinkedList {
+class LinkedList extends IArray {
     static __New() {
         if (this == LinkedList) {
             ({}.DefineProp)(this.Prototype, "__New",

@@ -53,7 +53,6 @@
 ;-------------------------------------------------------------------------------
 ;@region Collections
 
-
 #Include "%A_LineFile%/../../Collections/Generic/Array.ahk"
 #Include "%A_LineFile%/../../Collections/Generic/Map.ahk"
 
@@ -63,6 +62,7 @@
 #Include "%A_LineFile%/../../Collections/HashMap.ahk"
 #Include "%A_LineFile%/../../Collections/Zip.ahk"
 
+#Include "%A_LineFile%/../../Collections/LinkedList.ahk"
 
 ;@endregion
 ;-------------------------------------------------------------------------------
@@ -89,5 +89,6 @@
 
 #Include "%A_LineFile%/../../Interfaces/ISet.ahk"
 #Include "%A_LineFile%/../../Interfaces/IMap.ahk"
+#Include "%A_LineFile%/../../Interfaces/IArray.ahk"
 
 ;@endregion

@@ -49,7 +49,7 @@ class Set extends ISet {
      * @example
      * S := Set()
      * S.Add("value1", "value2")
-     * MsgBox(S.Has("value1")) ; true
+     * MsgBox(S.Contains("value1")) ; true
      */
     Add(Value, Values*) {
         Changed := (!this.M.Has(Value))
@@ -64,7 +64,9 @@ class Set extends ISet {
     /**
      * Clears the set.
      */
-    Clear() => this.M.Clear()
+    Clear() {
+        (this.M).Clear()
+    }
 
     /**
      * Clones the set.
@@ -105,9 +107,9 @@ class Set extends ISet {
      * @param   {Any}  Value  any value
      * @returns {Boolean}
      * @example
-     * Set(1, 2, 3).Has(3) ; true
+     * Set(1, 2, 3).Contains(3) ; true
      */
-    Has(Value) => this.M.Has(Value)
+    Contains(Value) => this.M.Has(Value)
 
     /**
      * Returns an `Enumerator` for the set.
@@ -150,7 +152,7 @@ class Set extends ISet {
      * M := S.ToMap()
      * M.Set("foo", true)
      * 
-     * S.Has("foo")
+     * S.Contains("foo")
      */
     ToMap() => this.M.Clone()
 

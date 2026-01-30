@@ -70,6 +70,29 @@ class ImmutableSet extends ISet
     Delete(*) {
         throw PropertyError("This set is immutable", -2)
     }
+
+    /**
+     * Determines whether the given value is present in the set.
+     * 
+     * @param   {Any}  Value  any value
+     * @returns {Boolean}
+     */
+    Contains(Value) => (this.S).Contains(Value)
+
+    /**
+     * Returns an {@link Enumerator} for the set.
+     * 
+     * @param   {Integer}  ArgSize  arg-size of for-loop
+     * @returns {Enumerator}
+     */
+    __Enum(ArgSize) => (this.S).__Enum(ArgSize)
+
+    /**
+     * Returns the size of the set.
+     * 
+     * @returns {Integer}
+     */
+    Size => (this.S).Size
 }
 
 class AquaHotkey_ImmutableSet extends AquaHotkey {

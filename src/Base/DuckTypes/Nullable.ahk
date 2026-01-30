@@ -6,6 +6,7 @@
  * @module  <Base/DuckTypes/Nullable>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @template T the inner type
  * @example
  * MaybeStr := Nullable(String)
  * 
@@ -13,20 +14,24 @@
  * MaybeStr.IsInstance("Str") ; true
  * MaybeStr.IsInstance(342.1) ; false
  */
-class Nullable {
+class Nullable extends Class {
     /**
      * Creates a new nullable type with the given inner type.
      * 
      * @constructor
-     * @param   {Any}  InnerType  inner type of the nullable
+     * @param   {T}  InnerType  inner type of the nullable
+     * @returns {Nullable<T>}
      */
-    __New(InnerType) {
+    static Call(InnerType?) {
         if (InnerType is Nullable) {
             T := InnerType.T
         } else {
             T := InnerType
         }
-        this.DefineProp("T", { Get: (_) => T })
+        Obj := Object()
+        Obj.DefineProp("T", { Get: (_) => T })
+        ObjSetBase(Obj, this.Prototype)
+        return Obj
     }
 
     /**
@@ -35,7 +40,15 @@ class Nullable {
      * @param   {Any?}  Val  any value
      * @returns {Boolean}
      */
-    Eq(Val?) => IsSet(Val) && (Val is Nullable) && (this.T).Eq(Val.T)
+    Eq(Val?) {
+        if (!IsSet(Val)) {
+            return false
+        }
+        if (this == Val) {
+            return true
+        }
+        return (Val is Nullable) && (this.T).Eq(Val.T)
+    }
 
     /**
      * Returns a hash code for this nullable type.

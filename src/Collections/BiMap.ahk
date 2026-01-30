@@ -37,6 +37,8 @@ class BiMap extends IMap {
         return Obj
     }
 
+    ; TODO static FromMap(M). find out a way to make `Map.BasedFrom(M)` work
+
     /**
      * 
      */
