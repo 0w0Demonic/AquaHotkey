@@ -1,5 +1,8 @@
 #Include <AquaHotkeyX>
 
+; TODO `static CanCastFrom()` ?
+; TODO integrate Sizeable into IMap (problem: `.Size` used as regular field)
+
 /**
  * @interface
  * @description
@@ -12,8 +15,6 @@
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class IMap {
-    ; TODO integrate Sizeable mixin into this
-
     static __New() {
         if (this != IMap) {
             return
@@ -110,6 +111,107 @@ class IMap {
                 && HasMethod(Val, "Set")
                 && HasMethod(Val, "__Enum")
                 && HasProp(Val, "Count")
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Unimplemented
+
+    /**
+     * Unsupported `.Clear()` method.
+     * @see {@link Map#Clear()}
+     */
+    Clear() {
+        throw PropertyError("not implemented")
+    }
+
+    /**
+     * Unsupported `.Delete()` method.
+     * @see {@link Map#Delete()}
+     */
+    Delete(Key) {
+        throw PropertyError("not implemented")
+    }
+
+    /**
+     * Unsupported `.Get()` method.
+     * @see {@link Map#Get()}
+     */
+    Get(Key, *) {
+        throw PropertyError("not implemented")
+    }
+    
+    /**
+     * Unsupported `.Has()` method.
+     * @see {@link Map#Has()}
+     */
+    Has(Key) {
+        throw PropertyError("not implemented")
+    }
+
+    /**
+     * Unsupported `.Set()` method.
+     * @see {@link Map#Set()}
+     */
+    Set(*) {
+        throw PropertyError("not implemented")
+    }
+
+    /**
+     * Unsupported `.__Enum()` method.
+     * @see {@link Map#__Enum()}
+     */
+    __Enum(ArgSize) {
+        throw PropertyError("not implemented")
+    }
+
+    /**
+     * Unsupported `.Count` property.
+     * @see {@link Map#Count}
+     */
+    Count {
+        get {
+            throw PropertyError("not implemented")
+        }
+    }
+
+    /**
+     * Unsupported `.Capacity` property.
+     * @see {@link Map#Capacity}
+     */
+    Capacity {
+        get {
+            throw PropertyError("not implemented")
+        }
+        set {
+            throw PropertyError("not implemented")
+        }
+    }
+
+    /**
+     * Unsupported `.CaseSense` property.
+     * @see {@link Map#CaseSense}
+     */
+    CaseSense {
+        get {
+            throw PropertyError("not implemented")
+        }
+        set {
+            throw PropertyError("not implemented")
+        }
+    }
+
+    /**
+     * Unsupported `.__Item[]` property.
+     * @see {@link Map#__Item}
+     */
+    __Item[Key] {
+        get {
+            throw PropertyError("not implemented")
+        }
+        set {
+            throw PropertyError("not implemented")
+        }
+    }
     
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -250,23 +352,4 @@ class IMap {
     }
 
     ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Default Properties
-
-    /**
-     * Gets and retrieves items from the Map.
-     * 
-     * @param   {Any?}  Key    map key
-     * @param   {Any?}  Value  associated value
-     * @returns {Any}
-     */
-    __Item[Key?] {
-        get => this.Get(Key?)
-        set {
-            this.Set(Key?, Value?)
-        }
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
 }

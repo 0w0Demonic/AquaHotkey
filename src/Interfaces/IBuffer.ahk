@@ -11,6 +11,29 @@
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class IBuffer {
+    ;@region Type Info
+    /**
+     * Determines whether the buffer is buffer-like.
+     * 
+     * @param   {Any?}  Val  any value
+     * @returns {Boolean}
+     * @example
+     * Buffer(16, 0).Is(IBuffer)        ; true
+     * { Ptr: 0, Size: 16 }.Is(IBuffer) ; true
+     */
+    static IsInstance(Val?) {
+        ; regular `is` semantics
+        if (super.IsInstance(Val?)) {
+            return true
+        }
+        ; buffer-like objects, when using `IBuffer.IsInstance(...)`
+        return (this == IBuffer)
+            && IsSet(Val) && IsObject(Val)
+            && HasProp(Val, "Ptr") && HasProp(Val, "Size")
+        
+    }
+    ;@endregion
+    
     static __New() {
         static Define := {}.DefineProp
         if (this != IBuffer) {
@@ -98,20 +121,6 @@ class IBuffer {
         return this
     }
 
-    /**
-     * Determines whether the buffer is buffer-like.
-     * 
-     * @param   {Any?}  Val  any value
-     * @returns {Boolean}
-     * @example
-     * Buffer(16, 0).Is(IBuffer)        ; true
-     * { Ptr: 0, Size: 16 }.Is(IBuffer) ; true
-     */
-    static IsInstance(Val?) => super.IsInstance(Val?)
-            || (this == IBuffer)
-                && IsSet(Val) && IsObject(Val)
-                && HasProp(Val, "Ptr") && HasProp(Val, "Size")
-    
     /**
      * Fills the buffer with zeros.
      * 

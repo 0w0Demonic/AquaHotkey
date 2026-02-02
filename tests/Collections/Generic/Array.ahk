@@ -470,4 +470,37 @@ class Test_GenericArray extends TestSuite {
         T.ComponentType.IsInstance("test").AssertEquals(true)
         T.ComponentType.IsInstance(123).AssertEquals(false)
     }
+
+    ;---- EQUALITY CHECKS
+
+    static static_eq_based_on_fields() {
+        A := String[]
+        B := String[]
+
+        A.Eq(B).AssertEquals(true)
+    }
+
+    static static_eq_wrong_array_type() {
+        A := Array.OfType(String)
+        B := LinkedList.OfType(String)
+        A.Eq(B).AssertEquals(false)
+    }
+
+    static static_eq_supports_object_patterns() {
+        A := Array.OfType({ name: String })
+        B := Array.OfType({ name: String })
+
+        ; this here should call `Array.Eq(Array)` and `{...}.Eq({...})`
+        ; --> true
+
+        A.Eq(B).AssertEquals(true)
+    }
+
+    static static_hashcode_same_when_equal() {
+        A := String[]
+        B := String[]
+
+        ; since A.Eq(B)
+        (A.HashCode()).AssertEquals(B.HashCode())
+    }
 }

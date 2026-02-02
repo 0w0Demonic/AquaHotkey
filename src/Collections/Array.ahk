@@ -3,6 +3,7 @@
 ; TODO add back Swap() with unset handling
 ; TODO reverse view?
 ; TODO just remove stream-like ops completely?
+; TODO stop caring about the value returned by `.FlatMap()`?
 
 /**
  * Array stream-like operations.

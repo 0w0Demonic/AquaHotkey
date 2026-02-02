@@ -570,8 +570,7 @@ class Stream extends BaseStream
         DistinctBy(&Out) {
             while (this(&Out)) {
                 Key := KeyExtractor(Out?)
-                if (!Cache.Has(Key)) {
-                    Cache[Key] := true
+                if (Cache.Add(Key)) {
                     return true
                 }
             }
@@ -616,7 +615,7 @@ class Stream extends BaseStream
 ;-------------------------------------------------------------------------------
 ;@region Extensions
 
-class AquaHotkey_Stream {
+class AquaHotkey_Stream extends AquaHotkey {
     class Any {
         /**
          * Returns a new {@link Stream} for this value.

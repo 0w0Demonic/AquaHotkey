@@ -115,8 +115,7 @@ class Test_Collector extends TestSuite {
             return SubStr(Str, 1, 1)
         }
         
-        M := "Hello world!"
-            .StrSplit(" ")
+        M := StrSplit("Hello world!", " ")
             .Stream()
             .Group(FirstLetter, (Args*) => Args.Stream().Group(StrLen))
         
@@ -130,8 +129,4 @@ class Test_Collector extends TestSuite {
         M[1].AssertEquals("Hello")
         M[2].AssertEquals("world")
     }
-}
-
-class C extends Collector {
-
 }

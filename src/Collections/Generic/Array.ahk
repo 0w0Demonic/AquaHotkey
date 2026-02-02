@@ -241,16 +241,49 @@ class GenericArray extends IArray {
     HashCode() => (this.A).HashCode()
 
     /**
-     * Determines whether this generic array is equal to the other array.
+     * Returns a hash code for this generic array class.
      * 
-     * @param   {Any?}  Val  any value
-     * @returns {Boolean}
-     * @example
+     * @returns {Integer}
      */
-    Eq(Val?) => (this.A).Eq(Val?)
+    static HashCode() => Any.Hash(this.ArrayType, this.ComponentType)
 
     /**
+     * Determines whether the given value is equal to this generic array class.
      * 
+     * @param   {Any?}  Other  any value
+     * @returns {Boolean}
+     * @example
+     * ; Integer[] is equivalent to: Array.OfType(Integer)
+     * C1 := Integer[]
+     * C2 := Integer[]
+     * 
+     * C1.Eq(C2)
+     * ; --> Array.Eq(Array) && Integer.Eq(Integer)
+     * ; --> true
+     */
+    static Eq(Other?) {
+        if (!IsSet(Other)) {
+            return false
+        }
+        if (this == Other) {
+            return true
+        }
+        if (!HasBase(Other, GenericArray)) {
+            return false
+        }
+        return (this.ArrayType).Eq(Other.ArrayType)
+            && (this.ComponentType).Eq(Other.ComponentType)
+    }
+
+    /**
+     * Returns a string representation of the generic array.
+     * 
+     * @returns {String}
+     * @see {@link AquaHotkey_GenericArray.IArray.OfType() IArray.OfType()}
+     * @example
+     * LL := LinkedList.OfType(Integer).Call(1, 2, 3, 4)
+     * 
+     * MsgBox(String(LL)) ; "LinkedList<Integer> [1, 2, 3, 4]"
      */
     ToString() => Type(this) . String(this.A)
 
@@ -302,7 +335,6 @@ class GenericArray extends IArray {
         return (this.A).Delete(Index)
     }
 
-    ; TODO restrict `Default?` to type `T`?
     /**
      * Retrieves an item from the generic array.
      * 
@@ -424,7 +456,6 @@ class GenericArray extends IArray {
         }
     }
 
-    ; TODO restrict default value to type `T`?
     /**
      * Retrieves and sets the `Default` property of the array.
      * 

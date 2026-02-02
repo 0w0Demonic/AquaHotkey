@@ -38,38 +38,11 @@ class ImmutableSet extends ISet
     static Call(Values*) => this.FromSet(Set(Values*))
 
     /**
-     * Unsupported `.Add()`.
-     */
-    Add(*) {
-        throw PropertyError("This set is immutable", -2)
-    }
-
-    /**
-     * Unsupported `.Clear()`.
-     */
-    Clear() {
-        throw PropertyError("This set is immutable", -2)
-    }
-
-    /**
      * Returns a shallow clone of the immutable set.
      * 
      * @returns {ImmutableSet}
      */
-    Clone() {
-        S := this.S.Clone()
-        Obj := Object()
-        Obj.DefineProp("S", { Get: (_) => S })
-        ObjSetBase(Obj, ObjGetBase(this))
-        return Obj
-    }
-
-    /**
-     * Unsupported `.Delete()`.
-     */
-    Delete(*) {
-        throw PropertyError("This set is immutable", -2)
-    }
+    Clone() => ImmutableSet.FromSet((this.S).Clone())
 
     /**
      * Determines whether the given value is present in the set.
@@ -96,13 +69,18 @@ class ImmutableSet extends ISet
 }
 
 class AquaHotkey_ImmutableSet extends AquaHotkey {
-    class Set {
+    class ISet {
         /**
          * Returns a read-only view of this set. The original set may still
          * be modified elsewhere.
          * 
          * @returns {ImmutableSet}
          */
-        Freeze() => ImmutableSet.FromSet(this)
+        Freeze() {
+            if (this is ImmutableSet) {
+                return this
+            }
+            return ImmutableSet.FromSet(this)
+        }
     }
 }

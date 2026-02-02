@@ -2,7 +2,6 @@
 #Include <AquaHotkeyX>
 
 ; TODO change `.AssertType()` to use this module's `.Is()` ?
-; TODO use a subclass `TypePredicate` instead of `Func`?
 
 /**
  * Provides a flexible and customizable duck typing system which extends the
@@ -630,12 +629,27 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * Determines whether the given value matches the type imposed by
          * this function.
          * 
+         * Using this method on a function is somewhat discouraged, as
+         * they do not implement `.CanCastFrom()`. Whenever possible, you
+         * should define your own duck type class, or use type wrappers on
+         * existing types.
+         * 
          * @param   {Any?}  Val  any value
          * @returns {Boolean}
          * @example
-         * Callable := (Val?) => IsSet(Val) && HasMethod(Val)
+         * Callable := (Val?) => IsSet(Val) && IsObject(Val) && HasMethod(Val)
          * 
          * MsgBox.Is(Callable) ; true
+         * 
+         * ; better alternative: define a duck type class
+         * class Callable {
+         *     static IsInstance(Val?) {
+         *         return IsSet(Val) && IsObject(Val) && HasMethod(Val)
+         *     }
+         *     static CanCastFrom(T) {
+         *         return super.CanCastFrom(T) || Func.CanCastFrom(T)
+         *     }
+         * }
          */
         IsInstance(Val?) => this(Val?)
     }

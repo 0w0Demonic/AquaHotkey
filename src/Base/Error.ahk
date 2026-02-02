@@ -21,11 +21,6 @@ class Error {
      * TargetError.Throw("unable to find window", -1, "ahk_exe notepad.exe")
      */
     static Throw(Msg?, What?, Extra?) {
-        ; remove one "stack level", if that's what the `What` property
-        ; is referring to
-        if (IsInteger(What) && (What < 0)) {
-            --What
-        }
         throw this(Msg?, What?, Extra?)
     }
 

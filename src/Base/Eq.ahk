@@ -1,6 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
-; TODO (GenericArray, GenericMap) static Eq(Other)
 ; TODO (find-by-value methods)
 ; TODO static Equals() for duck types
 ; TODO refactor things to use `Any.Equals` OR custom predicates
@@ -227,9 +226,9 @@ class Class {
 
 ;@endregion
 ;-------------------------------------------------------------------------------
-;@region Array
+;@region IArray
 
-class Array {
+class IArray {
     /**
      * Determines whether this array is equal to the `Other` value.
      * 
@@ -379,9 +378,9 @@ class ByReference extends AquaHotkey_MultiApply {
 
 ;@endregion
 ;-------------------------------------------------------------------------------
-;@region Map
+;@region IMap
 
-class Map {
+class IMap {
     /**
      * Determines whether this `Map` is equal to the `Other` value.
      * 

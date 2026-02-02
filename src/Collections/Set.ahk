@@ -109,7 +109,7 @@ class Set extends ISet {
      * @example
      * Set(1, 2, 3).Contains(3) ; true
      */
-    Contains(Value) => this.M.Has(Value)
+    Contains(Value) => (this.M).Has(Value)
 
     /**
      * Returns an `Enumerator` for the set.
@@ -117,14 +117,14 @@ class Set extends ISet {
      * @param   {Integer}  ArgSize  parameter size of for-loop
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) => this.M.__Enum(1)
+    __Enum(ArgSize) => (this.M).__Enum(1)
 
     /**
      * Amount of elements contained in the set.
      * 
      * @returns {Integer}
      */
-    Size => this.M.Size
+    Size => (this.M).Size
 
     /**
      * Returns a mutable map view of the set.
@@ -139,7 +139,7 @@ class Set extends ISet {
      * 
      * S.Has("foo") ; true
      */
-    AsMap() => this.M
+    AsMap() => (this.M)
 
     /**
      * Returns a map containing a copy of all the current elements in
@@ -154,14 +154,14 @@ class Set extends ISet {
      * 
      * S.Contains("foo")
      */
-    ToMap() => this.M.Clone()
+    ToMap() => (this.M).Clone()
 
     /**
      * Retrieves and sets the current capacity of the set.
      */
     CaseSense {
-        get => this.M.CaseSense
-        set => (this.M.CaseSense := value)
+        get => (this.M).CaseSense
+        set => ((this.M).CaseSense := value)
     }
 
     /**
@@ -169,7 +169,7 @@ class Set extends ISet {
      */
     Capacity {
         get => this.M.Capacity
-        set => (this.M.Capacity := value)
+        set => ((this.M).Capacity := value)
     }
 }
 

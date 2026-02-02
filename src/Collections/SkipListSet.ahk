@@ -1,9 +1,3 @@
-; TODO fix this
-#Include <AquaHotkeyX>
-#Include "%A_LineFile%\..\..\Interfaces\Sizeable.ahk"
-#Include "%A_LineFile%\..\..\Collections\Set.ahk"
-#Include "%A_LineFile%\..\..\Collections\SkipListMap.ahk"
-
 /**
  * A {@link Set} implementation of {@link SkipListMap}. Keys are sorted
  * by natural order (`.Compare()`) or using a custom {@link Comparator}

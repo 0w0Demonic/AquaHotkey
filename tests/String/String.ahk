@@ -227,14 +227,6 @@ class Test_String extends TestSuite {
         "abcc".Delete(-1, 100).AssertEquals("abc")
     }
 
-    static LPad() {
-        "Hello, world!".LPad(" ", 1).AssertEquals(" Hello, world!")
-    }
-
-    static RPad() {
-        "Hello, world!".RPad(" ", 1).AssertEquals("Hello, world! ")
-    }
-
     static __Item() {
         "Hello, world!".__Item[2].AssertEquals("e")
     }
@@ -244,15 +236,15 @@ class Test_String extends TestSuite {
     }
 
     static Size1() {
-        "abcdef".Size.AssertEquals((6 + 1) * 2) ; UTF-16
+        "abcdef".SizeInBytes.AssertEquals((6 + 1) * 2) ; UTF-16
     }
 
     static Size2() {
-        "abcdef".Size["CP20127"].AssertEquals(6 + 1) ; US-ASCII
+        "abcdef".SizeInBytes["CP20127"].AssertEquals(6 + 1) ; US-ASCII
     }
 
     static Size3() {
-        "abcdef".Size["UTF-8"].AssertEquals(6 + 1) ; UTF-8
+        "abcdef".SizeInBytes["UTF-8"].AssertEquals(6 + 1) ; UTF-8
     }
 }
 

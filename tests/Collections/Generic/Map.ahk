@@ -88,6 +88,34 @@ class Test_GenericMap extends TestSuite {
         M.Has({ name: "Jacob", age: 21 }).AssertEquals(true)
         this.AssertThrows(() => M.Set({ name: [1, 2], age: "invalid" }))
     }
+
+    static static_eq_based_on_fields() {
+        A := Map.OfType(String, Integer)
+        B := Map.OfType(String, Integer)
+
+        A.Eq(B).AssertEquals(true)
+    }
+
+    static static_eq_wrong_map_type() {
+        A := HashMap.OfType(String, Integer)
+        B := Map.OfType(String, Integer) ; HashMap != Map
+
+        A.Eq(B).AssertEquals(false)
+    }
+
+    static static_eq_supports_object_patterns() {
+        A := Map.OfType(Integer, { name: String })
+        B := Map.OfType(Integer, { name: String })
+
+        A.Eq(B).AssertEquals(true) ; because ({ ... }).Eq({ ... })
+    }
+    
+    static static_hashcode_same_when_equal() {
+        A := Map.OfType(String, Integer)
+        B := Map.OfType(String, Integer)
+
+        (A.HashCode()).AssertEquals(B.HashCode())
+    }
 }
 
 /**

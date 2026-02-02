@@ -97,7 +97,7 @@ class DLL extends Any {
          * Deletes all properties from a class and from its prototype.
          */
         static DeleteAllProperties(DllClass) {
-            static Delete := {}.DefineProp
+            static Delete := {}.DeleteProp
 
             ; collect property names in an array before iterating
             for Target in Array(DllClass, DllClass.Prototype) {
@@ -140,7 +140,7 @@ class DLL extends Any {
             cNameEntries := NumGet(p_exportTable, 0x18, "UInt")
             p_names      := hModule + NumGet(p_exportTable, 0x20, "UInt")
 
-            Loop cNameEntries {
+            loop cNameEntries {
                 offset := (A_Index - 1) * 4
                 p_name := hModule + NumGet(p_names, offset, "UInt")
 
@@ -151,7 +151,7 @@ class DLL extends Any {
 
                 ; define getter and setter using the name and proc address
                 Define(DllClass, Name, {
-                    Get: CreateSetter(Addr),
+                    Get: CreateGetter(Addr),
                     Set: CreateSetter(Name)
                 })
             }

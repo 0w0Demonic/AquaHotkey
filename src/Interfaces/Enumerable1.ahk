@@ -2,6 +2,9 @@
 
 ; TODO add monoids, so `.Reduce()` always gets an initial value?
 
+; TODO decide whether or not to include `static IsInstance()`, because we can't
+;      reliably determine arg size
+
 /**
  * @mixin
  * @description
@@ -12,7 +15,7 @@
  * for Value in Obj { ... }
  */
 class Enumerable1 {
-    static __New() => this.ApplyOnto(Array, Map, Enumerator, Stream)
+    static __New() => this.ApplyOnto(IArray, IMap, Enumerator, Stream)
 
     /**
      * Executes an action for each element.

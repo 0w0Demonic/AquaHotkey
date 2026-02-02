@@ -1,5 +1,8 @@
 ; TODO Intersection(), Disjunction(), Union(), etc.
+; TODO generics; `.CanCastFrom()` ?
+; TODO `IMap#CanCastFrom()` ?
 
+;@region ISet
 /**
  * @interface
  * @description
@@ -30,6 +33,8 @@ class ISet {
             this.Backup(Enumerable1, Sizeable, Sizeable)
         }
     }
+
+    ;@region Construction
 
     /**
      * Creates a new `ISet`.
@@ -65,7 +70,12 @@ class ISet {
             case (HasMethod(Param)):
                 S := Param()
             default:
-                S := this()
+                if (this == ISet) {
+                    ; fallback to concrete type `Set`
+                    S := Set()
+                } else {
+                    S := this()
+                }
                 S.CaseSense := Param
         }
         if (!S.Is(this)) {
@@ -73,6 +83,10 @@ class ISet {
         }
         return S
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Type Info
 
     /**
      * Determines whether the given value is a set, or supports set operations.
@@ -92,6 +106,10 @@ class ISet {
             && HasMethod(Val, "__Enum")
             && HasProp(Val, "Size")
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Unimplemented
 
     /**
      * Unimplemented `.Add()` method.
@@ -183,6 +201,27 @@ class ISet {
     __Enum(ArgSize) {
         throw PropertyError("not implemented")
     }
+
+    /**
+     * Unsupported `.Size` property.
+     * 
+     * ---
+     * 
+     * Returns the element size of this set.
+     * 
+     * @returns {Integer}
+     * @example
+     * Set(1, 2, 3, 4).Size() ; 4
+     */
+    Size {
+        get {
+            throw PropertyError("not implemented")
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Default Methods
     
     /**
      * Determines whether any of the given values are present in the set.
@@ -191,15 +230,15 @@ class ISet {
      * @param   {Any*}  Values  zero or more values
      * @returns {Boolean}
      * @example
-     * Set(1, 2, 3).HasAny(2, 5) ; true
+     * Set(1, 2, 3).ContainsAny(2, 5) ; true
      */
-    HasAny(Value, Values*) {
-        if (this.Has(Value)) {
+    ContainsAny(Value, Values*) {
+        if (this.Contains(Value)) {
             return true
         }
 
         for V in Values {
-            if (this.Has(V)) {
+            if (this.Contains(V)) {
                 return true
             }
         }
@@ -213,10 +252,10 @@ class ISet {
      * @param   {Any*}  Values  zero or more values
      * @returns {Boolean}
      * @example
-     * Set(1, 2, 3).HasAll(1, 2, 3) ; true
+     * Set(1, 2, 3).ContainsAll(1, 2, 3) ; true
      */
     ContainsAll(Value, Values) {
-        if (!this.Has(Value)) {
+        if (!this.Contains(Value)) {
             return false
         }
         for V in Values {
@@ -235,6 +274,10 @@ class ISet {
      * @returns {Boolean}
      */
     __Item[Value] => this.Contains(Value)
+
+    ;@endregion 
+    ;---------------------------------------------------------------------------
+    ;@region Commons
 
     /**
      * Creates a hash code based on the elements contained in the set.
@@ -296,7 +339,13 @@ class ISet {
         Result .= " }"
         return Result
     }
+
+    ;@endregion
 }
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Extensions
 
 class AquaHotkey_ISet extends AquaHotkey {
     class IMap {
@@ -329,3 +378,4 @@ class AquaHotkey_ISet extends AquaHotkey {
     }
 }
 
+;@endregion

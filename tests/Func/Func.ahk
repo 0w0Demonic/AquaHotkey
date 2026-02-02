@@ -1,6 +1,6 @@
 class Test_Func extends TestSuite {
     static Constantly() {
-        Range(5).Stream().Map(  Func.Constantly(15)  ).Join(", ")
+        Stream.Generate(Constantly(15)).Limit(5).Join(", ")
                 .AssertEquals("15, 15, 15, 15, 15")
     }
 

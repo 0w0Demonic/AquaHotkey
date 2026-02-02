@@ -26,7 +26,6 @@
 #Include "%A_LineFile%/../../Base/TypeInfo.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes.ahk"
 
-#Include "%A_LineFile%/../../Base/DuckTypes/BufferObject.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes/Callable.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes/Nullable.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes/Numeric.ahk"
@@ -44,8 +43,13 @@
 #Include "%A_LineFile%/../../Base/Ord.ahk"
 #Include "%A_LineFile%/../../Base/Hash.ahk"
 
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Func
+
 #Include "%A_LineFile%/../../Func/Func.ahk"
 #Include "%A_LineFile%/../../Func/Pipes.ahk"
+#Include "%A_LineFile%/../../Func/Supplier.ahk"
 
 #Include "%A_LineFile%/../../IO/FileUtils.ahk"
 
@@ -56,13 +60,19 @@
 #Include "%A_LineFile%/../../Collections/Generic/Array.ahk"
 #Include "%A_LineFile%/../../Collections/Generic/Map.ahk"
 
-#Include "%A_LineFile%/../../Collections/Array.ahk"
-#Include "%A_LineFile%/../../Collections/Map.ahk"
-#Include "%A_LineFile%/../../Collections/Set.ahk"
-#Include "%A_LineFile%/../../Collections/HashMap.ahk"
-#Include "%A_LineFile%/../../Collections/Zip.ahk"
 
+#Include "%A_LineFile%/../../Collections/Array.ahk"
+#Include "%A_LineFile%/../../Collections/ImmutableArray.ahk"
 #Include "%A_LineFile%/../../Collections/LinkedList.ahk"
+
+#Include "%A_LineFile%/../../Collections/Map.ahk"
+#Include "%A_LineFile%/../../Collections/HashMap.ahk"
+#Include "%A_LineFile%/../../Collections/ImmutableMap.ahk"
+
+#Include "%A_LineFile%/../../Collections/Set.ahk"
+#Include "%A_LineFile%/../../Collections/HashSet.ahk"
+#Include "%A_LineFile%/../../Collections/ImmutableSet.ahk"
+
 
 ;@endregion
 ;-------------------------------------------------------------------------------
@@ -89,6 +99,7 @@
 
 #Include "%A_LineFile%/../../Interfaces/ISet.ahk"
 #Include "%A_LineFile%/../../Interfaces/IMap.ahk"
+#Include "%A_LineFile%/../../Interfaces/IBuffer.ahk"
 #Include "%A_LineFile%/../../Interfaces/IArray.ahk"
 
 ;@endregion

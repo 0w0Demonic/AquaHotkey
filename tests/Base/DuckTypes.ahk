@@ -44,11 +44,11 @@ class Test_DuckTypes extends TestSuite {
     }
 
     static buffers_are_buffer_objects() {
-        Buffer(16).Is(BufferObject).AssertEquals(true)
+        Buffer(16).Is(IBuffer).AssertEquals(true)
     }
 
     static objects_can_be_buffer_objects() {
-        ({ Ptr: 0, Size: 0 }).Is(BufferObject).AssertEquals(true)
+        ({ Ptr: 0, Size: 0 }).Is(IBuffer).AssertEquals(true)
     }
 
     static Number_assignable_from_Integer() {
@@ -74,11 +74,11 @@ class Test_DuckTypes extends TestSuite {
                 .AssertEquals(true)
     }
 
-    static every_Buffer_is_BufferObject() {
-        BufferObject.CanCastFrom(Buffer)
+    static every_Buffer_is_IBuffer() {
+        IBuffer.CanCastFrom(Buffer)
                 .AssertEquals(true)
                 
-        BufferObject.CanCastFrom(ClipboardAll)
+        IBuffer.CanCastFrom(ClipboardAll)
                 .AssertEquals(true)
     }
 

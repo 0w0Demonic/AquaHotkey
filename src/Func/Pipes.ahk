@@ -1,5 +1,3 @@
-; v2.0.5: Fixed internal calls to __Enum to not call __Call.
-; #Requires AutoHotkey >=v2.0.5
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
@@ -9,63 +7,24 @@
  * It allows "forwarding" the current value into a function as its first
  * argument, followed by zero or more values `Args*`.
  * 
- * This can be done "implicitly", i.e. calling an unknown property from a
- * value with the same name as a global function, or "explicitly",
- * via the `Any#o0()` method, passing the next function followed by zero
- * or more `Args*`.
- * 
- * Using `.o0()` is marginally faster and more flexible because it directly
- * accepts the next function instead of searching the global namespace.
+ * This is done by using the `.o0()` method, which accepts the next function,
+ * followed by zero or more `Args*`.
  * 
  * @example
- * ; implicit
- * MyVar.DoThis().DoThat("foo", { bar: "" }).MsgBox()
+ * DoThis(A) => ...
+ * DoThat(A, B, C) => ...
  * 
- * ; explicit
  * MyVar.o0(DoThis).o0(DoThat, "foo", { bar: "" }).o0(MsgBox)
+ * 
+ * ; equivalent to:
+ * MsgBox(DoThat(DoThat(MyVar), "foo", { bar: "" }))
  * 
  * @module  <Func/Pipes>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class AquaHotkey_Pipes extends AquaHotkey
-{
-    ;@region static __New()
-    static __New() {
-        this.RequiresVersion(">=v2.0.5",
-                "Any.Prototype.__Call",
-                "Class.Prototype.__Call")
-        super.__New()
-    }
-    ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Any
+class AquaHotkey_Pipes extends AquaHotkey {
     class Any {
-        /**
-         * Whenever an undefined method is called, forwards the variable to a
-         * global function as its first parameter.
-         * 
-         * @deprecated
-         * @param   {String}  Name  name of the global function
-         * @param   {Any*}    Args  additional arguments
-         * @returns {Any}
-         * @example 
-         * MyVariable.DoThis().DoThat("foo", "bar").MsgBox()
-         */
-        __Call(Name, Args) {
-            ; try to do name-dereference
-            try {
-                Fn := (AquaHotkey.Deref)(Name)
-            }
-            catch {
-                throw UnsetError("(__Call) not found",, Name)
-            }
-            if (HasMethod(Fn)) {
-                return Fn(this, Args*)
-            }
-            throw TypeError("(__Call) expected a function: " . Name,, Type(Fn))
-        }
-
         /**
          * Explicitly forwards this variable to a function `f` as its first
          * parameter, followed by zero or more additional arguments `Args*`.
@@ -88,25 +47,4 @@ class AquaHotkey_Pipes extends AquaHotkey
          */
         o0(f, Args*) => f(this, Args*)
     }
-    ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Class
-    class Class {
-        /**
-         * Override of `Any.Prototype.__Call()` that throws an error.
-         * 
-         * @param   {String}  MethodName  the name of the undefined method
-         * @param   {Array}   Args        zero or more additional arguments
-         * @override `Any.Prototype.__Call()`
-         * @deprecated
-         * @example
-         * Foo(Value) => ...
-         * String.Foo() ; Error!
-         */
-        __Call(MethodName, *) {
-            throw MethodError("undefined static method: " . MethodName,,
-                              Type(this))
-        }
-    }
-    ;@endregion
 }

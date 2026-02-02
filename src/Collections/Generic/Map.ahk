@@ -181,6 +181,49 @@ class GenericMap extends IDelegatingMap {
         }
     }
 
+    ; TODO move this into IMap?
+
+    HashCode() {
+
+    }
+
+    /**
+     * Returns a hash code for this generic map class.
+     * 
+     * @returns {Integer}
+     */
+    static HashCode() => Any.Hash(this.MapType, this.KeyType, this.ValueType)
+
+    ;Eq(Other?) {
+    ;
+    ;}
+
+    /**
+     * Determines whether the given value is equal to this generic map class.
+     * 
+     * @param   {Any?}  Other  any value
+     * @returns {Boolean}
+     * @example
+     * C1 := Map.OfType(Integer, String)
+     * C2 := Map.OfType(Integer, String)
+     * 
+     * C1.Eq(C2)
+     * ; --> Map.Eq(Map) && Integer.Eq(Integer) && String.Eq(String)
+     * ; --> true
+     */
+    static Eq(Other?) {
+        if (!IsSet(Other)) {
+            return false
+        }
+        if (this == Other) {
+            return true
+        }
+        return HasBase(Other, GenericMap)
+            && (this.MapType).Eq(Other.MapType)
+            && (this.KeyType).Eq(Other.KeyType)
+            && (this.ValueType).Eq(Other.ValueType)
+    }
+
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Implementation
