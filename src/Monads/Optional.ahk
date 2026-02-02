@@ -2,6 +2,9 @@
 
 ; TODO refactor to `Maybe`/`Just`/`None`?
 
+; TODO find out a way to make inner value nullable
+; TODO if done, change `.Find()` methods to always return Optionals
+
 /**
  * Represents an optional value: either a value is present, or it is absent.
  * 

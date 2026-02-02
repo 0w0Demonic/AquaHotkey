@@ -14,7 +14,10 @@
  * MaybeStr.IsInstance("Str") ; true
  * MaybeStr.IsInstance(342.1) ; false
  */
-class Nullable extends Class {
+class Nullable extends Class
+; note: `extends Class` - for now - because this is the specification for what
+;       a "type wrapper" is for generic arrays.
+{
     /**
      * Creates a new nullable type with the given inner type.
      * 
@@ -55,7 +58,7 @@ class Nullable extends Class {
      * 
      * @returns {Integer}
      */
-    HashCode() => Any.Hash(this.T, 2987233938928)
+    HashCode() => Any.Hash(this.T)
 
     /**
      * Determines whether the value is considered instance of this nullable
@@ -75,7 +78,12 @@ class Nullable extends Class {
      * @param   {Any}  Val  any value
      * @returns {Boolean}
      */
-    CanCastFrom(Val) => (this.T).CanCastFrom((Val is Nullable) ? Val.T : Val)
+    CanCastFrom(Val) {
+        if (Val is Nullable) {
+            return (this.T).CanCastFrom(Val.T)
+        }
+        return (this.T).CanCastFrom(Val)
+    }
 
     /**
      * Returns a string representation of this nullable type.

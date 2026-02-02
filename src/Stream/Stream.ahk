@@ -550,7 +550,7 @@ class Stream extends BaseStream
      * Array({ x: 12 }, { x: 12 }, ["2"], ["2"] ).Distinct(unset, HashSet)
      */
     Distinct(KeyExtractor?, SetParam := Set()) {
-        Cache := IMap.Create(SetParam)
+        Cache := ISet.Create(SetParam)
 
         if (!IsSet(KeyExtractor)) {
             return this.Cast(Distinct)
@@ -560,8 +560,7 @@ class Stream extends BaseStream
 
         Distinct(&Out) {
             while (this(&Out)) {
-                if (!Cache.Has(Out)) {
-                    Cache[Out] := true
+                if (Cache.Add(Out)) {
                     return true
                 }
             }

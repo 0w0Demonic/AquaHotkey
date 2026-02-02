@@ -148,4 +148,17 @@ class BaseStream extends Enumerator {
             return Cls.Cast(P(Val))
         }
     }
+
+    /**
+     * Returns an empty stream.
+     * 
+     * @returns {BaseStream}
+     * @example
+     * for Value in Stream.Empty() {
+     *     MsgBox(Value)
+     * } else {
+     *     MsgBox("no values present")
+     * }
+     */
+    static Empty() => this.Cast((*) => false)
 }

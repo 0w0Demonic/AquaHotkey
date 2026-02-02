@@ -261,9 +261,6 @@ class Primitive {
 ;-------------------------------------------------------------------------------
 ;@region Object
 
-/**
- * @extends {#Object}
- */
 class Object {
     /**
      * Asserts that the object owns a property by the given name, otherwise

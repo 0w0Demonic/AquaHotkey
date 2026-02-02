@@ -1,6 +1,6 @@
 #Include <AquaHotkey>
 
-; TODO step into transducers to cut down on code size
+; TODO add monoids, so `.Reduce()` always gets an initial value?
 
 /**
  * @mixin

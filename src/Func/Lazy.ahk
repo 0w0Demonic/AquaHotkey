@@ -73,6 +73,7 @@ class Lazy extends Func {
      * L() ; returns "value" immediately
      */
     Map(Mapper, Args*) {
+        Value := unset
         return this.Cast(Mapped)
 
         Mapped(&Value) {

@@ -43,14 +43,8 @@ class Record extends Class {
      * }
      */
     __New(KeyType, ValueType) {
-        ; TODO remove this redundant check, if `Any#IsInstance()` becomes
-        ;      permanent (it probably will)
-        if (!HasMethod(KeyType, "IsInstance")) {
-            throw TypeError("not a valid pattern")
-        }
-        if (!HasMethod(ValueType, "IsInstance")) {
-            throw TypeError("not a valid pattern")
-        }
+        ; note: no validation, because any value implements `IsInstance()`,
+        ;       which is a valid type pattern.
         this.DefineProp("KeyType",   { Get: (_) => KeyType   })
         this.DefineProp("ValueType", { Get: (_) => ValueType })
     }

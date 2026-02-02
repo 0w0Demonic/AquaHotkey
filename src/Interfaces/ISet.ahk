@@ -1,5 +1,4 @@
 ; TODO Intersection(), Disjunction(), Union(), etc.
-; TODO rename `Has` to `Contains`?
 
 /**
  * @interface
