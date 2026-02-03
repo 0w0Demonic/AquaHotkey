@@ -1,7 +1,6 @@
 #Include <AquaHotkeyX>
 
 ; TODO `static CanCastFrom()` ?
-; TODO integrate Sizeable into IMap (problem: `.Size` used as regular field)
 
 /**
  * @interface
@@ -81,7 +80,11 @@ class IMap {
             case (HasMethod(Param)):
                 M := Param()
             default:
-                M := this()
+                if (this == IMap) {
+                    M := Map()
+                } else {
+                    M := this()
+                }
                 M.CaseSense := Param
         }
         if (!M.Is(this)) {

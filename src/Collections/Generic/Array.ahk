@@ -476,6 +476,9 @@ class GenericArray extends IArray {
 ;-------------------------------------------------------------------------------
 ;@region Extensions
 
+/**
+ * Extension methods related to {@link GenericArray}.
+ */
 class AquaHotkey_GenericArray extends AquaHotkey {
     class Class {
         /**

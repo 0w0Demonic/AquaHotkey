@@ -1,6 +1,9 @@
 #Include "%A_LineFile%\..\HashMap.ahk"
 #Include "%A_LineFile%\..\Set.ahk"
 
+; TODO just specify `static MapType => ...` and save needless `static Call()`s ?
+;      (same goes for the Maps and their Set counterpart)
+
 /**
  * A set implementation that supports object equality comparisons
  * via a backing `HashMap`.

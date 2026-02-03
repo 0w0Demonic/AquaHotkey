@@ -46,5 +46,5 @@ class AquaHotkey_Number extends AquaHotkey {
          * (32).Log(2) ; 5.0
          */
         Log(BaseN := 10) => (Log(this) / Log(BaseN))
-    } ; class Number
-} ; class AquaHotkey_Number extends AquaHotkey
+    }
+}

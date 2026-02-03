@@ -66,12 +66,11 @@ class BaseStream extends Enumerator {
     /**
      * Creates a new stream consisting of zero or more values `Args*`.
      * 
+     * @param   {Any*}  Args  zero or more stream elements
+     * @returns {Stream}
      * @example
      * Stream.of("Hello", "world!") ; <"Hello", "world!">
      * Stream.of() ; <>
-     * 
-     * @param   {Any*}  Args  zero or more stream elements
-     * @returns {Stream}
      */
     static Of(Args*) => this.Cast(Args.__Enum(this.Size))
 
@@ -81,11 +80,7 @@ class BaseStream extends Enumerator {
      * @abstract
      * @returns {Integer}
      */
-    static Size {
-        get {
-            throw PropertyError("Unknown size")
-        }
-    }
+    static Size => (this.Prototype).Size
 
     /**
      * The argument size of the stream.

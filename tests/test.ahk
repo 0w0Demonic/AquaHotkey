@@ -28,7 +28,6 @@
      #Include "%A_LineFile%/../Collections/Map.ahk"
      #Include "%A_LineFile%/../Collections/Set.ahk"
      #Include "%A_LineFile%/../Collections/SkipListMap.ahk"
-     #Include "%A_LineFile%/../Collections/Zip.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Func/

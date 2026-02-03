@@ -43,7 +43,7 @@ class Enumerable2 {
         }
     }
 
-    ; TODO static IsInstance(Val?) ?
+    ;@region Side Effects
 
     /**
      * Calls the given `Action` for each element.
@@ -64,6 +64,10 @@ class Enumerable2 {
         }
         return this
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Reduction
 
     /**
      * Determines whether an element satisfies the given `Condition`.
@@ -168,6 +172,10 @@ class Enumerable2 {
         return true
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Collect
+
     /**
      * Reduces all elements into a `Map`.
      * 
@@ -209,4 +217,6 @@ class Enumerable2 {
         }
         return M
     }
+
+    ;@endregion
 }

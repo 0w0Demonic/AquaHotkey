@@ -2,10 +2,7 @@
 #Include "%A_LineFile%\..\BaseStream.ahk"
 #Include "%A_LineFile%\..\DoubleStream.ahk"
 
-; TODO decide on `.Distinct()` behaviour
-;      - default on HashMap() ?
-;      - use Set instead of Map ?
-;      - generalize `static Size` => BaseStream ?
+; TODO generalize `static Size` => BaseStream ?
 
 ;@region Stream
 /**
@@ -197,13 +194,6 @@ class Stream extends BaseStream
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Support
-
-    /**
-     * The argument size of the stream.
-     * 
-     * @returns {Integer}
-     */
-    static Size => 1
 
     /**
      * The argument size of the stream.

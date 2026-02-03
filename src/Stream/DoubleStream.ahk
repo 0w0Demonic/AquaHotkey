@@ -97,11 +97,6 @@ class DoubleStream extends BaseStream
      * 
      * @returns {Integer}
      */
-    static Size => 2
-
-    /**
-     * The argument size of the stream.
-     */
     Size => 2
 
     ;@endregion
@@ -408,8 +403,8 @@ class DoubleStream extends BaseStream
      * Array({ x: 23 }, { x: 35 }, { x: 23 }).DoubleStream()
      *         .Distinct((i, obj) => obj.x)
      */
-    Distinct(KeyExtractor, MapParam?) {
-        Cache := Map.Create(MapParam?)
+    Distinct(KeyExtractor, MapParam := Map()) {
+        Cache := IMap.Create(MapParam)
         GetMethod(KeyExtractor)
         return this.Cast(DistinctBy)
 

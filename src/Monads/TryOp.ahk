@@ -3,21 +3,13 @@
 
 ;@region TryOp
 /**
- * AquaHotkey - TryOp.ahk
+ * Abstracts the use of try-catch blocks into a container object that is
+ * either a `Call.Success` containing a value, or a `Call.Failure` containing
+ * an error object.
  * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Extensions/Call.ahk
- * 
- * ---
- * 
- * **Overview**:
- * 
- * `TryOp` abstracts the use of try-catch blocks into a container object
- * that is either a `Call.Success` containing a value, or a `Call.Failure`
- * containing an error object.
- * 
+ * @module  <Monads/TryOp>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
  * Result := TryOp.Value(42)
  *     .Map((x) => (x / 0))
@@ -36,12 +28,11 @@ class TryOp {
      * Supplier(Args*) => Any
      * ```
      * 
-     * @example
-     * Result := TryOp(() => "My Value")
-     * 
      * @param   {Func}  Supplier  the function to be executed
      * @param   {Any*}  Args      zero or more arguments
      * @returns {TryOp}
+     * @example
+     * Result := TryOp(() => "My Value")
      */
     static Call(Supplier, Args*) {
         GetMethod(Supplier)
@@ -98,10 +89,9 @@ class TryOp {
      * According to the AHK docs, `String(Value)` automatically returns
      * `Value.ToString()`, if the value is an object.
      * 
+     * @returns {String}
      * @example
      * TryOp.Value(42).ToString() ; "TryOp.Success(42)"
-     * 
-     * @returns {String}
      */
     ToString() => (Type(this) . "(" . String(this.Value) . ")")
 
@@ -116,6 +106,8 @@ class TryOp {
      * FinalFunction(Args*) => Void
      * ```
      * 
+     * @param   {Func}  FinalFunction  the function to be called
+     * @param   {Any*}  Args           zero or more additional args
      * @example
      * FileName := "myfile.txt"
      * 
@@ -123,9 +115,6 @@ class TryOp {
      *     .RetainIf((Str) => (Str == ""))
      *     .OnSuccess(MsgBox)
      *     .Finally(FileDelete, FileName)
-     * 
-     * @param   {Func}  FinalFunction  the function to be called
-     * @param   {Any*}  Args           zero or more additional args
      */
     Finally(FinalFunction, Args*) {
         FinalFunction(Args*)
@@ -139,13 +128,12 @@ class TryOp {
      * Action(InnerValue, Args*) => Void
      * ```
      * 
-     * @example
-     * ; displays "value", returns a `TryOp.Success("value")`.
-     * Result := TryOp(() => "value").Then(MsgBox)
-     * 
      * @param   {Func}  Action  the function to be called
      * @param   {Any*}  Args    zero or more additional arguments
      * @returns {TryOp}
+     * @example
+     * ; displays "value", returns a `TryOp.Success("value")`.
+     * Result := TryOp(() => "value").Then(MsgBox)
      */
     Then(Action, Args*) {
         throw MethodError("not implemented")
@@ -158,13 +146,12 @@ class TryOp {
      * Action(InnerValue, Args*) => Void
      * ```
      * 
-     * @example
-     * ; displays "Example"
-     * TryOp(() => "Example").OnSuccess(MsgBox)
-     * 
      * @param   {Func}  Action  the function to be called
      * @param   {Any*}  Args    zero or more additional arguments
      * @returns {TryOp}
+     * @example
+     * ; displays "Example"
+     * TryOp(() => "Example").OnSuccess(MsgBox)
      */
     OnSuccess(Action, Args*) {
         throw MethodError("not implemented")
@@ -177,14 +164,13 @@ class TryOp {
      * Action(ErrorObj, Args*) => Void
      * ```
      * 
+     * @param   {Func}  Action  the function to be called
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {TryOp}
      * @example
      * TryOp(() => (12 / 0)).OnFailure(ZeroDivisionError, (Err) {
      *     MsgBox("something went wrong...")
      * })
-     * 
-     * @param   {Func}  Action  the function to be called
-     * @param   {Any*}  Args    zero or more additional arguments
-     * @returns {TryOp}
      */
     OnFailure(ClassOrAction, Action?, Args*) {
         throw MethodError("not implemented")
@@ -203,6 +189,9 @@ class TryOp {
      * Condition(InnerValue, Args*)
      * ```
      * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
+     * @returns {TryOp}
      * @example
      * ; TryOp.Success(42)
      * TryOp.Value(42).RetainIf((x) => (x > 5))
@@ -210,10 +199,6 @@ class TryOp {
      * @example
      * ; TryOp.Failure(TypeError("Expected a Number but got a String."))
      * TryOp.Value("example").RetainIf((x) => (x > 5))
-     * 
-     * @param   {Func}  Condition  the given condition
-     * @param   {Any*}  Args       zero or more additional arguments
-     * @returns {TryOp}
      */
     RetainIf(Condition, Args*) {
         throw MethodError("not implemented")
@@ -228,6 +213,9 @@ class TryOp {
      * Condition(InnerValue, Args*)
      * ```
      * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
+     * @returns {TryOp}
      * @example
      * ; TryOp.Success(42)
      * TryOp.Value(42).RemoveIf(IsObject)
@@ -235,10 +223,6 @@ class TryOp {
      * @example
      * ; TryOp.Failure(TypeError("Expected a Number but got a String."))
      * TryOp.Value("example").RemoveIf((x) => (x > 5))
-     * 
-     * @param   {Func}  Condition  the given condition
-     * @param   {Any*}  Args       zero or more additional arguments
-     * @returns {TryOp}
      */
     RemoveIf(Condition, Args*) {
         throw MethodError("not implemented")
@@ -255,6 +239,9 @@ class TryOp {
      * Mapper(InnerValue, Args*) => Any
      * ```
      * 
+     * @param   {Func}  Mapper  function to transform inner value
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {TryOp}
      * @example
      * Divide(a, b) => (a / b)
      * 
@@ -266,10 +253,6 @@ class TryOp {
      * 
      * ; TryOp.Failure(MethodError)
      * TryOp.Failure(MethodError()).Map(Divide, 0)
-     * 
-     * @param   {Func}  Mapper  function to transform inner value
-     * @param   {Any*}  Args    zero or more additional arguments
-     * @returns {TryOp}
      */
     Map(Mapper, Args*) {
         throw MethodError("not implemented")
@@ -283,6 +266,9 @@ class TryOp {
      * Mapper(InnerValue, Args*) => TryOf
      * ```
      * 
+     * @param   {Func}  Mapper  the function to be applied
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {TryOp}
      * @example
      * ; TryOp.Success(<file content>)   (assuming the file exists)
      * TryOp.Value("example.txt").FlatMap((Str) {
@@ -291,10 +277,6 @@ class TryOp {
      * 
      * ; TryOp.Failure(Error("oops!"))
      * TryOp.Failure(Error("oops!")).FlatMap(...)
-     * 
-     * @param   {Func}  Mapper  the function to be applied
-     * @param   {Any*}  Args    zero or more additional arguments
-     * @returns {TryOp}
      */
     FlatMap(Mapper, Args*) {
         throw MethodError("not implemented")
@@ -307,15 +289,14 @@ class TryOp {
      * Mapper(TryOp, Args*) => Any
      * ```
      * 
+     * @param   {Func}  Mapper  the function to apply
+     * @returns {Any}
      * @example
      * TryOp(() => FileRead("example.txt")).Transform((Op) {
      *     if (Op.Succeeded) {
      *         return ...
      *     } else ...
      * })
-     * 
-     * @param   {Func}  Mapper  the function to apply
-     * @returns {Any}
      */
     Transform(Mapper, Args*) {
         throw MethodError("not implemented")
@@ -329,10 +310,9 @@ class TryOp {
      * Returns the inner value contained in this try-operation when successful,
      * otherwise throws an error.
      * 
+     * @returns {Any}
      * @example
      * Result := TryOp(() => FileRead("example.txt")).Get()
-     * 
-     * @returns {Any}
      */
     Get() {
         throw MethodError("not implemented")
@@ -342,11 +322,10 @@ class TryOp {
      * Returns the inner value of this `TryOp` when successful, otherwise the
      * given `DefaultValue`.
      * 
-     * @example
-     * TryOp(() => FileRead("example.txt")).OrElse("(file not found)")
-     * 
      * @param   {Any}  DefaultValue  value to return if try-operation failed
      * @returns {Any}
+     * @example
+     * TryOp(() => FileRead("example.txt")).OrElse("(file not found)")
      */
     OrElse(DefaultValue) {
         throw MethodError("not implemented")
@@ -361,12 +340,11 @@ class TryOp {
      * RecoverFunction(Err: Error, Args*) => Any
      * ```
      * 
+     * @param   {Func}  RecoverFunction  function that recovers value
+     * @returns {Any}
      * @example
      * ; TryOp.Success of either file contents or "file not found"
      * TryOp(() => FileRead("myFile.txt")).OrElseGet(() => "file not found")
-     * 
-     * @param   {Func}  RecoverFunction  function that recovers value
-     * @returns {Any}
      */
     OrElseGet(RecoverFunction, Args*) {
         throw MethodError("not implemented")
@@ -379,10 +357,9 @@ class TryOp {
      * Action(Args*) => Void
      * ```
      * 
+     * @param   {Func}  Action  the function to be called
      * @example
      * TryOp(() => (2 / 0)).OrElseRun(() => MsgBox("(zero division)"))
-     * 
-     * @param   {Func}  Action  the function to be called
      */
     OrElseRun(Action, Args*) {
         throw MethodError("not implemented")
@@ -396,11 +373,10 @@ class TryOp {
      * ThrowFunction(Err: Error, Args*) => Error
      * ```
      * 
-     * @example
-     * TryOp(() => FileRead("myFile.txt")).OrElseThrow()
-     * 
      * @param   {Class/Func?}  ErrorSupplier  error class or error supplier
      * @returns {Any}
+     * @example
+     * TryOp(() => FileRead("myFile.txt")).OrElseThrow()
      */
     OrElseThrow(ErrorSupplier := ((e) => e)) {
         throw MethodError("not implemented")
@@ -435,12 +411,11 @@ class TryOp {
          * Constructs a new successful try-operation that contains
          * the given value.
          * 
+         * @param   {Any}  Value  any value
+         * @returns {TryOp.Success}
          * @example
          * ; TryOp.Success(42)
          * SuccessfulTry := TryOp.Success(42)
-         * 
-         * @param   {Any}  Value  any value
-         * @returns {TryOp.Success}
          */
         static Call(Value) => (Object.Call)(this, Value)
 
@@ -448,11 +423,10 @@ class TryOp {
          * Constructs a new successful try-operation that contains
          * the given value.
          * 
+         * @param   {Any}  Value  any value
          * @example
          * ; TryOp.Success(42)
          * SuccessfulTry := TryOp.Success(42)
-         * 
-         * @param   {Any}  Value  any value
          */
         __New(Value) {
             this.DefineProp("Value", { Get: (_) => Value })

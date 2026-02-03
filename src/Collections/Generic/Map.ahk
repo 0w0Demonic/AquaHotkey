@@ -256,6 +256,9 @@ class GenericMap extends IDelegatingMap {
 ;-------------------------------------------------------------------------------
 ;@region Extensions
 
+/**
+ * Extension methods related to {@link GenericMap}.
+ */
 class AquaHotkey_GenericMap extends AquaHotkey {
     class IMap {
         ; TODO use overrides of `Any#Class`, which depends on `__Class`?

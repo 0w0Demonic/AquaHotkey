@@ -592,6 +592,8 @@ class AquaHotkey_DuckTypes extends AquaHotkey
     }
 
     ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Func
 
     class Func {
         /**
@@ -653,4 +655,6 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          */
         IsInstance(Val?) => this(Val?)
     }
+
+    ;@endregion
 }

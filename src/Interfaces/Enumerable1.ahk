@@ -4,6 +4,7 @@
 
 ; TODO decide whether or not to include `static IsInstance()`, because we can't
 ;      reliably determine arg size
+;      note: probably a simple `class Enumerable` as duck type
 
 /**
  * @mixin
@@ -17,22 +18,7 @@
 class Enumerable1 {
     static __New() => this.ApplyOnto(IArray, IMap, Enumerator, Stream)
 
-    /**
-     * Executes an action for each element.
-     * 
-     * @param   {Func}  Action  the function to call
-     * @param   {Any*}  Args    zero or more arguments for the function
-     * @returns {this}
-     * @example
-     * Array(1, 2, 3).ForEach(MsgBox, "Listing numbers in array", 0x40)
-     */
-    ForEach(Action, Args*) {
-        GetMethod(Action)
-        for Value in this {
-            Action(Value?, Args*)
-        }
-        return this
-    }
+    ;@region Collect
 
     /**
      * Collects all elements into an array.
@@ -65,6 +51,163 @@ class Enumerable1 {
     Collect(Collector) {
         GetMethod(Collector)
         return Collector(this*)
+    }
+
+    /**
+     * Collects elements into an {@link ISet}.
+     * 
+     * @param   {Any?}  SetParam  internal set options
+     * @see {@link ISet.Create()}
+     * @returns {ISet}
+     */
+    ToSet(SetParam?) {
+        S := ISet.Create(SetParam?)
+        S.Add(this*)
+        return S
+    }
+
+    /**
+     * Returns a frequency map of all elements.
+     * 
+     * @param   {Func?}  Classifier  function that retrieves map key
+     * @param   {Any?}   MapParam    internal map param
+     * @returns {Map}
+     * @see {@link IMap.Create()}
+     * @example
+     * Array(1, 2, 2, 3).Frequency() ; Map { 1: 1, 2: 2, 3: 1 }
+     */
+    Frequency(Classifier?, MapParam := Map()) {
+        M := IMap.Create(MapParam)
+        if (IsSet(Classifier)) {
+            GetMethod(Classifier)
+            for Value in this {
+                Key := Classifier(Value?)
+                M.Set(Key, M.Get(Key, 0) + 1)
+            }
+        } else {
+            for Value in this {
+                M.Set(Value, M.Get(Value, 0) + 1)
+            }
+        }
+        return M
+    }
+
+    /**
+     * Groups all elements into a map.
+     * 
+     * ```ahk
+     * Classifier(Elem: Any?) => Any
+     * Downstream(Args: Any*) => Any
+     * ```
+     * 
+     * @param   {Func}   Classifier  function that retrieves map key
+     * @param   {Func?}  Downstream  transforms groups of elements
+     * @param   {Any?}   MapParam    internal map param
+     * @returns {Map}
+     * @see {@link IMap.Create()}
+     * @example
+     * ; Map { 0: [2, 4, 6], 1: [1, 3, 5] }
+     * Array(1, 2, 3, 4, 5, 6).Group(x => (x & 1))
+     */
+    Group(Classifier, Downstream?, MapParam := Map()) {
+        GetMethod(Classifier)
+        if (IsSet(Downstream)) {
+            GetMethod(Downstream)
+        }
+
+        M := IMap.Create(MapParam)
+        for Value in this {
+            Key := Classifier(Value?)
+            if (!M.Has(Key)) {
+                M.Set(Key, Array(Value?))
+            } else {
+                M.Get(Key).Push(Value?)
+            }
+        }
+        if (!IsSet(Downstream)) {
+            return M
+        }
+        for Key, Arr in M {
+            M.Set(Key, Downstream(Arr*))
+        }
+        return M
+    }
+
+    /**
+     * Partitions elements into a `Map` with keys `true` and `false`, based on
+     * whether they fulfill the given `Condition`.
+     * 
+     * ```ahk
+     * Classifier(Elem: Any?) => Any
+     * Downstream(Args: Any*) => Any
+     * ```
+     * 
+     * @param   {Func}   Condition   the given condition
+     * @param   {Func?}  Downstream  transforms the `true` and `false` groups
+     * @returns {Map}
+     * @example
+     * Even(X) => !(X & 1)
+     * 
+     * ; Map { true: [2, 4, 6, ..., 1000], false: [1, 3, 5, ..., 999] }
+     * Range(1, 1000).Partition(Even)
+     */
+    Partition(Condition, Downstream?) {
+        GetMethod(Condition)
+        if (IsSet(Downstream)) {
+            GetMethod(Downstream)
+        }
+
+        M := Map(true, Array(), false, Array())
+        for Value in this {
+            M[!!Condition(Value?)].Push(Value?)
+        }
+
+        if (!IsSet(Downstream)) {
+            return M
+        }
+
+        return Map(
+            true, Downstream(M.Get(true)),
+            false, Downstream(M.Get(false))
+        )
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Side Effects
+
+    /**
+     * Executes an action for each element.
+     * 
+     * @param   {Func}  Action  the function to call
+     * @param   {Any*}  Args    zero or more arguments for the function
+     * @returns {this}
+     * @example
+     * Array(1, 2, 3).ForEach(MsgBox, "Listing numbers in array", 0x40)
+     */
+    ForEach(Action, Args*) {
+        GetMethod(Action)
+        for Value in this {
+            Action(Value?, Args*)
+        }
+        return this
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Reduction
+
+    /**
+     * Returns the amount of elements by traversing this enumerator.
+     * 
+     * @returns {Integer}
+     */
+    Count() {
+        Count := 0
+        for Value in this {
+            ++Count
+        }
+        return Count
     }
 
     /**
@@ -195,6 +338,10 @@ class Enumerable1 {
         return true
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Max()/Min()
+
     /**
      * Returns the highest element according to the given comparator function.
      * 
@@ -231,6 +378,10 @@ class Enumerable1 {
         return (Result?)
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Numeric
+
     /**
      * Returns the sum of all elements.
      * 
@@ -262,6 +413,10 @@ class Enumerable1 {
         }
         return Sum / Count
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region String Join
 
     /**
      * Concatenates all elements into a string with the given delimiter.
@@ -303,134 +458,5 @@ class Enumerable1 {
      */
     JoinLine() => this.Join("`n")
 
-    /**
-     * Returns a frequency map of all elements.
-     * 
-     * @param   {Func?}  Classifier  function that retrieves map key
-     * @param   {Any?}   MapParam    internal map param
-     * @returns {Map}
-     * @see {@link AquaHotkey_Map.Map.Create Map.Create()}
-     * @example
-     * Array(1, 2, 2, 3).Frequency() ; Map { 1: 1, 2: 2, 3: 1 }
-     */
-    Frequency(Classifier?, MapParam?) {
-        M := Map.Create(MapParam?)
-        if (IsSet(Classifier)) {
-            GetMethod(Classifier)
-            for Value in this {
-                Key := Classifier(Value?)
-                M.Set(Key, M.Get(Key, 0) + 1)
-            }
-        } else {
-            for Value in this {
-                M.Set(Value, M.Get(Value, 0) + 1)
-            }
-        }
-        return M
-    }
-
-    /**
-     * Returns the amount of elements by traversing this enumerator.
-     * 
-     * @returns {Integer}
-     */
-    Count() {
-        Count := 0
-        for Value in this {
-            ++Count
-        }
-        return Count
-    }
-
-    /**
-     * Collects elements into an {@link ISet}.
-     * 
-     * @param   {Any?}  SetParam  internal set options
-     * @returns {ISet}
-     */
-    ToSet(SetParam := Set()) {
-        S := ISet.Create(SetParam)
-        S.Add(this*)
-        return S
-    }
-
-    /**
-     * Groups all elements into a map.
-     * 
-     * ```ahk
-     * Classifier(Elem: Any?) => Any
-     * Downstream(Args: Any*) => Any
-     * ```
-     * 
-     * @param   {Func}   Classifier  function that retrieves map key
-     * @param   {Func?}  Downstream  transforms groups of elements
-     * @param   {Any?}   MapParam    internal map param
-     * @returns {Map}
-     * @see {@link AquaHotkey_Map.Map.Create Map.Create()}
-     * @example
-     * ; Map { 0: [2, 4, 6], 1: [1, 3, 5] }
-     * Array(1, 2, 3, 4, 5, 6).Group(x => (x & 1))
-     */
-    Group(Classifier, Downstream?, MapParam?) {
-        GetMethod(Classifier)
-        if (IsSet(Downstream)) {
-            GetMethod(Downstream)
-        }
-
-        M := Map.Create(MapParam?)
-        for Value in this {
-            Key := Classifier(Value?)
-            if (!M.Has(Key)) {
-                M.Set(Key, Array(Value?))
-            } else {
-                M.Get(Key).Push(Value?)
-            }
-        }
-        if (!IsSet(Downstream)) {
-            return M
-        }
-        for Key, Arr in M {
-            M.Set(Key, Downstream(Arr*))
-        }
-        return M
-    }
-
-    /**
-     * Partitions elements into a `Map` with keys `true` and `false`, based on
-     * whether they fulfill the given `Condition`.
-     * 
-     * ```ahk
-     * Classifier(Elem: Any?) => Any
-     * Downstream(Args: Any*) => Any
-     * ```
-     * 
-     * @param   {Func}   Condition   the given condition
-     * @param   {Func?}  Downstream  transforms the `true` and `false` groups
-     * @returns {Map}
-     * @example
-     * Even(X) => !(X & 1)
-     * 
-     * ; Map { true: [2, 4, 6, ..., 1000], false: [1, 3, 5, ..., 999] }
-     * Range(1, 1000).Partition(Even)
-     */
-    Partition(Condition, Downstream?) {
-        GetMethod(Condition)
-        if (IsSet(Downstream)) {
-            GetMethod(Downstream)
-        }
-
-        M := Map(true, Array(), false, Array())
-        for Value in this {
-            M[!!Condition(Value?)].Push(Value?)
-        }
-
-        if (!IsSet(Downstream)) {
-            return M
-        }
-
-        return Map(
-            true, Downstream(M.Get(true)),
-            false, Downstream(M.Get(false))
-        )
-    }
+    ;@endregion
 }

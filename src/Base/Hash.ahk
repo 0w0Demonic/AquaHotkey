@@ -80,7 +80,6 @@
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @see {@link HashMap}
  * @see {@link HashSet}
- * @see {@link https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash FNV-1a}
  * @see {@link AquaHotkey_Eq `.Eq()`}
  * @see {@link AquaHotkey_DuckTypes duck types}
  * @example
@@ -108,6 +107,9 @@ class AquaHotkey_Hash extends AquaHotkey
      * @type {Integer}
      */
     static Prime => 0x00000100000001B3
+
+    ; TODO make this imperative?
+    ; static Step(&Current, Value) ...
 
     ;@endregion
     ;---------------------------------------------------------------------------

@@ -283,6 +283,7 @@ class AquaHotkey_Ord extends AquaHotkey
     }
     ;@endregion
 
+    ; TODO change to IArray?
     ;@region Array
     class Array {
         /**
@@ -334,6 +335,7 @@ class AquaHotkey_Ord extends AquaHotkey
          * MyArray.Sort(String.Compare)
          */
         Compare => Comparator(ObjBindMethod(this, "Compare"))
+        ; note: defined in <Func/Cast>
 
         /**
          * Compares two values by order. This method is type-checked, meaning
