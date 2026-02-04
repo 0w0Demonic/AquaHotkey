@@ -1,4 +1,5 @@
 ; TODO rename "Mixins" to "Interfaces"?
+;      (... or just remove completely?)
 
 /**
  * @file AquaHotkey.ahk

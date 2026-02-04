@@ -1,4 +1,4 @@
-#Include <AquaHotkey\src\Interfaces\IMap>
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
  * @interface

@@ -1,4 +1,3 @@
-#Requires AutoHotkey v2.0
 #Include "%A_LineFile%\..\..\Stream\Stream.ahk"
 #Include "%A_LineFile%\..\..\Stream\DoubleStream.ahk"
 
@@ -11,18 +10,8 @@
  * @returns {DoubleStream}
  */
 Zip(Left, Right) {
-    static GetEnumerator(Value) {
-        if (HasProp(Value, "__Enum")) {
-            GetMethod(Value, "__Enum")
-            return Value.__Enum(1)
-        }
-        GetMethod(Value)
-        return Value
-    }
-
-    LeftEnumer := GetEnumerator(Left)
-    RightEnumer := GetEnumerator(Right)
-
+    LeftEnumer := Stream(Left)
+    RightEnumer := Stream(Right)
     return DoubleStream.Cast((&L, &R) => (LeftEnumer(&L) && RightEnumer(&R)))
 }
 

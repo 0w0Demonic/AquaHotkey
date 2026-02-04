@@ -1,8 +1,5 @@
-
-; TODO add documentation for type wrappers somewhere
-; TODO fix this import when everything is done for v3
-
-#Include <AquaHotkeyX>
+#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\..\Interfaces\IArray.ahk"
 
 ;@region GenericArray
 

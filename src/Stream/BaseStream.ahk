@@ -1,8 +1,14 @@
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
+; TODO implement StreamN that doesn't care about speed and/or size?
+
 /**
  * Internals of {@link Stream} and {@link DoubleStream}, along with commonly
  * shared methods.
+ * 
+ * Implementing an own stream (let's say, `TripleStream`) requires specifying
+ * a `Size` property that returns the amount of parameters used simultaneously
+ * (for example, 3).
  * 
  * @module  <Stream/BaseStream>
  * @author  0w0Demonic
@@ -107,7 +113,12 @@ class BaseStream extends Enumerator {
      * 
      * Stream.OfOwnProps(Example()) ; <("a", 1), ("b", 2)>
      */
-    static OfOwnProps(Obj) => this.Cast(ObjOwnProps(Obj))
+    static OfOwnProps(Obj) {
+        if (this.Size > 2) {
+            throw TypeError("Stream too large for ObjOwnProps()",, this.Size)
+        }
+        return this.Cast(ObjOwnProps(Obj))
+    }
 
     /**
      * (AutoHotkey v2.1-alpha.10+):

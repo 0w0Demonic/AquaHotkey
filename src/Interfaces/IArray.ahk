@@ -1,7 +1,4 @@
-
-#Include <AquaHotkeyX>
-
-; TODO think about what properties exactly an IArray must have
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
  * @interface
@@ -26,6 +23,7 @@ class IArray {
         ObjSetBase(this.Prototype,  ObjGetBase(Array.Prototype))
         ObjSetBase(Array,           this)
         ObjSetBase(Array.Prototype, this.Prototype)
+        this.Backup(Sizeable, Enumerable1, Enumerable2, Indexable)
     }
 
     ;@region Type Info
@@ -367,6 +365,65 @@ class IArray {
             Result.Push(Pivot?)
             Result.Push(Quicksort(R*)*)
             return Result
+        }
+    }
+
+    /**
+     * Returns a stream of elements repeatedly `.Pop()`-ed from the array.
+     * 
+     * @returns {Stream}
+     * @example
+     * Stack := Array(1, 2, 3)
+     * for Value in Stack.Drain() {
+     *     MsgBox(Value) ; 3, 2, 1
+     * }
+     * MsgBox(Stack.IsEmpty) ; true
+     * 
+     * @example
+     * Arr := Array(1, 2, 3, 4)
+     * Arr.Drain().Map(x => x * x).ForEach(MsgBox) ; 16, 9, 4, 1
+     * 
+     * MsgBox(Arr.IsEmpty) ; true
+     */
+    Drain() {
+        return Stream(Drain)
+
+        Drain(&Out) {
+            if (!this.IsEmpty) {
+                Out := (this.Pop()?)
+                return true
+            }
+            return false
+        }
+    }
+
+    /**
+     * Returns a stream of elements repeatedly `.Poll()`-ed from the array.
+     * 
+     * @returns {Stream}
+     * @example
+     * Lifo := Array(1, 2, 3)
+     * 
+     * for Value in Lifo.Slurp() {
+     *     MsgBox(Lifo) ; 1, 2, 3
+     * }
+     * MsgBox(Lifo.IsEmpty) ; true
+     * 
+     * @example
+     * Arr := Array(1, 2, 3, 4)
+     * Arr.Slurp().Map(x => x * x).ForEach(MsgBox) ; 1, 4, 9, 16
+     * 
+     * MsgBox(Arr.IsEmpty) ; true
+     */
+    Slurp() {
+        return Stream(Slurp)
+
+        Slurp(&Out) {
+            if (!this.IsEmpty) {
+                Out := (this.Poll()?)
+                return true
+            }
+            return false
         }
     }
 

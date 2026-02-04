@@ -1,9 +1,12 @@
-
 /**
  * @mixin
  * @description
  * 
  * Mixin class for types that can enumerated with 2 parameters.
+ * 
+ * In general, functions used for side effects (`.ForEach()`) or reduction
+ * (`.Reduce()`, `.Any2()`, etc.) are able to access the loop variable
+ * `A_Index`.
  * 
  * @example
  * for Value1, Value2 in Obj { ... }
@@ -68,38 +71,6 @@ class Enumerable2 {
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Reduction
-
-    /**
-     * Determines whether an element satisfies the given `Condition`.
-     * 
-     * ```ahk
-     * Condition(Value1?, Value2?, Args*) => Boolean
-     * ```
-     * 
-     * If present, `&Out1` and `&Out2` receive the values of the first
-     * matching elements.
-     * 
-     * @param   {VarRef<Any>}  Out1       (out) value 1 of first match
-     * @param   {VarRef<Any>}  Out2       (out) value 2 of first match
-     * @param   {Func}         Condition  the given condition
-     * @param   {Any*}         Args       zero or more arguments
-     * @returns {this}
-     * @example
-     * Map(1, 2, 3, 4).ForEach2((K, V) => MsgBox(K . " => " . V))
-     */
-    Find2(&Out1, &Out2, Condition, Args*) {
-        GetMethod(Condition)
-        Out1 := unset
-        Out2 := unset
-        for Key, Value in this {
-            if (Condition(Key?, Value?, Args*)) {
-                Out1 := (Key?)
-                Out2 := (Value?)
-                return true
-            }
-        }
-        return false
-    }
 
     /**
      * Determines whether an element satisfies the given `Condition`.

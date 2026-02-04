@@ -1,10 +1,5 @@
-;#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
-
-#Requires AutoHotkey >=v2.1-alpha.3
-#Include <AquaHotkeyX>
-
-; TODO remove IDelegatingMap again?
-#Include <AquaHotkey\src\Interfaces\IDelegatingMap>
+#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\..\Interfaces\IDelegatingMap.ahk"
 
 ;@region GenericMap
 /**
@@ -56,6 +51,7 @@ class GenericMap extends IDelegatingMap {
         Define(Proto, "MapType",   { Get: (_) => M })
         Define(Proto, "KeyType",   { Get: (_) => K })
         Define(Proto, "ValueType", { Get: (_) => V })
+        Define(Proto, "Class",     { Get: (_) => this }) ; <Base/TypeInfo>
 
         TypeCheck(_, Key, Value) {
             if (!Key.Is(K)) {
@@ -181,22 +177,21 @@ class GenericMap extends IDelegatingMap {
         }
     }
 
-    ; TODO move this into IMap?
-
-    HashCode() {
-
-    }
-
     /**
      * Returns a hash code for this generic map class.
      * 
      * @returns {Integer}
      */
     static HashCode() => Any.Hash(this.MapType, this.KeyType, this.ValueType)
+    
+    ; TODO implement these two according to our contract
+    HashCode() {
+        throw PropertyError("not implemented yet")
+    }
 
-    ;Eq(Other?) {
-    ;
-    ;}
+    Eq(Other?) {
+        throw PropertyError("not implemented yet")
+    }
 
     /**
      * Determines whether the given value is equal to this generic map class.
@@ -261,7 +256,6 @@ class GenericMap extends IDelegatingMap {
  */
 class AquaHotkey_GenericMap extends AquaHotkey {
     class IMap {
-        ; TODO use overrides of `Any#Class`, which depends on `__Class`?
         /**
          * Returns a generic map class.
          * 

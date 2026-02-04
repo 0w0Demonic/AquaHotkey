@@ -1,5 +1,6 @@
 #Include "%A_LineFile%\..\BaseStream.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
  * A double-size {@link Stream}.
@@ -7,6 +8,9 @@
  * @module  <Stream/DoubleStream>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @example
+ * ; <(1, 2), (2, 4), (3, 2), (4, 6)>
+ * Array(2, 4, 2, 6).DoubleStream()
  */
 class DoubleStream extends BaseStream
 {

@@ -183,8 +183,8 @@ class HashMap extends IMap {
     }
 
     /**
-     * Creates a shallow clone of the HashMap; the keys and values themselves are not
-     * cloned.
+     * Creates a shallow clone of the HashMap; the keys and values themselves
+     * are not cloned.
      * 
      * @returns {HashMap}
      */

@@ -1,6 +1,6 @@
-#Requires AutoHotkey v2.0
-
 /**
+ * @duck
+ * 
  * A number or numeric string (as determined by `IsNumber()`).
  * 
  * @module  <Base/DuckTypes/Numeric>

@@ -3,9 +3,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 
-; TODO implement `static Eq()` and `static HashCode()`
-;      (Tuple is meant to be an alias of ImmutableArray)
-
 /**
  * An immutable view of an {@link IArray}
  * 
@@ -105,6 +102,9 @@ class ImmutableArray extends IArray {
     __Item[Index] => (this.A)[Index]
 }
 
+/**
+ * Extension methods related to {@link ImmutableArray}.
+ */
 class AquaHotkey_ImmutableArray extends AquaHotkey {
     class IArray {
         /**
@@ -128,9 +128,9 @@ class AquaHotkey_ImmutableArray extends AquaHotkey {
 }
 
 /**
- * Alias for {@link ImmutableArray}.
+ * Creates a new tuple (an immutable array) consisting of the given values.
+ * 
+ * @param   {Any*}  Values  zero or more elements
+ * @returns {ImmutableArray}
  */
-class Tuple extends ImmutableArray {
-    ; `is Tuple` becomes equivalent to `is ImmutableArray`.
-    static __New() => (this.Prototype := ObjGetBase(this).Prototype)
-}
+Tuple(Values*) => ImmutableArray(Values*)

@@ -1,4 +1,6 @@
 /**
+ * @duck
+ * 
  * A duck type wrapper which allows matching both `unset` and values of
  * an inner type. While {@link Optional} is used for wrapping values, the
  * nullable class is meant to be used for creating *type predicates*.

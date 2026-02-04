@@ -1,7 +1,4 @@
-; #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include <AquaHotkeyX>
-
-; TODO change `.AssertType()` to use this module's `.Is()` ?
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
  * Provides a flexible and customizable duck typing system which extends the

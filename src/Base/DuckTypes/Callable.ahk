@@ -1,4 +1,6 @@
 /**
+ * @duck
+ * 
  * A {@link AquaHotkey_DuckTypes duck type} that represents any callable
  * object `HasMethod()`.
  * 

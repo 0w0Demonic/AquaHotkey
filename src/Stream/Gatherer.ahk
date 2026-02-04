@@ -150,6 +150,9 @@ Scan(InitialValue, Merger) {
     }
 }
 
+/**
+ * Extension methods related to {@link Gatherer}.
+ */
 class AquaHotkey_Gatherer extends AquaHotkey {
     class Stream {
         /**

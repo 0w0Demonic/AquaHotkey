@@ -1,7 +1,5 @@
-#Requires AutoHotkey v2.0
-
-#Include <AquaHotkeyX>
-#Include <AquaHotkey\src\Func\Cast>
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
 /**
  * Creates a new file stream.
@@ -508,7 +506,11 @@ class Continuation extends Func {
      */
     Reduce(Reducer, Initial?) {
         GetMethod(Reducer)
+        if (!IsSet(Initial) && Reducer.Is(Monoid)) {
+            Initial := Reducer.Identity
+        }
         this(Reduce)
+        return Initial
 
         Reduce(Value?) {
             if (!IsSet(Initial)) {

@@ -1,15 +1,14 @@
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\BaseStream.ahk"
 #Include "%A_LineFile%\..\DoubleStream.ahk"
-
-; TODO generalize `static Size` => BaseStream ?
 
 ;@region Stream
 /**
  * Streams are a powerful abstraction for processing sequences of data in a
  * declarative way.
  * 
- * ```
+ * ```ahk
  * Array(1, 2, 3, 4, 5, 6).Stream() ; <1, 2, 3, 4, 5, 6>
  *     .RetainIf(IsEven)            ; <2, 4, 6>
  *     .ForEach(MsgBox)
@@ -30,14 +29,14 @@
  * 
  * - `<` and `>`: denotes an instance of a stream, For example:
  * 
- * ```
+ * ```ahk
  * Array(1, 2, 3, 4, 5).Stream() ; <1, 2, 3, 4, 5>
  * ```
  * 
  * - `(` and `)`: denotes a single element in the stream when it has multiple
  *                parameters. For example:
  * 
- * ```
+ * ```ahk
  * Array("foo", "bar").DoubleStream() ; <(1, "foo"), (2, "bar")>
  * ```
  * 

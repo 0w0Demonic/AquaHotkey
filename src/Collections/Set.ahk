@@ -1,4 +1,3 @@
-
 /**
  * A simple implementation of {@link ISet} which wraps around instances of
  * {@link IMap}.

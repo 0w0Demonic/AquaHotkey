@@ -1,6 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-
-#Include <AquaHotkey\src\Func\Cast>
+#Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
 /**
  * A comparator is a function that determines a natural ordering between its
@@ -213,40 +212,5 @@ class Comparator extends Func {
             }
             return 0
         }
-    }
-
-    Min(Args*) {
-        if (!Args.Length) {
-            throw ValueError("no arguments specified")
-        }
-
-        Enumer := Args.__Enum(1)
-        Enumer(&Result)
-
-        for Value in Enumer {
-            ; Value < Result
-            if (this(Value?, Result?) < 0) {
-                Result := (Value?)
-            }
-        }
-        return (Result?)
-    }
-
-    Max(Args*) {
-        if (!Args.Length) {
-            throw ValueError("no arguments specified")
-        }
-
-        Enumer := Args.__Enum(1)
-        Enumer(&Result)
-
-        for Value in Enumer {
-            ; Value > Result
-            if (this(Value?, Result?) > 0) {
-                MsgBox(Value ?? "unset")
-                Result := (Value?)
-            }
-        }
-        return (Result?)
     }
 }

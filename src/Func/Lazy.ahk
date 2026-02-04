@@ -1,4 +1,4 @@
-#Include <AquaHotkey\src\Func\Cast>
+#Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
 /**
  * A zero-parameter function whose value is computed once by retrieving a value

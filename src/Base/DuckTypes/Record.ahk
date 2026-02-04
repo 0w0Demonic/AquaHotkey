@@ -1,4 +1,6 @@
 /**
+ * @duck
+ * 
  * A `Record<K, V>` is a {@link AquaHotkey_DuckTypes duck type} with
  * properties of type `K` and values `V`.
  * 
@@ -25,6 +27,8 @@
  * MsgBox(Obj.Is(PermissionsMap))
  */
 class Record extends Class {
+    ;@region Construction
+
     /**
      * Creates a new record type with the given key and value type.
      * 
@@ -41,6 +45,8 @@ class Record extends Class {
      *    Boris:   { Age: 5,  Breed: "Maine Coon"        },
      *    Mordred: { Age: 16, Breed: "British Shorthair" }
      * }
+     * 
+     * MsgBox(Cats.Is( Record(CatName, CatInfo) )) ; true
      */
     __New(KeyType, ValueType) {
         ; note: no validation, because any value implements `IsInstance()`,
@@ -48,6 +54,10 @@ class Record extends Class {
         this.DefineProp("KeyType",   { Get: (_) => KeyType   })
         this.DefineProp("ValueType", { Get: (_) => ValueType })
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Commons
 
     /**
      * Determines whether this record class is equal to the `Other` value.
@@ -73,6 +83,10 @@ class Record extends Class {
      * @returns {Integer}
      */
     HashCode() => Any.Hash(this.KeyType, this.ValueType)
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Type Info
 
     /**
      * Determines whether the given value is considered an instance of the

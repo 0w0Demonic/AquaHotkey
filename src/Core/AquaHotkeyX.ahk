@@ -43,15 +43,20 @@
 #Include "%A_LineFile%/../../Base/Ord.ahk"
 #Include "%A_LineFile%/../../Base/Hash.ahk"
 
+#Include "%A_LineFile%/../../IO/FileUtils.ahk"
+
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Func
 
+#Include "%A_LineFile%/../../Func/Cast.ahk"
 #Include "%A_LineFile%/../../Func/Func.ahk"
 #Include "%A_LineFile%/../../Func/Pipes.ahk"
 #Include "%A_LineFile%/../../Func/Supplier.ahk"
+#Include "%A_LineFile%/../../Func/Monoid.ahk"
+#Include "%A_LineFile%/../../Func/Predicate.ahk"
 
-#Include "%A_LineFile%/../../IO/FileUtils.ahk"
+#Include "%A_LineFile%/../../Func/Continuation.ahk"
 
 ;@endregion
 ;-------------------------------------------------------------------------------

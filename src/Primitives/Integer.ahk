@@ -1,4 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
 /**
  * Utils applicable to integers.
  * 

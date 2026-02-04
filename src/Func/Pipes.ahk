@@ -10,6 +10,9 @@
  * This is done by using the `.o0()` method, which accepts the next function,
  * followed by zero or more `Args*`.
  * 
+ * @module  <Func/Pipes>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
  * DoThis(A) => ...
  * DoThat(A, B, C) => ...
@@ -18,10 +21,6 @@
  * 
  * ; equivalent to:
  * MsgBox(DoThat(DoThat(MyVar), "foo", { bar: "" }))
- * 
- * @module  <Func/Pipes>
- * @author  0w0Demonic
- * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Pipes extends AquaHotkey {
     class Any {

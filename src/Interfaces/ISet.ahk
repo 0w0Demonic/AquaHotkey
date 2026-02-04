@@ -1,6 +1,5 @@
 ; TODO Intersection(), Disjunction(), Union(), etc.
-; TODO generics; `.CanCastFrom()` ?
-; TODO `IMap#CanCastFrom()` ?
+; TODO generics?
 
 ;@region ISet
 /**

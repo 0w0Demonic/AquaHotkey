@@ -295,9 +295,10 @@ class Test_LinkedList extends TestSuite {
     }
 
     static Find() {
-        LinkedList(1, 2, 3).Find(&Out, (x) => (x == 3)).AssertEquals(true)
+        Equals(x) => (y) => (x == y)
 
-        Out.AssertEquals(3)
+        Out := LinkedList(1, 2, 3).Find(Equals(3))
+        Out.Get().AssertEquals(3)
     }
 
     static Any() {

@@ -28,7 +28,14 @@ class AquaHotkey_Func extends AquaHotkey {
          */
         AndThen(After, NextArgs*) {
             GetMethod(After)
-            return (Args*) => After( this(Args*), NextArgs* )
+            if (After is Func) {
+                ObjSetBase(AndThen, ObjGetBase(After))
+            }
+            return AndThen
+
+            AndThen(Args*) {
+                return After( this(Args*), NextArgs* )
+            }
         }
 
         /**
@@ -170,5 +177,7 @@ class AquaHotkey_Func extends AquaHotkey {
  * 
  * @param   {Any}  x  any value
  * @returns {Any}
+ * @example
+ * Self(23) ; --> 23
  */
 Self(x) => x

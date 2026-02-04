@@ -1,7 +1,12 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO somehow remove this again without everything exploding
+
 /**
  * @mixin
+ * Mixin for collections that implement `Size` as the amount of elements
+ * contained.
+ * 
  * Assumes:
  * - `Size => Integer`
  */
@@ -36,6 +41,9 @@ class Sizeable {
     IsNotEmpty => !!this.Size
 }
 
+/**
+ * Extension methods related to {@link Sizeable}.
+ */
 class AquaHotkey_Sizeable extends AquaHotkey {
     static __New() {
         super.__New()

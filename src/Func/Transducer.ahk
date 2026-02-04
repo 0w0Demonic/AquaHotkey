@@ -1,5 +1,19 @@
 #Include "%A_LineFile%\..\Cast.ahk"
+#Include "%A_LineFile%\..\Func.ahk"
 
+/**
+ * Utility for creating reduction operations.
+ * 
+ * @module  <Func/Transducer>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @see     https://clojure.org/reference/transducers
+ * @example
+ * Square(x) => (x * 2)
+ * SumOfSquares := Transducer().Map(Square).Finally(Sum)
+ * 
+ * Array(1, 2, 3, 4).Reduce(SumOfSquares) ; (1 + 4 + 9 + 16) --> 30
+ */
 class Transducer extends Func {
     /**
      * Creates a new transducer.
@@ -7,7 +21,7 @@ class Transducer extends Func {
      * @constructor
      * @returns {Transducer}
      */
-    static Call() => this.Cast((x) => x)
+    static Call() => this.Cast(Self)
 
     /**
      * Creates a reducer stage that only accepts elements for which the given
@@ -17,6 +31,7 @@ class Transducer extends Func {
      * Condition(Val: Any, Args: Any*) => Boolean
      * ```
      * 
+     * @param   {Any*}  Args       zero or more arguments for `Condition`
      * @param   {Func}  Condition  the given condition
      * @returns {Transducer}
      */
@@ -46,6 +61,7 @@ class Transducer extends Func {
      * ```
      * 
      * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for `Condition`
      * @returns {Transducer}
      */
     RemoveIf(Condition, Args*) {
@@ -74,6 +90,7 @@ class Transducer extends Func {
      * ```
      * 
      * @param   {Func}  Mapper  the mapper function
+     * @param   {Any*}  Args    zero or more arguments for `Mapper`
      * @returns {Transducer}
      */
     Map(Mapper, Args*) {
@@ -90,8 +107,6 @@ class Transducer extends Func {
         }
     }
 
-    ; TODO FlatMap() ?
-
     /**
      * Creates a reducer function from the given reducer.
      * 
@@ -107,46 +122,3 @@ class Transducer extends Func {
         return Step.Cast(this(Step))
     }
 }
-
-class Monoid extends Func {
-    static IsInstance(Val?) {
-        return IsSet(Val)
-            && IsObject(Val)
-            && HasMethod(Val)
-            && HasProp(Val, "Empty")
-    }
-}
-
-class Group extends Monoid {
-    static IsInstance(Val?) {
-        return super.IsInstance(Val?)
-            && HasMethod(Val, "Inverse")
-    }
-}
-
-class Sum extends Monoid {
-    static Call(A, B) => (A + B)
-    static Empty => 0
-    static Inverse(X) => (-X)
-}
-
-class Mul extends Group {
-    static Call(A, B) => (A * B)
-    static Empty => 1
-    static Inverse(X) => (1 / X)
-}
-
-class Concat extends Monoid {
-    static Call(A, B) => (A . B)
-    static Empty => ""
-}
-
-Square(x) => (x * x)
-Gt(A, B) => (A > B)
-
-;Td := Transducer()
-;    .Map(Square)
-;    .RetainIf(Gt, 100)
-;    .Finally(Sum)
-
-MsgBox(Monoid.IsInstance(Concat))

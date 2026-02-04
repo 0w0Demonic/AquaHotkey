@@ -23,7 +23,8 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
          * Returns the type of this value as a class object.
          * 
          * To find the class, this method relies on `.__Class` and dereference
-         * by name.
+         * by name. Classes that are made at runtime should override this
+         * method.
          * 
          * @readonly
          * @returns {Class}

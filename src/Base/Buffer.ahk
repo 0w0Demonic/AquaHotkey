@@ -1,10 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
-; TODO remove this again
-#Include <AquaHotkey\src\Interfaces\IBuffer>
-
-; TODO different buffer view types?
-
 /**
  * Buffer utilities.
  * 

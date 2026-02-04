@@ -110,7 +110,7 @@ class AquaHotkey_ToString extends AquaHotkey
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Array
+    ;@region IArray
 
     class IArray {
         /**
@@ -136,9 +136,9 @@ class AquaHotkey_ToString extends AquaHotkey
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Map
+    ;@region IMap
 
-    class Map {
+    class IMap {
         /**
          * Converts the map into a string based on its type and key-value
          * mappings.

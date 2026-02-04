@@ -155,13 +155,12 @@ class Test_Stream extends TestSuite {
     }
 
     static Find() {
-        Array(1, 2, 3, 4, 5)
-            .Stream()
-            .Find(&Out, Num => Num == 5)
-            .AssertEquals(true)
+        Equals(A) => (B) => (A == B)
 
-        IsSet(Out).AssertEquals(true)
-        Out.AssertEquals(5)
+        Out := Array(1, 2, 3, 4, 5).Stream().Find(Equals(5))
+
+        Out.IsPresent.AssertEquals(true)
+        Out.Get().AssertEquals(5)
     }
 
     static All() {

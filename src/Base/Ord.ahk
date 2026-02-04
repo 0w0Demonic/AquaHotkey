@@ -1,9 +1,7 @@
-#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\..\Func\Comparator.ahk"
+#Include "%A_LineFile%\..\..\Core\AquaHotkeyX.ahk"
+; #Include "%A_LineFile%\..\..\Func\Comparator.ahk"
 
 ; TODO rename to `Compare`/`Comparable`?
-; TODO allow generic arrays to be sorted when they contain duck types
-; ---- (although this should work because we're putting this into IArray)
 ; ------------
 
 /**

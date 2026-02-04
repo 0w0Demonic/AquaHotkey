@@ -1,7 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 ; TODO move this into base?
-; TODO add `Number.InRange()` as duck type?
 
 /**
  * Numbers and math utils.

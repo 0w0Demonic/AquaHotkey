@@ -1,22 +1,23 @@
 #Include <AquaHotkey>
 
-; TODO add monoids, so `.Reduce()` always gets an initial value?
-
-; TODO decide whether or not to include `static IsInstance()`, because we can't
-;      reliably determine arg size
-;      note: probably a simple `class Enumerable` as duck type
-
 /**
  * @mixin
  * @description
  * 
  * Mixin class for types that can be enumerated with 1 parameter.
  * 
+ * In general, functions used for side effects (`.ForEach()`) or reduction
+ * (`.Reduce()`, `.Any1()`, etc.) are able to access the loop variable
+ * `A_Index`.
+ * 
  * @example
- * for Value in Obj { ... }
+ * MyArray.Any((Value?) {
+ *     Idx := A_Index
+ *     ... ; do something with the element
+ * })
  */
 class Enumerable1 {
-    static __New() => this.ApplyOnto(IArray, IMap, Enumerator, Stream)
+    static __New() => this.ApplyOnto(IArray, IMap, Enumerator)
 
     ;@region Collect
 
@@ -179,6 +180,10 @@ class Enumerable1 {
     /**
      * Executes an action for each element.
      * 
+     * ```ahk
+     * Action(Value: Any?, Args: Any*) => void
+     * ```
+     * 
      * @param   {Func}  Action  the function to call
      * @param   {Any*}  Args    zero or more arguments for the function
      * @returns {this}
@@ -195,77 +200,86 @@ class Enumerable1 {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Reduction
+    ;@region Find Methods
 
     /**
-     * Returns the amount of elements by traversing this enumerator.
-     * 
-     * @returns {Integer}
-     */
-    Count() {
-        Count := 0
-        for Value in this {
-            ++Count
-        }
-        return Count
-    }
-
-    /**
-     * Combines all elements into a final result by repeatedly applying
-     * the given `Combiner`.
-     * 
-     * ```ahk
-     * Combiner(Left: Any, Right: Any?) => Any
-     * ```
-     * 
-     * @param   {Func}  Combiner  combiner function
-     * @param   {Any?}  Identity  initial value
-     * @returns {Any}
-     * @example
-     * Array(1, 2, 3, 4).Reduce((a, b) => (a + b)) ; 10
-     */
-    Reduce(Combiner, Identity?) {
-        GetMethod(Combiner)
-        Result := (Identity?)
-        for Value in this {
-            if ((A_Index == 1) && !IsSet(Result)) {
-                Result := (Value?)
-            } else {
-                Result := (Combiner(Result?, Value?)?)
-            }
-        }
-        return (Result?)
-    }
-
-    /**
-     * Determines whether any of the elements fulfill the given `Condition`.
-     * 
-     * If present, `&Out` receives the value of the first matching element.
+     * Returns an {@link Optional} that contains the first matching element,
+     * if found. The element found is *not* allowed to be `unset`.
      * 
      * ```ahk
      * Condition(Element: Any?, Args: Any*) => Boolean
      * ```
      * 
-     * @param   {VarRef<Any>}  Out        (out) first matching element
-     * @param   {Func}         Condition  the given condition
-     * @param   {Any*}         Args       zero or more arguments
-     * @returns {Boolean}
-     * @see     {@link Enumerable1#Any .Any()}
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments
+     * @returns {Optional}
+     * @see {@link Enumerable1#Any .Any()}
      * @example
-     * Array(1, 2, 3, 4).Find(&Out, x => (x > 2)) ; true
-     * MsgBox(Out)                                ; 3
+     * Array(1, 2, 3, 4).Find(Gt, 2) ; Optional<3>
      */
-    Find(&Out, Condition, Args*) {
+    Find(Condition, Args*) {
         GetMethod(Condition)
-        Out := unset
         for Value in this {
-            if (Condition(Value?, Args*)) {
-                Out := (Value?)
+            if (IsSet(Value) && Condition(Value, Args*)) {
+                return Optional(Value)
+            }
+        }
+        return Optional()
+    }
+
+    /**
+     * Returns an {@link Optional}, containing the first element that equals
+     * the given value ({@link AquaHotkey_Eq `.Eq()`}), if present.
+     * 
+     * The element found is *not* allowed to be `unset`.
+     * 
+     * @param   {Any}  Val  any value
+     * @returns {Optional}
+     * @example
+     * Array(1, 2, 3, 4).FindValue(3).IfPresent(MsgBox)
+     */
+    FindValue(Val) {
+        for Value in this {
+            if (IsSet(Value) && Value.Eq(Val)) {
+                return Optional(Value)
+            }
+        }
+        return Optional()
+    }
+
+    /**
+     * Determines whether any element equals ({@link AquaHotkey_Eq `.Eq()`})
+     * the given value.
+     * 
+     * Note that some enumerables can only iterated once. For repeated
+     * `.Contains()` tests, and for forward performance, consider collecting
+     * elements into an {@link ISet} with {@link Enumerable1#ToSet `.ToSet()`}.
+     * 
+     * This also enables the use of methods such as
+     * {@link ISet#ContainsAll `.ContainsAll()`} and
+     * {@link ISet#ContainsAny `.ContainsAny()`}.
+     * 
+     * @param   {Any}  Val  value to test for equality
+     * @returns {Boolean}
+     * @example
+     * Array(1, 2, 3, 4).Contains(4) ; true
+     * 
+     * ; collect to an `ISet` for better performance
+     * S := BigArray.ToSet(HashSet)
+     * S.ContainsAll(...)
+     */
+    Contains(Val) {
+        for Value in this {
+            if (IsSet(Value) && Val.Eq(Value)) {
                 return true
             }
         }
         return false
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Any()/All()/None()
 
     /**
      * Determines whether any of the elements fulfill the given `Condition`.
@@ -292,6 +306,29 @@ class Enumerable1 {
     }
 
     /**
+     * Returns `true` if all elements fulfill the given `Condition`, otherwise
+     * `false`.
+     * 
+     * ```ahk
+     * Condition(Element: Any?, Args: Any*) => Boolean
+     * ```
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments
+     * @returns {Boolean}
+     * @example
+     * Array(1, 2, 3, 4).All(x => x < 10) ; true
+     */
+    All(Condition, Args*) {
+        for Value in this {
+            if (!Condition(Value?, Args*)) {
+                return false
+            }
+        }
+        return true
+    }
+
+    /**
      * Returns `true` if none of the elements fulfill the given `Condition`,
      * otherwise `false`.
      * 
@@ -315,72 +352,53 @@ class Enumerable1 {
         return true
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Reduction
+
     /**
-     * Returns `true` if all elements fulfill the given `Condition`, otherwise
-     * `false`.
+     * Returns the amount of elements by traversing this enumerator.
+     * 
+     * @returns {Integer}
+     */
+    Count() {
+        Count := 0
+        for Value in this {
+            ++Count
+        }
+        return Count
+    }
+
+    ; TODO use Optional as return value for falling back?
+
+    /**
+     * Combines all elements into a final result by repeatedly applying
+     * the given `Combiner`.
      * 
      * ```ahk
-     * Condition(Element: Any?, Args: Any*) => Boolean
+     * Combiner(Left: Any, Right: Any?) => Any
      * ```
      * 
-     * @param   {Func}  Condition  the given condition
-     * @param   {Any*}  Args       zero or more arguments
-     * @returns {Boolean}
-     * @example
-     * Array(1, 2, 3, 4).All(x => x < 10) ; true
-     */
-    All(Condition, Args*) {
-        for Value in this {
-            if (!Condition(Value?, Args*)) {
-                return false
-            }
-        }
-        return true
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Max()/Min()
-
-    /**
-     * Returns the highest element according to the given comparator function.
-     * 
-     * @param   {Comparator?}  Comp  comparator function
+     * @param   {Func}  Combiner  combiner function
+     * @param   {Any?}  Initial   initial value
      * @returns {Any}
      * @example
-     * Stream.Of(1, 2, 3, 4).Max() ; 4
+     * Array(1, 2, 3, 4).Reduce((a, b) => (a + b)) ; 10
      */
-    Max(Comp := Any.Compare) {
-        Result := unset
+    Reduce(Combiner, Initial?) {
+        GetMethod(Combiner)
+        if (!IsSet(Initial) && Combiner.Is(Monoid)) {
+            Initial := Combiner.Identity
+        }
         for Value in this {
-            if (A_Index == 1 || Comp(Value?, Result?) > 0) {
-                Result := (Value?)
+            if ((A_Index == 1) && !IsSet(Initial)) {
+                Initial := (Value?)
+            } else {
+                Initial := (Combiner(Initial?, Value?)?)
             }
         }
-        return (Result?)
+        return Initial
     }
-
-    /**
-     * Returns the lowest element according to the given comparator function.
-     * 
-     * @param   {Comparator?}  Comp  comparator function
-     * @returns {Any?}
-     * @example
-     * Stream.Of(1, 2, 3, 4).Min() ; 1
-     */
-    Min(Comp := Any.Compare) {
-        Result := unset
-        for Value in this {
-            if (A_Index == 1 || Comp(Value?, Result?) < 0) {
-                Result := (Value?)
-            }
-        }
-        return (Result?)
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Numeric
 
     /**
      * Returns the sum of all elements.
@@ -414,10 +432,7 @@ class Enumerable1 {
         return Sum / Count
     }
 
-    ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region String Join
-
+    ; TODO unset handling
     /**
      * Concatenates all elements into a string with the given delimiter.
      * 
@@ -454,9 +469,53 @@ class Enumerable1 {
      * Concatenates all elements into a string, separated by a
      * new line (`\n`).
      * 
+     * @param   {String?}  Prefix  string prefix
+     * @param   {String?}  Suffix  string suffix
      * @returns {String}
      */
-    JoinLine() => this.Join("`n")
+    JoinLine(Prefix?, Suffix?) => this.Join("`n", Prefix?, Suffix?)
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Max()/Min()
+
+    ; TODO use Optional as fallback?
+
+    /**
+     * Returns the highest element according to the given comparator function.
+     * 
+     * @param   {Comparator?}  Comp  comparator function
+     * @returns {Any}
+     * @example
+     * Stream.Of(1, 2, 3, 4).Max() ; 4
+     */
+    Max(Comp := Any.Compare) {
+        Result := unset
+        for Value in this {
+            if (A_Index == 1 || Comp(Value?, Result?) > 0) {
+                Result := (Value?)
+            }
+        }
+        return (Result?)
+    }
+
+    /**
+     * Returns the lowest element according to the given comparator function.
+     * 
+     * @param   {Comparator?}  Comp  comparator function
+     * @returns {Any?}
+     * @example
+     * Stream.Of(1, 2, 3, 4).Min() ; 1
+     */
+    Min(Comp := Any.Compare) {
+        Result := unset
+        for Value in this {
+            if (A_Index == 1 || Comp(Value?, Result?) < 0) {
+                Result := (Value?)
+            }
+        }
+        return (Result?)
+    }
 
     ;@endregion
 }

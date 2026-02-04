@@ -1,10 +1,7 @@
 #Include "%A_LineFile%\..\..\Interfaces\Sizeable.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
-#Include "%A_LineFile%\..\..\Interfaces\Deque.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Indexable.ahk"
-
-; TODO fully complete IArray contract
 
 /**
  * A doubly linked list implementation.
@@ -18,8 +15,49 @@ class LinkedList extends IArray {
         if (this == LinkedList) {
             ({}.DefineProp)(this.Prototype, "__New",
                     ({}.GetOwnPropDesc)(this.Prototype, "Push"))
-            this.Backup(Sizeable, Deque, Enumerable1, Enumerable2, Indexable)
         }
+    }
+
+    ;@region Private
+
+    /**
+     * This class represents the nodes that make up the linked list.
+     */
+    class Node {
+        /**
+         * The next node, or `false`.
+         * 
+         * @private
+         * @type {LinkedList.Node}
+         */
+        Next := false
+
+        /**
+         * The previous node, or `false`.
+         * 
+         * @private
+         * @type {LinkedList.Node}
+         */
+        Prev := false
+
+        /**
+         * Constructs a new node.
+         * 
+         * @constructor
+         * @param   {Any?}  Value  item contained in the node
+         */
+        __New(Value?) {
+            if (IsSet(Value)) {
+                this.DefineProp("Value", { Value: Value })
+            }
+        }
+
+        /**
+         * Determines whether this node contains a value.
+         * 
+         * @returns {Boolean}
+         */
+        HasValue => ObjHasOwnProp(this, "Value")
     }
 
     /**
@@ -97,13 +135,17 @@ class LinkedList extends IArray {
      */
     Size := 0
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Lifecycle
+
     /**
      * Constructs a new list containing the given elements.
      * 
      * @constructor
      * @param   {Any*}  Values  zero or more values.
      */
-    __New(Values*) => this.Push(Values*)
+    __New(Values*) => this.Push(Values*) ; aliased by `static __New()`
 
     /**
      * Destructor that clears the list and the references between the nodes.
@@ -129,6 +171,10 @@ class LinkedList extends IArray {
         this.Head := false
         this.Tail := false
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region CRUD
 
     /**
      * Determines whether the index is valid and there is a value present at
@@ -214,6 +260,10 @@ class LinkedList extends IArray {
             return Value
         }
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Enumeration
     
     /**
      * Returns a 1-param or 2-param {@link Enumerator} that iterates through
@@ -254,26 +304,11 @@ class LinkedList extends IArray {
         }
     }
 
-    /**
-     * Gets or retrieves elements at the given index. `unset` is allowed to be
-     * used when setting an element.
-     * 
-     * @param   {Integer}  Index  index of element
-     * @param   {Any?}     Value  new value
-     * @returns {Any}
-     * @see {@link LinkedList#Get() .Get()}
-     * @see {@link LinkedList#Set() .Set()}
-     * @example
-     * L := LinkedList(1, 2, 3)
-     * L[1] := 23
-     * L[2] := unset
-     * MsgBox(L[3]) ; 3
-     */
-    __Item[Index] {
-        get => this.Get(Index)
-        set => this.Set(Index, Value?)
-    }
+    ;@endregion
+    ;--------------------------------------------------------------------------
+    ;@region Head/Tail Ops
 
+    ; TODO should this insert the other way around?
     /**
      * Inserts the specified elements at the beginning of this linked list.
      * 
@@ -401,6 +436,10 @@ class LinkedList extends IArray {
         }
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region InsertAt()/RemoveAt()
+
     /**
      * Inserts one or more elements at the given position. If no elements are
      * specified, this method does nothing.
@@ -522,43 +561,36 @@ class LinkedList extends IArray {
         this.Size -= Length
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Properties
+
     /**
-     * This class represents the nodes that make up the linked list.
+     * Returns the size of the linked list.
+     * 
+     * @returns {Integer}
      */
-    class Node {
-        /**
-         * The next node, or `false`.
-         * 
-         * @private
-         * @type {LinkedList.Node}
-         */
-        Next := false
+    Length => this.Size
 
-        /**
-         * The previous node, or `false`.
-         * 
-         * @private
-         * @type {LinkedList.Node}
-         */
-        Prev := false
-
-        /**
-         * Constructs a new node.
-         * 
-         * @constructor
-         * @param   {Any?}  Value  item contained in the node
-         */
-        __New(Value?) {
-            if (IsSet(Value)) {
-                this.DefineProp("Value", { Value: Value })
-            }
-        }
-
-        /**
-         * Determines whether this node contains a value.
-         * 
-         * @returns {Boolean}
-         */
-        HasValue => ObjHasOwnProp(this, "Value")
+    /**
+     * Gets or retrieves elements at the given index. `unset` is allowed to be
+     * used when setting an element.
+     * 
+     * @param   {Integer}  Index  index of element
+     * @param   {Any?}     Value  new value
+     * @returns {Any}
+     * @see {@link LinkedList#Get() .Get()}
+     * @see {@link LinkedList#Set() .Set()}
+     * @example
+     * L := LinkedList(1, 2, 3)
+     * L[1] := 23
+     * L[2] := unset
+     * MsgBox(L[3]) ; 3
+     */
+    __Item[Index] {
+        get => this.Get(Index)
+        set => this.Set(Index, Value?)
     }
+
+    ;@endregion
 }

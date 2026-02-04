@@ -1,5 +1,4 @@
-#Requires AutoHotkey v2.0
-#Include "%A_LineFile%\..\..\Core\AquaHotkeyX.ahk"
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 ;@region TryOp
 /**

@@ -1,6 +1,4 @@
-#Include <AquaHotkeyX>
-
-; TODO `static CanCastFrom()` ?
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
  * @interface
