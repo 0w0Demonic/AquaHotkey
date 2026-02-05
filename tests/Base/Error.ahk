@@ -3,7 +3,7 @@ class Test_Error extends TestSuite {
         Str := "foo"
         try (false || TypeError.Throw(Str))
         catch as Err {
-            Err.Message.AssertEquals(Str)
+            Err.Message.Assert(Eq(Str))
             return
         }
         throw Error("didn't throw")
@@ -14,7 +14,7 @@ class Test_Error extends TestSuite {
         try {
             ValueError(Str).Throw()
         } catch as Err {
-            Err.Message.AssertEquals(Str)
+            Err.Message.Assert(Eq(Str))
             return
         }
         throw Error("didn't throw")
@@ -24,9 +24,9 @@ class Test_Error extends TestSuite {
         try A()
         catch as Err {
             Msg := Err.Stack
-            InStr(Err.Message, "high").AssertNotEquals(false)
-            InStr(Err.Cause.Message, "middle").AssertNotEquals(false)
-            InStr(Err.Cause.Cause.Message, "low").AssertNotEquals(false)
+            InStr(Err.Message, "high").Assert(Ne(false))
+            InStr(Err.Cause.Message, "middle").Assert(Ne(false))
+            InStr(Err.Cause.Cause.Message, "low").Assert(Ne(false))
         }
 
         static A() {

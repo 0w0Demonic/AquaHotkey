@@ -6,19 +6,19 @@ class Test_Set extends TestSuite {
     }
 
     static Call_uses_regular_map() {
-        Set(1, 2, 3, 4).M.Is(Map).AssertEquals(true)
+        Set(1, 2, 3, 4).M.Is(Map).Assert(Eq(true))
     }
 
     static Add_returns_boolean() {
         S := Set()
-        S.Add(1).AssertEquals(true)
-        S.Add(1).AssertEquals(false)
+        S.Add(1).Assert(Eq(true))
+        S.Add(1).Assert(Eq(false))
     }
 
     static Clear() {
         S := Set(1, 2, 3, 4)
         S.Clear()
-        S.Size.AssertEquals(0)
+        S.Size.Assert(Eq(0))
     }
 
     static Clone() {
@@ -26,17 +26,17 @@ class Test_Set extends TestSuite {
         Copy := S.Clone()
         S.Add(5)
 
-        Copy.Contains(5).AssertEquals(false)
+        Copy.Contains(5).Assert(Eq(false))
     }
 
     static Delete_returns_boolean() {
-        Set(1).Delete(1).AssertEquals(true)
-        Set().Delete(1).AssertEquals(false)
+        Set(1).Delete(1).Assert(Eq(true))
+        Set().Delete(1).Assert(Eq(false))
     }
 
     static Contains_on_HashSet() {
         HashSet({ foo: "bar" }).Contains({ foo: "bar" })
-                .AssertEquals(true)
+                .Assert(Eq(true))
     }
 
     static AsMap_returns_backing_map() {
@@ -44,7 +44,7 @@ class Test_Set extends TestSuite {
         M := S.AsMap()
         M.Set(2, true)
 
-        S.Contains(2).AssertEquals(true)
+        S.Contains(2).Assert(Eq(true))
     }
 
     static AsMap_returns_backing_map_clone() {
@@ -52,6 +52,6 @@ class Test_Set extends TestSuite {
         M := S.ToMap()
         M.Set(2, true)
 
-        S.Contains(2).AssertEquals(false)
+        S.Contains(2).Assert(Eq(false))
     }
 }

@@ -119,6 +119,10 @@ class Transducer extends Func {
      */
     Finally(Step) {
         GetMethod(Step)
-        return Step.Cast(this(Step))
+        Result := this(Step)
+        if (Step is Func) {
+            Step.Cast(Result)
+        }
+        return Result
     }
 }

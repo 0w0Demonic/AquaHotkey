@@ -1,7 +1,7 @@
 class Test_HashSet extends TestSuite {
     static ISet_can_cast_from_HashSap() {
-        HasBase(HashSet, ISet).AssertEquals(true)
-        ISet.CanCastFrom(HashSet).AssertEquals(true)
+        HasBase(HashSet, ISet).Assert(Eq(true))
+        ISet.CanCastFrom(HashSet).Assert(Eq(true))
     }
 
     static ISet_can_create_HashSet_instances() {
@@ -14,21 +14,21 @@ class Test_HashSet extends TestSuite {
 
     static relies_on_hashcode_and_eq() {
         S := HashSet()
-        S.Add({ name: "Sasha" }).AssertEquals(true)
-        S.Add({ name: "Sasha" }).AssertEquals(false)
+        S.Add({ name: "Sasha" }).Assert(Eq(true))
+        S.Add({ name: "Sasha" }).Assert(Eq(false))
 
         ; test is good enough; HashSet is merely a wrapper over HashMap
     }
 
     static is_sizeable() {
-        HashSet().Is(Sizeable).AssertEquals(true)
+        HashSet().Is(Sizeable).Assert(Eq(true))
     }
 
     static is_enumerable() {
-        HasMethod(HashSet(), "__Enum").AssertEquals(true)
+        HasMethod(HashSet(), "__Enum").Assert(Eq(true))
     }
 
     static asMap_returns_HashMap() {
-        HashSet().AsMap().Is(HashMap).AssertEquals(true)
+        HashSet().AsMap().Is(HashMap).Assert(Eq(true))
     }
 }

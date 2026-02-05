@@ -85,13 +85,11 @@ class GenericMap extends IDelegatingMap {
             return false
         }
 
+
         if (Val is GenericMap) {
             return (this.MapType).CanCastFrom(Val.MapType)
                 && (this.KeyType).CanCastFrom(Val.KeyType)
                 && (this.ValueType).CanCastFrom(Val.ValueType)
-        }
-        if (!Val.Is(this.MapType)) {
-            return false
         }
 
         K := this.KeyType
@@ -184,14 +182,14 @@ class GenericMap extends IDelegatingMap {
      */
     static HashCode() => Any.Hash(this.MapType, this.KeyType, this.ValueType)
     
-    ; TODO implement these two according to our contract
-    HashCode() {
-        throw PropertyError("not implemented yet")
-    }
+    ; ; TODO implement these two according to our contract
+    ; HashCode() {
+    ;     throw PropertyError("not implemented yet")
+    ; }
 
-    Eq(Other?) {
-        throw PropertyError("not implemented yet")
-    }
+    ; Eq(Other?) {
+    ;     throw PropertyError("not implemented yet")
+    ; }
 
     /**
      * Determines whether the given value is equal to this generic map class.

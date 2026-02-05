@@ -2,6 +2,7 @@
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 ; TODO make using custom comparators easier
+; TODO allow "submap" views like .Between(Low, High)
 
 /**
  * Skip lists are probabilistic data structures that combine the advantages

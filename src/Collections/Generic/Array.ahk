@@ -218,6 +218,7 @@ class GenericArray extends IArray {
         }
 
         T := this.ComponentType
+
         for Elem in Val {
             if (!T.IsInstance(Elem?)) {
                 return false

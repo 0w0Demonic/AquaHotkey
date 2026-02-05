@@ -4,7 +4,7 @@ class Test_Stream extends TestSuite {
             .Stream()
             .RetainIf(Num => !(Num & 1))
             .Join(" ")
-            .AssertEquals("2 4")
+            .Assert(Eq("2 4"))
     }
 
     static RemoveIf() {
@@ -12,7 +12,7 @@ class Test_Stream extends TestSuite {
             .Stream()
             .RemoveIf(Num => !(Num & 1))
             .Join(" ")
-            .AssertEquals("1 3 5")
+            .Assert(Eq("1 3 5"))
     }
 
     static Map() {
@@ -20,7 +20,7 @@ class Test_Stream extends TestSuite {
             .Stream()
             .Map(Num => Num * 2)
             .Join(" ")
-            .AssertEquals("2 4 6 8 10")
+            .Assert(Eq("2 4 6 8 10"))
     }
 
     static FlatMap1() {
@@ -32,7 +32,7 @@ class Test_Stream extends TestSuite {
         .Stream()
         .FlatMap(x => x.Stream())
         .Join(" ")
-        .AssertEquals("1 2 3 4 5 6 7 8 9")
+        .Assert(Eq("1 2 3 4 5 6 7 8 9"))
     }
 
     static FlatMap2() {
@@ -40,16 +40,16 @@ class Test_Stream extends TestSuite {
             .Stream()
             .FlatMap((Str) => Str.Stream())
             .Join(" ")
-            .AssertEquals("H e l l o ,   w o r l d !")
+            .Assert(Eq("H e l l o ,   w o r l d !"))
     }
 
     static FlatMap3() {
         Array(1).Stream().FlatMap((x) => Stream.Of(1, 2))
-                .Join(" ").AssertEquals("1 2")
+                .Join(" ").Assert(Eq("1 2"))
     }
 
     static Of() {
-        Stream.Of(1, 2, 3).Join(" ").AssertEquals("1 2 3")
+        Stream.Of(1, 2, 3).Join(" ").Assert(Eq("1 2 3"))
     }
 
     static MapByRef() {
@@ -65,7 +65,7 @@ class Test_Stream extends TestSuite {
             .MapByRef(MapByRef)
             .Map(Mapper)
             .Join(", ")
-            .AssertEquals("2=ba, 4=aa, 6=na, 8=aa, 10=na, 12=aa")
+            .Assert(Eq("2=ba, 4=aa, 6=na, 8=aa, 10=na, 12=aa"))
     }
 
     static Limit() {
@@ -73,7 +73,7 @@ class Test_Stream extends TestSuite {
             .Stream()
             .Limit(2)
             .Join(" ")
-            .AssertEquals("1 2")
+            .Assert(Eq("1 2"))
     }
 
     static Skip() {
@@ -81,7 +81,7 @@ class Test_Stream extends TestSuite {
             .Stream()
             .Skip(4)
             .Join(" ")
-            .AssertEquals("5 6")
+            .Assert(Eq("5 6"))
     }
 
     static DropWhile() {
@@ -89,7 +89,7 @@ class Test_Stream extends TestSuite {
             .Stream()
             .DropWhile(Num => Num < 5)
             .Join(" ")
-            .AssertEquals("5 1 -12")
+            .Assert(Eq("5 1 -12"))
     }
 
     static TakeWhile() {
@@ -97,7 +97,7 @@ class Test_Stream extends TestSuite {
             .Stream()
             .TakeWhile(Num => Num < 5)
             .Join(" ")
-            .AssertEquals("1 2 3 4")
+            .Assert(Eq("1 2 3 4"))
     }
 
     static Distinct1() {
@@ -105,7 +105,7 @@ class Test_Stream extends TestSuite {
             .Stream()
             .Distinct()
             .Join(" ")
-            .AssertEquals("1 2 3 4 5")
+            .Assert(Eq("1 2 3 4 5"))
     }
 
     static Distinct2() {
@@ -113,7 +113,7 @@ class Test_Stream extends TestSuite {
             .Stream()
             .Distinct(StrLower)
             .Join()
-            .AssertEquals("foo")
+            .Assert(Eq("foo"))
     }
 
     static Distinct3() {
@@ -122,7 +122,7 @@ class Test_Stream extends TestSuite {
             .Distinct(Obj => Obj.Value)
             .Map(Obj => Obj.Value)
             .Join(" ")
-            .AssertEquals("1 2 3")
+            .Assert(Eq("1 2 3"))
     }
 
     static Peek() {
@@ -133,9 +133,9 @@ class Test_Stream extends TestSuite {
             .Peek(x => Arr.Push(x))
             .Map(Num => Num * 2)
             .Join(" ")
-            .AssertEquals("2 4 6 8 10")
+            .Assert(Eq("2 4 6 8 10"))
 
-        Arr.Join(" ").AssertEquals("1 2 3 4 5")
+        Arr.Join(" ").Assert(Eq("1 2 3 4 5"))
     }
 
     static ForEach() {
@@ -144,14 +144,14 @@ class Test_Stream extends TestSuite {
             .Stream()
             .ForEach(x => Arr.Push(x))
 
-        Arr.Join(" ").AssertEquals("1 2 3 4 5")
+        Arr.Join(" ").Assert(Eq("1 2 3 4 5"))
     }
 
     static Any() {
         Array(1, 2, 3, 4, 5)
             .Stream()
             .Any(Num => Num == 5)
-            .AssertEquals(true)
+            .Assert(Eq(true))
     }
 
     static Find() {
@@ -159,29 +159,29 @@ class Test_Stream extends TestSuite {
 
         Out := Array(1, 2, 3, 4, 5).Stream().Find(Equals(5))
 
-        Out.IsPresent.AssertEquals(true)
-        Out.Get().AssertEquals(5)
+        Out.IsPresent.Assert(Eq(true))
+        Out.Get().Assert(Eq(5))
     }
 
     static All() {
         Array(1, 2, 3, 4, 5)
             .Stream()
             .All(Num => Num < 10)
-            .AssertEquals(true)
+            .Assert(Eq(true))
     }
 
     static None() {
         Array(1, 2, 3, 4, 5)
             .Stream()
             .None(Num => Num => 3)
-            .AssertEquals(false)
+            .Assert(Eq(false))
     }
 
     static Max1() {
         Array(1, 2, 3, 4, 5)
             .Stream()
             .Max()
-            .AssertEquals(5)
+            .Assert(Eq(5))
     }
 
     static Max2() {
@@ -193,14 +193,14 @@ class Test_Stream extends TestSuite {
             .Stream()
             .Max(Comp)
             .Value
-            .AssertEquals(3)
+            .Assert(Eq(3))
     }
 
     static Min1() {
         Array(1, 2, 3, 4, 5)
             .Stream()
             .Min()
-            .AssertEquals(1)
+            .Assert(Eq(1))
     }
 
     static Min2() {
@@ -212,11 +212,11 @@ class Test_Stream extends TestSuite {
             .Stream()
             .Min(Comp)
             .Value
-            .AssertEquals(1)
+            .Assert(Eq(1))
     }
 
     static Sum() {
-        Array(1, 2, 3, 4).Stream().Sum().AssertType(Float).AssertEquals(10)
+        Array(1, 2, 3, 4).Stream().Sum().AssertType(Float).Assert(Eq(10))
     }
 
     static ToArray1() {
@@ -224,7 +224,7 @@ class Test_Stream extends TestSuite {
             .Stream()
             .ToArray()
             .Join(" ")
-            .AssertEquals("1 2 3 4 5")
+            .Assert(Eq("1 2 3 4 5"))
     }
     
     static ToArray2() {
@@ -233,21 +233,21 @@ class Test_Stream extends TestSuite {
             .Map((Key, Value) => Key)
             .ToArray()
             .Join(" ")
-            .AssertEquals("1 2 3 4 5")
+            .Assert(Eq("1 2 3 4 5"))
     }
 
     static Fold() {
         Array(1, 2, 3, 4, 5)
             .Stream()
             .Reduce((a, b) => (a + b))
-            .AssertEquals(15)
+            .Assert(Eq(15))
     }
 
     static Generate() {
-        Stream.Generate(() => 1).Limit(5).Join().AssertEquals("11111")
+        Stream.Generate(() => 1).Limit(5).Join().Assert(Eq("11111"))
     }
 
     static Iterate() {
-        Stream.Iterate(1, (x) => x + 1).Limit(5).Join().AssertEquals("12345")
+        Stream.Iterate(1, (x) => x + 1).Limit(5).Join().Assert(Eq("12345"))
     }
 }

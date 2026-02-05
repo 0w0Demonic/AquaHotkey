@@ -6,7 +6,7 @@ class Test_Kwargs extends TestSuite {
     }
 
     static With1() {
-        KwargsTest.With({ A: 1, B: 2, C: 3 }).AssertEquals(6)
+        KwargsTest.With({ A: 1, B: 2, C: 3 }).Assert(Eq(6))
     }
 
     static With2() {

@@ -1,39 +1,39 @@
 class Test_TryOp extends TestSuite {
     static Succeeded1() {
-        TryOp.Value(123).Succeeded.AssertEquals(true)
+        TryOp.Value(123).Succeeded.Assert(Eq(true))
     }
 
     static Succeeded2() {
-        TryOp(FileRead).Succeeded.AssertEquals(false)
+        TryOp(FileRead).Succeeded.Assert(Eq(false))
     }
 
     static Failed1() {
-        TryOp.Value(123).Failed.AssertEquals(false)
+        TryOp.Value(123).Failed.Assert(Eq(false))
     }
 
     static Failed2() {
-        TryOp(FileRead).Failed.AssertEquals(true)
+        TryOp(FileRead).Failed.Assert(Eq(true))
     }
 
     static Finally() {
         Result := unset
         TryOp.Value(123).Finally(() => (Result := "example"))
 
-        IsSet(Result).AssertEquals(true)
+        IsSet(Result).Assert(Eq(true))
     }
 
     static Then() {
         Result := unset
         TryOp.Value(123).Then((x) => (Result := x))
 
-        IsSet(Result).AssertEquals(true)
-        Result.AssertEquals(123)
+        IsSet(Result).Assert(Eq(true))
+        Result.Assert(Eq(123))
     }
 
     static OnSuccess() {
         Result := unset
         TryOp.Value("example").OnSuccess((Str) => (Result := Str))
-        IsSet(Result).AssertEquals(true)
+        IsSet(Result).Assert(Eq(true))
     }
 
     static OnFailure() {
@@ -42,23 +42,23 @@ class Test_TryOp extends TestSuite {
             .Map((x) => (x / 0))    
             .OnFailure(Error, (Err) => (Result := Err.Message))
         
-        IsSet(Result).AssertEquals(true)
+        IsSet(Result).Assert(Eq(true))
     }
     
     static RetainIf() {
         TryOp.Value(42).RetainIf((x) => (x > 20)).Get()
-             .AssertEquals(42)
+             .Assert(Eq(42))
     }
 
     static RemoveIf() {
         TryOp.Value(42).RemoveIf((x) => (x > 20))
             .OrElse("failed")
-            .AssertEquals("failed")
+            .Assert(Eq("failed"))
     }
 
     static Map1() {
         TryOp.Value(2).Map((x) => (x * 2))
-            .OrElse(0).AssertEquals(4)
+            .OrElse(0).Assert(Eq(4))
     }
 
     static Map2() {
@@ -68,14 +68,14 @@ class Test_TryOp extends TestSuite {
 
         TryOp.Value("example").Map(Mapper)
             .OrElse("failed")
-            .AssertEquals("failed")
+            .Assert(Eq("failed"))
     }
 
     static FlatMap1() {
         TryOp.Value("example")
             .FlatMap((Str) => TryOp.Success("(" . Str . ")"))
             .OrElse("")
-            .AssertEquals("(example)")
+            .Assert(Eq("(example)"))
     }
 
     static FlatMap2() {
@@ -84,11 +84,11 @@ class Test_TryOp extends TestSuite {
         }
         TryOp.Value("example").FlatMap(Mapper)
             .OrElse("failed")
-            .AssertEquals("failed")
+            .Assert(Eq("failed"))
     }
 
     static Get1() {
-        TryOp.Value(42).Get().AssertEquals(42)
+        TryOp.Value(42).Get().Assert(Eq(42))
     }
 
     static Get2() {
@@ -100,7 +100,7 @@ class Test_TryOp extends TestSuite {
     static OrElse() {
         TryOp.Value(42).Map((x) => (x / 0))
             .OrElse("failed")
-            .AssertEquals("failed")
+            .Assert(Eq("failed"))
     }
 
     static OrElseGet() {
@@ -116,7 +116,7 @@ class Test_TryOp extends TestSuite {
         TryOp.Failure(Error())
             .OrElseRun(() => Result := "failed")
 
-        IsSet(Result).AssertEquals(true)
+        IsSet(Result).Assert(Eq(true))
     }
 
     static OrElseThrow() {
@@ -129,7 +129,7 @@ class Test_TryOp extends TestSuite {
         TryOp.Failure(MethodError("failed"))
             .Recover(MethodError, (Err) => Err.Message)
             .OrElse("")
-            .AssertEquals("failed")
+            .Assert(Eq("failed"))
     }
 
     static Recover2() {
@@ -137,6 +137,6 @@ class Test_TryOp extends TestSuite {
             .Recover((Err) => (Err is Error),
                      (Err) => (Err.Message))
             .OrElse("")
-            .AssertEquals("failed")
+            .Assert(Eq("failed"))
     }
 }

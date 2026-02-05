@@ -7,13 +7,13 @@ class Test_HashMap extends TestSuite {
 
     static cap_is_initial() {
         HM := HashMap()
-        HM.Capacity.AssertEquals(HM.InitialCap)
+        HM.Capacity.Assert(Eq(HM.InitialCap))
     }
 
     static size_is_zero() {
         HM := HashMap()
-        HM.Size.AssertEquals(0)
-        HM.Count.AssertEquals(0)
+        HM.Size.Assert(Eq(0))
+        HM.Count.Assert(Eq(0))
     }
 
     static keys_are_equal() {
@@ -27,7 +27,7 @@ class Test_HashMap extends TestSuite {
             throw Error()
         }
 
-        HashMap(Obj1, true, Obj2, true).Size.AssertEquals(1)
+        HashMap(Obj1, true, Obj2, true).Size.Assert(Eq(1))
     }
 
     static Clear() {
@@ -36,10 +36,10 @@ class Test_HashMap extends TestSuite {
             Args.Push(A_Index)
         }
         HM := HashMap(Args*)
-        HM.Size.AssertEquals(10)
+        HM.Size.Assert(Eq(10))
         HM.Clear()
 
-        HM.Size.AssertEquals(0)
+        HM.Size.Assert(Eq(0))
         for Value in HM {
             throw Error()
         }
@@ -47,37 +47,37 @@ class Test_HashMap extends TestSuite {
 
     static Clone() {
         HM := HashMap(1, 2, 3, 4)
-        HM.Has(1).AssertEquals(true)
-        HM.Has(3).AssertEquals(true)
+        HM.Has(1).Assert(Eq(true))
+        HM.Has(3).Assert(Eq(true))
 
         Copy := HM.Clone()
-        Copy.Has(1).AssertEquals(true)
-        Copy.Has(3).AssertEquals(true)
+        Copy.Has(1).Assert(Eq(true))
+        Copy.Has(3).Assert(Eq(true))
 
     }
 
     static Delete() {
         HM := HashMap(1, 2, 3, 4)
-        HM.Delete(1).AssertEquals(2)
+        HM.Delete(1).Assert(Eq(2))
 
-        HM.Size.AssertEquals(1)
+        HM.Size.Assert(Eq(1))
     }
 
     static Get_should_return_normally() {
         HM := HashMap(1, 2, 3, 4)
-        HM.Get(1).AssertEquals(2)
+        HM.Get(1).Assert(Eq(2))
     }
 
     static Get_should_return_def_param() {
         HashMap().Get("unknown", "no value")
-            .AssertEquals("no value")
+            .Assert(Eq("no value"))
     }
 
     static Get_should_return_def_prop() {
         HM := HashMap()
         HM.Default := "no value"
 
-        HM.Get("unknown").AssertEquals("no value")
+        HM.Get("unknown").Assert(Eq("no value"))
     }
 
     static Get_should_throw() {
@@ -86,26 +86,26 @@ class Test_HashMap extends TestSuite {
 
     static Has() {
         HashMap({ foo: "bar" }, true).Has({ foo: "bar" })
-            .AssertEquals(true)
+            .Assert(Eq(true))
     }
 
     static Has_with_output() {
-        HashMap(1, 2).Has(1, &OutValue).AssertEquals(true)
-        OutValue.AssertEquals(2)
+        HashMap(1, 2).Has(1, &OutValue).Assert(Eq(true))
+        OutValue.Assert(Eq(2))
     }
 
     static Set_assigns_size_correctly() {
         HM := HashMap()
         HM.Set(1, 2)
-        HM.Has(1).AssertEquals(true)
+        HM.Has(1).Assert(Eq(true))
 
-        HM.Size.AssertEquals(1)
+        HM.Size.Assert(Eq(1))
 
         HM.Set(1, 2)
-        HM.Size.AssertEquals(1)
+        HM.Size.Assert(Eq(1))
 
         HM.Set(3, 4)
-        HM.Size.AssertEquals(2)
+        HM.Size.Assert(Eq(2))
     }
 
     static __Enum_shows_all_elements() {
@@ -115,8 +115,8 @@ class Test_HashMap extends TestSuite {
             Keys += Key
             Values += Value
         }
-        Keys.AssertEquals(4)
-        Values.AssertEquals(6)
+        Keys.Assert(Eq(4))
+        Values.Assert(Eq(6))
     }
 
     static Capacity_set_grows_hashmap() {

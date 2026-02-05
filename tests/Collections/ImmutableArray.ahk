@@ -7,11 +7,13 @@ class Test_ImmutableArray extends TestSuite {
 
     static Call_uses_regular_array() {
         IA := ImmutableArray(1, 2, 3, 4)
-        (IA.A).Is(Array).AssertEquals(true)
+        (IA.A).Is(Array).Assert(Eq(true))
     }
 
     static Freeze_works_with_any_IArray() {
-        LinkedList(1, 2, 3, 4).Freeze().Is(ImmutableArray)
-                .AssertEquals(true)
+        L := LinkedList(1, 2, 3, 4).Freeze()
+        LinkedList(1, 2, 3, 4).Freeze()
+                .Is(ImmutableArray)
+                .Assert(Eq(true))
     }
 }

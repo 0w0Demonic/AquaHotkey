@@ -4,11 +4,11 @@
 
 class Test_String extends TestSuite {
     static IsEmpty1() {
-        "".IsEmpty.AssertEquals(true)
+        "".IsEmpty.Assert(Eq(true))
     }
 
     static IsEmpty2() {
-        "Hello, world!".IsEmpty.AssertEquals(false)
+        "Hello, world!".IsEmpty.Assert(Eq(false))
     }
     
     static __Enum1() {
@@ -16,7 +16,7 @@ class Test_String extends TestSuite {
         for Char in "Hello, world!" {
             Arr.Push(Char)
         }
-        Arr.Join().AssertEquals("Hello, world!")
+        Arr.Join().Assert(Eq("Hello, world!"))
     }
 
     static __Enum2() {
@@ -24,7 +24,7 @@ class Test_String extends TestSuite {
         for Index, Char in "Hello, world!" {
             Arr.Push(Index, Char)
         }
-        Arr.Join().AssertEquals("1H2e3l4l5o6,7 8w9o10r11l12d13!")
+        Arr.Join().Assert(Eq("1H2e3l4l5o6,7 8w9o10r11l12d13!"))
     }
 
     static Lines() {
@@ -35,19 +35,19 @@ class Test_String extends TestSuite {
         apple
         banana
         )".Lines()
-        Arr.Length.AssertEquals(4)
-        Arr[1].AssertEquals("Hello")
-        Arr[2].AssertEquals("world")
-        Arr[3].AssertEquals("apple")
-        Arr[4].AssertEquals("banana")
+        Arr.Length.Assert(Eq(4))
+        Arr[1].Assert(Eq("Hello"))
+        Arr[2].Assert(Eq("world"))
+        Arr[3].Assert(Eq("apple"))
+        Arr[4].Assert(Eq("banana"))
     }
 
     static Before1() {
-        "Hello, world!".Before("world!").AssertEquals("Hello, ")
+        "Hello, world!".Before("world!").Assert(Eq("Hello, "))
     }
 
     static Before2() {
-        "Hello, world!".Before("banana").AssertEquals("Hello, world!")
+        "Hello, world!".Before("banana").Assert(Eq("Hello, world!"))
     }
 
     static Before3() {
@@ -57,11 +57,11 @@ class Test_String extends TestSuite {
     }
 
     static BeforeRegex1() {
-        "Test123AppleBanana".BeforeRegex("\d++").AssertEquals("Test")
+        "Test123AppleBanana".BeforeRegex("\d++").Assert(Eq("Test"))
     }
 
     static BeforeRegex2() {
-        "Test123AppleBanana".BeforeRegex("x").AssertEquals("Test123AppleBanana")
+        "Test123AppleBanana".BeforeRegex("x").Assert(Eq("Test123AppleBanana"))
     }
 
     static BeforeRegex3() {
@@ -77,174 +77,174 @@ class Test_String extends TestSuite {
     }
 
     static Until1() {
-        "Hello, world!".Until(",").AssertEquals("Hello,")
+        "Hello, world!".Until(",").Assert(Eq("Hello,"))
     }
 
     static Until2() {
-        "Hello, world!".Until("x").AssertEquals("Hello, world!")
+        "Hello, world!".Until("x").Assert(Eq("Hello, world!"))
     }
 
     static UntilRegex1() {
-        "Test123AppleBanana".UntilRegex("\d++").AssertEquals("Test123")
+        "Test123AppleBanana".UntilRegex("\d++").Assert(Eq("Test123"))
     }
 
     static UntilRegex2() {
-        "Test123AppleBanana".UntilRegex("x").AssertEquals("Test123AppleBanana")
+        "Test123AppleBanana".UntilRegex("x").Assert(Eq("Test123AppleBanana"))
     }
 
     static From1() {
-        "Hello, world!".From(",").AssertEquals(", world!")
+        "Hello, world!".From(",").Assert(Eq(", world!"))
     }
 
     static From2() {
-        "Hello, world!".From("x").AssertEquals("Hello, world!")
+        "Hello, world!".From("x").Assert(Eq("Hello, world!"))
     }
 
     static FromRegex1() {
-        "Test123AppleBanana".FromRegex("\d++").AssertEquals("123AppleBanana")
+        "Test123AppleBanana".FromRegex("\d++").Assert(Eq("123AppleBanana"))
     }
 
     static FromRegex2() {
-        "Test123".FromRegex("x").AssertEquals("Test123")
+        "Test123".FromRegex("x").Assert(Eq("Test123"))
     }
 
     static After1() {
-        "Hello, world!".After(",").AssertEquals(" world!")
+        "Hello, world!".After(",").Assert(Eq(" world!"))
     }
 
     static After2() {
-        "Hello, world!".After("x").AssertEquals("Hello, world!")
+        "Hello, world!".After("x").Assert(Eq("Hello, world!"))
     }
 
     static Prepend() {
-        "world!".Prepend("Hello, ").AssertEquals("Hello, world!")
+        "world!".Prepend("Hello, ").Assert(Eq("Hello, world!"))
     }
 
     static Append() {
-        "Hello, ".Append("world!").AssertEquals("Hello, world!")
+        "Hello, ".Append("world!").Assert(Eq("Hello, world!"))
     }
 
     static Surround1() {
-        "test".Surround("_").AssertEquals("_test_")
+        "test".Surround("_").Assert(Eq("_test_"))
     }
 
     static Surround2() {
-        "test".Surround("(", ")").AssertEquals("(test)")
+        "test".Surround("(", ")").Assert(Eq("(test)"))
     }
 
     static Repeat() {
-        "t".Repeat(8).AssertEquals("tttttttt")
+        "t".Repeat(8).Assert(Eq("tttttttt"))
     }
 
     static Reversed()  {
-        "banana".Reversed().AssertEquals("ananab")
+        "banana".Reversed().Assert(Eq("ananab"))
     }
 
     static SplitPath() {
         SP := "C:\Users\sven\Desktop\images\potato.png".SplitPath()
-        SP.Name.AssertEquals("potato.png")
-        SP.Dir.AssertEquals("C:\Users\sven\Desktop\images")
-        SP.Ext.AssertEquals("png")
-        SP.NameNoExt.AssertEquals("potato")
-        SP.Drive.AssertEquals("C:")
+        SP.Name.Assert(Eq("potato.png"))
+        SP.Dir.Assert(Eq("C:\Users\sven\Desktop\images"))
+        SP.Ext.Assert(Eq("png"))
+        SP.NameNoExt.Assert(Eq("potato"))
+        SP.Drive.Assert(Eq("C:"))
     }
 
     static RegExMatch1() {
-        "Test123Abc".RegExMatch("\d++").AssertEquals(5)
+        "Test123Abc".RegExMatch("\d++").Assert(Eq(5))
     }
 
     static RegExMatch2() {
-        "Test123Abc".RegExMatch("\d++", &Match).AssertEquals(5)
+        "Test123Abc".RegExMatch("\d++", &Match).Assert(Eq(5))
 
-        Match[0].AssertEquals("123")
+        Match[0].Assert(Eq("123"))
     }
     
     static RegExReplace() {
-        "Test123Abc".RegExReplace("\d++").AssertEquals("TestAbc")
+        "Test123Abc".RegExReplace("\d++").Assert(Eq("TestAbc"))
     }
 
     static Match() {
-        "Test123Abc".Match("\d++")[0].AssertEquals("123")
+        "Test123Abc".Match("\d++")[0].Assert(Eq("123"))
     }
 
     static MatchAll() {
         MatchObjs := "Test123Abc".MatchAll("\d")
-        MatchObjs.Length.AssertEquals(3)
-        MatchObjs[1][0].AssertEquals(1)
-        MatchObjs[2][0].AssertEquals(2)
-        MatchObjs[3][0].AssertEquals(3)
+        MatchObjs.Length.Assert(Eq(3))
+        MatchObjs[1][0].Assert(Eq(1))
+        MatchObjs[2][0].Assert(Eq(2))
+        MatchObjs[3][0].Assert(Eq(3))
     }
 
     static Capture() {
-        "Test123Abc".Capture("\d++").AssertEquals("123")
+        "Test123Abc".Capture("\d++").Assert(Eq("123"))
     }
 
     static CaptureAll() {
-        "Test123Abc".CaptureAll("\d").Join(" ").AssertEquals("1 2 3")
+        "Test123Abc".CaptureAll("\d").Join(" ").Assert(Eq("1 2 3"))
     }
 
     static Insert1() {
-        "def".Insert("abc").AssertEquals("abcdef")
+        "def".Insert("abc").Assert(Eq("abcdef"))
     }
 
     static Insert2() {
-        "abdef".Insert("c", 3).AssertEquals("abcdef")
+        "abdef".Insert("c", 3).Assert(Eq("abcdef"))
     }
 
     static Insert3() {
-        "abc".Insert("d", 0).AssertEquals("abcd")
+        "abc".Insert("d", 0).Assert(Eq("abcd"))
     }
 
     static Insert4() {
-        "abd".Insert("c", -1).AssertEquals("abcd")
+        "abd".Insert("c", -1).Assert(Eq("abcd"))
     }
 
     static Overwrite1() {
-        "zbc".Overwrite("a").AssertEquals("abc")
+        "zbc".Overwrite("a").Assert(Eq("abc"))
     }
     
     static Overwrite2() {
-        "abd".Overwrite("c", 3).AssertEquals("abc")
+        "abd".Overwrite("c", 3).Assert(Eq("abc"))
     }
 
     static Overwrite3() {
-        "abc".Overwrite("d", 0).AssertEquals("abcd")
+        "abc".Overwrite("d", 0).Assert(Eq("abcd"))
     }
 
     static Overwrite4() {
-        "abd".Overwrite("c", -1).AssertEquals("abc")
+        "abd".Overwrite("c", -1).Assert(Eq("abc"))
     }
 
     static Delete1() {
-        "abbbc".Delete(2, 2).AssertEquals("abc")
+        "abbbc".Delete(2, 2).Assert(Eq("abc"))
     }
     
     static Delete2() {
-        "abcc".Delete(-1).AssertEquals("abc")
+        "abcc".Delete(-1).Assert(Eq("abc"))
     }
 
     static Delete3() {
-        "abcc".Delete(-1, 100).AssertEquals("abc")
+        "abcc".Delete(-1, 100).Assert(Eq("abc"))
     }
 
     static __Item() {
-        "Hello, world!".__Item[2].AssertEquals("e")
+        "Hello, world!".__Item[2].Assert(Eq("e"))
     }
 
     static Length() {
-        "abcdef".Length.AssertEquals(6)
+        "abcdef".Length.Assert(Eq(6))
     }
 
     static Size1() {
-        "abcdef".SizeInBytes.AssertEquals((6 + 1) * 2) ; UTF-16
+        "abcdef".SizeInBytes.Assert(Eq((6 + 1) * 2)) ; UTF-16
     }
 
     static Size2() {
-        "abcdef".SizeInBytes["CP20127"].AssertEquals(6 + 1) ; US-ASCII
+        "abcdef".SizeInBytes["CP20127"].Assert(Eq(6 + 1)) ; US-ASCII
     }
 
     static Size3() {
-        "abcdef".SizeInBytes["UTF-8"].AssertEquals(6 + 1) ; UTF-8
+        "abcdef".SizeInBytes["UTF-8"].Assert(Eq(6 + 1)) ; UTF-8
     }
 }
 

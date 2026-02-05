@@ -1,16 +1,16 @@
 
 class Test_ComValue extends TestSuite {
     static BSTR_ShouldReturn_0x08() {
-        ComValue.BSTR.AssertEquals(0x08)
+        ComValue.BSTR.Assert((Eq(0x08)))
     }
 
     static BSTR_Construction() {
         Val := ComValue.BSTR("foo", true)
-        ComObjType(Val).AssertEquals(0x08)
+        ComObjType(Val).Assert(Eq(0x08))
     }
 
     static Array_BSTR_ShouldReturn_0x2008() {
-        ComObjArray.BSTR.AssertEquals(0x2008)
+        ComObjArray.BSTR.Assert(Eq(0x2008))
     }
 
     static Array_INT64_Construction() {
@@ -18,7 +18,7 @@ class Test_ComValue extends TestSuite {
     }
 
     static ByRef_BSTR_ShouldReturn_0x4008() {
-        ComValueRef.BSTR.AssertEquals(0x4008)
+        ComValueRef.BSTR.Assert(Eq(0x4008))
     }
 
     static ByRef_INT64_Construction() {
@@ -27,13 +27,13 @@ class Test_ComValue extends TestSuite {
         NumPut("Int64", Value, Buf)
 
         Ref := ComValueRef.INT64(Buf.Ptr)
-        Ref.Get().AssertEquals(Value)
+        Ref.Get().Assert(Eq(Value))
     }
 
     static ByRef_Setter() {
         Buf := Buffer(8)
         Ref := ComValueRef.INT64(Buf.Ptr).Set(42)
-        Ref.Get().AssertEquals(42)
+        Ref.Get().Assert(Eq(42))
     }
 
     static ByRef_ShouldResolveBufferObject() {
@@ -42,6 +42,6 @@ class Test_ComValue extends TestSuite {
         NumPut("Int64", Value, Buf)
 
         Ref := ComValueRef.INT64(Buf).Set(Value)
-        Ref.Get().AssertEquals(Value)
+        Ref.Get().Assert(Eq(Value))
     }
 }

@@ -8,7 +8,7 @@ class Test_ImmutableSet extends TestSuite {
     static Call_uses_regular_Set() {
         ImmutableSet({ foo: "bar" }, { foo: "bar" })
             .Size
-            .AssertEquals(2)
+            .Assert(Eq(2))
     }
 
     static Freeze_works_with_any_ISet() {

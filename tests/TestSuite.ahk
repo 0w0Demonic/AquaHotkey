@@ -1,6 +1,13 @@
 #Requires AutoHotkey v2
 
-class TestSuite {
+; OnExit((*) => MsgBox(TestSuite.FailCount))
+
+class TestSuite
+{
+
+static TestCount := 0
+static FailCount := 0
+
 static __New() {
     static OutFile := (A_LineFile . "\..\result.txt")
     static Ln := "--------------------------------------------------------------------------------"
@@ -42,8 +49,9 @@ static __New() {
             SetTimer(Timeout, -TimeoutMs)
             Fn()
         } catch as Err {
-            ; nop
+            TestSuite.FailCount++
         } finally {
+            TestSuite.TestCount++
             SetTimer(Timeout, false)
         }
 

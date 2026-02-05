@@ -1,14 +1,14 @@
 class Test_Func extends TestSuite {
     static Constantly() {
         Stream.Generate(Constantly(15)).Limit(5).Join(", ")
-                .AssertEquals("15, 15, 15, 15, 15")
+                .Assert(Eq("15, 15, 15, 15, 15"))
     }
 
     static Loop() {
         Arr := Array()
         (() => Arr.Push(A_Index)).Loop(5).Call()
 
-        Arr.Join(", ").AssertEquals("1, 2, 3, 4, 5")
+        Arr.Join(", ").Assert(Eq("1, 2, 3, 4, 5"))
     }
 
     static WithCatch() {
@@ -22,22 +22,22 @@ class Test_Func extends TestSuite {
             ()    => FinallyBlock := true
         ).Call(2, 0)
 
-        Success.AssertEquals(false)
-        FinallyBlock.AssertEquals(true)
+        Success.Assert(Eq(false))
+        FinallyBlock.Assert(Eq(true))
     }
 
     static AndThen() {
         ((x, y) => (x + y))
             .AndThen(Result => Result * 2)
             .Call(2, 3)
-            .AssertEquals(10)
+            .Assert(Eq(10))
     }
 
     static Compose() {
         ((Result => Result * 2))
             .Compose((x, y) => (x + y))
             .Call(2, 3)
-            .AssertEquals(10)
+            .Assert(Eq(10))
     }
 
     static Memoized1() {
@@ -79,8 +79,8 @@ class Test_Func extends TestSuite {
         Memoized2("a")
         Memoized2("A")
 
-        Cache1.Hits.AssertEquals(0)
-        Cache2.Hits.AssertEquals(1)
+        Cache1.Hits.Assert(Eq(0))
+        Cache2.Hits.Assert(Eq(1))
     }
 }
 

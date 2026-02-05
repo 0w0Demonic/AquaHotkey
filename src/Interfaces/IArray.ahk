@@ -23,7 +23,7 @@ class IArray {
         ObjSetBase(this.Prototype,  ObjGetBase(Array.Prototype))
         ObjSetBase(Array,           this)
         ObjSetBase(Array.Prototype, this.Prototype)
-        this.Backup(Sizeable, Enumerable1, Enumerable2, Indexable)
+        this.Backup(Enumerable1, Enumerable2, Indexable)
     }
 
     ;@region Type Info
@@ -428,4 +428,20 @@ class IArray {
     }
 
     ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Default Properties
+
+    /**
+     * Determines whether the array is empty.
+     * 
+     * @returns {Boolean}
+     */
+    IsEmpty => (!this.Length)
+
+    /**
+     * Determines whether the array is not empty.
+     * 
+     * @returns {Boolean}
+     */
+    IsNotEmpty => (!!this.Length)
 }

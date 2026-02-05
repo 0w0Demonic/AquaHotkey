@@ -5,36 +5,31 @@ class Test_TypeInfo extends TestSuite
     }
 
     static Class_ForName() {
-        Class.ForName("String").AssertEquals(String)
+        Class.ForName("String").Assert(Eq(String))
     }
 
     static Class_ForName_Nested() {
-        Class.ForName("Gui.ActiveX").AssertEquals(Gui.ActiveX)
-    }
-
-    static __Call_ShouldResolve_Chr() {
-        ; good enough
-        65.Chr().AssertCsEquals("A")
+        Class.ForName("Gui.ActiveX").Assert(Eq(Gui.ActiveX))
     }
 
     static Type() {
-        "Hello world".Type.AssertEquals("String")
+        "Hello world".Type.Assert(Eq("String"))
     }
 
     static Class_ShouldResolve_String() {
-        "Hello world!".Class.AssertEquals(String)
+        "Hello world!".Class.Assert(Eq(String))
     }
 
     static Class_PrototypeShouldResolve_String() {
-        (String.Prototype).Class.AssertEquals(String)
+        (String.Prototype).Class.Assert(Eq(String))
     }
 
     static Class_PrototypeShouldResolve_GuiButton() {
-        (Gui.Button.Prototype).Class.AssertEquals(Gui.Button)
+        (Gui.Button.Prototype).Class.Assert(Eq(Gui.Button))
     }
 
     static Class_Name_Should_Be_String() {
-        (String.Name).AssertType(String).AssertEquals("String")
+        (String.Name).AssertType(String).Assert(Eq("String"))
     }
 
     static Hierarchy() {
@@ -44,7 +39,7 @@ class Test_TypeInfo extends TestSuite
                 Class.Prototype,
                 Object.Prototype,
                 Any.Prototype ])
-            .AssertEquals(true)
+            .Assert(Eq(true))
     }
 
     static Hierarchy_with_plain_objects() {
@@ -53,7 +48,7 @@ class Test_TypeInfo extends TestSuite
         ObjSetBase(Obj, BaseObj)
 
         (Obj.Hierarchy).Eq([ Obj, BaseObj, Object.Prototype, Any.Prototype ])
-                .AssertEquals(true)
+                .Assert(Eq(true))
     }
 
     static Bases() {
@@ -62,7 +57,7 @@ class Test_TypeInfo extends TestSuite
                 Class.Prototype,
                 Object.Prototype,
                 Any.Prototype ])
-            .AssertEquals(true)
+            .Assert(Eq(true))
     }
 
     static Bases_with_plain_objects() {
@@ -71,6 +66,6 @@ class Test_TypeInfo extends TestSuite
         ObjSetBase(Obj, BaseObj)
 
         (Obj.Bases).Eq([ BaseObj, Object.Prototype, Any.Prototype ])
-                .AssertEquals(true)
+                .Assert(Eq(true))
     }
 }

@@ -33,7 +33,7 @@
 ;@region Func/
      #Include "%A_LineFile%/../Func/Comparator.ahk"
      #Include "%A_LineFile%/../Func/Func.ahk"
-;    #Include "%A_LineFile%/../Func/Kwargs.ahk" ; TODO
+     #Include "%A_LineFile%/../Func/Kwargs.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Monads/

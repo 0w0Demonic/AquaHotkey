@@ -3,24 +3,24 @@ class Test_Map extends TestSuite
 {
     static Keys() {
         Arr := Map("hotel", "trivago", "apple", "banana").Keys()
-        Arr.Length.AssertEquals(2)
-        Arr[1].AssertEquals("apple")
-        Arr[2].AssertEquals("hotel")
+        Arr.Length.Assert(Eq(2))
+        Arr[1].Assert(Eq("apple"))
+        Arr[2].Assert(Eq("hotel"))
     }
 
     static Values() {
         Arr := Map("hotel", "trivago", "apple", "banana").Values()
-        Arr.Length.AssertEquals(2)
-        Arr[1].AssertEquals("banana")
-        Arr[2].AssertEquals("trivago")
+        Arr.Length.Assert(Eq(2))
+        Arr[1].Assert(Eq("banana"))
+        Arr[2].Assert(Eq("trivago"))
     }
 
     static IsEmpty1() {
-        Map().IsEmpty.AssertEquals(true)
+        Map().IsEmpty.Assert(Eq(true))
     }
 
     static IsEmpty2() {
-        Map("hello", "world!").IsEmpty.AssertEquals(false)
+        Map("hello", "world!").IsEmpty.Assert(Eq(false))
     }
 
     static RetainIf() {
@@ -30,7 +30,7 @@ class Test_Map extends TestSuite
         
         Map(2, 4, 1, 3, 6, 7)
             .RetainIf(KeyAndValueAreEven)
-            .Count.AssertEquals(1)
+            .Count.Assert(Eq(1))
     }
 
     static RemoveIf() {
@@ -40,7 +40,7 @@ class Test_Map extends TestSuite
 
         Map(2, 4, 1, 3, 6, 7)
             .RemoveIf(KeyAndValueAreEven)
-            .Count.AssertEquals(2)
+            .Count.Assert(Eq(2))
     }
 
     static Map() {
@@ -48,9 +48,9 @@ class Test_Map extends TestSuite
             return Key + Value
         }
         M := Map(2, 4, 1, 3, 6, 7).ReplaceAll(Mapper)
-        M[2].AssertEquals(6)
-        M[1].AssertEquals(4)
-        M[6].AssertEquals(13)
+        M[2].Assert(Eq(6))
+        M[1].Assert(Eq(4))
+        M[6].Assert(Eq(13))
     }
 
     static ForEach() {
@@ -63,22 +63,22 @@ class Test_Map extends TestSuite
         Map(2, 4,
             1, 3,
             6, 7).ForEach2(PushToArr)
-        Arr.Length.AssertEquals(3)
-        Arr[1].AssertEquals(4)
-        Arr[2].AssertEquals(6)
-        Arr[3].AssertEquals(13)
+        Arr.Length.Assert(Eq(3))
+        Arr[1].Assert(Eq(4))
+        Arr[2].Assert(Eq(6))
+        Arr[3].Assert(Eq(13))
     }
     
     static PutIfAbsent1() {
         M := Map(1, 2)
         M.PutIfAbsent(1, 4)
-        M[1].AssertEquals(2)
+        M[1].Assert(Eq(2))
     }
 
     static PutIfAbsent2() {
         M := Map(1, 2)
         M.PutIfAbsent(2, 4)
-        M[2].AssertEquals(4)
+        M[2].Assert(Eq(4))
     }
 
     static ComputeIfAbsent1() {
@@ -86,7 +86,7 @@ class Test_Map extends TestSuite
 
         M := Map(1, 23)
         M.ComputeIfAbsent(1, Mapper)
-        M[1].AssertEquals(23)
+        M[1].Assert(Eq(23))
     }
 
     static ComputeIfAbsent2() {
@@ -94,7 +94,7 @@ class Test_Map extends TestSuite
 
         M := Map(1, 23)
         M.ComputeIfAbsent(2, Mapper)
-        M[2].AssertEquals(4)
+        M[2].Assert(Eq(4))
     }
 
     static ComputeIfPresent1() {
@@ -102,7 +102,7 @@ class Test_Map extends TestSuite
 
         M := Map(1, 23)
         M.ComputeIfPresent(2, Mapper)
-        M.Count.AssertEquals(1)
+        M.Count.Assert(Eq(1))
     }
 
     static ComputeIfPresent2() {
@@ -110,7 +110,7 @@ class Test_Map extends TestSuite
 
         M := Map(1, 23)
         M.ComputeIfPresent(1, Mapper)
-        M[1].AssertEquals(24)
+        M[1].Assert(Eq(24))
     }
 
     static Compute1() {
@@ -119,7 +119,7 @@ class Test_Map extends TestSuite
         M := Map(1, 23)
         M.Compute(1, Mapper)
 
-        M[1].AssertEquals(24)
+        M[1].Assert(Eq(24))
     }
 
     static Compute2() {
@@ -127,7 +127,7 @@ class Test_Map extends TestSuite
 
         M := Map(1, 23)
         M.Compute(2, Mapper)
-        M[2].AssertEquals(2)
+        M[2].Assert(Eq(2))
     }
 
     static Merge1() {
@@ -135,7 +135,7 @@ class Test_Map extends TestSuite
 
         M := Map(1, 23)
         M.Merge(1, 1, Mapper)
-        M[1].AssertEquals(24)
+        M[1].Assert(Eq(24))
     }
 
     static Merge2() {
@@ -143,19 +143,19 @@ class Test_Map extends TestSuite
 
         M := Map(1, 23)
         M.Merge(2, 1, Mapper)
-        M[2].AssertEquals(1)
+        M[2].Assert(Eq(1))
     }
 
     static All1() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
-        Map(1, 2, 2, 4, 4, 8).All2(ValueIsEven).AssertEquals(true)
+        Map(1, 2, 2, 4, 4, 8).All2(ValueIsEven).Assert(Eq(true))
     }
 
     static All2() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
-        Map(1, 2, 2, 4, 4, 7).All2(ValueIsEven).AssertEquals(false)
+        Map(1, 2, 2, 4, 4, 7).All2(ValueIsEven).Assert(Eq(false))
     }
 
     static Any1() {
@@ -163,7 +163,7 @@ class Test_Map extends TestSuite
 
         Match := Map(1, 1, 3, 3, 5, 6)
             .Any2(ValueIsEven)
-            .AssertEquals(true)
+            .Assert(Eq(true))
     }
 
     static Any2() {
@@ -171,19 +171,19 @@ class Test_Map extends TestSuite
 
         Map(1, 1, 3, 3, 5, 5, 7, 7)
             .Any2(ValueIsEven)
-            .AssertEquals(false)
+            .Assert(Eq(false))
     }
 
     static None1() {
         static ValueIsEven(Key, Value) => !(Value & 1)
 
-        Map(1, 1, 3, 3, 5, 5).None2(ValueIsEven).AssertEquals(true)
+        Map(1, 1, 3, 3, 5, 5).None2(ValueIsEven).Assert(Eq(true))
     }
 
     static None2() {
         static ValueIsEven(Key, Value) => !(Value & 1)
         
-        Map(1, 1, 3, 3, 5, 6).None2(ValueIsEven).AssertEquals(false)
+        Map(1, 1, 3, 3, 5, 6).None2(ValueIsEven).Assert(Eq(false))
     }
 
     static Create_creates_normal_map() {
@@ -194,14 +194,14 @@ class Test_Map extends TestSuite
         M := Map()
         Sup := () => M
 
-        Map.Create(Sup).AssertEquals(M)
+        Map.Create(Sup).Assert(Eq(M))
     }
 
     static Create_uses_case_sense() {
         M := Map.Create(false)
         M.Set("a", 1)
         M.Set("A", 2)
-        M.Get("a").AssertEquals(2)
+        M.Get("a").Assert(Eq(2))
     }
 
     static Create_throws_on_bad_types() {

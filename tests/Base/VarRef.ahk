@@ -4,14 +4,14 @@ class Test_VarRef extends TestSuite
         Obj := Object()
         Ref := &Obj
 
-        Ref.Ptr.AssertEquals(ObjPtr(Obj))
+        Ref.Ptr.Assert(Eq(ObjPtr(Obj)))
     }
 
     static Ptr2() {
         Str := "Hello, world!"
         Ref := &Str
 
-        Ref.Ptr.AssertEquals(StrPtr(Str))
+        Ref.Ptr.Assert(Eq(StrPtr(Str)))
     }
 
     static Ptr3() {

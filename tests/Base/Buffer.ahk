@@ -1,11 +1,11 @@
 class Test_Buffer extends TestSuite
 {
     static SizeOf_BasicTest() {
-        Buffer.SizeOf("UInt64*").AssertEquals(A_PtrSize)
-        Buffer.SizeOf("DoubleP").AssertEquals(A_PtrSize)
+        Buffer.SizeOf("UInt64*").Assert(Eq(A_PtrSize))
+        Buffer.SizeOf("DoubleP").Assert(Eq(A_PtrSize))
 
-        Buffer.SizeOf("UShort").AssertEquals(2)
-        Buffer.SizeOf("Double").AssertEquals(8)
+        Buffer.SizeOf("UShort").Assert(Eq(2))
+        Buffer.SizeOf("Double").Assert(Eq(8))
     }
 
     static SizeOf_ThrowsOnBadType() {
@@ -22,7 +22,7 @@ class Test_Buffer extends TestSuite
         static Fn(Cls) => Cls
                 .FromMemory(StrPtr(Str), StrPut(Str))
                 .GetString()
-                .AssertEquals(Str)
+                .Assert(Eq(Str))
 
         Fn(Buffer)
         Fn(ClipboardAll)
@@ -32,7 +32,7 @@ class Test_Buffer extends TestSuite
         static Fn(Cls) {
             Buf := Cls.OfString("AAA", "UTF-8")
             Buf.AssertType(Cls)
-            Buf.HexDump().AssertEquals("41 41 41 00 ")
+            Buf.HexDump().Assert(Eq("41 41 41 00 "))
         }
         Fn(Buffer)
         Fn(ClipboardAll)
@@ -40,8 +40,8 @@ class Test_Buffer extends TestSuite
 
     static OfNumber() {
         Buf := Buffer.OfNumber("UShort", 123)
-        Buf.Size.AssertEquals(2)
-        NumGet(Buf, "UShort").AssertEquals(123)
+        Buf.Size.Assert(Eq(2))
+        NumGet(Buf, "UShort").Assert(Eq(123))
     }
 
     static OfNumber_DoesCasting() {
@@ -49,12 +49,12 @@ class Test_Buffer extends TestSuite
     }
 
     static FromFile() {
-        Buffer.FromFile(A_LineFile).Size.AssertType(Integer).AssertGt(0)
+        Buffer.FromFile(A_LineFile).Size.AssertType(Integer).Assert(Gt(0))
     }
 
     static GetChar_PutChar() {
         Buf := Buffer(8).PutChar(45, 0)
-        Buf.GetChar(0).AssertEquals(45)
+        Buf.GetChar(0).Assert(Eq(45))
     }
 
     static GetString() {
@@ -62,7 +62,7 @@ class Test_Buffer extends TestSuite
         Size := StrPut(Str, "UTF-16")
         Buf := Buffer(Size)
         StrPut(Str, Buf)
-        Buf.GetString().AssertEquals(Str)
+        Buf.GetString().Assert(Eq(Str))
     }
 
     static PutString() {
@@ -71,7 +71,7 @@ class Test_Buffer extends TestSuite
         Buf := Buffer(Size)
 
         Buf.PutString(Str)
-        Buf.GetString().AssertEquals(Str)
+        Buf.GetString().Assert(Eq(Str))
     }
 
     static PutString_ThrowsOnBadInput() {
@@ -87,17 +87,17 @@ class Test_Buffer extends TestSuite
         NumPut("Int", 456, Buf, 4)
 
         Slice := Buf.Slice(0, 4)
-        NumGet(Slice, "Int").AssertEquals(123)
+        NumGet(Slice, "Int").Assert(Eq(123))
     }
 
     static Zero() {
         Buf := Buffer.OfString("example").Zero()
-        NumGet(Buf, "UInt64").AssertEquals(0)
+        NumGet(Buf, "UInt64").Assert(Eq(0))
     }
 
     static Fill() {
         Buf := Buffer.OfString("example").Fill(42)
-        NumGet(Buf, "Char").AssertEquals(42)
+        NumGet(Buf, "Char").Assert(Eq(42))
     }
 
     static HexDump() {
@@ -106,7 +106,7 @@ class Test_Buffer extends TestSuite
         Loop Size {
             NumPut("Char", 0x41, Buf, A_Index - 1)
         }
-        Buf.HexDump().AssertEquals("41 41 41 41 ")
+        Buf.HexDump().Assert(Eq("41 41 41 41 "))
     }
 
     static staticDefine() {
@@ -114,18 +114,18 @@ class Test_Buffer extends TestSuite
 
         Buf := Buffer(16)
         Buf.Left := 42
-        NumGet(Buf, 0, "Int").AssertEquals(42)
+        NumGet(Buf, 0, "Int").Assert(Eq(42))
     }
 
     static Define() {
         Buf := Buffer(16)
 
         Buf.Define("Bottom", "Int", 8)
-        Buf.AssertHasOwnProp("Bottom")
+        Buf.Assert(ObjHasOwnProp, "Bottom")
         Buf.Bottom := 99
 
-        NumGet(Buf, 8, "Int").AssertEquals(99)
-        Buf.Bottom.AssertEquals(99)
+        NumGet(Buf, 8, "Int").Assert(Eq(99))
+        Buf.Bottom.Assert(Eq(99))
     }
 
     static Define_OnPrototype() {
@@ -133,7 +133,7 @@ class Test_Buffer extends TestSuite
 
         Buf := Buffer(16)
         Buf.Top := 22
-        NumGet(Buf, 4, "Int").AssertEquals(22)
-        Buf.Top.AssertEquals(22)
+        NumGet(Buf, 4, "Int").Assert(Eq(22))
+        Buf.Top.Assert(Eq(22))
     }
 }

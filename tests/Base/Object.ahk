@@ -6,25 +6,25 @@ class Test_Object extends TestSuite
         Loop 5 {
             ArrPush1()
         }
-        Arr.Join(" ").AssertEquals("1 1 1 1 1")
+        Arr.Join(" ").Assert(Eq("1 1 1 1 1"))
     }
 
     static SetBase() {
         BaseObj := Object
         Obj := Object().SetBase(BaseObj)
-        HasBase(Obj, BaseObj).AssertEquals(true)
+        HasBase(Obj, BaseObj).Assert(Eq(true))
     }
 
     static DefineConstant() {
         Obj := Object()
         Obj.DefineConstant("Value", 42)
-        Obj.Value.AssertEquals(42)
+        Obj.Value.Assert(Eq(42))
     }
 
     static DefineGetter() {
         (Obj := Object()).Value := 2
         Obj.DefineGetter("TwoTimesValue", (Instance) => 2 * Instance.Value)
-        Obj.TwoTimesValue.AssertEquals(4)
+        Obj.TwoTimesValue.Assert(Eq(4))
     }
 
     static DefineGetterSetter() {
@@ -36,9 +36,9 @@ class Test_Object extends TestSuite
         }
         (Obj := Object()).Value := 42
         Obj.DefineGetterSetter("Prop", Getter, Setter)
-        Obj.Prop.AssertEquals(42)
+        Obj.Prop.Assert(Eq(42))
         Obj.Prop := 65
-        Obj.Prop.AssertEquals(65)
+        Obj.Prop.Assert(Eq(65))
     }
 
     static DefineSetter() {
@@ -48,7 +48,7 @@ class Test_Object extends TestSuite
 
         (Obj := Object()).DefineSetter("Prop", Setter)
         Obj.Prop := 54
-        Obj.Value.AssertEquals(54)
+        Obj.Value.Assert(Eq(54))
     }
 
     static DefineMethod() {
@@ -57,7 +57,7 @@ class Test_Object extends TestSuite
         }
 
         (Obj := Object()).DefineMethod("DoSomething", DoSomething)
-        Obj.DoSomething().AssertEquals(42)
+        Obj.DoSomething().Assert(Eq(42))
     }
 }
 

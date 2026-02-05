@@ -4,7 +4,7 @@ class Test_Gatherer extends TestSuite {
                 .Stream()
                 .Gather(TimesTwo)
                 .Join()
-                .AssertEquals("1122334455")
+                .Assert(Eq("1122334455"))
     }
 
     static WindowFixed() {
@@ -19,13 +19,13 @@ class Test_Gatherer extends TestSuite {
                 .Gather(WindowSliding(6))
                 .Map(Array.Prototype.Join)
                 .Join(", ")
-                .AssertEquals("123456, 234567, 345678")
+                .Assert(Eq("123456, 234567, 345678"))
     }
 
     static Scan() {
         Range(4).Gather(Scan("", (a, b) => (a . b)))
                 .Join(", ")
-                .AssertEquals("1, 12, 123, 1234")
+                .Assert(Eq("1, 12, 123, 1234"))
     }
 }
 

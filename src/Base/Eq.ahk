@@ -378,9 +378,9 @@ class ByReference extends AquaHotkey_MultiApply {
 
 ;@endregion
 ;-------------------------------------------------------------------------------
-;@region IMap
+;@region Map
 
-class IMap {
+class Map {
     /**
      * Determines whether this `Map` is equal to the `Other` value.
      * 

@@ -206,7 +206,7 @@ InstanceOf(T) => Predicate.Cast((Val?) => T.IsInstance(Val?))
  * @param   {Class}  Cls  a class object
  * @returns {Predicate}
  */
-DerivedFrom(Cls) => Predicate.Cast((Val?) => IsSet(Val) && (Val is Cls))
+DerivesFrom(Cls) => Predicate.Cast((Val?) => IsSet(Val) && (Val is Cls))
 
 ;@endregion
 ;-------------------------------------------------------------------------------

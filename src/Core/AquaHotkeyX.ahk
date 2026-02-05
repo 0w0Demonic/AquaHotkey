@@ -78,6 +78,8 @@
 #Include "%A_LineFile%/../../Collections/HashSet.ahk"
 #Include "%A_LineFile%/../../Collections/ImmutableSet.ahk"
 
+#Include "%A_LineFile%/../../Collections/Zip.ahk"
+
 
 ;@endregion
 ;-------------------------------------------------------------------------------
@@ -108,3 +110,7 @@
 #Include "%A_LineFile%/../../Interfaces/IArray.ahk"
 
 ;@endregion
+;-------------------------------------------------------------------------------
+;@region Misc
+
+#Include "%A_LineFile%/../../Func/Kwargs.ahk"
