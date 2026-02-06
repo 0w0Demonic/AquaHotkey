@@ -1,12 +1,12 @@
-#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\..\..\Interfaces\IDelegatingMap.ahk"
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IDelegatingMap.ahk"
 
 ;@region GenericMap
 /**
  * Introduces generic maps, in which key-value pairs are enforced to
  * be instanced of the given types.
  * 
- * @module  <Collections/Generic/Map>
+ * @module  <Collections/GenericMap>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example

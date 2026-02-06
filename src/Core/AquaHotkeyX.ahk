@@ -36,7 +36,8 @@
 #Include "%A_LineFile%/../../Primitives/Primitive.ahk"
 
 #Include "%A_LineFile%/../../String/String.ahk"
-#Include "%A_LineFile%/../../String/StringMatching.ahk"
+#Include "%A_LineFile%/../../String/Matching.ahk"
+#Include "%A_LineFile%/../../String/Formatting.ahk"
 #Include "%A_LineFile%/../../String/Substrings.ahk"
 
 #Include "%A_LineFile%/../../Base/Eq.ahk"
@@ -62,8 +63,8 @@
 ;-------------------------------------------------------------------------------
 ;@region Collections
 
-#Include "%A_LineFile%/../../Collections/Generic/Array.ahk"
-#Include "%A_LineFile%/../../Collections/Generic/Map.ahk"
+#Include "%A_LineFile%/../../Collections/GenericArray.ahk"
+#Include "%A_LineFile%/../../Collections/GenericMap.ahk"
 
 
 #Include "%A_LineFile%/../../Collections/Array.ahk"

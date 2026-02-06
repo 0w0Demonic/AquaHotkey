@@ -1,4 +1,3 @@
-#Include <AquaHotkey\src\Collections\Generic\Array>
 
 class Test_GenericArray extends TestSuite {
     static Class__Item_should_create_generic_array() {

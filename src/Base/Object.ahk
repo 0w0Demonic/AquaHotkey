@@ -47,6 +47,41 @@ class AquaHotkey_Object extends AquaHotkey {
         ;@region DefineProp
 
         /**
+         * "Transforms" a property by applying the given mapper function to
+         * the property descriptor. This method returns the previously defined
+         * property descriptor.
+         * 
+         * ```ahk
+         * Mapper(PropDesc: Object, Args: Any*) => Object
+         * ```
+         * 
+         * @param   {String}  PropName  name of the property
+         * @param   {Func}    Mapper    the mapper function
+         * @returns {Object}
+         * @example
+         * WithLogging(PropDesc, Message) {
+         *     return { Call: WithLogging }
+         * 
+         *     WithLogging(Args*) {
+         *         OutputDebug(Message)
+         *         return (PropDesc.Call)(Args*)
+         *     }
+         * }
+         * 
+         * Target := Array.Prototype
+         * PropName := "Pop"
+         * Previous := Target.TransformProp(PropName, WithLogging, "Pop!!!")
+         * 
+         * Array(1).Pop() ; (calls our new property)
+         */
+        TransformProp(PropName, Mapper, Args*) {
+            GetMethod(Mapper)
+            PropDesc := this.GetOwnPropDesc(PropName)
+            this.DefineProp(PropName, Mapper(PropDesc))
+            return PropDesc
+        }
+
+        /**
          * Defines one or more properties.
          * 
          * `Props` is required to be a plain object.
@@ -196,5 +231,30 @@ class AquaHotkey_Object extends AquaHotkey {
             }
             return ({}.GetOwnPropDesc)(Obj, PropName)
         }
+    }
+}
+
+/**
+ * Creates a property descriptor that resembles a field whose value is
+ * type-checked ({@link AquaHotkey_DuckTypes `.Is()`}).
+ * 
+ * @param   {Any}  T  type pattern
+ * @returns {Object}
+ * @example
+ * Obj := Object()
+ * Obj.DefineProp("Value", CheckedField(Integer))
+ * 
+ * Obj.Value := 42 ; Ok.
+ * Obj.Value := Buffer(16, 0) ; Error!
+ */
+CheckedField(T, InitialValue?) {
+    Value := (InitialValue?)
+    return { Get: (this) => Value, Set: Setter }
+
+    Setter(this, NewValue?) {
+        if (!T.IsInstance(NewValue?)) {
+            throw TypeError("type mismatch", -2)
+        }
+        Value := (NewValue?)
     }
 }

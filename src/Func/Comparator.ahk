@@ -161,10 +161,7 @@ class Comparator extends Func {
      * @example
      * ByStrLen_Desc := Comparator.Num(StrLen).Rev()
      */
-    Rev() {
-        return this.Cast(Comp)
-        Comp(A?, B?) => this(B?, A?)
-    }
+    Rev() => this.Cast((A?, B?) => this(B?, A?))
 
     /**
      * Returns a comparator that considers `unset` to be lesser than any other

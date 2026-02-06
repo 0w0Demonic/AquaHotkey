@@ -1,6 +1,5 @@
 
 #Include <AquaHotkeyX>
-#Include <AquaHotkey\src\Collections\Generic\Map>
 #Include <AquaHotkey\tests\TestSuite>
 
 class Test_GenericMap extends TestSuite {

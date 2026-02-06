@@ -4,6 +4,8 @@
 ; TODO refactor things to use `Any.Equals` OR custom predicates
 ; TODO check whether `IArray` or `IMap` is allowed here
 
+; TODO change Any.Equals() to *not* allow unset, and offset to Nullable(Any) ?
+
 /**
  * Adds a universal `.Eq()` method for checking whether two values are
  * equivalent.

@@ -14,11 +14,9 @@
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Collections/
-;    @region Generic/
-         #Include "%A_LineFile%/../Collections/Generic/Array.ahk"
-         #Include "%A_LineFile%/../Collections/Generic/Map.ahk"
-;    @endregion
      #Include "%A_LineFile%/../Collections/Array.ahk"
+     #Include "%A_LineFile%/../Collections/GenericArray.ahk"
+     #Include "%A_LineFile%/../Collections/GenericMap.ahk"
      #Include "%A_LineFile%/../Collections/HashMap.ahk"
      #Include "%A_LineFile%/../Collections/HashSet.ahk"
      #Include "%A_LineFile%/../Collections/ImmutableMap.ahk"

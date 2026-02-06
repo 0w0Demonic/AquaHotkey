@@ -1,5 +1,5 @@
-#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\..\..\Interfaces\IArray.ahk"
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 
 ;@region GenericArray
 
@@ -27,7 +27,7 @@
  * Arr_MaybeString := String[Nullable] ; array of `Nullable(String)`
  * ```
  * 
- * @module  <Collections/Generic/Array>
+ * @module  <Collections/GenericArray>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example <caption>Array of Strings</caption>

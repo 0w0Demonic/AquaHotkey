@@ -2,10 +2,16 @@
 
 Finally, a few quick tricks and hacks to keep in mind.
 
-- [Overriding Functions](#overriding-functions)
-- [Ignored Classes](#ignoring-nested-classes-with-aquahotkey_ignore)
-- [Class Hierarchy](#class-hierarchy)
-- [Conditional Imports](#conditional-imports)
+- [Expert - Class Prototyping](#expert---class-prototyping)
+  - [Overriding Functions](#overriding-functions)
+  - [Ignoring Nested Classes with `AquaHotkey_Ignore`](#ignoring-nested-classes-with-aquahotkey_ignore)
+  - [Class Hierarchy](#class-hierarchy)
+  - [Conditional Imports](#conditional-imports)
+    - [1. Abort if a Dependancy is Missing](#1-abort-if-a-dependancy-is-missing)
+    - [2. Fallback to Reduced Functionality](#2-fallback-to-reduced-functionality)
+    - [3. Conditional Extensions](#3-conditional-extensions)
+  - [Debug Messages](#debug-messages)
+  - [Quick Summary](#quick-summary)
 
 ## Overriding Functions
 
@@ -142,6 +148,21 @@ class Optional_Extension {
 }
 ```
 
+## Debug Messages
+
+If anything decides to break badly, you can always look at the debugger
+messages. They contain information about all of the extension classes and
+their targets.
+
+For very detailed information, you can activate verbose logging by
+defining `class AquaHotkey_Verbose` in your script.
+
+```ahk
+; just an empty class. You can expect this to work just like #ifdef in C
+class AquaHotkey_Verbose {
+}
+```
+
 ## Quick Summary
 
 - You can declare mixins in multiple ways, but essentially it's just moving
@@ -151,3 +172,4 @@ class Optional_Extension {
 - `AquaHotkey_Ignore` marks classes to be ignored by the prototyping system.
 - With the help of `static __New()` and `IsSet()`, you gain a lot more control
   over how things are imported.
+- If anything breaks, the debug messages might be extremely useful.
