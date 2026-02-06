@@ -1,5 +1,10 @@
+#Requires AutoHotkey v2
+
 ; TODO rename "Mixins" to "Interfaces"?
 ;      (... or just remove completely?)
+
+; TODO add something where it checks if the property is already present, and
+;      in that case the property is not overridden?
 
 /**
  * @file AquaHotkey.ahk

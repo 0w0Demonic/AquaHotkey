@@ -1,4 +1,4 @@
-#Requires AutoHotkey >=v2.0.5
+#Requires AutoHotkey v2
 
 /**
  * @version 3.0.0-alpha

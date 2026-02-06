@@ -8,6 +8,14 @@ To get started, clone this repository and put it in one of the AutoHotkey
 #Include <AquaHotkey>
 ```
 
+To make use of the features in [AquaHotkeyX](./api-overview.md) (there are
+many), `#Include <AquaHotkeyX>` in your script instead.
+
+```ahk
+#Requires AutoHotkey v2
+#Include <AquaHotkeyX>
+```
+
 ## Advanced Setup
 
 This is optional, but will probably save you lots of work in the long run.
@@ -15,7 +23,7 @@ With this setup, both AquaHotkey and anything else that depends on it can
 be imported with `<library>` syntax.
 
 ```ahk
-; convenient library syntax
+; convenient library syntax everywhere
 #Include <AquaHotkey>
 #Include <StringUtils>
 #Include <ArrayUtils>

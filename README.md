@@ -17,10 +17,6 @@ and preferences.
 "Hello, World!".SubStr(1, 7).Append("AquaHotkey!").MsgBox()
 ```
 
-## Quick Start
-
-Just as a little showcase at the start, here's how this library works.
-
 Setting up this one-liner to work is really easy! Just do the following:
 
 ```ahk
@@ -44,10 +40,16 @@ class StringUtil extends AquaHotkey {
 }
 ```
 
+What you see is an *extension class* that contains custom methods `.SubStr()`,
+`.Append()` and `.MsgBox()` for the type `String`. As soon as the script loads,
+the extension class "pastes" its contents into the specified target, in this
+case `String`.
+
 ## Documentation
 
 Getting started:
 
+- [Installing](/docs/installation.md)
 - [Beginner's Guide](/docs/basics.md)
 - [Advanced Concepts](/docs/advanced.md)
 
@@ -135,18 +137,6 @@ Str := "Hello, world!".Rep("l,", "p").Rep("d", "m").Rep("!", "?")
 
 You can start very small, one quick fix other another. And sooner than you
 think, it'll grow into your own language on top of AutoHotkey.
-
-## Installation
-
-To get started, clone this repository and put it in one of the AutoHotkey
-[lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib).
-
-```ahk
-#Requires AutoHotkey v2
-#Include <AquaHotkey>
-```
-
-For more sophisticated setups, see [installation.md](/docs/installation.md).
 
 ### A Short Insight Into Class Prototyping
 
