@@ -1,6 +1,9 @@
 #Requires >=v2.1-alpha.3
 #Include "%A_LineFile%/../../AquaHotkey.ahk"
 
+; TODO probably include something in this direction with the help of
+;      `.TransformProp()`
+
 ;@region Tracer
 /**
  * The tracer is a lightweight utility for keeping track of function
