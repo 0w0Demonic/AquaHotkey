@@ -1,55 +1,22 @@
 # Expert - Class Prototyping
 
-## Mixins
+Finally, a few quick tricks and hacks to keep in mind.
 
-Mixins are classes that contain methods for use by other classes without having
-to be the parent class of those other classes.
-
-There's multiple different ways to simulate this:
-
-1. By using `AquaHotkey_MultiApply` to actively "push" stuff onto the classes
-   you want to extend.
-
-   ```ahk
-   class Mixin extends AquaHotkey_MultiApply {
-       static __New() => super.__New(Target)
-   }
-
-   class Target {
-   }
-   ```
-
-2. By using `AquaHotkey_Backup` to actively "pull" extensions from other
-   classes.
-
-   ```ahk
-   class Mixin {
-   }
-   
-   class Target extends AquaHotkey_Backup {
-       static __New() => super.__New(Mixin)
-   }
-   ```
-
-3. Using `AquaHotkey.ApplyMixin(TargetClass, Mixin, Mixins*)`
-
-   ```ahk
-   class Mixin {
-   }
-   
-   class Target {
-       static __New() => AquaHotkey.ApplyMixin(Target, Mixin)
-   }
-
-   ; alternatively, put this somewhere outside the class.
-   ; 
-   ;     AquaHotkey.ApplyMixin(Target, Mixin)
-   ```
+- [Expert - Class Prototyping](#expert---class-prototyping)
+  - [Overriding Functions](#overriding-functions)
+  - [Ignoring Nested Classes with `AquaHotkey_Ignore`](#ignoring-nested-classes-with-aquahotkey_ignore)
+  - [Class Hierarchy](#class-hierarchy)
+  - [Conditional Imports](#conditional-imports)
+    - [1. Abort if a Dependancy is Missing](#1-abort-if-a-dependancy-is-missing)
+    - [2. Fallback to Reduced Functionality](#2-fallback-to-reduced-functionality)
+    - [3. Conditional Extensions](#3-conditional-extensions)
+  - [Debug Messages](#debug-messages)
+  - [Quick Summary](#quick-summary)
 
 ## Overriding Functions
 
-You don’t need to mess with `AquaHotkey_Backup` to tweak the behavior of
-global functions like `FileOpen()`. There's a nice trick for that:
+For functions, this is a lot easier than
+[for regular properties](./advanced.md#overriding-existing-properties).
 
 ```ahk
 class FileOpen_DefaultRead extends AquaHotkey {
@@ -61,16 +28,16 @@ class FileOpen_DefaultRead extends AquaHotkey {
 }
 ```
 
-Why does this work? Essentially: a call like `MsgBox("Hello, world!")` is just
-syntactic sugar for `(Func.Prototype.Call)(MsgBox, "Hello, world!")`. Even if
-you override `FileOpen.Call`, the actual function was never lost. You can
-always call the previous implementation using `Func.Prototype.Call` directly.
-We've merely intercepted the call on the way there.
+Why does this work?
+
+Even if you override `FileOpen.Call`, the actual function was never lost. You
+can always call the previous implementation using `Func.Prototype.Call`
+directly. We've merely intercepted the call on the way there.
 
 ## Ignoring Nested Classes with `AquaHotkey_Ignore`
 
-Use the special `AquaHotkey_Ignore` marker class to exclude helper or
-internal-use classes from AquaHotkey's class prototyping system.
+Extend your class with `AquaHotkey_Ignore` to mark helper or internal-use
+classes that should be ignored by AquaHotkey.
 
 ```ahk
 class LargeProject extends AquaHotkey {
@@ -99,14 +66,10 @@ Any
 
 Sometimes your script depends on other modules, but you don't want it to break
 completely if those modules aren't available. Instead, you can check whether
-dependancies are present in the script and decide how to proceed:
+dependancies are present in the script and decide how to proceed.
 
-- Abort with a clear error message
-- Gracefully fallback to a smaller feature set
-- Extend conditionally, when modules should work standalone or with AquaHotkey
-
-To achieve this, you can perform `IfSet()` checks inside `static __New()`
-methods.
+Because extension classes are just global classes, you can check whether they're
+present in the script by using `IsSet()`.
 
 ### 1. Abort if a Dependancy is Missing
 
@@ -116,26 +79,14 @@ error:
 ```ahk
 class StreamExtensions extends AquaHotkey {
     static __New() {
-        if (IsSet(AquaHotkey_Stream) && (AquaHotkey_Stream is Class)) {
-            return super.__New() ; success
+        if (!IsSet(AquaHotkey_Stream)) {
+            throw UnsetError()
         }
-
-        ; otherwise, show message box with clear instructions
-        MsgBox("
-        (
-        StreamExtensions.Stream unavailable - Stream.ahk is missing.
-
-        #Include .../Stream.ahk
-        )", "StreamExtensions.ahk", 0x40)
     }
 
-    class Stream {
-        ...
-    }
+    (...)
 }
 ```
-
-This ensure the script won't run without its dependancies.
 
 ### 2. Fallback to Reduced Functionality
 
@@ -146,28 +97,35 @@ For example: `Collector.ahk` removes things reliant on `Stream.ahk`, if it's not
 present in the script.
 
 ```ahk
-class AquaHotkey_Collector extends AquaHotkey {
+class Utils extends AquaHotkey {
     static __New() {
-        if (IsSet(AquaHotkey_Stream) && (AquaHotkey_Stream is Class)) {
-            return super.__New()
-        }
-        OutputDebug("[Aqua] Collector.ahk: support for stream disabled.")
-        this.DeleteProp("Stream")
-        Collector.DeleteProp("ToMap")
+        ; remove `Utils.Stream`, when unable to find `AquaHotkey_Stream`
+        this.Requires(AquaHotkey_Stream?, "Stream")
+        super.__New()
     }
+
+    class Stream {
+        (...)
+    }
+
+    (...) ; some other classes
 }
+```
+
+The same works for AHK version requirements:
+
+```ahk
+this.RequiresVersion(">=2.1-alpha.3")
 ```
 
 ### 3. Conditional Extensions
 
-Modules like `Optional.ahk` and `Stream.ahk` can be used both as standalones
-or together with their AquaHotkey extension classes.
-
-To achieve this, check for `AquaHotkey` at load time, before applying
-extensions.
+For things that should be able to work as standalone, you can make extension
+classes loosely coupled and only do something if `AquaHotkey` is actually
+imported into the script.
 
 ```ahk
-class Optional_Extension {
+class Optional_Extensions {
     static __New() {
         if (ObjGetBase(this) != Object) {
             return
@@ -190,8 +148,20 @@ class Optional_Extension {
 }
 ```
 
-This way, the extension class is only applied when AquaHotkey is included in
-the script.
+## Debug Messages
+
+If anything decides to break badly, you can always look at the debugger
+messages. They contain information about all of the extension classes and
+their targets.
+
+For very detailed information, you can activate verbose logging by
+defining `class AquaHotkey_Verbose` in your script.
+
+```ahk
+; just an empty class. You can expect this to work just like #ifdef in C
+class AquaHotkey_Verbose {
+}
+```
 
 ## Quick Summary
 
@@ -202,3 +172,4 @@ the script.
 - `AquaHotkey_Ignore` marks classes to be ignored by the prototyping system.
 - With the help of `static __New()` and `IsSet()`, you gain a lot more control
   over how things are imported.
+- If anything breaks, the debug messages might be extremely useful.

@@ -1,55 +1,113 @@
-#Requires AutoHotkey >=v2.0.5
+#Requires AutoHotkey v2
 
 /**
- * AquaHotkey - AquaHotkeyX.ahk
- * 
- * Author: 0w0Demonic
- * 
- * https://www.github.com/0w0Demonic/AquaHotkey
- * - src/Core/AquaHotkeyX.ahk
+ * @version 3.0.0-alpha
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
+
+;-------------------------------------------------------------------------------
 ;@region Core
+
 #Include "%A_LineFile%/../AquaHotkey.ahk"
-;@endregion
 
-;@region Builtins
-#Include "%A_LineFile%/../../Builtins/Any.ahk"
-#Include "%A_LineFile%/../../Builtins/Array.ahk"
-#Include "%A_LineFile%/../../Builtins/Buffer.ahk"
-#Include "%A_LineFile%/../../Builtins/Class.ahk"
-#Include "%A_LineFile%/../../Builtins/ComValue.ahk"
-#Include "%A_LineFile%/../../Builtins/Error.ahk"
-#Include "%A_LineFile%/../../Builtins/Func.ahk"
-#Include "%A_LineFile%/../../Builtins/Integer.ahk"
-#Include "%A_LineFile%/../../Builtins/Map.ahk"
-#Include "%A_LineFile%/../../Builtins/Number.ahk"
-#Include "%A_LineFile%/../../Builtins/Object.ahk"
-#Include "%A_LineFile%/../../Builtins/Primitive.ahk"
-#Include "%A_LineFile%/../../Builtins/String.ahk"
-#Include "%A_LineFile%/../../Builtins/VarRef.ahk"
 ;@endregion
+;-------------------------------------------------------------------------------
+;@region Base + Primitives
 
-;@region Builtins (advanced)
-#Include "%A_LineFile%/../../Builtins/Pipes.ahk"
-#Include "%A_LineFile%/../../Builtins/Assertions.ahk"
-#Include "%A_LineFile%/../../Builtins/ToString.ahk"
+#Include "%A_LineFile%/../../Base/Buffer.ahk"
+#Include "%A_LineFile%/../../Base/ComValue.ahk"
+#Include "%A_LineFile%/../../Base/Error.ahk"
+#Include "%A_LineFile%/../../Base/Object.ahk"
+#Include "%A_LineFile%/../../Base/VarRef.ahk"
+#Include "%A_LineFile%/../../Base/Primitives.ahk"
 
-#Include "%A_LineFile%/../../Builtins/StringMatching.ahk"
-#Include "%A_LineFile%/../../Builtins/Substrings.ahk"
-#Include "%A_LineFile%/../../Builtins/FileUtils.ahk"
-#Include "%A_LineFile%/../../Builtins/StreamOps.ahk"
+#Include "%A_LineFile%/../../Base/Assertions.ahk"
+#Include "%A_LineFile%/../../Base/ToString.ahk"
+#Include "%A_LineFile%/../../Base/TypeInfo.ahk"
+#Include "%A_LineFile%/../../Base/DuckTypes.ahk"
+
+#Include "%A_LineFile%/../../Base/DuckTypes/Callable.ahk"
+#Include "%A_LineFile%/../../Base/DuckTypes/Nullable.ahk"
+#Include "%A_LineFile%/../../Base/DuckTypes/Numeric.ahk"
+#Include "%A_LineFile%/../../Base/DuckTypes/Record.ahk"
+
+#Include "%A_LineFile%/../../String/String.ahk"
+#Include "%A_LineFile%/../../String/Matching.ahk"
+#Include "%A_LineFile%/../../String/Formatting.ahk"
+#Include "%A_LineFile%/../../String/Substrings.ahk"
+
+#Include "%A_LineFile%/../../Base/Eq.ahk"
+#Include "%A_LineFile%/../../Base/Ord.ahk"
+#Include "%A_LineFile%/../../Base/Hash.ahk"
+
+#Include "%A_LineFile%/../../IO/FileUtils.ahk"
+
 ;@endregion
+;-------------------------------------------------------------------------------
+;@region Func
 
-;@region Extensions
-#Include "%A_LineFile%/../../Extensions/Optional.ahk"
-#Include "%A_LineFile%/../../Extensions/TryOp.ahk"
-#Include "%A_LineFile%/../../Extensions/Range.ahk"
-#Include "%A_LineFile%/../../Extensions/Stream.ahk"
-#Include "%A_LineFile%/../../Extensions/Collector.ahk"
-#Include "%A_LineFile%/../../Extensions/Gatherer.ahk"
-#Include "%A_LineFile%/../../Extensions/Condition.ahk"
-#Include "%A_LineFile%/../../Extensions/Mapper.ahk"
-#Include "%A_LineFile%/../../Extensions/Combiner.ahk"
-#Include "%A_LineFile%/../../Extensions/Comparator.ahk"
-#Include "%A_LineFile%/../../Extensions/Zip.ahk"
+#Include "%A_LineFile%/../../Func/Cast.ahk"
+#Include "%A_LineFile%/../../Func/Func.ahk"
+#Include "%A_LineFile%/../../Func/Pipes.ahk"
+#Include "%A_LineFile%/../../Func/Supplier.ahk"
+#Include "%A_LineFile%/../../Func/Monoid.ahk"
+#Include "%A_LineFile%/../../Func/Predicate.ahk"
+
+#Include "%A_LineFile%/../../Func/Continuation.ahk"
+
 ;@endregion
+;-------------------------------------------------------------------------------
+;@region Collections
+
+#Include "%A_LineFile%/../../Collections/GenericArray.ahk"
+#Include "%A_LineFile%/../../Collections/GenericMap.ahk"
+
+
+#Include "%A_LineFile%/../../Collections/Array.ahk"
+#Include "%A_LineFile%/../../Collections/ImmutableArray.ahk"
+#Include "%A_LineFile%/../../Collections/LinkedList.ahk"
+
+#Include "%A_LineFile%/../../Collections/Map.ahk"
+#Include "%A_LineFile%/../../Collections/HashMap.ahk"
+#Include "%A_LineFile%/../../Collections/ImmutableMap.ahk"
+
+#Include "%A_LineFile%/../../Collections/Set.ahk"
+#Include "%A_LineFile%/../../Collections/HashSet.ahk"
+#Include "%A_LineFile%/../../Collections/ImmutableSet.ahk"
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Functional
+
+#Include "%A_LineFile%/../../Monads/Optional.ahk"
+#Include "%A_LineFile%/../../Monads/TryOp.ahk"
+
+#Include "%A_LineFile%/../../Stream/Range.ahk"
+#Include "%A_LineFile%/../../Stream/Gatherer.ahk"
+
+#Include "%A_LineFile%/../../Stream/Stream.ahk"
+#Include "%A_LineFile%/../../Stream/BaseStream.ahk"
+#Include "%A_LineFile%/../../Stream/DoubleStream.ahk"
+
+#Include "%A_LineFile%/../../Stream/Zip.ahk"
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Mixins
+
+#Include "%A_LineFile%/../../Interfaces/Indexable.ahk"
+#Include "%A_LineFile%/../../Interfaces/Sizeable.ahk"
+#Include "%A_LineFile%/../../Interfaces/Enumerable1.ahk"
+#Include "%A_LineFile%/../../Interfaces/Enumerable2.ahk"
+
+#Include "%A_LineFile%/../../Interfaces/ISet.ahk"
+#Include "%A_LineFile%/../../Interfaces/IMap.ahk"
+#Include "%A_LineFile%/../../Interfaces/IBuffer.ahk"
+#Include "%A_LineFile%/../../Interfaces/IArray.ahk"
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Misc
+
+#Include "%A_LineFile%/../../Func/Kwargs.ahk"

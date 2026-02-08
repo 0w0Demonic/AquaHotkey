@@ -2,41 +2,40 @@
 
 This guide covers:
 
-- How to include the library in your script.
-- How to write simple extension classes.
+- [Downloading and installing the library](#including-the-library).
+- [Writing a simple extension class](#getting-started).
 
 If you're interested in the reasoning and history behind AquaHotkey, check out
-[About AquaHotkey](../rambling/00_about.md). It covers some of the design choices and
-why the library evolved into its current form.
+[About AquaHotkey](../rambling/00_about.md). It covers some of the design
+choices and how the library evolved into its current form.
 
 ## Including the Library
 
-First, go ahead and clone the library:
+First, go ahead and clone the repo:
 
 ```sh
 git clone https://www.github.com/0w0Demonic/AquaHotkey.git
 ```
 
-I recommend putting it inside one of the [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib),
+I recommend putting it into one of the [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib),
 it'll make your work much easier.
 
 You can now `#Include` it like this:
 
 ```ahk
-#Include <AquaHotkey>
+#Requires AutoHotkey v2
+ #Include <AquaHotkey>
+;#Include <AquaHotkeyX>
 ```
 
-### AquaHotkeyX
-
-To include all of the additional extras, use `AquaHotkeyX.ahk` in your file
-instead:
-
-```ahk
-#Requires AutoHotkey >=v2.0.5
-#Include <AquaHotkeyX>
-```
+Alternatively, `#Include <AquaHotkeyX>` to include the additional features
+in AquaHotkeyX.
 
 ## Getting Started
+
+For a brief introduction to class-prototyping and design philosophy, you can
+check out the "[Why this Matters](../README.md#why-this-matters)" section in
+the README page.
 
 *Extension classes* are classes that derive from `AquaHotkey` and introduce
 new properties to the targeted classes.
@@ -66,26 +65,19 @@ Array(1, 2, 3, 4).Sum() ; 10
 Array().IsEmpty         ; true
 ```
 
-## How This Works
-
-Okay. What just happened?
-
-- The `ArrayUtils` class initializes.
-- All nested class are enumerated - in this case, `ArrayUtils.Array`.
-- Everything defined in `ArrayUtils.Array` lands inside `Array`.
-
-Yup, that's it.
-
----
-
-Always remember to follow this schema, and AquaHotkey will do the rest for you:
+In general, you should write *one feature per class*. For example, if a change
+affects several built-in types then the extension class should define multiple
+nested classes.
 
 ```ahk
-class CoolStuff extends AquaHotkey
-{
+class ToString extends AquaHotkey {
     class Array {
-        ... ; pretend that this here is the actual `Array` class.
+        ToString() { ... }
     }
+    class Object {
+        ToString() { ... }
+    }
+    ...
 }
 ```
 
@@ -187,3 +179,29 @@ Now that we've covered the very basics, I encourage you to try it out yourself:
   ```
 
   Also, it makes sense to put them in lib folders. Much easier to `#Include`.
+
+---
+
+## Quick Summary
+
+- At its core, AquaHotkey involves moving properties between different classes.
+  Classes are treated as property containers, and their contents (properties)
+  can be copied and moved freely between each other.
+- Extension classes define properties that should be applied
+  onto one or more targets, usually built-in classes
+  ([or functions](./advanced.md#extending-functions)).
+- Schema of an extension class:
+
+  ```ahk
+  class (name) extends AquaHotkey {
+      class (target) {
+          (custom properties)
+      }
+  }
+  ```
+
+- You should usually write only *one feature per class*. Several related changes
+  should be collected into a single extension class.
+- Extension classes are highly reuseable. It's a good idea to put them into
+  separate files for use across different scripts.
+- In that case, it makes lots of sense to give them clear and verbose names.

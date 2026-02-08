@@ -46,7 +46,7 @@ class ArrayUtils extends AquaHotkey {
          * @returns {this}
          */
         Shuffle() {
-            Loop this.Length {
+            loop this.Length {
                 i := A_Index
                 j := Random(1, this.Length)
 

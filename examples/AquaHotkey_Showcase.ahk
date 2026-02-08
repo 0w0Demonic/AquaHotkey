@@ -13,9 +13,6 @@
  * - Easy inline assertions with `.Assert*()`
  */
 
-; piping with `.__Call()`
-"hello, world!".StrUpper().MsgBox()
-
 ; piping with `.o0()`
 "goodbye".o0(StrUpper).o0(MsgBox)
 
