@@ -243,6 +243,5 @@ class AquaHotkey_String extends AquaHotkey {
                 return StrPut(this, Encoding)
             }
         }
-
     }
 }

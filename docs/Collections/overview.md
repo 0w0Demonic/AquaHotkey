@@ -18,6 +18,19 @@
 - [SkipListSet](./SkipListSet.md)
 - [Set](./Set.md)
 
+## Summary
+
+An assortment of collection types for storing groups of values. Together with
+the [Interfaces](../Interfaces/overview.md) module, they form the basis for
+data structures in AquaHotkeyX.
+
+To indicate that a type should be treated as a Map - regardless of its base
+object - it must implement the [IMap](../Interfaces/IMap.md) interface. The
+same applies to arrays and sets with the [IArray](../Interfaces/IArray.md)
+and [ISet](../Interfaces/ISet.md) interfaces, respectively.
+
+This allows for flexible and extensible collection types that can be used interchangeably in many contexts.
+
 ## Class Diagram
 
 ```ahk
@@ -47,11 +60,6 @@ Object
 - [GenericArray](./GenericArray.md)
 - [GenericMap](./GenericMap.md)
 
-```ahk
-class GenericArray extends IArray
-class GenericMap extends IMap
-```
-
 Generic collection classes like `GenericArray` and `GenericMap` provide
 type-safe wrappers around native collections. They enforce element types and
 support nested generics, making it easy to work with collections of specific
@@ -77,7 +85,8 @@ ArrClass := Array.OfType({ name: String, age: Integer})
 - [HashSet](./HashSet.md)
 
 Hash table-based collections with extremely flexible key/value semantics.
-They rely on `<Base/Hash>` and `<Base/Eq>` to determine value presence.
+They rely on [<Base/Hash>](../Base/Hash.md) and [<Base/Eq>](../Base/Eq.md)
+to determine value presence.
 
 ```ahk
 Arr1 := [1, 2, 3]
@@ -89,8 +98,6 @@ MsgBox(S.Size) ; 1 (because `Arr1` and `Arr2` are equivalent)
 
 **See Also**:
 
-- [<Base/Hash>](../Base/Hash.md)
-- [<Base/Eq>](../Base/Eq.md)
 - [IMap](../Interfaces/IMap.md)
 - [ISet](../Interfaces/ISet.md)
 

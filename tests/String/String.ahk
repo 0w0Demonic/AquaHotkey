@@ -1,7 +1,3 @@
-#Include <AquaHotkey\src\String\StringFormatting>
-#Include <AquaHotkey\src\String\StringMatching>
-#Include <AquaHotkey\src\String\Substrings>
-
 class Test_String extends TestSuite {
     static IsEmpty1() {
         "".IsEmpty.Assert(Eq(true))

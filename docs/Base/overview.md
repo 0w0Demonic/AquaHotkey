@@ -10,12 +10,21 @@
 - [DuckTypes](./DuckTypes.md)
 - [Eq](./Eq.md)
 - [Error](./Error.md)
+- [FileUtils](./FileUtils.md)
 - [Hash](./Hash.md)
 - [Object](./Object.md)
 - [Ord](./Ord.md)
+- [Primitives](./Primitives.md)
 - [ToString](./ToString.md)
 - [TypeInfo](./TypeInfo.md)
 - [VarRef](./VarRef.md)
+
+## Summary
+
+This module contains a variety of core utilities and foundational features that
+are used throughout the library. It includes the basic building blocks for
+essential operations that form the basis for more complex features in other
+modules.
 
 ## Assertions
 
@@ -272,4 +281,58 @@ a `VarRef`.
 ```ahk
 Str := "Hello, world!"
 DllCall("...", "Ptr", &Str)
+```
+
+## Primitives
+
+- [<Base/Primitives>](./Primitives.md)
+
+Operations that are applicable to primitive types and numbers.
+
+```ahk
+; math constants
+
+MsgBox(Number.PI) ; 3.14...
+MsgBox(Number.E) ; 2.71...
+
+; math functions
+32.Log(2) ; logarithm base n, defaults to `10`
+-2.Signum() ; -1
+0.Signum()  ; 0
+34.Signum() ; 1
+
+(...) ; all of the other math functions are left the same
+
+; hex and binary representation
+38374.Hex()
+7326.Bin()
+
+; number conversion
+(123).ToFloat() ; 123.0
+
+; `.MsgBox()` and `.ToolTip()`
+Array(1, 2, 3).Join(", ").MsgBox() ; displays "1, 2, 3"
+
+"Hello, world!".ToolTip()
+```
+
+## File Utils
+
+A small set of file-related utilities, such as
+
+- opening the standard input/output/error streams using `FileOpen.StdIn`,
+  `FileOpen.StdOut` and `FileOpen.StdErr` respectively.
+- the ability to enumerate lines of a `File` object (which makes it possible to
+  be used in [Streams](../Stream/overview.md)).
+- a `Name` property to determine the name of the `File` object.
+- `loop files`, but as lazy-evaluated stream.
+
+```ahk
+Stdin := FileOpen.StdIn
+
+; prints all non-empty lines of a file
+FileOpen("myFile.txt", "r").Stream().RemoveIf(IsSpace).ForEach(MsgBox)
+
+; SplitPath(), but it returns an object
+A_Desktop.SplitPath() ; { Dir: "C:\Users\...\Desktop", Name: "Desktop", ... }
 ```

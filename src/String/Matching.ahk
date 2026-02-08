@@ -138,7 +138,7 @@ class AquaHotkey_StringMatching extends AquaHotkey {
          * 
          * @param   {String}    Pattern  regular expression
          * @param   {Integer?}  Pos      position to start searching from
-         * @returns {String}
+         * @returns {Array}
          * @example
          * "12345".CaptureAll("\d{2}+") ; ["12", "34"]
          */
@@ -167,7 +167,7 @@ class AquaHotkey_StringMatching extends AquaHotkey {
          * "foo bar".Contains("b") ; 5
          */
         Contains(Pattern, CaseSense := false, Pos := 1, Occurrence := 1) {
-            return InStr(this, Pattern, CaseSense, Pos, Occurrence)
+            return !!InStr(this, Pattern, CaseSense, Pos, Occurrence)
         }
 
         /**
@@ -182,7 +182,7 @@ class AquaHotkey_StringMatching extends AquaHotkey {
          * "b".ContainedIn("foo bar") ; 5
          */
         ContainedIn(Str, CaseSense := false, Pos := 1, Occurrence := 1) {
-            return InStr(Str, this, CaseSense, Pos, Occurrence)
+            return !!InStr(Str, this, CaseSense, Pos, Occurrence)
         }
 
         ;@endregion

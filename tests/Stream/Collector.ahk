@@ -1,3 +1,5 @@
+; TODO bring back Collector for real
+
 class Test_Collector extends TestSuite {
     static ToArray() {
         Arr := Array(1, 2, 3, 4, 5).ToArray()

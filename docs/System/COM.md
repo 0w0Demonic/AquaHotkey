@@ -58,7 +58,7 @@ class InternetExplorer extends COM {
         DoSomething: [6, "Int", "UInt"]
     }
     
-    class EventSink extends ComEventSink
+    class EventSink extends Com.EventSink
     {
         ; see AHK docs on `ComObjConnect()`:
         ; the last parameter `ieFinalParam` is omitted

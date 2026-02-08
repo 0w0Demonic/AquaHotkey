@@ -1,7 +1,7 @@
 # Installation
 
-To get started, clone this repository and put it in one of the AutoHotkey
-[lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib).
+To get started, clone this repository and (ideally) put it in one of the
+AutoHotkey [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib).
 
 ```ahk
 #Requires AutoHotkey v2

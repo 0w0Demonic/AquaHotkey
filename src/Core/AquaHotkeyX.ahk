@@ -20,6 +20,7 @@
 #Include "%A_LineFile%/../../Base/Error.ahk"
 #Include "%A_LineFile%/../../Base/Object.ahk"
 #Include "%A_LineFile%/../../Base/VarRef.ahk"
+#Include "%A_LineFile%/../../Base/Primitives.ahk"
 
 #Include "%A_LineFile%/../../Base/Assertions.ahk"
 #Include "%A_LineFile%/../../Base/ToString.ahk"
@@ -30,10 +31,6 @@
 #Include "%A_LineFile%/../../Base/DuckTypes/Nullable.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes/Numeric.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes/Record.ahk"
-
-#Include "%A_LineFile%/../../Primitives/Integer.ahk"
-#Include "%A_LineFile%/../../Primitives/Number.ahk"
-#Include "%A_LineFile%/../../Primitives/Primitive.ahk"
 
 #Include "%A_LineFile%/../../String/String.ahk"
 #Include "%A_LineFile%/../../String/Matching.ahk"
@@ -79,9 +76,6 @@
 #Include "%A_LineFile%/../../Collections/HashSet.ahk"
 #Include "%A_LineFile%/../../Collections/ImmutableSet.ahk"
 
-#Include "%A_LineFile%/../../Collections/Zip.ahk"
-
-
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Functional
@@ -95,6 +89,8 @@
 #Include "%A_LineFile%/../../Stream/Stream.ahk"
 #Include "%A_LineFile%/../../Stream/BaseStream.ahk"
 #Include "%A_LineFile%/../../Stream/DoubleStream.ahk"
+
+#Include "%A_LineFile%/../../Stream/Zip.ahk"
 
 ;@endregion
 ;-------------------------------------------------------------------------------

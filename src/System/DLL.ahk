@@ -50,7 +50,7 @@
  * class HDC { ... }
  * class RECT { ... }
  * 
- * class Gdi32 {
+ * class Gdi32 extends DLL {
  *     static FilePath => "gdi32.dll"
  * 
  *     static TypeSignature => { InvertRect: [HDC, RECT, "Int"] }

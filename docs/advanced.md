@@ -5,7 +5,7 @@ This file covers some slightly more advanced, but still common use cases.
 - [Extending Nested Classes](#extending-nested-classes)
 - [Extending Functions](#extending-functions)
 - [Field Declarations](#field-declarations)
-
+- [Some More Technical Insight](#some-more-technical-insight)
 - [Backup Classes](#backup-classes)
 - [Overriding Existing Properties](#how-to-override-existing-properties)
 - [Shared Extensions](#shared-extensions-with-aquahotkey_multiapply)
@@ -106,6 +106,52 @@ instead. (see `AquaHotkey_Backup` below.)
 
 Also, for obvious reasons this doesn't apply to primitive classes such as
 `Number`, since they're not objects you can assign properties to.
+
+## Some More Technical Insight
+
+In AquaHotkey, classes are used as "property containers" whose contents can be
+moved around freely. Understanding this concept is very helpful for the later
+sections, because there's a lot of "pushing and pulling" going on between
+classes and their properties.
+
+Let's say we have two classes, the built-in `Array` class and a custom
+`ArrayUtils` class which we use to define custom properties for `Array`:
+
+```ahk
+class ArrayUtils (custom)
+|- ...
+`- Prototype
+   |- ForEach(Action)
+   `- Contains(Value)
+
+    |
+    | paste into...
+    V
+
+class Array (built-in)
+|- ...
+`- Prototype
+   |- Get(Index, Default?)
+   |- Has(Index)
+   |- __Item[Key]
+   `- etc.
+```
+
+Here, `ArrayUtils` takes the role of an *extension class*. In order to use
+its properties, they need to be "pasted" into the built-in `Array` class.
+
+```ahk
+class Array (built-in)
+|- ...
+`- Prototype
+   |- ForEach(Action)
+   |- Contains(Value)
+   |
+   |- Get()
+   |- Has()
+   |- __Item[]
+   `- etc.
+```
 
 ## Backup Classes
 

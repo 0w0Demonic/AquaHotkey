@@ -2,60 +2,12 @@
 
 This guide covers:
 
-- [The fundamentals](#fundamental-concept).
 - [Downloading and installing the library](#including-the-library).
 - [Writing a simple extension class](#getting-started).
 
 If you're interested in the reasoning and history behind AquaHotkey, check out
 [About AquaHotkey](../rambling/00_about.md). It covers some of the design
 choices and how the library evolved into its current form.
-
-## Fundamental Concept
-
-AquaHotkey is a framework that allows you to add properties to existing types.
-It uses classes as "property containers" whose contents can be moved around
-freely.
-
-Let's say we have two classes, the built-in `Array` class and a custom
-`ArrayUtils` class which we use to define custom properties for `Array`:
-
-```ahk
-class ArrayUtils (custom)
-|- ...
-`- Prototype
-   |- ForEach(Action)
-   `- Contains(Value)
-
-    |
-    | paste into...
-    V
-
-class Array (built-in)
-|- ...
-`- Prototype
-   |- Get(Index, Default?)
-   |- Has(Index)
-   |- __Item[Key]
-   `- etc.
-```
-
-Here, `ArrayUtils` takes the role of an *extension class*. In order to use
-its properties, they need to be "pasted" into the built-in `Array` class.
-This is where AquaHotkey comes into play - its purpose is to dispatch and put
-everything in the right place.
-
-```ahk
-class Array (built-in)
-|- ...
-`- Prototype
-   |- ForEach(Action)
-   |- Contains(Value)
-   |
-   |- Get()
-   |- Has()
-   |- __Item[]
-   `- etc.
-```
 
 ## Including the Library
 
@@ -80,6 +32,10 @@ Alternatively, `#Include <AquaHotkeyX>` to include the additional features
 in AquaHotkeyX.
 
 ## Getting Started
+
+For a brief introduction to class-prototyping and design philosophy, you can
+check out the "[Why this Matters](../README.md#why-this-matters)" section in
+the README page.
 
 *Extension classes* are classes that derive from `AquaHotkey` and introduce
 new properties to the targeted classes.

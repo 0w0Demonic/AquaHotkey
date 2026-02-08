@@ -2,25 +2,6 @@
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
 /**
- * Creates a new file stream.
- * 
- * @param   {String}   Pattern  file pattern
- * @param   {String?}  Mode     loop-files mode
- * @returns {Continuation}
- */
-LoopFiles(Pattern, Mode := "F") {
-    return Continuation.Cast(LoopFiles)
-
-    LoopFiles(Downstream) {
-        loop files Pattern, Mode {
-            if (!Downstream(A_LoopFilePath)) {
-                return
-            }
-        }
-    }
-}
-
-/**
  * Creates a registry stream.
  * 
  * @param   {String}   KeyName  name of registry key

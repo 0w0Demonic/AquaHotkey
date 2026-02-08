@@ -70,6 +70,54 @@ functions. you must remember which function works on which type, invent naming
 rules, or write big checks like "if this is a string, else if this is an
 array ...". Works, but it becomes clunky very quickly.
 
+AquaHotkey is a framework for "class prototyping" in AutoHotkey v2 - the ability
+to add properties and methods to built-in types like `String` and `Array`.
+
+Let's say we want to add some simple array methods to reuse across your
+script. Normally, you'd start by calling `Array.Prototype.DefineProp(...)`, and
+defining everything as bunch of global functions. Like this:
+
+```ahk
+Array.Prototype.DefineProp("ForEach", { Call: Array_ForEach })
+Array.Prototype.DefineProp("Contains", { Call: Array_Contains })
+
+Array_ForEach(this, Action, Args*) {
+    GetMethod(Action)
+    for Value in this {
+        Action(Value?, Args*)
+    }
+    return this
+}
+
+Array_Contains(this, ExpectedValue) {
+    for Value in this {
+        if (Value == ExpectedValue) {
+            return true
+        }
+    }
+    return false
+}
+```
+
+This works, but doing it manually is difficult, tedious, and very error-prone.
+
+In AquaHotkey, all of this is done declaratively using "extension classes"
+that specify which properties should added to which targets.
+
+```ahk
+class ArrayUtils extends AquaHotkey {
+    class Array {
+        ForEach(Action) { ... }
+        Contains(Value) { ... }
+    }
+}
+```
+
+The greatest advantage of this is being exposed to regular class-based
+syntax. Instead of implementing everything as global functions, you can write
+them as methods of the target class, which is much more intuitive and feels a
+lot more natural.
+
 Instead of huge "do-everything" functions, you can write break up things into
 smaller parts. Write a new class, make a few changes, done. AquaHotkey will do
 the heavy lifting of ensuring your changes land where they need to be:
