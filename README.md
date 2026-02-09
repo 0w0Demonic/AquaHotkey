@@ -75,7 +75,7 @@ to add properties and methods to built-in types like `String` and `Array`.
 
 Let's say we want to add some simple array methods to reuse across your
 script. Normally, you'd start by calling `Array.Prototype.DefineProp(...)`, and
-defining everything as bunch of global functions. Like this:
+defining everything as a bunch of global functions. Like this:
 
 ```ahk
 Array.Prototype.DefineProp("ForEach", { Call: Array_ForEach })
@@ -114,13 +114,11 @@ class ArrayUtils extends AquaHotkey {
 ```
 
 The greatest advantage of this is being exposed to regular class-based
-syntax. Instead of implementing everything as global functions, you can write
-them as methods of the target class, which is much more intuitive and feels a
+syntax. Instead of implementing everything as global functions, you can write things as if you had direct access to the built-in class, which is much more intuitive and feels a
 lot more natural.
 
 Instead of huge "do-everything" functions, you can write break up things into
-smaller parts. Write a new class, make a few changes, done. AquaHotkey will do
-the heavy lifting of ensuring your changes land where they need to be:
+smaller parts. Like this:
 
 ```ahk
 class ToString extends AquaHotkey {
@@ -183,7 +181,7 @@ Str := "Hello, world!".Rep("l,", "p").Rep("d", "m").Rep("!", "?")
 "foo".Contains("o") ; true
 ```
 
-You can start very small, one quick fix other another. And sooner than you
+You can start very small, one quick fix after another. And sooner than you
 think, it'll grow into your own language on top of AutoHotkey.
 
 ### A Short Insight Into Class Prototyping
@@ -205,8 +203,8 @@ Example - the number 42:
 More interestingly, you can modify these prototypes to change the behaviour of
 any deriving object.
 
-The concept behind class prototyping is modifying the internal prototype
-objects to add or change existing properties and methods:
+The concept behind class prototyping revolves around making changes to the internal prototype
+objects to add properties and methods:
 
 ```ahk
 ; add a `.Length` property for strings
@@ -222,9 +220,8 @@ You can now use the `Length` property on strings:
 MsgBox("foo".Length) ; 3
 ```
 
-Thanks to AquaHotkey, this is no longer tedious manual work. You can entirely
-avoid dealing with property descriptors, because everything happens
-declaratively, and with simple "class syntax".
+Thanks to AquaHotkey, this is no longer tedious manual work.
+Eerything happens declaratively, and with simple "class syntax".
 
 ## AquaHotkeyX
 
@@ -240,10 +237,10 @@ of AquaHotkey.
 #Include <AquaHotkeyX>
 
 ; Map { 4: ["kiwi", "lime"], 5: ["apple"], 6: ["banana"] }
-Array("banana", "kiwi", "apple", "lime").Collect(Collector.Group(StrLen))
+Array("banana", "kiwi", "apple", "lime").Group(StrLen)
 
 ; <[1, 2, 3], [2, 3, 4], [3, 4, 5]>
-Range(5).Stream().Gather(Gatherer.WindowSliding(3))
+Range(5).Stream().Gather(WindowSliding(3))
 ```
 
 For a quick overview, see [API Overview](/docs/api-overview.md).
