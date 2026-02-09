@@ -21,6 +21,22 @@ class Callable extends Func {
      * ({ Call: (this) => this.Value }).Is(Callable) ; true
      */
     static IsInstance(Val?) {
-        return IsSet(Val) && IsObject(Val) && HasMethod(Val)
+        return IsSet(Val)
+            && IsObject(Val)
+            && HasMethod(Val)
+    }
+
+    /**
+     * Determines whether the given value is equal to this class,
+     * or its subclass.
+     * 
+     * @param   {Any}  Value  any value
+     * @returns {Boolean}
+     * @example
+     * ; --> true
+     * Callable.CanCastFrom(Func)
+     */
+    static CanCastFrom(T) {
+        return (super.CanCastFrom(T) || Func.CanCastFrom(T))
     }
 }

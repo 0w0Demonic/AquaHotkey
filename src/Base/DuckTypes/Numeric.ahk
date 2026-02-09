@@ -1,6 +1,4 @@
 /**
- * @duck
- * 
  * A number or numeric string (as determined by `IsNumber()`).
  * 
  * @module  <Base/DuckTypes/Numeric>
@@ -15,7 +13,7 @@
  * ; --> ["-23", 1, 23, "43"]
  * Arr(1, 23, "43", "-23").Sort(Numeric.Compare)
  */
-class Numeric extends Number {
+class Numeric {
     /**
      * Determines whether the value is numeric.
      * 
@@ -26,6 +24,20 @@ class Numeric extends Number {
      * Numeric.IsInstance("123") ; true
      */
     static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
+
+    /**
+     * Determines whether the given value is equal to this class,
+     * or its subclass.
+     * 
+     * @param   {Class}  T  any class
+     * @returns {Boolean}
+     * @example
+     * Numeric.CanCastFrom(Numeric) ; true
+     * Numeric.CanCastFrom(Integer) ; true (every integer is numeric)
+     */
+    static CanCastFrom(T) {
+        return super.CanCastFrom(T) || Number.CanCastFrom(T)
+    }
 
     /**
      * Compares two numeric values by order.

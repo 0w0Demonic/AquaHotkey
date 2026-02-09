@@ -90,21 +90,18 @@ Number.CanCastFrom(Integer) ; true (`HasBase(Integer, Number)`)
 Integer.CanCastFrom(Number) ; false
 ```
 
-Our previous `Numeric` type should be considered a *supertype* of `Number`.
-Every `Number` is also `Numeric`, but not every `Numeric` is a `Number`
-(this applies to numeric strings).
-
-To achieve this, we either change the base class to `Number`, or override
-`static CanCastFrom(T)`:
+In the following example, every instance of `EmptyString` is also a `String`.
+To ensure `EmptyString` is treated as a subtype of `String`, we either set the
+base of `EmptyString` to `String`, or implement an equivalent
+`static CanCastFrom()` method.
 
 ```ahk
-; << extends Number >>
-class Numeric extends Number {
-    static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
+class EmptyString extends String {
+    static IsInstance(Val?) => super.IsInstance(Val?) && IsSpace(Val)
 }
 ```
 
-Changing the base of a class to something like `Number` might be unintuitive,
+Changing the base of a class to something like `String` might be unintuitive,
 but remember we only use this class to do simple pattern matching and nothing
 else.
 
@@ -219,6 +216,8 @@ Integer[](1, 2, 3).Is(Number[])
 
 ### Nullable
 
+- [<Base/DuckTypes/Nullable>](./DuckTypes/Nullable.md)
+
 Generally speaking, a type is not considered nullable, and `unset` is not
 considered a member of any type. However, you can make a type nullable by
 using `Nullable(T)`:
@@ -243,6 +242,9 @@ NullableIntegers := Integer[Nullable]
 As of now, `Nullable` is the only type wrapper already defined in AquaHotkeyX.
 
 ### Callable and Numeric
+
+- [<Base/DuckTypes/Callable>](./DuckTypes/Callable.md)
+- [<Base/DuckTypes/Numeric>](./DuckTypes/Numeric.md)
 
 Callable refers to any callable object. In other words, an object with `Call`
 property.
@@ -284,6 +286,8 @@ ArrayOrString := Type.Union(Array, String)
 
 ### Record
 
+- [<Base/DuckTypes/Record>](./DuckTypes/Record.md)
+
 An object with keys of type `K`, and values of type `V`.
 
 ```ahk
@@ -303,12 +307,16 @@ MsgBox(Cats.Is( Record(CatName, CatInfo) )) ; true
 
 To create your own duck type, simply define a class with a static
 `.IsInstance()` method that checks whether a value fulfills the characteristics
-of your type. You *should* also implement `.CanCastFrom()` to define how your
+of your type. Make sure that the input parameter of `.IsInstance()` is
+*optional*.
+
+You *should* also implement `.CanCastFrom()` to define how your
 type relates to other types.
 
 ```ahk
 class Boolean extends Integer {
-    static IsInstance(Val?) => IsSet(Val) && ((Val == true) || (Val == false))
+    static IsInstance(Val?) => super.IsInstance(Val?)
+            && ( (Val == true) || (Val == false) )
 }
 ```
 
