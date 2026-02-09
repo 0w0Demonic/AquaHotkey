@@ -238,4 +238,43 @@ class IBuffer {
             Set: (Buf, Value) => NumPut(NumType, Value, Buf, Offset)
         })
     }
+
+    /**
+     * Returns a buffer view that encloses a subsection of the current buffer.
+     * When using buffer views, you should generally NOT resize the buffer
+     * to ensure the memory address remains the same, and that the view
+     * remains valid.
+     * 
+     * @param   {Integer}  Offset  offset in bytes
+     * @param   {Integer}  Size    length of the subsection
+     * @returns {IBuffer}
+     */
+    Slice(Offset, Size) {
+        if (!IsInteger(Offset)) {
+            throw TypeError("Expected an Integer",, Type(Offset))
+        }
+        if (!IsInteger(Size)) {
+            throw TypeError("Expected an Integer",, Type(Size))
+        }
+        if (Size <= 0) {
+            throw ValueError("Size must be greater than zero",, Size)
+        }
+        if (Offset + Size > this.Size) {
+            throw ValueError("Invalid offset for size " . this.Size,,
+                                "offset: " . Offset . ", length: " . Size)
+        }
+
+        Result := Object()
+        Result.DefineProp("Ptr", {
+            Get: (_) => (this.Ptr + Offset)
+        })
+        Result.DefineProp("Size", {
+            Get: (_) => Max(Min(this.Size - Offset, Size), 0)
+        })
+        Result.DefineProp("Buf", {
+            Get: (_) => this
+        })
+        ObjSetBase(Result, IBuffer.Prototype)
+        return Result
+    }
 }

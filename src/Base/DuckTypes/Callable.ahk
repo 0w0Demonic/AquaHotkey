@@ -8,7 +8,7 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class Callable {
+class Callable extends Func {
     /**
      * Determines whether the value is a callable object,
      * excluding `.__Call()`.
@@ -21,22 +21,6 @@ class Callable {
      * ({ Call: (this) => this.Value }).Is(Callable) ; true
      */
     static IsInstance(Val?) {
-        return IsSet(Val)
-            && IsObject(Val)
-            && HasMethod(Val)
-    }
-
-    /**
-     * Determines whether the given value is equal to this class,
-     * or its subclass.
-     * 
-     * @param   {Any}  Value  any value
-     * @returns {Boolean}
-     * @example
-     * ; --> true
-     * Callable.CanCastFrom(Func)
-     */
-    static CanCastFrom(T) {
-        return (super.CanCastFrom(T) || Func.CanCastFrom(T))
+        return IsSet(Val) && IsObject(Val) && HasMethod(Val)
     }
 }

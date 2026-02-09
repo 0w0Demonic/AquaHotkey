@@ -2,76 +2,114 @@
 
 ## Summary
 
-This package introduces a wide set of assertion methods, perfect for validating
-parameters and doing unit tests conveniently.
+Introduces a set of assertion methods, perfect for validating parameters and
+making assumptions in your program at runtime.
 
-Each of these methods returns the variable itself, meaning you can chain
-multiple assertions together in a fluent, expressive style.
+Methods return the value itself (`return this`), meaning you can chain
+multiple assertions together fluently.
 
-## Features
+### Removed Methods in v2
 
-- Literally Anything
+Most of the other assertion methods in v2 (such as `.AssertHasOwnProp()`) have
+been cut in favor of [predicates](../Func/Predicate.md). At the moment,
+only `.AssertType()` is left.
 
-General purpose checks that can take a predicate function.
+Note that some of these methods might return very soon, if they end up
+being reasonable enough to keep as shorthand. Otherwise, feel free to put
+them back with some help of [extension classes](../basics.md#getting-started).
+In fact, I encourage you to do so, if you find yourself using some of the old methods a lot. It's what this library is for!
+
+## Function `Assert()`
+
+Use `Assert()` for simple assertions, like this:
 
 ```ahk
-.Assert(Condition, Msg?) ; e.g.: Val.Assert(IsNumber, "not a number")
+Assert(4 == 4)
 ```
 
-- Types
+In this example `4 == 4` is an expression that should return either `true` or
+`false`. Whenever an expression evaluates to `false`, `Assert()` will throw
+an error.
 
-Verify that a variable derives from a certain type.
+## Method `.Assert(Condition, Args*)`
+
+You can also use it as a method, generically with the help of
+[Predicate](../Func/Predicate.md) functions.
 
 ```ahk
-.AssertType(T, Msg?)
+; 1. assert that value is a non-empty string
+; 
+IsStringNonEmpty := InstanceOf(String).AndNot(IsSpace)
+"example".Assert(IsStringNonEmpty)
+
+; 2. assert that an object owns a given property
+; 
+Obj := { Value: 42 }
+; 
+; equivalent to: Assert(ObjHasOwnProp(Obj, "Value"))
+Obj.Assert(ObjHasOwnProp, "Value")
 ```
 
-- Equality
+## Method `.AssertType(T)`
 
-Compare values by loose and strict (case-sensitive) equality.
+To assert that a value is member of a given type `T`, you can use
+`.AssertType(T)`:
 
 ```ahk
-; "="
-Any#AssertEquals(Other, Msg?)
-
-; "!="
-Any#AssertNotEquals(Other, Msg?)
-
-; "=="
-Any#AssertCsEquals(Other, Msg?)
-
-; "!=="
-Any#AssertCsNotEquals(Other, Msg?)
+Val.AssertType(String)
 ```
 
-- Properties
+This is equivalent to `.Assert(InstanceOf(String))`, and will assert that `Val`
+is an instance of `String`.
 
-Ensure that values have certain properties, whether inherited or
-owned directly.
+Because `InstanceOf(T)` makes use of [Duck types](./DuckTypes.md), you can
+pass basically anything as a type pattern. Use `DerivedFrom(T)` to explitly
+assert that something `is T`.
 
 ```ahk
-Any#AssertHasProp(PropName, Msg?)
-Object#AssertHasOwnProp(PropName, Msg?)
+Arr := Array()
+Arr.Push({ Value: 42 })
+...
+Pattern := Array.OfType({ Value: Integer })
+Arr.AssertType(Pattern) ; asserts that `Arr.Is(Pattern)`
+
+"foo".Assert(DerivedFrom(String)) ; asserts that `"foo" is String`
 ```
 
-- Numbers
+**See Also**:
 
-Quickly check numeric relationships like greater-than, less-than,
-or range inclusion.
+- [<Func/Predicate>](../Func/Predicate.md)
+- [<Base/DuckTypes>](./DuckTypes.md)
 
-```ahk
-Number#AssertGt(x, Msg?)
-Number#AssertGe(x, Msg?)
-Number#AssertLt(x, Msg?)
-Number#AssertLe(x, Msg?)
-Number#AssertInRange(x, y, Msg?)
-```
+## Some More Examples
 
-## Tip
+Here's some more examples of how to use this in practice.
 
-You can chain all of these assertion methods together to make validation
-a lot more compact:
+Generically, I'm using `.Assert()` together with predicate functions, because
+that's arguably the most flexible way to do assertions.
 
 ```ahk
-Val.AssertType(String).AssertNotEquals("")
+Divide(A, B) {
+    A.AssertType(Numeric)
+    B.AssertType(Numeric).Assert(Ne(0)) ; also assert that `B` is not zero
+    return (A / B)
+}
+
+CreateUser(Name, Age) {
+    Name.Assert( InstanceOf(String).AndNot(IsSpace) )
+    Age.Assert( InstanceOf(Integer).And(Gt(0)) )
+    ...
+}
+
+GetUserInput() {
+    Input := ...
+    return Input.Assert( InstanceOf(String).AndNot(IsSpace) )
+}
+
+; they're also great for unit tests!
+...
+  static IsEmpty_should_eq_true() {
+    Map().IsEmpty.Assert(Eq(true))
+  }
+...
 ```
