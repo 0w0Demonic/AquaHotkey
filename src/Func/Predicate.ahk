@@ -2,6 +2,8 @@
 
 ;@region Predicate
 
+; TODO `.AsAssertion()` method?
+
 /**
  * A predicate is a function that takes one input and returns a boolean
  * value (`true` or `false`) based on a condition.

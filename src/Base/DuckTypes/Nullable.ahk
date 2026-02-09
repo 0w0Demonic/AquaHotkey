@@ -24,14 +24,12 @@ class Nullable extends Class
      * Creates a new nullable type with the given inner type.
      * 
      * @constructor
-     * @param   {T}  InnerType  inner type of the nullable
+     * @param   {Any}  T  inner type of the nullable
      * @returns {Nullable<T>}
      */
-    static Call(InnerType?) {
-        if (InnerType is Nullable) {
-            T := InnerType.T
-        } else {
-            T := InnerType
+    static Call(T) {
+        if (T is this) { ; Nullable<Nullable<T>> is just Nullable<T>
+            return T
         }
         Obj := Object()
         Obj.DefineProp("T", { Get: (_) => T })

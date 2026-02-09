@@ -1,12 +1,14 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO use own class (e.g. `TypeDef`) for composing intersections, unions, etc.?
+
 /**
  * Provides a flexible and customizable duck typing system which extends the
  * functionality of the `is`-keyword.
  * 
  * ```ahk
  * User := { age: Integer, name: String }
- * Pattern := Array.Of(User)
+ * Pattern := Array.OfType(User)
  * 
  * Obj := [{ age: 21, name: "Sasha" },
  *         { age: 37, name: "Sofia" }]
@@ -51,7 +53,7 @@
  *     static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
  * }
  * 
- * 42.Is(Numeric)      ; true
+ * (42).Is(Numeric)      ; true
  * "235.5".Is(Numeric) ; true
  * 
  * ```
@@ -65,7 +67,7 @@
  * 
  * ### Literals
  * 
- * Primitive types, such as strings or number are used as literals which
+ * Primitive types, such as strings or numbers are used as literals which
  * are checked for equality ({@link AquaHotkey_Eq `.Eq()`}).
  * 
  * ```ahk
@@ -89,7 +91,7 @@
  * 
  * ---
  * 
- * You can also check the "shape" of an array by using patterns, or - more
+ * You can also test for the "shape" of an array by using patterns, or - more
  * interestingly - {@link GenericArray generic array classes}.
  * 
  * ```ahk
@@ -549,10 +551,10 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * @param   {Any*}  Values  one or more values
          * @returns {Class}
          * @example
-         * Permissions := Type.Enum("Admin", "User", "Guest")
+         * Permission := Type.Enum("Admin", "User", "Guest")
          * 
-         * Permissions.IsInstance("Admin") ; true
-         * Permissions.IsInstance("Other") ; false
+         * Permission.IsInstance("Admin") ; true
+         * Permission.IsInstance("Other") ; false
          */
         static Enum(Values*) {
             if (!Values.Length) {

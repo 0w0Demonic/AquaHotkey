@@ -18,8 +18,6 @@ sc.Run("Example", var)
 Ref.Get().MsgBox()
 ```
 
----
-
 ## VARIANT Type Constants
 
 `ComValue` now includes properties for each VARIANT type (e.g.
@@ -27,21 +25,23 @@ Ref.Get().MsgBox()
 
 These properties serve two purposes:
 
-**1. As Constants**: Accessing the property directly returns the associated
+### As Constants
+
+Accessing the property directly returns the associated
 VARIANT type
 
 ```ahk
 MsgBox(ComValue.BSTR) ; 8
 ```
 
-**2. As Constructors**: Calling the property constructs a new instance of
+### As Constructors
+
+Calling the property constructs a new instance of
 `ComValue` without requiring the VARIANT type as the first parameter.
 
 ```ahk
 Str := ComValue.BSTR("in value")
 ```
-
----
 
 ## Automatic Inclusion of `VT_ARRAY` and `VT_BYREF` Flags
 
@@ -64,8 +64,6 @@ their constructors are called.
   Ref := ComValueRef.VARIANT(Buffer(24, 0)) ; ComValue(0x4000 | 0xC, Buffer(24, 0).Ptr)
   ```
 
----
-
 ## Improvements for `ComValueRef`
 
 ### Constructor Method
@@ -87,8 +85,6 @@ Ref := ComValueRef.VARIANT(Buffer(24, 0)).Set("in value") ; `Set(Value) => this`
 
 MsgBox(Ref.Get()) ; "in value"
 ```
-
----
 
 ## List of All VARIANT Types
 

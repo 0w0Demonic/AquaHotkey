@@ -153,47 +153,6 @@ class AquaHotkey_Buffer extends AquaHotkey
         }
 
         ;@endregion
-        ;-----------------------------------------------------------------------
-        ;@region Slicing and Filling
-
-        ; TODO move this method elsewhere?
-        /**
-         * Returns a new buffer containing a subsection of the current buffer.
-         * 
-         * @param   {Integer}  Offset  offset in bytes
-         * @param   {Integer}  Size  length of the subsection
-         * @returns {Buffer}
-         */
-        Slice(Offset, Size) {
-            if (!IsInteger(Offset)) {
-                throw TypeError("Expected an Integer",, Type(Offset))
-            }
-            if (!IsInteger(Size)) {
-                throw TypeError("Expected an Integer",, Type(Size))
-            }
-            if (Size <= 0) {
-                throw ValueError("Size must be greater than zero",, Size)
-            }
-            if (Offset + Size > this.Size) {
-                throw ValueError("Invalid offset for size " . this.Size,,
-                                 "offset: " . Offset . ", length: " . Size)
-            }
-            
-            Ptr := (this.Ptr + Offset)
-            if (this is ClipboardAll) {
-                Buf := ClipboardAll(Ptr, Size)
-            } else {
-                Buf := Buffer(Size)
-                DllCall("RtlCopyMemory",
-                        "Ptr", Buf.Ptr,
-                        "Ptr", Ptr,
-                        "UPtr", Size)
-            }
-            ObjSetBase(Buf, ObjGetBase(this))
-            return Buf
-        }
-
-        ;@endregion
     } ; class Buffer
 
     ;@endregion
