@@ -27,6 +27,7 @@
 #Include "%A_LineFile%/../../Base/TypeInfo.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes.ahk"
 
+#Include "%A_LineFile%/../../Base/DuckTypes/Boolean.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes/Callable.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes/Nullable.ahk"
 #Include "%A_LineFile%/../../Base/DuckTypes/Numeric.ahk"

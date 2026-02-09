@@ -1,4 +1,10 @@
-# <[Base](../api-overview.md)/[DuckTypes](../../src/Base/DuckTypes.ahk)>
+# <[Base](./overview.md)/[DuckTypes](../../src/Base/DuckTypes.ahk)>
+
+- [Boolean](./DuckTypes/Boolean.md)
+- [Callable](./DuckTypes/Callable.md)
+- [Nullable](./DuckTypes/Nullable.md)
+- [Numeric](./DuckTypes/Numeric.md)
+- [Record](./DuckTypes/Record.md)
 
 ## Summary
 
@@ -63,7 +69,7 @@ checked for its instance membership. It makes up a system that is extremely
 flexible and customizable:
 
 ```ahk
-class Numeric {
+class Numeric extends Primitive {
     static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
 }
 
@@ -288,7 +294,7 @@ ArrayOrString := Type.Union(Array, String)
 
 - [<Base/DuckTypes/Record>](./DuckTypes/Record.md)
 
-An object with keys of type `K`, and values of type `V`.
+An object with specified key and value type.
 
 ```ahk
 CatName := Type.Enum("Miffy", "Boris", "Mordred")

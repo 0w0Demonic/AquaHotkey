@@ -151,10 +151,6 @@ class Record extends Class {
      * }
      */
     CanCastFrom(Other) {
-        ; (this == Other) || HasBase(Other, this)
-        if (super.CanCastFrom(Other)) {
-            return true
-        }
         return (Other is Record)
             && (this.KeyType).CanCastFrom(Other.KeyType)
             && (this.ValueType).CanCastFrom(Other.ValueType)

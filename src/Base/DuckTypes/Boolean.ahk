@@ -20,6 +20,6 @@ class Boolean extends Integer {
      * (0).Is(Boolean) ; true
      * (1).Is(Boolean) ; true
      */
-    static IsInstance(Val?) => super.IsInstance(Val?)
-            && (  (Val == true) || (Val == false)  )
+    static IsInstance(Val?) => Integer.IsInstance(Val?)
+            && ((Val == true) || (Val == false))
 }

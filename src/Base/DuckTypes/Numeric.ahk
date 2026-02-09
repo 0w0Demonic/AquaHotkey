@@ -13,7 +13,7 @@
  * ; --> ["-23", 1, 23, "43"]
  * Arr(1, 23, "43", "-23").Sort(Numeric.Compare)
  */
-class Numeric {
+class Numeric extends Primitive {
     /**
      * Determines whether the value is numeric.
      * 

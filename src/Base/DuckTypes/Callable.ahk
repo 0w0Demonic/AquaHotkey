@@ -8,7 +8,7 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class Callable extends Func {
+class Callable extends Object {
     /**
      * Determines whether the value is a callable object,
      * excluding `.__Call()`.

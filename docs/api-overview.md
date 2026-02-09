@@ -13,6 +13,7 @@
 
 - [Base](./Base/overview.md)
   - [DuckTypes](./Base/DuckTypes.md)
+    - [Boolean](./Base/DuckTypes/Boolean.md)
     - [Callable](./Base/DuckTypes/Callable.md)
     - [Nullable](./Base/DuckTypes/Nullable.md)
     - [Numeric](./Base/DuckTypes/Numeric.md)

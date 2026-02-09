@@ -712,4 +712,16 @@ class Test_DuckTypes extends TestSuite {
 
         MsgBox.Is(Callable).Assert(Eq(true))
     }
+
+    static boolean_isinstance_is_true_for_1_and_0() {
+        (0).Is(Boolean).Assert(Eq(true))
+        (1).Is(Boolean).Assert(Eq(true))
+
+        (true).Is(Boolean).Assert(Eq(true))
+        (false).Is(Boolean).Assert(Eq(true))
+    }
+
+    static boolean_isinstance_is_false_for_strings() {
+        "1".Is(Boolean).Assert(Eq(false))
+    }
 }
