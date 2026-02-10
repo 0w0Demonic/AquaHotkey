@@ -43,6 +43,8 @@ class AquaHotkey_Error extends AquaHotkey {
          * 
          * @param   {Error}  Cause  the cause of this error
          * @returns {this}
+         * @example
+         * throw OuterErr.CausedBy( MiddleErr.CausedBy( InnerErr ) )
          */
         CausedBy(Cause) {
             if (!(Cause is Error)) {
@@ -56,6 +58,22 @@ class AquaHotkey_Error extends AquaHotkey {
             this.Stack .= "`r`n" . Cause.Stack
             this.DefineProp("Cause", { Get: (_) => Cause })
             return this
+        }
+
+        /**
+         * Specifies that this error causes another given error `Err`,
+         * appending additional information to its stack.
+         * 
+         * @param   {Error}  Err  error caused by this error
+         * @returns {Error}
+         * @example
+         * throw InnerErr.Causing(MiddleErr).Causing(OuterErr)
+         */
+        Causing(Err) {
+            if (!(Err is Error)) {
+                return this
+            }
+            return Err.CausedBy(this)
         }
 
         /**

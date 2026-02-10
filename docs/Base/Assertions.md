@@ -3,7 +3,8 @@
 ## Summary
 
 Introduces a set of assertion methods, perfect for validating parameters and
-making assumptions in your program at runtime.
+making assumptions in your program at runtime. Because of their conciseness,
+they're particularly useful inside unit tests.
 
 Methods return the value itself (`return this`), meaning you can chain
 multiple assertions together fluently.
@@ -34,7 +35,7 @@ an error.
 ## Method `.Assert(Condition, Args*)`
 
 You can also use it as a method, generically with the help of
-[Predicate](../Func/Predicate.md) functions.
+[predicate](../Func/Predicate.md) functions.
 
 ```ahk
 ; 1. assert that value is a non-empty string
@@ -62,7 +63,7 @@ Val.AssertType(String)
 This is equivalent to `.Assert(InstanceOf(String))`, and will assert that `Val`
 is an instance of `String`.
 
-Because `InstanceOf(T)` makes use of [Duck types](./DuckTypes.md), you can
+Because `InstanceOf(T)` makes use of [duck types](./DuckTypes.md), you can
 pass basically anything as a type pattern. Use `DerivedFrom(T)` to explitly
 assert that something `is T`.
 
@@ -106,7 +107,8 @@ GetUserInput() {
     return Input.Assert( InstanceOf(String).AndNot(IsSpace) )
 }
 
-; they're also great for unit tests!
+; By the way, assertions are great for unit tests!
+; (exerpt from somewhere in `tests/.../Map.ahk`)
 ...
   static IsEmpty_should_eq_true() {
     Map().IsEmpty.Assert(Eq(true))

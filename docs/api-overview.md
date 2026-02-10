@@ -23,7 +23,6 @@
   - [ComValue](./Base/ComValue.md)
   - [Eq](./Base/Eq.md)
   - [Error](./Base/Error.md)
-  - [FileUtils](./IO/FileUtils.md)
   - [Hash](./Base/Hash.md)
   - [Object](./Base/Object.md)
   - [Ord](./Base/Ord.md)
@@ -72,6 +71,9 @@
   - [Indexable](./Interfaces/Indexable.md)
   - [ISet](./Interfaces/ISet.md)
   - [Sizeable](./Interfaces/Sizeable.md)
+
+- [IO](./IO/overview.md)
+  - [FileUtils](./IO/FileUtils.md)
 
 - [Monads](./Monads/overview.md)
   - [Optional](./Monads/Optional.md)

@@ -62,7 +62,7 @@ So far, so good.
 That means, `Val.Is(T)` is always equivalent to `T.IsInstance(Val)`. For
 classes, that's the same as `Val is T`.
 
-### The `.IsInstance(T)` Method
+### The `.IsInstance(Val?)` Method
 
 The `.IsInstance()` method of a pattern determines how a value should be
 checked for its instance membership. It makes up a system that is extremely
@@ -78,16 +78,30 @@ Val.Is(Numeric) ; true (because `IsSet(42) && IsNumber(42)`)
 ```
 
 We've just implemented our own duck type `Numeric` that checks whether a value
-is a number. When used as a type pattern, it no longer cares about the value's
-base objects, but instead checks whether it fulfills the characteristics defined
-in `Numeric.IsInstance()`.
+is a number, regardless whether it's a `Number`, or a numeric `String` like
+`"123"`.
 
 ### Subclasses and `.CanCastFrom(T)`
 
 To determine whether a type pattern is considered equivalent to, or a subtype
 of another type pattern, we can use the `.CanCastFrom(T)` method.
 
-For classes, `C1.CanCastFrom(C2)`, if `(C1 == C2) || HasBase(C2, C1)`.
+In other words, `.CanCastFrom()` defines how types relate to each other,
+just like how classes and their subclasses do.
+
+For class objects, this is defined as follows:
+
+```ahk
+...
+class Class {
+    CanCastFrom(T) {
+        return (this == T) || HasBase(T, this)
+    }
+}
+...
+```
+
+A value is a *subtype* of a class, if it's either equal to, or a deriving class.
 
 ```ahk
 Number.CanCastFrom(Number)  ; true (`Number == Number`)
@@ -96,10 +110,13 @@ Number.CanCastFrom(Integer) ; true (`HasBase(Integer, Number)`)
 Integer.CanCastFrom(Number) ; false
 ```
 
-In the following example, every instance of `EmptyString` is also a `String`.
-To ensure `EmptyString` is treated as a subtype of `String`, we either set the
-base of `EmptyString` to `String`, or implement an equivalent
-`static CanCastFrom()` method.
+---
+
+Now let's apply the same concept to our own duck types.
+
+In the following example - conceptually speaking - `EmptyString` is a more
+specific version of `String`. To imply that `EmptyString` is a subtype, we
+simply set its base class to `String`.
 
 ```ahk
 class EmptyString extends String {
@@ -108,20 +125,20 @@ class EmptyString extends String {
 ```
 
 Changing the base of a class to something like `String` might be unintuitive,
-but remember we only use this class to do simple pattern matching and nothing
+but remember: we *only* use this class to do simple pattern matching, nothing
 else.
 
 Other objects define their own `.CanCastFrom()` in a way that reflects how
 subtypes work for that particular type. Here's some small examples:
 
 ```ahk
-; --> true
+; --> true (based on the objects fields)
 ({ Value: Number }).CanCastFrom({ Value: Integer, OtherValue: Array })
 
-; --> true
+; --> true (based on the array- and component type of the generic array class)
 Number[].CanCastFrom(Integer[]) ; true
 
-; --> true
+; --> true (based on the array's elements)
 ([Any, Object]).CanCastFrom([Integer, Array])
 ```
 
@@ -136,7 +153,8 @@ are checked for equality (via [`.Eq()`](./Eq.md)).
 Val := 42
 Pattern := 42
 
-MsgBox(Obj.Is(42)) ; true
+MsgBox(Val.Is(42))          ; true
+MsgBox(Val.CanCastFrom(42)) ; true
 ```
 
 ### Object Literals
