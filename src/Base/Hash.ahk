@@ -3,7 +3,7 @@
 ; TODO allow hash codes in HashMap/HashSet to be customizable?
 
 /**
- * Adds a universal `.HashCode()` function which generates a stable,
+ * Adds a universal `.HashCode()` method which generates a stable,
  * well-distributed integer from a value.
  * 
  * ---

@@ -17,13 +17,13 @@ class Test_Object extends TestSuite
 
     static DefineConstant() {
         Obj := Object()
-        Obj.DefineConstant("Value", 42)
+        Obj.DefineProp("Value", Constant(42))
         Obj.Value.Assert(Eq(42))
     }
 
     static DefineGetter() {
         (Obj := Object()).Value := 2
-        Obj.DefineGetter("TwoTimesValue", (Instance) => 2 * Instance.Value)
+        Obj.DefineProp("TwoTimesValue", Getter((this) => (2 * this.Value)))
         Obj.TwoTimesValue.Assert(Eq(4))
     }
 
@@ -35,18 +35,19 @@ class Test_Object extends TestSuite
             return Instance.Value := NewValue
         }
         (Obj := Object()).Value := 42
-        Obj.DefineGetterSetter("Prop", Getter, Setter)
+        Obj.DefineProp("Prop", GetterSetter(Getter, Setter))
         Obj.Prop.Assert(Eq(42))
         Obj.Prop := 65
         Obj.Prop.Assert(Eq(65))
     }
 
     static DefineSetter() {
-        static Setter(Instance, Value) {
+        static Set(Instance, Value) {
             Instance.Value := Value
         }
 
-        (Obj := Object()).DefineSetter("Prop", Setter)
+        Obj := Object()
+        Obj.DefineProp("Prop", Setter(Set))
         Obj.Prop := 54
         Obj.Value.Assert(Eq(54))
     }
@@ -56,7 +57,8 @@ class Test_Object extends TestSuite
             return 42
         }
 
-        (Obj := Object()).DefineMethod("DoSomething", DoSomething)
+        Obj := Object()
+        Obj.DefineProp("DoSomething", Method(DoSomething))
         Obj.DoSomething().Assert(Eq(42))
     }
 }

@@ -3,6 +3,7 @@
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 ; TODO find a way to accomodate duck types
+;      (probably with generics and `static OfType()`)
 
 /**
  * A simple hash table implementation.

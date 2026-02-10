@@ -1,36 +1,107 @@
-# Object
+# <[Base](./overview.md)/[Object](../../src/Base/Object.ahk)>
 
-## Property Definition
+## Summary
 
-For cleaner object definitions and an abstraction from `.DefineProp()`,
-AquaHotkeyX provides a few helpers:
-
-- `.DefineConstant()`: define a read-only property
-- `.DefineGetter()`, `.DefineSetter()`, `.DefineGetterSetter()`: fine-grained
-  control over accessors.
-- `.DefineMethod()`: attach methods like a civilized human being
+Object utilities, mostly for the creation of new properties.
 
 ```ahk
-Obj.DefineConstant("Foo", "v1.0")
-   .DefineGetter("ID", Getter)
-   .DefineMethod("DoSomething", Method)
+class Point {
+    ; declare `X` and `Y` as immutable properties
+    __New(X, Y) => this.DefineProps({ X: Constant(X), Y: Constant(Y) })
+}
 ```
 
-In some isolated cases, you might want to return the value itself from
-`.DefineConstant()`, e.g. for lazy initialization or quick assignment. However,
-for consistency with the rest of the API - and to allow method chaining -
-this method returns `this` instead. If needed, you can always access the value
-like this:
+## Working With Property Descriptors
+
+AutoHotkey's object protocol is based on property descriptors, which are plain
+objects that define the behaviour of a property. This makes the language
+incredibly flexible, but it can be a bit verbose at times.
+
+To make it easier to work with, AquaHotkeyX provides some helper functions
+for creating property descriptors. It features both very common patterns like
+`Constant`, but also very hacky ones like `CheckedField`, which defines a
+property that checks the type of the value being set.
 
 ```ahk
-Version := Obj.DefineConstant("Version", "v2.1").Version
+Obj := Object()
+Obj.DefineProp("Value", CheckedField(Integer, 42))
+
+MsgBox(Obj.Value) ; 42
+Obj.Value := 23
+MsgBox(Obj.Value) ; 23
+Obj.Value := "not an integer" ; TypeError!
 ```
 
-## Setting Base Objects
+## Method `.TransformProp()`
 
-`.SetBase()` is a chainable shorthand for `ObjSetBase()` - fits nicely when
-composing new objects.
+You can also wrap existing functions with additional behaviour:
 
 ```ahk
-obj := Object().SetBase(BasePrototype).Define...
+WithLogging(PropDesc, Message) {
+    return { Call: Method }
+
+    Method(Args*) {
+        MsgBox(Message)
+        return (PropDesc.Call)(Args*)
+    }
+}
+
+Target := (Array.Prototype)
+PropName := "Push"
+Old_PropDesc := Target.TransformPop(PropName, WithLogging, "pushing...")
+
+Arr := Array()
+Arr.Push(1, 2, 3)
+```
+
+`.DefineProps()` lets you define several properties at once. It accepts one
+plain object that contains zero or more fields with their associated prop desc.
+
+```ahk
+class Point {
+    ; declare `X` and `Y` as immutable properties
+    __New(X, Y) => this.DefineProps({ X: Constant(X), Y: Constant(Y) })
+}
+```
+
+Also, you can use `ObjFromDesc(Desc)` to create an object only based from
+a set of property descriptors.
+
+```ahk
+; equivalent to:
+; 
+; Obj := {}.DefineProp("X", { Get: (_) => 24 })
+;          .DefineProp("Y", { Get: (_) => 15 })
+Obj := ObjFromDesc({ X: Constant(24), Y: Constant(15) })
+```
+
+## Method `.GetPropDesc()`
+
+By using `.GetPropDesc()` instead of `.GetOwnPropDesc()`, you can retrieve a
+property descriptor by name, regardless of *where* the property is defined.
+
+```ahk
+BaseObj := { Value: 42 }
+Obj := { base: BaseObj }
+
+Obj.GetPropDesc("Value") ; { Value: 42 }
+```
+
+## Some Other Things
+
+Functions `ObjBindMethod()` and `ObjSetBase()`, but as methods.
+
+```ahk
+Arr := Array()
+Push := Arr.BindMethod("Push")
+Push(1, 2, 3)
+MsgBox(Arr.Length) ; 3
+
+class Point {
+    __New(X, Y) => this.DefineProps({ X: Constant(X), Y: Constant(Y) })
+}
+
+Obj := Object()
+Obj.SetBase(Point.Prototype)
+Obj.__New(15, 23)
 ```

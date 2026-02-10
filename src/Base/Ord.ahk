@@ -5,8 +5,8 @@
 ; ------------
 
 /**
- * Introduces an interface for imposing the natural order between two
- * types. This is useful for sorting arrays and other collections.
+ * Introduces an interface for imposing the natural order between values of
+ * the same type. This is useful for sorting arrays and other collections.
  * 
  * This feature is exposed via the `.Compare()` method, which is implemented
  * for some of the built-in types like `String`, `Number` and `Array`.

@@ -4,14 +4,33 @@
 #Include "%A_LineFile%\..\..\src\Core\AquaHotkeyX.ahk"
 ;#Include "%A_LineFile%\..\..\src\Core\AquaHotkey.ahk"
 
-; Range(10).Gather(WindowFixed(3)).JoinLine().MsgBox()
+ConstantRef_Using_PropRef() {
+    Obj := Object()
+    OtherObj := Object()
+    OtherObj.Value := 42
 
-Matches(Pattern) => (Str) => (Str ~= Pattern)
-ContainsStr(Pattern) => (Str) => InStr(Str, Pattern)
+    Obj.DefineProp("Value", ConstantRef(&OtherObj.Value))
+}
 
-FileRead(A_Desktop . "\wordle.txt")
-    .Lines()
-    .RemoveIf(Matches("[cranegrvluk]"))
-    .RetainIf(ContainsStr("p"))
-    .JoinLine()
-    .MsgBox()
+
+Transform_Array_Push() {
+    WithLogging(PropDesc, Message) {
+        return { Call: Method }
+
+        Method(Args*) {
+            MsgBox(Message)
+            return (PropDesc.Call)(Args*)
+        }
+    }
+
+    (Array.Prototype).TransformProp("Push", WithLogging, "pushing...")
+
+    Arr := Array()
+    Arr.Push(1, 2, 3)
+
+    MsgBox(Format("Length: {}", Arr.Length))
+}
+
+
+
+; Transform_Array_Push()

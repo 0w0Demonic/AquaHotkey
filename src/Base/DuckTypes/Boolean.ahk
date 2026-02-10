@@ -3,6 +3,8 @@
  * 
  * A boolean value that equals either `true`/`1` or `false`/`0`.
  * 
+ * On versions above v2.1-alpha.10, this class can be used as a struct type.
+ * 
  * @module  <Base/DuckTypes/Boolean>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey

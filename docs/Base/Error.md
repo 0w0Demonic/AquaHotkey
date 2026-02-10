@@ -32,7 +32,7 @@ IndexError().Throw()
 
 This feature lets you attach another error as cause. Error objects now own
 a property `Cause`, which contains either `false`, or another error object
-deemed as the error reason.
+deemed as being the error reason.
 
 By using the `.CausedBy()` method, you attach another error object as `Cause`,
 and fill up the `Stack` with more detailed information.
