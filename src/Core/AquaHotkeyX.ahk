@@ -49,6 +49,7 @@
 ;@region Func
 
 #Include "%A_LineFile%/../../Func/Cast.ahk"
+#Include "%A_LineFile%/../../Func/Comparator.ahk"
 #Include "%A_LineFile%/../../Func/Func.ahk"
 #Include "%A_LineFile%/../../Func/Pipes.ahk"
 #Include "%A_LineFile%/../../Func/Supplier.ahk"
@@ -61,11 +62,9 @@
 ;-------------------------------------------------------------------------------
 ;@region Collections
 
-#Include "%A_LineFile%/../../Collections/GenericArray.ahk"
-#Include "%A_LineFile%/../../Collections/GenericMap.ahk"
+#Include "%A_LineFile%/../../Collections/Generic/Array.ahk"
+#Include "%A_LineFile%/../../Collections/Generic/Map.ahk"
 
-
-#Include "%A_LineFile%/../../Collections/Array.ahk"
 #Include "%A_LineFile%/../../Collections/ImmutableArray.ahk"
 #Include "%A_LineFile%/../../Collections/LinkedList.ahk"
 
@@ -97,8 +96,6 @@
 ;-------------------------------------------------------------------------------
 ;@region Mixins
 
-#Include "%A_LineFile%/../../Interfaces/Indexable.ahk"
-#Include "%A_LineFile%/../../Interfaces/Sizeable.ahk"
 #Include "%A_LineFile%/../../Interfaces/Enumerable1.ahk"
 #Include "%A_LineFile%/../../Interfaces/Enumerable2.ahk"
 

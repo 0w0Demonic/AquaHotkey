@@ -1,7 +1,5 @@
-#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
-
-; TODO make sure classes are deletable
+#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\..\Interfaces\IArray.ahk"
 
 ;@region GenericArray
 
@@ -29,7 +27,7 @@
  * Arr_MaybeString := String[Nullable] ; array of `Nullable(String)`
  * ```
  * 
- * @module  <Collections/GenericArray>
+ * @module  <Collections/Generic/Array>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example <caption>Array of Strings</caption>
@@ -84,6 +82,8 @@ class GenericArray extends IArray {
         }
 
         static Define := {}.DefineProp
+        static Delete := {}.DeleteProp
+
         if (!IsSet(A)) {
             throw UnsetError("unset; Expected an IArray class")
         }
@@ -105,9 +105,19 @@ class GenericArray extends IArray {
             T := C(T) ; e.g.: `T := Nullable(String)`
         }
 
-        Proto := this.Prototype
-        Define(Proto, "ComponentType", { Get: (_) => T })
-        Define(Proto, "ArrayType",     { Get: (_) => A })
+        ; remove the `__Class` that we created with `AquaHotkey.CreateClass()`.
+        ; we must assure prototypes are deletable.
+        ; 
+        ; (see docs on object destruction)
+        ClassName := this.Prototype.__Class
+        Delete(this.Prototype, "__Class")
+
+        Define(this, "Name", { Get: (_) => ClassName })
+        Define(this.Prototype, "ToString",      { Call: ToString })
+        Define(this.Prototype, "ComponentType", { Get: (_) => T })
+        Define(this.Prototype, "ArrayType",     { Get: (_) => A })
+
+        ToString(this) => ClassName . String(this.A)
     }
 
     ;@endregion
@@ -168,6 +178,12 @@ class GenericArray extends IArray {
         }
     }
 
+    static Name {
+        get {
+            throw PropertyError("not implemented")
+        }
+    }
+
     /**
      * Determines whether the given class `T` is equal to this generic array
      * class, or considered its subtype.
@@ -197,8 +213,11 @@ class GenericArray extends IArray {
 
     /**
      * Determines whether the given value is an instance of this generic array
-     * class. Regular arrays are checked by their elements, while for generic
-     * arrays, the array and component type are checked for compatibility.
+     * class.
+     * 
+     * If the tested value is a generic array, its array and component
+     * type are checked for compatibility via `.CanCastFrom()`. On regular
+     * arrays, the type of array and its elements are checked.
      * 
      * @param   {Any?}  Val  any value
      * @returns {Boolean}
@@ -219,8 +238,10 @@ class GenericArray extends IArray {
                 && (this.ComponentType).CanCastFrom(Val.ComponentType)
         }
 
+        if (!(this.ArrayType).IsInstance(Val)) {
+            return false
+        }
         T := this.ComponentType
-
         for Elem in Val {
             if (!T.IsInstance(Elem?)) {
                 return false
@@ -480,6 +501,21 @@ class GenericArray extends IArray {
  * Extension methods related to {@link GenericArray}.
  */
 class AquaHotkey_GenericArray extends AquaHotkey {
+    static __New() {
+        if (this != AquaHotkey_GenericArray) {
+            return
+        }
+
+        if (IsSet(AquaHotkey_Conf_DisableGenerics)) {
+            ({}.DefineProp)(this.IArray, "OfType", { Call: Disabled_OfType })
+        }
+        super.__New()
+
+        static Disabled_OfType(Cls, T, Constraint?) {
+            return Cls
+        }
+    }
+
     class Class {
         /**
          * Returns the "array class" of this class.
@@ -503,9 +539,7 @@ class AquaHotkey_GenericArray extends AquaHotkey {
          * T := LinkedList.OfType(Nullable(User))
          */
         static OfType(T, Constraint?) {
-            OuterType     := "IArray"
-            try OuterType := this.Name
-
+            OuterType := this.Name
             InnerType := (T is Class) ? T.Name : String(T)
             return AquaHotkey.CreateClass(
                     GenericArray, (OuterType . "<" . InnerType . ">"),

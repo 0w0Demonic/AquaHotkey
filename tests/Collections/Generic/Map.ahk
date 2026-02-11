@@ -9,11 +9,6 @@ class Test_GenericMap extends TestSuite {
         HasBase(MapCls, GenericMap).Assert(Eq(true))
     }
 
-    static Check_method_should_be_overridden() {
-        MapCls := Map.OfType(String, String)
-        (MapCls.Prototype.Check).Assert(Ne(GenericMap.Prototype.Check))
-    }
-
     static Is_keyword_should_work() {
         MCls := Map.OfType(String, String)
         M := MCls()

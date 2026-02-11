@@ -20,10 +20,6 @@ class Test_HashSet extends TestSuite {
         ; test is good enough; HashSet is merely a wrapper over HashMap
     }
 
-    static is_sizeable() {
-        HashSet().Is(Sizeable).Assert(Eq(true))
-    }
-
     static is_enumerable() {
         HasMethod(HashSet(), "__Enum").Assert(Eq(true))
     }

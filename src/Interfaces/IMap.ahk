@@ -353,4 +353,22 @@ class IMap {
     }
 
     ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Default Properties
+
+    /**
+     * Determines whether this map is empty.
+     * 
+     * @returns {Boolean}
+     */
+    IsEmpty => (!this.Count)
+
+    /**
+     * Determines whether this map is not empty.
+     * 
+     * @returns {Boolean}
+     */
+    IsNotEmpty => (!!this.Count)
+
+    ;@endregion
 }

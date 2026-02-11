@@ -12,6 +12,6 @@ class Test_ImmutableMap extends TestSuite {
     }
 
     static ImmutableMap_Call_uses_normal_Map() {
-        ImmutableMap(1, 2, 3, 4).Is(Map).Assert(Eq(true))
+        ImmutableMap(1, 2, 3, 4).Is(IMap).Assert(Eq(true))
     }
 }

@@ -507,6 +507,10 @@ class Test_DuckTypes extends TestSuite {
         T.IsInstance("three").Assert(Eq(false))
     }
 
+    static regular_array_matched_by_type() {
+        Array(1, 2, 3, 4).Is(Number[]).Assert(Eq(true))
+    }
+
     ; --- Complex nested pattern tests ---
 
     static deeply_nested_object_patterns() {

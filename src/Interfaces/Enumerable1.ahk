@@ -24,11 +24,25 @@ class Enumerable1 {
     /**
      * Collects all elements into an array.
      * 
+     * Works well with {@link GenericArray generic array classes}.
+     * 
+     * @param   {Class?}  ArrClass  the type of array class
      * @returns {Array}
      * @example
      * Array(1, 2, 3).ToArray() ; [1, 2, 3]
+     * 
+     * ; --> Array<Numeric>[1, 2, ..., 10]
+     * Range(10).ToArray(Numeric[])
      */
-    ToArray() => Array(this*)
+    ToArray(ArrClass := Array) {
+        if (!(ArrClass is Class)) {
+            throw TypeError("Expected a Class",, Type(ArrClass))
+        }
+        if (!IArray.CanCastFrom(ArrClass)) {
+            throw TypeError("Expected an IArray type",, ArrClass.Name)
+        }
+        return ArrClass(this*)
+    }
     
     /**
      * Reduces all elements by passing them variadically into the given

@@ -1,5 +1,5 @@
-#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\..\Interfaces\IDelegatingMap.ahk"
+#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\..\Interfaces\IDelegatingMap.ahk"
 
 ; TODO make sure classes are deletable
 
@@ -8,7 +8,7 @@
  * Introduces generic maps, in which key-value pairs are enforced to
  * be instanced of the given types.
  * 
- * @module  <Collections/GenericMap>
+ * @module  <Collections/Generic/Map>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
@@ -34,6 +34,7 @@ class GenericMap extends IDelegatingMap {
      */
     static __New(M := Map, K?, V?) {
         static Define := {}.DefineProp
+        static Delete := {}.DeleteProp
 
         if (this == GenericMap) {
             return
@@ -48,25 +49,18 @@ class GenericMap extends IDelegatingMap {
             throw TypeError("Expected an IMap class",, String(M))
         }
 
-        Proto := this.Prototype
-        Define(Proto, "Check",     { Call: TypeCheck })
-        Define(Proto, "MapType",   { Get: (_) => M })
-        Define(Proto, "KeyType",   { Get: (_) => K })
-        Define(Proto, "ValueType", { Get: (_) => V })
-        Define(Proto, "Class",     { Get: (_) => this }) ; <Base/TypeInfo>
+        ClassName := this.Prototype.__Class
+        Delete(this.Prototype, "__Class")
 
-        TypeCheck(_, Key, Value) {
-            if (!Key.Is(K)) {
-                throw TypeError(
-                        "Expected a(n) " . K.Name . " as key",
-                        -2, Type(Key))
-            }
-            if (!Value.Is(V)) {
-                throw TypeError(
-                        "Expected a(n) " . V.Name . " as value",
-                        -2, Type(Value))
-            }
-        }
+        Define(this, "Name", { Get: (_) => ClassName })
+        Define(this.Prototype, "ToString", { Call: ToString })
+
+        Define(this.Prototype, "MapType",   { Get: (_) => M })
+        Define(this.Prototype, "KeyType",   { Get: (_) => K })
+        Define(this.Prototype, "ValueType", { Get: (_) => V })
+        Define(this.Prototype, "Class",     { Get: (_) => this })
+
+        ToString(this) => ClassName . String(this.M)
     }
 
     ;@endregion
@@ -87,16 +81,17 @@ class GenericMap extends IDelegatingMap {
             return false
         }
 
-
         if (Val is GenericMap) {
             return (this.MapType).CanCastFrom(Val.MapType)
                 && (this.KeyType).CanCastFrom(Val.KeyType)
                 && (this.ValueType).CanCastFrom(Val.ValueType)
         }
 
+        if (!(this.MapType).IsInstance(Val)) {
+            false
+        }
         K := this.KeyType
         V := this.ValueType
-
         for Key, Value in Val {
             if (!K.IsInstance(Key?) || !V.IsInstance(Value?)) {
                 return false
@@ -183,15 +178,6 @@ class GenericMap extends IDelegatingMap {
      * @returns {Integer}
      */
     static HashCode() => Any.Hash(this.MapType, this.KeyType, this.ValueType)
-    
-    ; ; TODO implement these two according to our contract
-    ; HashCode() {
-    ;     throw PropertyError("not implemented yet")
-    ; }
-
-    ; Eq(Other?) {
-    ;     throw PropertyError("not implemented yet")
-    ; }
 
     /**
      * Determines whether the given value is equal to this generic map class.
@@ -227,11 +213,16 @@ class GenericMap extends IDelegatingMap {
      * Determines whether the given key-value is valid for this map.
      * This method should be overridden by subclasses.
      * 
-     * @param   {Any}  K  key
-     * @param   {Any}  V  value
+     * @param   {Any}  Key    key
+     * @param   {Any}  Value  value
      */
-    Check(K, V) {
-        ; nop
+    Check(Key, Value) {
+        if (!(this.KeyType).IsInstance(Key)) {
+            throw TypeError("invalid key type", -2)
+        }
+        if (!(this.ValueType).IsInstance(Value)) {
+            throw TypeError("invalid value type", -2)
+        }
     }
 
     /**

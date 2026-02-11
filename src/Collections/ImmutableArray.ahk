@@ -100,6 +100,36 @@ class ImmutableArray extends IArray {
      * @returns {Any}
      */
     __Item[Index] => (this.A)[Index]
+
+    /**
+     * @see {@link IArray#Repeat}
+     */
+    Repeat(X) => (this.A).Repeat(X).Freeze()
+
+    /**
+     * @see {@link IArray#RetainIf}
+     */
+    RetainIf(Fn, Args*) => (this.A).RetainIf(Fn, Args*).Freeze()
+
+    /**
+     * @see {@link IArray#RemoveIf}
+     */
+    RemoveIf(Fn, Args*) => (this.A).RemoveIf(Fn, Args*).Freeze()
+
+    /**
+     * @see {@link IArray#Distict}
+     */
+    Distinct(Hasher?, S?) => (this.A).Distinct(Hasher?, S?).Freeze()
+
+    /**
+     * @see {@link IArray#Map}
+     */
+    Map(Mapper, Args*) => (this.A).Map(Mapper, Args*).Freeze()
+
+    /**
+     * @see {@link IArray#FlatMap}
+     */
+    FlatMap(Mapper?, Args*) => (this.A).FlatMap(Mapper?, Args*).Freeze()
 }
 
 /**

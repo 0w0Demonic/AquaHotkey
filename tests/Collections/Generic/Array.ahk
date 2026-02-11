@@ -301,10 +301,24 @@ class Test_GenericArray extends TestSuite {
                 .Assert(Eq(false))
     }
 
+    static regular_array_matched_by_array_type() {
+        Arr := Array(1, 2, 3)
+        List := LinkedList(1, 2, 3)
+
+        ArrT := Array.OfType(Integer)
+        ListT := LinkedList.OfType(Integer)
+
+        Arr.Is(ArrT).Assert(Eq(true))
+        List.Is(ArrT).Assert(Eq(false))
+
+        Arr.Is(ListT).Assert(Eq(false))
+        List.Is(ListT).Assert(Eq(true))
+    }
+
     static different_array_subclasses_instanceof_regular_array() {
-        ; Regular arrays should match different array type generics by component
         ([1, 2, 3]).Is(Array.OfType(Integer)).Assert(Eq(true))
-        ([1, 2, 3]).Is(LinkedList.OfType(Integer)).Assert(Eq(true))
+
+        ([1, 2, 3]).Is(LinkedList.OfType(Integer)).Assert(Eq(false))
     }
 
     ; =========================================================================

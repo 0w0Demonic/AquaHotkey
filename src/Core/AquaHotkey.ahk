@@ -34,11 +34,6 @@
  * scripts to detect its presence at runtime (for example via
  * `IsSet(MyFeature)`), making features optional and loosely coupled.
  * 
- * ## Misc
- * 
- * To activate verbose logging, define the class `AquaHotkey_Verbose` as
- * marker class somewhere in the script.
- * 
  * @module   <Core/AquaHotkey>
  * @author   0w0Demonic
  * @see      https://www.github.com/0w0Demonic/AquaHotkey
@@ -116,6 +111,9 @@ if (VerCompare(A_AhkVersion, "<v2.1-alpha.3")) {
  * structured way to augment AutoHotkey's prototype-based classes without
  * manual patching.
  * 
+ * @module  <Core/AquaHotkey>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
  * class StringExtensions extends AquaHotkey {
  *   class String {
@@ -455,6 +453,9 @@ class AquaHotkey extends AquaHotkey_Ignore
  * @abstract
  * @class
  * @classdesc
+ * @module  <Core/AquaHotkey_Ignore>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * 
  * Marker class for indicating that a class should be ignored by AquaHotkey's
  * class prototyping system.
@@ -635,21 +636,21 @@ class AquaHotkey_Ignore
     ;@region static LogVerbose()
 
     /**
-     * Outputs verbose information, if `AquaHotkey_Verbose` is declared as
-     * variable somewhere in the script.
+     * Outputs verbose information, if the verbose option is defined.
+     * Use `#Include <AquaHotkey/cfg/VerboseLogging>` to activate verbose
+     * logging.
      * 
      * @public
      * @param   {String}   Str   format string
      * @param   {String*}  Args  zero or more arguments
      * @example
-     * this.LogVerbose("doing something in detail...")
+     * #Include <AquaHotkey>
+     * #Include <AquaHotkey/cfg/VerboseLogging>
      * ...
-     * ; this class is used as option to activate verbose mode
-     * class AquaHotkey_Verbose {
-     * }
+     * this.LogVerbose("doing something in detail...")
      */
     static LogVerbose(Str, Args*) {
-        if (IsSet(AquaHotkey_Verbose) && (AquaHotkey_Verbose)) {
+        if (IsSet(AquaHotkey_cfg_VerboseLogging)) {
             (AquaHotkey_Ignore.Log)(this, Str, Args*)
         }
     }
@@ -662,8 +663,8 @@ class AquaHotkey_Ignore
      * Transfers all of the properties owned by the `Supplier` and overwrites
      * them into the given `Receiver`.
      * 
-     * To activate verbose logging, define the class `AquaHotkey_Verbose` as
-     * marker class somewhere in the script.
+     * To activate verbose logging, `#Include <AquaHotkey/cfg/VerboseLogging>`
+     * in your script.
      * 
      * @private
      * @param   {Class|Func}  Supplier  contains the properties to be applied
@@ -1015,6 +1016,9 @@ class AquaHotkey_Ignore
  * Base class for copying contents of the class into one or more specified
  * targets.
  * 
+ * @module  <Core/AquaHotkey_MultiApply>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
  * ; deprecated
  * class Example extends AquaHotkey_MultiApply {
@@ -1083,6 +1087,9 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
  * functions, allowing them to be overridden or extended in a
  * non-destructive way.
  * 
+ * @module  <Core/AquaHotkey_Backup>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
  * ; method 1: using subclasses and `super.__New(Targets*)`
  * class Gui_Backup extends AquaHotkey_Backup {

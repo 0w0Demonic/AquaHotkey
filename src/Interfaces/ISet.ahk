@@ -29,7 +29,7 @@
 class ISet {
     static __New() {
         if (this == ISet) {
-            this.Backup(Enumerable1, Sizeable, Sizeable)
+            this.Backup(Enumerable1)
         }
     }
 

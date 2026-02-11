@@ -2,7 +2,6 @@
 
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
-#Include "%A_LineFile%\..\..\Interfaces\Sizeable.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 ; TODO remove stream ops?

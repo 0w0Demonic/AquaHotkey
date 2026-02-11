@@ -1,4 +1,5 @@
 #Requires AutoHotkey v2
+#Include <AquaHotkey/cfg/VerboseLogging>
 
 ; OnExit((*) => MsgBox(TestSuite.FailCount))
 
@@ -94,8 +95,3 @@ static AssertThrows(Fn) {
     }
 } ; static AssertThrows(Fn)
 } ; class TestSuite
-
-
-; marker class
-class AquaHotkey_Verbose {
-}

@@ -371,4 +371,14 @@ class Test_Array extends TestSuite
         Arr := Array(unset, 2, 3)
         this.AssertThrows(() => Arr.Poll())
     }
+
+    static Mismatch_checks_types() {
+        L1 := LinkedList(1, 2, 3)
+        L2 := LinkedList(1, 2, 3)
+
+        IArray.Mismatch(L1, L2).Assert(Eq(0))
+
+        ; these are not regular `Array`s
+        this.AssertThrows(() => Array.Mismatch(L1, L2))
+    }
 }

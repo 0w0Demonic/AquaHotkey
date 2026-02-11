@@ -123,7 +123,7 @@ class Set extends ISet {
      * 
      * @returns {Integer}
      */
-    Size => (this.M).Size
+    Size => (this.M).Count
 
     /**
      * Returns a mutable map view of the set.

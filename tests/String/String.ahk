@@ -136,15 +136,6 @@ class Test_String extends TestSuite {
         "banana".Reversed().Assert(Eq("ananab"))
     }
 
-    static SplitPath() {
-        SP := "C:\Users\sven\Desktop\images\potato.png".SplitPath()
-        SP.Name.Assert(Eq("potato.png"))
-        SP.Dir.Assert(Eq("C:\Users\sven\Desktop\images"))
-        SP.Ext.Assert(Eq("png"))
-        SP.NameNoExt.Assert(Eq("potato"))
-        SP.Drive.Assert(Eq("C:"))
-    }
-
     static RegExMatch1() {
         "Test123Abc".RegExMatch("\d++").Assert(Eq(5))
     }

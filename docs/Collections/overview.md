@@ -4,8 +4,9 @@
 
 ## List of Features
 
-- [Generic Array](./GenericArray.md)
-- [Generic Map](./GenericMap.md)
+- [Generic](./Generic/overview.md)
+  - [Array](./Generic/Array.md)
+  - [Map](./Generic/Map.md)
 - [Array](./Array.md)
 - [Map](./Map.md)
 - [HashMap](./HashMap.md)
@@ -29,7 +30,8 @@ object - it must implement the [IMap](../Interfaces/IMap.md) interface. The
 same applies to arrays and sets with the [IArray](../Interfaces/IArray.md)
 and [ISet](../Interfaces/ISet.md) interfaces, respectively.
 
-This allows for flexible and extensible collection types that can be used interchangeably in many contexts.
+This allows for flexible and extensible collection types that can be used
+interchangeably in many contexts.
 
 ## Class Diagram
 
