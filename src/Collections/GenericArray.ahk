@@ -1,6 +1,8 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 
+; TODO make sure classes are deletable
+
 ;@region GenericArray
 
 /**
@@ -281,7 +283,7 @@ class GenericArray extends IArray {
      * @example
      * LL := LinkedList.OfType(Integer).Call(1, 2, 3, 4)
      * 
-     * MsgBox(String(LL)) ; "LinkedList<Integer> [1, 2, 3, 4]"
+     * MsgBox(String(LL)) ; "LinkedList<Integer>[1, 2, 3, 4]"
      */
     ToString() => Type(this) . String(this.A)
 

@@ -501,7 +501,7 @@ class SkipListMap extends IMap {
 
             Structure.Push(Arr)
         }
-        return (super.ToString)({
+        return (Object.Prototype.ToString)({
             Size: this.Size,
             Values: Values,
             Structure: Structure,

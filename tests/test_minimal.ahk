@@ -30,7 +30,3 @@ Transform_Array_Push() {
 
     MsgBox(Format("Length: {}", Arr.Length))
 }
-
-
-
-; Transform_Array_Push()

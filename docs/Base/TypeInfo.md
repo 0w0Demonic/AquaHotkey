@@ -1,29 +1,68 @@
-# TypeInfo
+# <[Base](./overview.md)/[TypeInfo](../../src/Base/TypeInfo.ahk)>
 
-Universal properties that are related to type information, for example the
-type and defining class of a value.
+## Summary
+
+Properties for retrieving type information, such as the type and class of a
+value, or the name of a class.
 
 ```ahk
+([1, 2]).Type ; "Array"
 
-;---- Type of Value ----
+"example".Class ; String (class)
 
-"".Type ; "String"
+; --> [123, Integer.Prototype, Number.Prototype,
+;      Primitive.Prototype, Any.Prototype]
+(123).Hierarchy
 
-;---- Defining Class ----
+; --> [Integer.Prototype, Number.Prototype, Primitive.Prototype, Any.Prototype]
+(123).Bases
 
-"".Class ; String (class)
+; --> Gui.ActiveX (class)
+Class.ForName("Gui.ActiveX")
+```
 
-;---- Hierarchy (chain of base objects, including itself) ----
+## Properties `.Type` and `.Class`
 
-123.Hierarchy [123, Integer.Prototype, Number.Prototype, ...]
+These properties return the type of the value, either as string (which is
+equivalent to `Type(Value)`), or the implementing class object.
 
-;---- Bases (chain of base objects) ----
+```ahk
+; same as: Type([1, 2])
+; 
+([1, 2]).Type ; "Array"
 
-Array().Bases ; [Array.Prototype, Object.Prototype, Any.Prototype]
-Buffer.Bases  ; [Object, Any, Class.Prototype, Object.Prototype, Any.Prototype]
+([1, 2]).Class ; Array (class)
+```
 
-;---- Find a class by its name
+`.Class` relies on the `__Class` property of a value in order to find the
+implementing class.
 
-Class.ForName("Gui.ActiveX") ; Gui.ActiveX (class)
+## Properties `.Hierarchy` and `.Bases`
 
+Returns the chain of base objects of a value. While `.Hierarchy` includes the
+value itself, `.Bases` doesn't.
+
+```ahk
+; --> [123, Integer.Prototype, Number.Prototype,
+;      Primitive.Prototype, Any.Prototype]
+(123).Hierarchy
+
+; --> [Integer.Prototype, Number.Prototype, Primitive.Prototype, Any.Prototype]
+(123).Bases
+```
+
+## `Class.ForName()`
+
+Returns a class object by its string path.
+
+```ahk
+Class.ForName("Gui.ActiveX") ; class Gui.ActiveX
+```
+
+## Class `.Name` Property
+
+Returns the name of the class.
+
+```ahk
+String.Name ; "String"
 ```

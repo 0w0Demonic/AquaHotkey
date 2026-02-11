@@ -26,7 +26,8 @@ following advantages:
 
 The `.Compare()` method takes one parameter `Other`, which is *strictly* the
 same type as `this`. It is a mandatory parameter, and not allowed to be
-`unset`.
+`unset`. However, you can handle `unset` with a little help of
+[comparators](../Func/Comparator.md).
 
 When comparing two values `A` and `B`, `A.Compare(B)` should return one of
 the following:

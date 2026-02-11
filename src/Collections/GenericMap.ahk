@@ -1,6 +1,8 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IDelegatingMap.ahk"
 
+; TODO make sure classes are deletable
+
 ;@region GenericMap
 /**
  * Introduces generic maps, in which key-value pairs are enforced to
