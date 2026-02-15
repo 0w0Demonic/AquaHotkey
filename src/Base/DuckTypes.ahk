@@ -456,7 +456,11 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * ; `- Number <- (base class)
          * Number.CanCastFrom(Integer)
          */
-        CanCastFrom(T) => (this == T) || HasBase(T, this)
+        CanCastFrom(T) => (this == T) || HasBase(T, this) || (T is this)
+        ; note: because something like `Any.CanCastFrom({ foo: Integer })`
+        ;       should return `true` (makes sense), we're also checking
+        ;       `(T is this)`. Somehow, this *didn't* destroy any tests?
+        ;       very nice.
     }
 
     ;@endregion
