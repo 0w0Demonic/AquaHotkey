@@ -383,6 +383,16 @@ class AquaHotkey extends AquaHotkey_Ignore
          * @public
          * @param   {Object*}  Suppliers  where to copy properties from
          * @returns {this}
+         * @example
+         * Array.Backup(Enumerable1)
+         * 
+         * class Enumerable1 {
+         *   ForEach(Action, Args*) {
+         *     for Value in this {
+         *       Action(Value?, Args*)
+         *     }
+         *   }
+         * }
          */
         Backup(Suppliers*) => (AquaHotkey_Backup.__New)(this, Suppliers*)
 
@@ -404,8 +414,13 @@ class AquaHotkey extends AquaHotkey_Ignore
      * @param   {String?}  Name       name of the class
      * @param   {Any*}     Args       arguments for `static __New()`
      * @returns {Class}
+     * @example
+     * class MyClass {
+     *     static __New(Param?) => ...
+     * }
+     * AquaHotkey.CreateClass(MyClass, "MySubclass", "Param")
      */
-    static CreateClass(BaseClass := Object, Name := "(unnamed)", Args*) {
+    static CreateClass(BaseClass := Object, Name?, Args*) {
         static Define(Obj, Name, PropDesc) {
             if (ObjOwnPropCount(PropDesc)) {
                 ({}.DefineProp)(Obj, Name, PropDesc)
@@ -415,12 +430,16 @@ class AquaHotkey extends AquaHotkey_Ignore
         if (!(BaseClass is Class)) {
             throw TypeError("Expected a Class",, Type(BaseClass))
         }
-        if (IsObject(Name)) {
+
+        if (IsSet(Name) && !(Name is Primitive)) {
             throw TypeError("Expected a String",, Type(Name))
         }
 
         if (VerCompare(A_AhkVersion, ">=v2.1-alpha.3")) {
-            return Class(Name, BaseClass, Args*)
+            if (IsSet(Name)) {
+                return Class(Name, BaseClass, Args*)
+            }
+            return Class(BaseClass, Args*)
         }
 
         Cls      := Class()
@@ -437,7 +456,9 @@ class AquaHotkey extends AquaHotkey_Ignore
         if (Cls.__New != Object.Prototype.__New) {
             Cls.__New(Args*)
         }
-        Define(ClsProto, "__Class", { Value: Name })
+        if (IsSet(Name)) {
+            Define(ClsProto, "__Class", { Value: Name })
+        }
         return Cls
     }
 
