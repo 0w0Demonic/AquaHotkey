@@ -16,6 +16,19 @@ many), `#Include <AquaHotkeyX>` in your script instead.
 #Include <AquaHotkeyX>
 ```
 
+## Aris
+
+If you use the [Aris Package Manager](https://github.com/Descolada/Aris), you
+can install using the following command:
+
+```ahk
+aris install AquaHotkey
+```
+
+Otherwise, I recommend checking it out, honestly a really cool project.
+Also, special thanks to [Descolada](https://github.com/Descolada) and
+[JoyHak](https://github.com/JoyHak) for including it in the index.
+
 ## Advanced Setup
 
 This is optional, but will probably save you lots of work in the long run.
