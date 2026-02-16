@@ -1,4 +1,4 @@
-# Collections - Overview
+# Module `<Collections>`
 
 - [All Modules](../api-overview.md)
 

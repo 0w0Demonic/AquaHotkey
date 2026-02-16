@@ -102,7 +102,7 @@ Array_Contains(this, ExpectedValue) {
 This works, but doing it manually is difficult, tedious, and very error-prone.
 
 In AquaHotkey, all of this is done declaratively using "extension classes"
-that specify which properties should added to which targets.
+that specify which properties should be added to which targets.
 
 ```ahk
 class ArrayUtils extends AquaHotkey {
@@ -114,11 +114,12 @@ class ArrayUtils extends AquaHotkey {
 ```
 
 The greatest advantage of this is being exposed to regular class-based
-syntax. Instead of implementing everything as global functions, you can write things as if you had direct access to the built-in class, which is much more intuitive and feels a
-lot more natural.
+syntax. Instead of implementing everything as global functions, you can write
+things as if you had direct access to the built-in class, which is much
+more intuitive and feels a lot more natural.
 
-Instead of huge "do-everything" functions, you can write break up things into
-smaller parts. Like this:
+Instead of huge "do-everything" functions, you can break up things into smaller
+parts. Like this:
 
 ```ahk
 class ToString extends AquaHotkey {
@@ -221,7 +222,7 @@ MsgBox("foo".Length) ; 3
 ```
 
 Thanks to AquaHotkey, this is no longer tedious manual work.
-Eerything happens declaratively, and with simple "class syntax".
+Everything happens declaratively, and with simple "class syntax".
 
 ## AquaHotkeyX
 

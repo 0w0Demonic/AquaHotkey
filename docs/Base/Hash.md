@@ -21,8 +21,11 @@ Therefore, `.HashCode()` must be consistent with its equality definition
 `.Eq()`. If two values are considered equal by `.Eq()`, they must have the
 same hash code.
 
-In addition, the `.HashCode()` method must consistenly return the same result,
+In addition, the `.HashCode()` method must consistently return the same result,
 as long as no information used in `.Eq()` is changed.
+
+If any of the information is considered "absent", or has an `unset` value,
+the hash code of that information must be equal to `0`.
 
 Here's a simple example of how to implement `.HashCode()` for a simple `Point`
 type:
