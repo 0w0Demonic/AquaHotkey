@@ -95,7 +95,8 @@ class ISet {
      */
     static IsInstance(Val?) {
         return super.IsInstance(Val?)
-            || IsSet(Val)
+            || (this == ISet)
+            && IsSet(Val)
             && IsObject(Val)
             && HasMethod(Val, "Add")
             && HasMethod(Val, "Clear")

@@ -1,5 +1,6 @@
 #Include "%A_LineFile%\..\Set.ahk"
 
+;@region ImmutableSet
 /**
  * An immutable view of an {@link ISet}.
  * 
@@ -7,8 +8,18 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class ImmutableSet extends ISet
-{
+class ImmutableSet extends ISet {
+    ;@region Construction
+
+    /**
+     * Creates a new immutable set consisting of the specified elements.
+     * The elements themselves are still mutable.
+     * 
+     * @param   {Any*}  Values  zero or more elements
+     * @returns {ImmutableSet}
+     */
+    static Call(Values*) => this.FromSet(Set(Values*))
+
     /**
      * Returns a new immutable set by wrapping over an existing {@link ISet}.
      * 
@@ -29,13 +40,21 @@ class ImmutableSet extends ISet
     }
 
     /**
-     * Creates a new immutable set consisting of the specified elements.
-     * The elements themselves are still mutable.
+     * Creates an immutable set view of an {@link IMap}.
      * 
-     * @param   {Any*}  Values  zero or more elements
+     * @param   {IMap}  M  backing map
      * @returns {ImmutableSet}
      */
-    static Call(Values*) => this.FromSet(Set(Values*))
+    static FromMap(M) {
+        if (!M.Is(IMap)) {
+            throw TypeError("Expected an IMap",, Type(M))
+        }
+        return this.FromSet(Set.FromMap(M))
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Implementation
 
     /**
      * Returns a shallow clone of the immutable set.
@@ -66,8 +85,17 @@ class ImmutableSet extends ISet
      * @returns {Integer}
      */
     Size => (this.S).Size
+
+    ;@endregion
 }
 
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Extensions
+
+/**
+ * Extension methods related to {@link ImmutableSet}.
+ */
 class AquaHotkey_ImmutableSet extends AquaHotkey {
     class ISet {
         /**
