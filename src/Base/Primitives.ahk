@@ -39,54 +39,6 @@ class AquaHotkey_Primitives extends AquaHotkey {
         }
 
         /**
-         * Outputs the value using `Send()`.
-         * 
-         * @returns {this}
-         * @example
-         * "Four score and seven years ago".Send()
-         */
-        Send() {
-            Send(this)
-            return this
-        }
-
-        /**
-         * Outputs the value using `SendText()`.
-         * 
-         * @returns {this}
-         * @example
-         * "Four score and seven years ago".SendText()
-         */
-        SendText() {
-            SendText(this)
-            return this
-        }
-
-        /**
-         * Outputs the value using `SendPlay()`.
-         * 
-         * @returns {this}
-         * @example
-         * "Four score and seven years ago".SendPlay()
-         */
-        SendPlay() {
-            SendPlay(this)
-            return this
-        }
-
-        /**
-         * Outputs the value using `SendEvent()`.
-         * 
-         * @returns {this}
-         * @example
-         * "Four score and seven years ago".SendEvent()
-         */
-        SendEvent() {
-            SendEvent(this)
-            return this
-        }
-
-        /**
          * Converts the value into a float.
          * 
          * @returns {Float}
@@ -166,7 +118,7 @@ class AquaHotkey_Primitives extends AquaHotkey {
 
     class Number {
         /**
-         * Constants pi and e
+         * Constants pi and e.
          */
         static PI => 3.14159265358979
         static E  => 2.71828182845905
