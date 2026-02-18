@@ -1,63 +1,148 @@
-# Comparator
+# <[Func](./overview.md)/[Comparator](../../src/Func/Comparator.ahk)>
 
 ## Overview
 
-Comparators are functions that take two inputs and return an integer:
+Comparators are functions that impose a total ordering between two input values.
+This feature augments [<Base/Comparable>](../Base/Comparable.md) using
+function composition, which allows much more fine-grained sorting logic.
 
-- `< 0`: `a  < b`
-- `= 0`: `a == b`
-- `> 0`: `a  > b`
+```ahk
+; compare by string length, then by lexicographical order.
+; handle `unset` and consider them "less than" any other value
+Comp := Comparator.Num(StrLen).ThenAlpha().NullsFirst()
 
-They're used across the library to define custom orderings for sorting and
-max/min operations.
+; --> [unset, "c", "aa", "bb", "dddd"]
+Array("bb", "aa", "c", "dddd", unset).Sort(Comp)
+```
 
 ## Building Comparators
 
-- `Comparator.Numeric()`: sort numerically
-- `Comparator.Alphabetic()`: sort alphabetically
-  
-Use `.AndThen()` to fall back to a second comparator when values are equal.
+You have several simple ways to create a comparator:
+
+1. **Start with an existing one**
+   Use the comparator functions already defined in
+   [`<Base/Comparable>`](../Base/Comparable.md) by calling `Class#Compare()`.
+
+   ```ahk
+   C := Integer.Compare ; numbers
+   C := String.Compare  ; lexicographic
+   C := Any.Compare     ; generic fallback
+   ```
+
+2. **Numeric or lexical comparators**
+   If you just want the usual order:
+
+   ```ahk
+   C1 := Comparator.Num             ; numeric
+   C2 := Comparator.Alpha           ; lexicographic, case-insensitive
+   C3 := Comparator.Alpha("Locale") ; lexicographic, according to locale
+   ```
+
+   You can also specify a mapper function to extract values to sort by, as you
+   would in method [`.By()`](#composition):
+
+   ```ahk
+   Comparator.Num(StrLen)            ; same as (Comparator.Num).By(StrLen)
+   Comparator.Alpha(Obj => Obj.Name) ; same as (Comparator.Num).By(Obj => Obj.Name)
+   ```
+
+3. **Compare by a mapped key**
+   Natural ordering, but through a mapper that extract the value to sort by.
+
+   ```ahk
+   Prop(Name) => (Obj) => Obj.%Name%
+
+   ByName := Comparator.By(Prop("Name"))
+   ```
+
+4. **Roll your own two-parameter function**
+
+   ```ahk
+   Fn := (a, b) => a.Length - b.Length
+
+   C := Comparator(Fn)      ; copy + cast
+   C := Comparator.Cast(Fn) ; cast
+   ```
+
+   **Also see**:
+
+   - [implementing `.Compare()`](../Base/Comparable.md#implementing-compare)
+   - [<Func/Cast>](./Cast.md)
+
+## Composition
+
+Once you have a base comparator, you can transform it. Composition returns
+a fresh comparator, the original remains untouched.
+
+- `.By(Mapper, Args*)`: run `Mapper` on both inputs and compare the results.
+
+   ```ahk
+   C := (Integer.Compare).By(StrLen)
+   C("foo", "bar") ; 0 (lengths are equal)
+   ```
+
+- `.Then(Other)`: use the `Other` comparator when the first comparator returns
+   zero.
+
+   ```ahk
+   C := Comparator.Num(StrLen).Then(Comparator.Alpha)
+   ```
+
+- `.ThenBy(Mapper, Args*)`: shorthand for `.Then(Comparator.By(Mapper, Args*))`.
+
+   ```ahk
+   class Version {
+       __New(Major, Minor, Patch) {
+           ...
+       }
+   }
+   Prop(Name) => (Obj) => Obj.%Name%
+   C := Comparator.By(Prop("Major")).ThenBy(Prop("Minor")).ThenBy(Prop("Patch"))
+   ```
+
+- `.ThenNum(Args*)` and `.ThenAlpha(Args*)`: quick forms of
+  `.Then(Comparator.Num(Args*))` and `.Then(Comparator.Alpha(Args*))`,
+  respectively.
+
+  ```ahk
+  C := Comparator.Num(StrLen).ThenAlpha()
+  ```
+
+## Reversing
+
+You can flip a comparator with `.Rev()`.
 
 ```ahk
-Comp := Comparator.Numeric().AndThen(Comparator.Alphabetic)
+C := (Integer.Compare).Rev() ; descending numeric order
 ```
 
-Or shorthand it:
+Avoid calling `.Rev()` repeatedly, as each invocation wraps the function and
+performance degrades with deep nesting.
 
-- `.AndThenNumeric(Args*)`
-- `.AndThenAlphabetic(Args*)`
+## Unset Handling
 
-You can reverse the result:
+By default, comparators assume both arguments are set. To make one safe for
+`unset` values, use one of the following methods:
+
+- `.NullsFirst()`: unset values sort before everything else
+- `.NullsLast()`: unset values sort after everything else
+
+These should **always** be the last method in the chain. If you call them
+earlier, subsequent composition will remove this type of null-safety.
 
 ```ahk
-Comp.Reversed()
+C := Comparator.Num().NullsLast().ThenAlpha() ; wrong!
+C := Comparator.Num().ThenAlpha().NullsLast() ; OK.
 ```
 
-You can also make it handle `unset` gracefully:
+## General Notes
 
-```ahk
-Comp.NullsFirst() ; or .NullsLast()
-```
+- `StrCompare` is now a comparator; you can call comparator methods on it
+  directly.
 
-Add null handling with `.NullsFirst()` and `.NullsLast()` as *last* operation.
+  ```ahk
+  Comp := StrCompare.Rev()
+  ```
 
-## Function Composition
-
-`.Compose(Mapper)` applies a mapper before comparing - you should usually avoid
-this method. Prefer `Comparator.Numeric(StrLen)` instead of
-`Comparator.Numeric().Compose(StrLen)`.
-
-## Example
-
-```ahk
-ByStrLen := Comparator.Numeric(StrLen).AndThenAlphabetic().NullsFirst()
-```
-
-Yes, the method names are long. But they're also dead simple and surprisingly
-expressive.
-
-## Performance Tip
-
-Comparators are lightweight and relatively easy to create, but consider storing
-them (e.g. in a static variable) to avoid making unnecessary copies. They're
-immutable and can therefore be shared across your entire script.
+- Whenever possible, you should reuse the same comparator object rather than
+  rebuilding it over again.

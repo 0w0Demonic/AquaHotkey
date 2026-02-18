@@ -1,6 +1,6 @@
 # <[Base](./overview.md)/[Object](../../src/Base/Object.ahk)>
 
-## Summary
+## Overview
 
 Object utilities, mostly for the creation of new properties.
 

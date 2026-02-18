@@ -1,6 +1,6 @@
 # <[Base](./overview.md)/[ToString](../../src/Base/ToString.ahk)>
 
-## Summary
+## Overview
 
 An interface for turning any value into a human-readable string representation
 for debugging and logging purposes.

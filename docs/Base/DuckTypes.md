@@ -6,7 +6,7 @@
 - [Numeric](./DuckTypes/Numeric.md)
 - [Record](./DuckTypes/Record.md)
 
-## Summary
+## Overview
 
 Introduces a flexible and customizable runtime type system that is based on
 duck types. Instead of caring about the base object, you can use any value

@@ -1,6 +1,6 @@
 # <[Collections](../overview.md)/[Generic](./overview.md)/[Array](../../../src/Collections/Generic/Array.ahk)>
 
-## Summary
+## Overview
 
 A type-checked wrapper for [IArray](../../Interfaces/IArray.md) classes,
 which enforces that all elements conform to the specified

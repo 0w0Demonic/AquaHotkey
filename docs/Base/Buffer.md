@@ -1,6 +1,6 @@
 # <[Base](./overview.md)/[Buffer](../../src/Base/Buffer.ahk)>
 
-## Summary
+## Overview
 
 A few methods for `Buffer` and its subclasses, especially for their creation.
 

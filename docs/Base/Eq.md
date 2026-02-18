@@ -1,6 +1,6 @@
 # <[Base](./overview.md)/[Eq](../../src/Base/Eq.ahk)>
 
-## Summary
+## Overview
 
 A universal way to test two values for equivalence.
 

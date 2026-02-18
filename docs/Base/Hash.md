@@ -1,6 +1,6 @@
 # <[Base](./overview.md)/[Hash](../../src/Base/Hash.ahk)>
 
-## Summary
+## Overview
 
 Implements a universal `.HashCode()` method for generating stable,
 well-distributed hash codes for use in hash-based collections like

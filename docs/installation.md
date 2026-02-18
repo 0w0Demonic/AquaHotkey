@@ -49,11 +49,11 @@ Setup:
 
     ```ahk
     ; ------------- AquaHotkey.ahk (stub)
-    #Include "%A_LineFile%/../AquaHotkey/AquaHotkey.ahk"
+    #Include "%A_LineFile%\..\AquaHotkey\AquaHotkey.ahk"
     ; -------------
   
     ; ------------- AquaHotkeyX.ahk (stub)
-    #Include "%A_LineFile%/../AquaHotkey/AquaHotkeyX.ahk"
+    #Include "%A_LineFile%\..\AquaHotkey\AquaHotkeyX.ahk"
     ; -------------
     ```
 

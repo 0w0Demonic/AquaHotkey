@@ -1,6 +1,6 @@
 # <[Base](./overview.md)/[TypeInfo](../../src/Base/TypeInfo.ahk)>
 
-## Summary
+## Overview
 
 Properties for retrieving type information, such as the type and class of a
 value, or the name of a class.

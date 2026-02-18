@@ -1,6 +1,6 @@
 # <[Base](./overview.md)/[Error](../../src/Base/Error.ahk)>
 
-## Summary
+## Overview
 
 Utilites related to errors, like throwing and error causes.
 

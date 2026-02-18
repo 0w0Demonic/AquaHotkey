@@ -1,6 +1,6 @@
 # <[Base](./overview.md)/[Assertions](../../src/Base/Assertions.ahk)>
 
-## Summary
+## Overview
 
 Introduces a set of assertion methods, perfect for validating parameters and
 making assumptions in your program at runtime. Because of their conciseness,

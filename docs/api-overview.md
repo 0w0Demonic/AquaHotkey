@@ -25,7 +25,7 @@
   - [Error](./Base/Error.md)
   - [Hash](./Base/Hash.md)
   - [Object](./Base/Object.md)
-  - [Ord](./Base/Ord.md)
+  - [Comparable](./Base/Comparable.md)
   - [Primitives](./Base/Primitives.md)
   - [ToString](./Base/ToString.md)
   - [TypeInfo](./Base/TypeInfo.md)

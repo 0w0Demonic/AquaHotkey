@@ -13,7 +13,7 @@
 - [FileUtils](./FileUtils.md)
 - [Hash](./Hash.md)
 - [Object](./Object.md)
-- [Ord](./Ord.md)
+- [Comparable](./Comparable.md)
 - [Primitives](./Primitives.md)
 - [ToString](./ToString.md)
 - [TypeInfo](./TypeInfo.md)
@@ -205,7 +205,7 @@ Obj.Value := "not a number" ; Error!
 
 ## Comparing by Natural Order
 
-- [<Base/Ord>](./Ord.md)
+- [<Base/Comparable>](./Comparable.md)
 
 Natural ordering via the `.Compare()` method. Enables sorting and ordering
 operations on custom types.

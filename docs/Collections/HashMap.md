@@ -1,6 +1,6 @@
 # <[Collections](./overview.md)/[HashMap](../../src/Collections/HashMap.ahk)>
 
-## Summary
+## Overview
 
 A hash-based [IMap](../Interfaces/IMap.md) implementation.
 

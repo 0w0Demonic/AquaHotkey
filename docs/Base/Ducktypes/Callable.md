@@ -1,6 +1,6 @@
 # <[Base](../overview.md)/[DuckTypes](../DuckTypes.md)/[Callable](./Callable.md)>
 
-## Summary
+## Overview
 
 A [duck type](../DuckTypes.md) that represents any callable object.
 

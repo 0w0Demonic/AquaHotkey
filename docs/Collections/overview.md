@@ -143,7 +143,7 @@ L := LinkedList(...).Freeze() ; because `LinkedList extends IArray`
 - [<Collections/SkipListSet>](./SkipListSet.md)
 
 Probabilistic and ordered maps and sets using skip lists. Relies on `<Base/Eq>`
-and `<Base/Ord>` to determine value presence and to order its elements.
+and `<Base/Comparable>` to determine value presence and to order its elements.
 
 Note: Go ahead and check them out, these are really interesting... I promise.
 

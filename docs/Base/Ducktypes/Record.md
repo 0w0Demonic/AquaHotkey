@@ -1,6 +1,6 @@
 # <[Base](../../Base/overview.md)/[DuckTypes](../DuckTypes.md)/[Record](../../../src/Base/DuckTypes/Record.ahk)>
 
-## Summary
+## Overview
 
 A [duck type](../DuckTypes.md) that represents objects with specified key and
 value type.

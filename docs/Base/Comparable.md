@@ -1,6 +1,6 @@
-# <[Base](./overview.md)/[Ord](../../src/Base/Ord.ahk)>
+# <[Base](./overview.md)/[Compare](../../src/Base/Compare.ahk)>
 
-## Summary
+## Overview
 
 An interface for imposing natural order between values of the same type.
 This is useful for sorting arrays and other collections.

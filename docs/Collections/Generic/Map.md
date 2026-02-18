@@ -1,6 +1,6 @@
 # <[Collections](../overview.md)/[Generic](./overview.md)/[Map](../../../src/Collections/Generic/Map.ahk)>
 
-## Summary
+## Overview
 
 A type-checked wrapper for [IMap](../../Interfaces/IMap.md) classes.
 Generic maps wrap around any map class that implements `IMap`, and enforces
