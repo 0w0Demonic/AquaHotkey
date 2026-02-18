@@ -12,7 +12,6 @@ ConstantRef_Using_PropRef() {
     Obj.DefineProp("Value", ConstantRef(&OtherObj.Value))
 }
 
-
 Transform_Array_Push() {
     WithLogging(PropDesc, Message) {
         return { Call: Method }
@@ -59,8 +58,7 @@ Deletion() {
     MsgBox("end")
 }
 
-class AquaHotkey_Conf_DisableGenerics {
+C1 := Comparator.Num()
+C2 := Comparator.Num()
 
-}
-
-MsgBox(Array.OfType(String) == Array)
+MsgBox(C1 == C2)

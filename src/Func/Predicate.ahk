@@ -55,7 +55,7 @@ class Predicate extends Func {
         for Fn in Fns {
             GetMethod(Fn)
         }
-        return Predicate.Cast(All)
+        return this.Cast(All)
 
         All(Val?) {
             for Fn in Fns {
@@ -81,7 +81,7 @@ class Predicate extends Func {
         for Fn in Fns {
             GetMethod(Fn)
         }
-        return Predicate.Cast(None)
+        return this.Cast(None)
 
         None(Val?) {
             for Fn in Fns {
@@ -107,7 +107,7 @@ class Predicate extends Func {
         for Fn in Fns {
             GetMethod(Fn)
         }
-        return Predicate.Cast(Any)
+        return this.Cast(Any)
 
         Any(Val?) {
             for Fn in Fns {
@@ -130,7 +130,7 @@ class Predicate extends Func {
      */
     And(Other, Args*) {
         GetMethod(Other)
-        return Predicate.Cast((Val?) => (this(Val?) && Other(Val?, Args*)))
+        return this.Cast((Val?) => (this(Val?) && Other(Val?, Args*)))
     }
 
     /**
@@ -143,7 +143,7 @@ class Predicate extends Func {
      */
     AndNot(Other, Args*) {
         GetMethod(Other)
-        return Predicate.Cast((Val?) => (this(Val) && !Other(Val, Args*)))
+        return this.Cast((Val?) => (this(Val?) && !Other(Val?, Args*)))
     }
 
     /**
@@ -155,7 +155,7 @@ class Predicate extends Func {
      */
     Or(Other, Args*) {
         GetMethod(Other)
-        return Predicate.Cast((Val?) => (this(Val?) || Other(Val?, Args*)))
+        return this.Cast((Val?) => (this(Val?) || Other(Val?, Args*)))
     }
     
     /**
@@ -167,7 +167,7 @@ class Predicate extends Func {
      */
     OrNot(Other, Args*) {
         GetMethod(Other)
-        return Predicate.Cast((Val) => (this(Val) || !Other(Val, Args*)))
+        return this.Cast((Val?) => (this(Val?) || !Other(Val?, Args*)))
     }
 
     /**
@@ -178,8 +178,8 @@ class Predicate extends Func {
      * P := IsNumber.Negate()
      */
     Negate() {
-        Pred := Predicate.Cast((Val) => (!this(Val)))
-        ({}.DefineProp)(Pred, "Negate", { Call: (_) => this })
+        Pred := this.Cast((Val?) => (!this(Val?)))
+        Pred.DefineProp("Negate", { Call: (_) => this })
         return Pred
     }
 }
@@ -263,7 +263,7 @@ Le(A) => Predicate.Cast((B) => B.Le(A))
 
 /**
  * Returns a {@link Predicate} that determines whether the input has
- * the same ordering ({@link AquaHotkey_Ord `.Compare()`}) as the given value.
+ * the same ordering ({@link AquaHotkey_Comparable `.Compare()`}) as the given value.
  * 
  * Using this function is discouraged, because `A.Compare(B) == 0` should
  * usually imply `A.Eq(B)`, and it might be removed in later versions.
@@ -276,7 +276,7 @@ OrdEq(A) => Predicate.Cast((B) => (A.OrdEq(B)))
 
 /**
  * Returns a {@link Predicate} that determines whether the input has
- * a different ordering ({@link AquaHotkey_Ord `.Compare()`}) as the given
+ * a different ordering ({@link AquaHotkey_Comparable `.Compare()`}) as the given
  * value.
  * 
  * Using this function is discouraged, because `A.Compare(B) != 0` should

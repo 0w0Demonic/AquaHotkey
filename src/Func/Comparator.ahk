@@ -1,6 +1,8 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
+; TODO remove mapper in `Num` and `Alpha`?
+
 /**
  * A comparator is a function that determines a natural ordering between its
  * two input values. This is mainly used for creating custom sorting logic.
@@ -17,11 +19,16 @@
  * Array("example", "b", "a", unset).Sort(Comp)
  */
 class Comparator extends Func {
+    ;@region static __New()
     static __New() {
         if (this == Comparator) {
             ObjSetBase(StrCompare, Comparator.Prototype)
         }
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Construction
 
     /**
      * Returns a numeric comparator.
@@ -42,11 +49,9 @@ class Comparator extends Func {
      * ByStrLen := Comparator.Num(StrLen)
      */
     static Num(Mapper?, Args*) {
-        static Comp := this((A, B) => (A > B) - (B > A))
-        if (!IsSet(Mapper)) {
-            return Comp
-        }
-        return Comp.By(Mapper, Args*)
+        NumComp := this((A, B) => (A > B) - (B > A))
+        return (IsSet(Mapper)) ? NumComp.By(Mapper, Args*)
+                               : NumComp
     }
 
     /**
@@ -64,16 +69,12 @@ class Comparator extends Func {
      * @param   {Any*}        Args       zero or more arguments
      */
     static Alpha(CaseSense := false, Mapper?, Args*) {
-        StrComp(A, B) => StrCompare(A, B, CaseSense)
-
-        if (IsObject(CaseSense)) {
+        if (!(CaseSense is Primitive)) {
             throw TypeError("Expected a String or an Integer",, Type(CaseSense))
         }
-        this.Cast(StrComp)
-        if (!IsSet(Mapper)) {
-            return StrComp
-        }
-        return StrComp.By(Mapper, Args*)
+        StrComp := this.Cast((A, B) => StrCompare(A, B, CaseSense))
+        return (IsSet(Mapper)) ? StrComp.By(Mapper, Args*)
+                               : StrComp
     }
 
     /**
@@ -87,9 +88,15 @@ class Comparator extends Func {
      * Comparator.By(StrLen).ThenAlpha()
      */
     static By(Mapper, Args*) {
+        GetMethod(Mapper)
         return this.Cast(Comp)
+
         Comp(A?, B?) => Mapper(A?, Args*).Compare(Mapper(B?, Args*))
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Composition
 
     /**
      * Returns a comparator that first uses the given `Mapper` to extract a
@@ -101,7 +108,9 @@ class Comparator extends Func {
      * Comp := Comparator.Num().By(StrLen)
      */
     By(Mapper, Args*) {
+        GetMethod(Mapper)
         return this.Cast(Comp)
+
         Comp(A?, B?) => this(Mapper(A?, Args*), Mapper(B?, Args*))
     }
 
@@ -115,7 +124,9 @@ class Comparator extends Func {
      * Comp := Comparator.Num(StrLen).Then(Comparator.Alpha)
      */
     Then(Other) {
+        GetMethod(Other)
         return this.Cast(Comp)
+
         Comp(A?, B?) => this(A?, B?) || Other(A?, B?)
     }
 
@@ -131,7 +142,9 @@ class Comparator extends Func {
      * Comparator.By(StrLen).ThenAlpha()
      */
     ThenBy(Mapper, Args*) {
+        GetMethod(Mapper)
         return this.Cast(Comp)
+
         Comp(A?, B?) => this(A?, B?)
                      || (Mapper(A?, Args*).Compare(Mapper(B?, Args*)))
     }
@@ -154,6 +167,10 @@ class Comparator extends Func {
      */
     ThenAlpha(Mapper?, Args*) => this.Then(Comparator.Alpha(Mapper?, Args*))
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Reverse
+
     /**
      * Returns the current comparator in reverse order.
      * 
@@ -161,7 +178,15 @@ class Comparator extends Func {
      * @example
      * ByStrLen_Desc := Comparator.Num(StrLen).Rev()
      */
-    Rev() => this.Cast((A?, B?) => this(B?, A?))
+    Rev() {
+        Fn := this.Cast((A?, B?) => this(B?, A?))
+        Fn.DefineProp("Rev", { Call: (_) => this })
+        return Fn
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Unset Handling
 
     /**
      * Returns a comparator that considers `unset` to be lesser than any other
