@@ -1,14 +1,13 @@
-#Include <AquaHotkeyX>
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
-; TODO make using custom comparators easier
 ; TODO allow "submap" views like .Between(Low, High)
 
 /**
  * Skip lists are probabilistic data structures that combine the advantages
  * of a sorted array (`O(log n)` lookup time) and linked lists.
  * 
- * They consist of multiple layers; the first layer 1 is a regular linked
+ * They consist of multiple layers; layer 1 which is a regular linked
  * list that contains all of the elements, followed by a hierarchy of
  * "express lanes" that each contain a smaller subset of the layer below.
  * 
@@ -17,6 +16,8 @@
  * **Example**:
  * 
  * ```
+ * SL := SkipListMap(1, "a", 2, "b", 3, "c", ..., 9, "i")
+ * 
  * L |                                                 |
  * e |                                                 |
  * v | ----------------> o --------------------------> |
@@ -25,6 +26,7 @@
  * s | -> o ------> o -> o -> o -----------> o -> o -> |
  *   | -> o -> o -> o -> o -> o -> o -> o -> o -> o -> |
  * Head   1    2    3    4    5    6    7    8    9   Null
+ *       "a"  "b"  "c"  "d"  "e"  "f"  "g"  "h"  "i"
  * ```
  * 
  * ---
@@ -33,10 +35,11 @@
  * 
  * To retrieve elements, the skip list is iterated starting from the top layer
  * and then horizontally, traversing nodes as long as the current element is
- * smaller (`.Compare()`) than the target.
+ * smaller than the target.
+ * 
  * 
  * ```
- * Target: 9 (`SL.Get(9)`)
+ * SL.Get(9) ; --> "i"
  * 
  * L |                                                 |
  * e |                                                 |
@@ -46,6 +49,26 @@
  * s |                                       o -> o    |
  *   |                                            o    |
  * Head   1    2    3    4    5    6    7    8    9   Null
+ *       "a"  "b"  "c"  "d"  "e"  "f"  "g"  "h"  "i"
+ * ```
+ * 
+ * ---
+ * 
+ * In order to support natural ordering between keys, they must implement
+ * {@link AquaHotkey_Comparable `.Compare()`}. Otherwise, you can use a custom
+ * comparator either by creating a subclass of SkipListMap, or by using
+ * {@link SkipListMap.WithComparator() `SkipListMap.WithComparator()`}.
+ * 
+ * ```ahk
+ * ; option 1: subclass
+ * class CustomMap extends SkipListMap {
+ *     ; override `Comp` to specify the comparator
+ *     Comp => Comparator.Num(StrLen).AndThenAlpha()
+ * }
+ * 
+ * ; option 2: `SkipListMap.WithComparator()`
+ * CustomMap := SkipListMap.WithComparator( ... )
+ * M := CustomMap(...)
  * ```
  * 
  * @module  <Collections/SkipListMap>
@@ -53,8 +76,56 @@
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class SkipListMap extends IMap {
+    ;@region Private
+
+    /**
+     * Traverses the skip list, returning the node containing the requested key,
+     * otherwise `false`.
+     * 
+     * `OutUpdate` receives an array of the rightmost nodes at each level during
+     * traversal, which are kept track of for insertion and deletion.
+     * 
+     * @private
+     * @param   {Any}             Key        the requested key
+     * @param   {VarRef<Array>?}  OutUpdate  (out) rightmost nodes at each level
+     * @returns {SkipListMap.Node}
+     */
+    FindNode(Key, &OutUpdate?) {
+        Curr  := this.Head
+        Level := this.Level
+        Comp  := this.Comp
+
+        Update := Array()
+        Update.Capacity := Level
+        loop Level {
+            Update.Push(false)
+        }
+
+        while (Level >= 1) {
+            loop {
+                Node := Curr.Forward.Get(Level)
+                if (Node && (Comp(Node.Key, Key) < 0)) {
+                    Curr := Node
+                } else {
+                    break
+                }
+            }
+            Update[Level--] := Curr
+        }
+
+        OutUpdate := Update
+
+        Curr := Curr.Forward.Get(1)
+        if (Curr && !Comp(Curr.Key, Key)) {
+            return Curr
+        }
+        return false
+    }
+
     /**
      * Class that represents the nodes that make up skip lists.
+     * 
+     * @private
      */
     class Node {
         /**
@@ -96,6 +167,10 @@ class SkipListMap extends IMap {
          */
         ToString() => String(this.Key) . " -> " . String(this.Value)
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Properties
 
     /**
      * Comparator used for comparing keys (defaults to `Any.Compare`).
@@ -185,41 +260,18 @@ class SkipListMap extends IMap {
         }
     }
 
-    /**
-     * Returns the "level" at which a new node should be inserted.
-     * 
-     * @private
-     * @returns {Integer}
-     */
-    RandomLevel() {
-        Level := 1
-        Prob := this.Prob
-        MaxLevel := this.MaxLevel
-        while ((Random() < Prob) && (Level < this.MaxLevel)) {
-            Level++
-        }
-        return Level
-    }
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Map Implementation
 
     /**
-     * Determines whether the skip list has a value associated with the given
-     * key.
+     * Determines whether the given key has an associated value in this skip
+     * list map.
      * 
-     * @param   {Any}  Key  the key
+     * @param   {Any}  Key  requested key
      * @returns {Boolean}
-     * @example
-     * SkipListMap(1, 2, 3, 4).Has(3, &Out) ; true
-     * MsgBox(Out) ; 4
      */
-    Has(Key, &OutValue?) {
-        Node := this.FindNode(Key)
-        if (Node) {
-            OutValue := Node.Value
-            return true
-        }
-        OutValue := unset
-        return false
-    }
+    Has(Key) => !!this.FindNode(Key)
 
     /**
      * Sets an item. This method returns `true` if a new element was added to
@@ -241,7 +293,13 @@ class SkipListMap extends IMap {
             return false
         }
 
-        NewLevel := this.RandomLevel()
+        NewLevel := 1
+        Prob := this.Prob
+        MaxLevel := this.MaxLevel
+        while ((Random() < Prob) && (NewLevel < MaxLevel)) {
+            NewLevel++
+        }
+
         Level := this.Level
         Head  := this.Head
 
@@ -298,47 +356,56 @@ class SkipListMap extends IMap {
     }
 
     /**
-     * Traverses the skip list, returning the node containing the requested key,
-     * otherwise `false`.
+     * Returns the value associated with the given key, if present. This
+     * method returns `true` if an element was found, otherwise `false`.
      * 
-     * `OutUpdate` receives an array of the rightmost nodes at each level during
-     * traversal, which are kept track of for insertion and deletion.
-     * 
-     * @private
-     * @param   {Any}             Key        the requested key
-     * @param   {VarRef<Array>?}  OutUpdate  (out) rightmost nodes at each level
-     * @returns {SkipListMap.Node}
+     * @param   {Any}           Key       requested key
+     * @param   {VarRef<Any>?}  OutValue  (out) associated value, if present
+     * @returns {Boolean}
+     * @example
+     * SkipListMap(1, 2, 3, 4).Has(3, &Out) ; true
+     * MsgBox(Out) ; 4
      */
-    FindNode(Key, &OutUpdate?) {
-        Curr  := this.Head
-        Level := this.Level
-        Comp  := this.Comp
-
-        Update := Array()
-        Update.Capacity := Level
-        loop Level {
-            Update.Push(false)
+    TryGet(Key, &OutValue?) {
+        Node := this.FindNode(Key)
+        if (Node) {
+            OutValue := Node.Value
+            return true
         }
-
-        while (Level >= 1) {
-            loop {
-                Node := Curr.Forward.Get(Level)
-                if (Node && (Comp(Node.Key, Key) < 0)) {
-                    Curr := Node
-                } else {
-                    break
-                }
-            }
-            Update[Level--] := Curr
-        }
-
-        OutUpdate := Update
-
-        Curr := Curr.Forward.Get(1)
-        if (Curr && !Comp(Curr.Key, Key)) {
-            return Curr
-        }
+        OutValue := unset
         return false
+    }
+
+    /**
+     * Deletes an item. Throws an {@link UnsetItemError}, if the key is not
+     * present in this map. Use `.TryDelete()` to avoid exceptions.
+     * 
+     * @param   {Any}  Key  requested key
+     * @returns {Boolean}
+     * @example
+     * SL := SkipListMap(1, 2, 3, 4)
+     * SL.Delete(1, &Out) ; true
+     * MsgBox(Out)        ; 2
+     */
+    Delete(Key) {
+        Node := this.FindNode(Key, &Update)
+        if (!Node) {
+            throw UnsetItemError("item not found",, String(Key))
+        }
+
+        loop (this.Level) {
+            Forward := Update.Get(A_Index).Forward
+            if (Forward.Get(A_Index) != Node) {
+                break
+            }
+            Forward[A_Index] := Node.Forward.Get(A_Index)
+        }
+
+        while (this.Level > 1 && !this.Head.Forward.Get(this.Level)) {
+            this.Level--
+        }
+        --this.Size
+        return Node.Value
     }
 
     /**
@@ -350,10 +417,10 @@ class SkipListMap extends IMap {
      * @returns {Boolean}
      * @example
      * SL := SkipListMap(1, 2, 3, 4)
-     * SL.Delete(1, &Out) ; true
+     * SL.TryDelete(1, &Out) ; true
      * MsgBox(Out)        ; 2
      */
-    Delete(Key, &OutValue?) {
+    TryDelete(Key, &OutValue?) {
         Node := this.FindNode(Key, &Update)
         if (!Node) {
             OutValue := unset
@@ -452,6 +519,10 @@ class SkipListMap extends IMap {
             this.Set(Key, Value)
         }
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region ToString()
 
     /**
      * Returns a string representation of the skip list, based on its

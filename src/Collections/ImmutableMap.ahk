@@ -1,6 +1,6 @@
-#Include <AquaHotkeyX>
-#Include <AquaHotkey\src\Collections\Map>
+#Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
+;@region ImmutableMap
 /**
  * An immutable view of an {@link IMap}.
  * 
@@ -13,6 +13,8 @@
  * M.Set("foo", "bar") ; Error! This map is immutable.
  */
 class ImmutableMap extends IMap {
+    ;@region Construction
+
     /**
      * Creates a new immutable map consisting of the specified elements.
      * The elements themselves are still mutable.
@@ -40,6 +42,10 @@ class ImmutableMap extends IMap {
         ObjSetBase(Obj, this.Prototype)
         return Obj
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Map Implementation
 
     /**
      * Returns a clone of this immutable map.
@@ -71,7 +77,7 @@ class ImmutableMap extends IMap {
      * @param   {Integer}  ArgSize  param-size of for-loop
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) => (this.M).ArgSize()
+    __Enum(ArgSize) => (this.M).__Enum(ArgSize)
 
     /**
      * Returns the size of the map.
@@ -108,8 +114,34 @@ class ImmutableMap extends IMap {
      * @returns {Any}
      */
     __Item[Key] => (this.M)[Key]
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Stream Operations
+
+    /**
+     * @see {@link IMap#RetainIf() `.RetainIf()`}
+     */
+    RetainIf(Condition, Args*) => (this.M).RetainIf(Condition, Args*).Freeze()
+
+    /**
+     * @see {@link IMap#RemoveIf() `.RemoveIf()`}
+     */
+    RemoveIf(Condition, Args*) => (this.M).RemoveIf(Condition, Args*).Freeze()
+
+    /**
+     * @see {@link IMap#Map() `.Map()`}
+     */
+    Map(Mapper, Args*) => (this.M).Map(Mapper, Args*).Freeze()
 }
 
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Extensions
+
+/**
+ * Extension methods related to {@link ImmutableMap}.
+ */
 class AquaHotkey_ImmutableMap extends AquaHotkey {
     class IMap {
         /**

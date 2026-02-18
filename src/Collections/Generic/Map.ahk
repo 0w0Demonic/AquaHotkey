@@ -1,8 +1,6 @@
 #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\..\Interfaces\IDelegatingMap.ahk"
 
-; TODO make sure classes are deletable
-
 ;@region GenericMap
 /**
  * Introduces generic maps, in which key-value pairs are enforced to
@@ -26,6 +24,7 @@ class GenericMap extends IDelegatingMap {
     /**
      * Constructs a new subclass of `GenericMap`.
      * 
+     * @private
      * @param   {Class}  M  map type
      * @param   {Class}  K  key type
      * @param   {Class}  V  value type
@@ -235,6 +234,36 @@ class GenericMap extends IDelegatingMap {
         M := (this.MapType)()
         ({}.DefineProp)(this, "M", { Get: (_) => M })
         M.Set(Args*)
+    }
+
+    /**
+     * Sets zero or more items.
+     * 
+     * @param   {Any*}  Args  alternating key-value pairs
+     */
+    Set(Args*) {
+        if (Args.Length & 1) {
+            throw ValueError("invalid param count",, Args.Length)
+        }
+        Enumer := Args.__Enum(1)
+        while (Enumer(&Key) && Enumer(&Value)) {
+            this.Check(Key, Value)
+        }
+        this.M.Set(Args*)
+    }
+
+    /**
+     * Gets or sets an item.
+     * 
+     * @param   {Any}  Key    map key
+     * @param   {Any}  Value  associated value
+     * @returns {Any}
+     */
+    __Item[Key] {
+        set {
+            this.Check(Key, value)
+            (this.M)[Key] := value
+        }
     }
 }
 

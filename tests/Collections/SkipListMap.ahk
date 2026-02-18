@@ -41,13 +41,6 @@ class Test_SkipListMap extends TestSuite {
     static Has() {
         SL := SkipListMap(1, 2, 3, 4)
         SL.Has(1).Assert(Eq(true))
-
-        SL.Has(2, &Out).Assert(Eq(false))
-        IsSet(Out).Assert(Eq(false))
-
-        SL.Has(3, &Out).Assert(Eq(true))
-
-        Out.Assert(Eq(4))
     }
 
     static Set_should_replace_value() {
@@ -89,20 +82,13 @@ class Test_SkipListMap extends TestSuite {
 
     static Delete_does_nothing() {
         SL := SkipListMap(1, 2, 3, 4)
-        Ret := SL.Delete(0, &Out)
-        Ret.Assert(Eq(false))
-
-        SL.Size.Assert(Eq(2))
-        IsSet(Out).Assert(Eq(false))
+        this.AssertThrows(() => SL.Delete(0))
     }
 
     static Delete_removes_value() {
         SL := SkipListMap(1, 2, 3, 4)
-        Ret := SL.Delete(1, &Out)
-        Ret.Assert(Eq(true))
-
-        SL.Size.Assert(Eq(1))
-        Out.Assert(Eq(2))
+        Ret := SL.Delete(1)
+        Ret.Assert(Eq(2))
     }
 
     static __Enum_size_1() {

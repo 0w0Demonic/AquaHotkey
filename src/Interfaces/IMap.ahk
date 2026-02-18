@@ -352,6 +352,50 @@ class IMap {
         return this
     }
 
+    /**
+     * Deletes an item, if present. This method return `true` if an element was
+     * removed from the map, otherwise `false`.
+     * 
+     * @param   {Any}      Key       requested key
+     * @param   {VarRef?}  OutValue  (out) associated value, if present
+     * @returns {Boolean}
+     * @example
+     * SL := Map(1, 2, 3, 4)
+     * if (SL.TryDelete(1, &Value)) {
+     *     MsgBox(Value) ; 2
+     * }
+     */
+    TryDelete(Key, &OutValue) {
+        if (this.Has(Key)) {
+            OutValue := this.Delete(Key)
+            return true
+        }
+        return false
+    }
+
+    /**
+     * Returns the value associated with the given key, if present. This
+     * method returns `true` if an element was found, otherwise `false`.
+     * 
+     * @param   {Any}      Key       requested key
+     * @param   {VarRef?}  OutValue  (out) associated value, if present
+     * @returns {Boolean}
+     * @example
+     * SL := Map(1, 2, 3, 4)
+     * if (SL.TryGet(1, &Value)) {
+     *     MsgBox(Value) ; 2
+     * }
+     */
+    TryGet(Key, &OutValue) {
+        if (this.Has(Key)) {
+            OutValue := this.Get(Key)
+            return true
+        } else {
+            OutValue := unset
+            return false
+        }
+    }
+
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Default Properties
@@ -369,6 +413,123 @@ class IMap {
      * @returns {Boolean}
      */
     IsNotEmpty => (!!this.Count)
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Stream Operations
+
+    /**
+     * Creates a new empty map with the same base object, case sensitivity
+     * and `Default` property of the given map.
+     * 
+     * @param   {IMap}  M  the map to be copied
+     * @returns {IMap}
+     * @example
+     * M := Map(1, 2, 3, 4)
+     * M.CaseSense := false
+     * M.Default := "(empty)"
+     * 
+     * Copy := Map.BasedFrom(M)
+     * MsgBox(ObjGetBase(Copy) == ObjGetBase(M)) ; always `true`
+     * MsgBox(Copy.CaseSense) ; false
+     * MsgBox(Copy.Default) ; "(empty)"
+     */
+    static BasedFrom(M) {
+        static Define := {}.DefineProp
+        static GetProp := {}.GetOwnPropDesc
+
+        if (M is Map) {
+            Result := Map()
+        } else {
+            Result := {}
+        }
+        ObjSetBase(Result, ObjGetBase(M))
+        Result.__Init()
+        Result.__New()
+
+        if (ObjHasOwnProp(M, "Default")) {
+            Define(Result, "Default", GetProp(M, "Default"))
+        }
+        if (ObjHasOwnProp(M, "CaseSense")) {
+            Define(Result, "CaseSense", GetProp(M, "CaseSense"))
+        }
+
+        if (!this.IsInstance(Result)) {
+            throw TypeError("Expected a(n) " . this.Name,, Type(Result))
+        }
+        return Result
+    }
+
+    /**
+     * Returns a new map of all elements that fulfill the given `Condition`.
+     * 
+     * ```ahk
+     * Condition(Key, Value, Args*) => Boolean
+     * ```
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
+     * @returns {IMap}
+     * @example
+     * ; Map { 1 => 2 }
+     * Map(1, 2, 3, 4).RetainIf((Key, Value) => (Key == 1))
+     */
+    RetainIf(Condition, Args*) {
+        GetMethod(Condition)
+        Result := IMap.BasedFrom(this)
+        for Key, Value in this {
+            (Condition(Key, Value, Args*) && Result[Key] := Value)
+        }
+        return Result
+    }
+
+    /**
+     * Returns a new map of all elements that don't satisfy the given
+     * `Condition`.
+     * 
+     * ```ahk
+     * Condition(Key, Value, Args*) => Boolean
+     * ```
+     * 
+     * @param   {Func}  Condition  function that evaluates a condition
+     * @param   {Any*}  Args       zero or more additional arguments
+     * @returns {this}
+     * @example
+     * ; Map { 3 => 4 }
+     * Map(1, 2, 3, 4).RemoveIf((Key, Value) => (Key == 1))
+     */
+    RemoveIf(Condition, Args*) {
+        GetMethod(Condition)
+        Result := IMap.BasedFrom(this)
+        for Key, Value in this {
+            (Condition(Key, Value, Args*) || Result[Key] := Value)
+        }
+        return Result
+    }
+
+    /**
+     * Returns a new map of elements transformed by applying `Mapper` to
+     * each element.
+     * 
+     * ```ahk
+     * Mapper(Key, Value, Args*) => Any
+     * ```
+     * 
+     * @param   {Func}  Mapper  function that returns a new value
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {Map}
+     * @example
+     * ; Map { 1 => 4, 3 => 8 }
+     * Map(1, 2, 3, 4).Map((Key, Value) => (Value * 2))
+     */
+    Map(Mapper, Args*) {
+        GetMethod(Mapper)
+        Result := IMap.BasedFrom(this)
+        for Key, Value in this {
+            Result[Key] := Mapper(Key, Value, Args*)
+        }
+        return Result
+    }
 
     ;@endregion
 }
