@@ -3,8 +3,6 @@
  * 
  * A boolean value that equals either `true`/`1` or `false`/`0`.
  * 
- * On versions above v2.1-alpha.10, this class can be used as a struct type.
- * 
  * @module  <Base/DuckTypes/Boolean>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
@@ -24,4 +22,15 @@ class Boolean extends Integer {
      */
     static IsInstance(Val?) => Integer.IsInstance(Val?)
             && ((Val == true) || (Val == false))
+
+    /**
+     * Creates a boolean value from an arbitrary value.
+     * 
+     * @param   {Any}  Val  any value
+     * @returns {Boolean}
+     * @example
+     * Boolean("foo") ; true
+     * Boolean(0)     ; false
+     */
+    static Call(Val) => !!Val
 }
