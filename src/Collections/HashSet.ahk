@@ -3,7 +3,7 @@
 
 /**
  * A set implementation that supports object equality comparisons
- * via a backing `HashMap`.
+ * by using a {@link HashMap} as backing map.
  * 
  * @module  <Collection/HashSet>
  * @author  0w0Demonic

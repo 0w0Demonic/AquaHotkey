@@ -1,8 +1,5 @@
-#Include "%A_LineFile%\..\..\Core\AquaHotkeyX.ahk"
-; #Include "%A_LineFile%\..\..\Func\Comparator.ahk"
-
-; TODO rename to `Compare`/`Comparable`?
-; ------------
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Func\Comparator.ahk"
 
 /**
  * Introduces an interface for imposing the natural order between values of
@@ -123,7 +120,7 @@
  * ;           ^ (number zero comes before string zero)
  * ```
  * 
- * @module  <Base/Ord>
+ * @module  <Base/Comparable>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @see {@link Comparator}
@@ -144,7 +141,7 @@
  * ; TypeError! Expected an Array.
  * Array.Compare(1, 2)
  */
-class AquaHotkey_Ord extends AquaHotkey
+class AquaHotkey_Comparable extends AquaHotkey
 {
     ;@region Any
     class Any {

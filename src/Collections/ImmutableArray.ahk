@@ -3,6 +3,25 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 
+; TODO move into separate "Immutable/" folder?
+; TODO use immutability as criterium for use as type pattern?
+; TODO attach `Prototype` to the `Tuple` function to allow `... is Tuple`?
+; TODO add equivalent functions to Map or Set?
+
+;@region Tuple()
+
+/**
+ * Creates a new tuple (an immutable array) consisting of the given values.
+ * 
+ * @param   {Any*}  Values  zero or more elements
+ * @returns {ImmutableArray}
+ */
+Tuple(Values*) => ImmutableArray.FromArray(Values)
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region ImmutableArray
+
 /**
  * An immutable view of an {@link IArray}
  * 
@@ -101,6 +120,10 @@ class ImmutableArray extends IArray {
      */
     __Item[Index] => (this.A)[Index]
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region IArray overrides
+
     /**
      * @see {@link IArray#Repeat}
      */
@@ -132,6 +155,10 @@ class ImmutableArray extends IArray {
     FlatMap(Mapper?, Args*) => (this.A).FlatMap(Mapper?, Args*).Freeze()
 }
 
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Extensions
+
 /**
  * Extension methods related to {@link ImmutableArray}.
  */
@@ -156,11 +183,3 @@ class AquaHotkey_ImmutableArray extends AquaHotkey {
         }
     }
 }
-
-/**
- * Creates a new tuple (an immutable array) consisting of the given values.
- * 
- * @param   {Any*}  Values  zero or more elements
- * @returns {ImmutableArray}
- */
-Tuple(Values*) => ImmutableArray(Values*)

@@ -61,9 +61,9 @@
  * `Any.Hash()` conveniently combines multiple values into a single hash code.
  * You should generally use this method when implementing custom hash codes.
  * 
- * Much like in {@link AquaHotkey_Eq} or {@link AquaHotkey_Ord}, `Any.Hash()`
- * asserts that every argument `is Any`. If all fields are known to be
- * integers, the method can be specialized:
+ * Much like in {@link AquaHotkey_Eq} or {@link AquaHotkey_Comparable},
+ * `Any.Hash()` asserts that every argument `is Any`. If all fields are known
+ * to be integers, the method can be specialized:
  * 
  * ```ahk
  * HashCode() => Integer.Hash(this.Major, this.Minor, this.Patch)

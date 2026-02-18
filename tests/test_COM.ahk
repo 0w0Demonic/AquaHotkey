@@ -1,4 +1,4 @@
-#Include "%A_LineFile%/../../src/System/COM.ahk"
+#Include "%A_LineFile%\..\..\src/System/COM.ahk"
 
 class InternetExplorer extends COM {
     static CLSID => "InternetExplorer.Application"

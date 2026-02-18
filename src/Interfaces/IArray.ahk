@@ -1,5 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO `.Shuffle()` for LinkedList, with the help of the list iterator
+
 /**
  * @interface
  * @description
@@ -30,13 +32,7 @@ class IArray {
 
     /**
      * Creates a new empty array with the same base object and `Default`
-     * behavior of the given array. This method makes the following
-     * assumptions:
-     * 
-     * 1. `.__New()` is callable without any arguments
-     * assumes that
-     * calling `.__New()` with no arguments properly initializes the
-     * array without pushing anything.
+     * behavior of the given array.
      * 
      * @param   {IArray}  Arr  the array to be copied
      * @returns {IArray}
@@ -55,7 +51,7 @@ class IArray {
         static Define := {}.DefineProp
         static GetProp := {}.GetOwnPropDesc
         
-        ; note: uses literals to avoid `.__Init()` and `.__New()`
+        ; note: use literals to avoid `.__Init()` and `.__New()`
         if (Arr is Array) {
             Result := []
         } else {
@@ -748,7 +744,7 @@ class IArray {
      * - supports `__Item[Index: Integer] => Any`
      * - index is 1-based
      * 
-     * @param   {Func?}     Comp      function that orders two values
+     * @param   {Object?}   Comp      function that orders two values
      * @param   {Boolean?}  Reversed  sort in reverse order
      * @returns {this}
      * @see {@link Comparator}

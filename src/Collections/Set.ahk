@@ -1,8 +1,10 @@
+#Include "%A_LineFile%\..\Set.ahk"
+
+; TODO allow 0-arg call on methods like `.Add()`?
+
 /**
- * A simple implementation of {@link ISet} which wraps around instances of
- * {@link IMap}.
- * 
- * A simple set implementation based on the built-in `Map` type.
+ * An implementation of {@link ISet} that uses the keys of an {@link IMap}
+ * as elements.
  * 
  * @module  <Collections/Set>
  * @author  0w0Demonic
@@ -23,7 +25,7 @@ class Set extends ISet {
      * 
      * @constructor
      * @param   {IMap}  M       the backing map
-     * @param   {Any*}  Values  zero or more elements to be added
+     * @param   {Any*}  Values  elements to be added
      * @returns {Set}
      */
     static FromMap(M, Values*) {
@@ -172,6 +174,9 @@ class Set extends ISet {
     }
 }
 
+/**
+ * Extension methods related to {@link Set}.
+ */
 class AquaHotkey_Set extends AquaHotkey {
     class IMap {
         /**

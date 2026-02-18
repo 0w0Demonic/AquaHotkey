@@ -1,4 +1,4 @@
-class Test_Ord extends TestSuite {
+class Test_Comparable extends TestSuite {
     static Methods_Should_Exist() {
         HasProp(42, "Gt").Assert(Eq(true))
         HasProp(42, "Compare").Assert(Eq(true))

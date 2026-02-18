@@ -46,7 +46,7 @@ class Numeric extends Primitive {
      * @param   {Numeric}  B  value 2
      * @returns {Integer}
      * @see {@link Comparator}
-     * @see {@link AquaHotkey_Ord}
+     * @see {@link AquaHotkey_Comparable}
      * @example
      * Numeric.Compare("42", 42) ; 0 (same value)
      */

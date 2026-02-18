@@ -7,7 +7,9 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
- * Predicate.Cast(IsNumber) ; gains access to Predicate methods
+ * ; changes the base of `IsNumber` to `Predicate.Prototype`, which allows it
+ * ; to access methods like `.And()`, `.Or()`, etc.
+ * Predicate.Cast(IsNumber)
  */
 class AquaHotkey_FuncCasting extends AquaHotkey {
     class Func {

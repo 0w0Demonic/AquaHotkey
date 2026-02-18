@@ -1,5 +1,5 @@
 #Requires AutoHotkey >=2.0.5
-#Include "%A_LineFile%/../../AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\AquaHotkey.ahk"
 
 /**
  * A wrapper for the `SysIpAddress32` control used for selecting IPv4 addresses,

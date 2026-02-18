@@ -30,7 +30,7 @@ class Enumerable2 {
 
         Define(this, "Strict", { Get: (_) => Cls })
 
-        this.Extend(IArray, IMap, Enumerator)
+        this.Extend(IArray, IMap)
         Cls.Extend(DoubleStream)
 
         static WithAlias(Target) {
