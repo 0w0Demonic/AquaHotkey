@@ -221,6 +221,33 @@ class SkipListMap extends IMap {
      */
     Count => this.Size
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Construction
+
+    /**
+     * Creates a subclass of {@link SkipListMap} that uses the given
+     * {@link Comparator} function.
+     * 
+     * @param   {Comparator}  Comp  comparator function
+     * @returns {Class<? extends SkipListMap>}
+     * @example
+     * Cls := SkipListMap.WithComparator( Comparator.Num(StrLen).ThenAlpha() )
+     * M := Cls("foo", 2, "bar", 5)
+     */
+    static WithComparator(Comp) {
+        GetMethod(Comp)
+        Cls := Class()
+        Proto := Object()
+        Cls.Prototype := Proto
+        Proto.DefineProp("Comp", { Get: (_) => Comp })
+
+        ObjSetBase(Cls, this)
+        ObjSetBase(Proto, this.Prototype)
+
+        return Cls
+    }
+
     /**
      * The amount of elements contained in the skip list.
      * 
