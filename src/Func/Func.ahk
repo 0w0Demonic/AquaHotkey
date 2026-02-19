@@ -1,5 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+;@region Func
 /**
  * Basic function composition.
  * 
@@ -109,6 +110,10 @@ class AquaHotkey_Func extends AquaHotkey {
             }
         }
 
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Wrapping
+
         /**
          * Wraps the function with `try/catch/finally` logic.
          * 
@@ -172,6 +177,10 @@ class AquaHotkey_Func extends AquaHotkey {
     }
 }
 
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Self()
+
 /**
  * Represents the identity function which always returns its input argument.
  * 
@@ -181,3 +190,5 @@ class AquaHotkey_Func extends AquaHotkey {
  * Self(23) ; --> 23
  */
 Self(x) => x
+
+;@endregion
