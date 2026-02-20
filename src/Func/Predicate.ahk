@@ -6,7 +6,7 @@
 
 /**
  * A predicate is a function that takes one input and returns a boolean
- * value (`true` or `false`) based on a condition.
+ * value (either `true` or `false`) based on a condition.
  * 
  * @module  <Func/Predicate>
  * @author  0w0Demonic
@@ -25,6 +25,8 @@ class Predicate extends Func {
             this.Cast(Fn)
         }
     }
+
+    ;@region Static
 
     /**
      * Negates a predicate.
@@ -119,6 +121,10 @@ class Predicate extends Func {
         }
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Non-Static
+
     /**
      * Combines this predicate and the `Other` through AND.
      * 
@@ -168,6 +174,30 @@ class Predicate extends Func {
     OrNot(Other, Args*) {
         GetMethod(Other)
         return this.Cast((Val?) => (this(Val?) || !Other(Val?, Args*)))
+    }
+
+    /**
+     * Combines this predicate and the `Other` through XOR.
+     * 
+     * @param   {Predicate}  Other  other predicate
+     * @param   {Any*}       Args   zero or more arguments for `Other`
+     * @returns {Predicate}
+     */
+    Xor(Other, Args*) {
+        GetMethod(Other)
+        return this.Cast((Val?) => (!!this(Val?) ^ !!Other(Val?, Args*)))
+    }
+
+    /**
+     * Combines this predicate and the `Other` through XNOR.
+     * 
+     * @param   {Predicate}  Other  other predicate
+     * @param   {Any*}       Args   zero or more arguments for `Other`
+     * @returns {Predicate}
+     */
+    Xnor(Other, Args*) {
+        GetMethod(Other)
+        return this.Cast((Val?) => (!!this(Val?) ^ !Other(Val?, Args*)))
     }
 
     /**
