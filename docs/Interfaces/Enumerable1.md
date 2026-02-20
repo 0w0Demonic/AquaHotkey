@@ -1,5 +1,12 @@
 # <[Interfaces](./overview.md)/[Enumerable1](../../src/Interfaces/Enumerable1.ahk)>
 
+- [Overview](#overview)
+- [Collection](#collection)
+- [Side Effects](#side-effects)
+- [Find Values](#find-values)
+- [Quantifiers](#quantifiers)
+- [Reduction](#reduction)
+
 ## Overview
 
 `Enumerable1` is the base interface for all things that are enumerable with

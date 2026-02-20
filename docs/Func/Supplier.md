@@ -1,5 +1,9 @@
 # <[Func](./overview.md)/[Supplier](../../src/Func/Supplier.ahk)>
 
+- [Overview](#overview)
+- [Constant Functions](#constant-functions)
+- [Composition](#composition)
+
 ## Overview
 
 A zero parameter function that represents a supplier of results.

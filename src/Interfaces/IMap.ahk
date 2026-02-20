@@ -352,6 +352,10 @@ class IMap {
         return this
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region `.Try...()` Methods
+
     /**
      * Deletes an item, if present. This method return `true` if an element was
      * removed from the map, otherwise `false`.

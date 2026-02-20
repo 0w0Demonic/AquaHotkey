@@ -1,5 +1,12 @@
 # <[Func](./overview.md)/[Transducer](./Transducer.md)>
 
+- [Overview](#overview)
+- [Methods](#methods)
+  - [`.RetainIf()`](#retainif)
+  - [`.RemoveIf()`](#removeif)
+  - [`.Map()`](#map)
+  - [`.Finally()`](#finally)
+
 ## Overview
 
 Transducers are composable higher-order reducers. They are used to create

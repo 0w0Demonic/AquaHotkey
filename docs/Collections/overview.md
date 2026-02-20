@@ -2,6 +2,17 @@
 
 - [All Modules](../api-overview.md)
 
+---
+
+- [List of Features](#list-of-features)
+- [Summary](#summary)
+- [Class Diagram](#class-diagram)
+- [Generic Collections](#generic-collections)
+- [Hash-Based Collections](#hash-based-collections)
+- [Immutable Collections](#immutable-collections)
+- [SkipListMap and SkipListSet](#skiplistmap-and-skiplistset)
+- [Other Collections](#other-collections)
+
 ## List of Features
 
 - [Generic](./Generic/overview.md)
@@ -155,21 +166,6 @@ SkipListSet(23, 12, 44, 2).Join(", ").MsgBox() ; "2, 12, 23, 44"
 
 - [<Base/Eq>](../Base/Eq.md)
 - [<Base/Hash>](../Base/Hash.md)
-
-## Stream-Like Operations
-
-- [<Collections/Array>](./Array.md)
-- [<Collections/Map>](./Map.md)
-
-Extended `Array` and `Map` methods including mostly functional operations,
-such as filtering, mapping, and transformations.
-
-```ahk
-Even(x) => !(x & 1)
-Times(x) => (y) => (x * y)
-
-Array(1, 2, 3, 4).RetainIf(Even).Map(Times(2)) ; [2, 4]
-```
 
 ## Other Collections
 

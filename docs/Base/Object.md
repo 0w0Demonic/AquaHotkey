@@ -1,5 +1,13 @@
 # <[Base](./overview.md)/[Object](../../src/Base/Object.ahk)>
 
+- [Overview](#overview)
+- [Working With Property Descriptors](#working-with-property-descriptors)
+- [Method `.TransformProp()`](#method-transformprop)
+- [Method `.DefineProps()`](#method-defineprops)
+- [Function `ObjFromDesc()`](#function-objfromdesc)
+- [Method `.GetPropDesc()`](#method-getpropdesc)
+- [Some Other Things](#some-other-things)
+
 ## Overview
 
 Object utilities, mostly for the creation of new properties.
@@ -54,6 +62,8 @@ Arr := Array()
 Arr.Push(1, 2, 3)
 ```
 
+## Method `.DefineProps()`
+
 `.DefineProps()` lets you define several properties at once. It accepts one
 plain object that contains zero or more fields with their associated prop desc.
 
@@ -63,6 +73,8 @@ class Point {
     __New(X, Y) => this.DefineProps({ X: Constant(X), Y: Constant(Y) })
 }
 ```
+
+## Function `ObjFromDesc()`
 
 Also, you can use `ObjFromDesc(Desc)` to create an object only based from
 a set of property descriptors.

@@ -1,5 +1,9 @@
 # <[Base](../../Base/overview.md)/[DuckTypes](../DuckTypes.md)/[Record](../../../src/Base/DuckTypes/Record.ahk)>
 
+- [Overview](#overview)
+- [Pattern Matching](#pattern-matching)
+- [Subtypes](#subtypes)
+
 ## Overview
 
 A [duck type](../DuckTypes.md) that represents objects with specified key and

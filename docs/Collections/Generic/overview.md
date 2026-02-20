@@ -3,6 +3,17 @@
 - [All Modules](../../api-overview.md)
 - [Module `<Collections>`](../overview.md)
 
+---
+
+- [List of All Features](#list-of-all-features)
+- [What Are Generic Collections?](#what-are-generic-collections)
+- [How They Work](#how-they-work)
+- [Using Generics as Type Pattern](#using-generics-as-type-pattern)
+- [Some Caveats](#some-caveats)
+  - [Matching Non-Generic Collections](#matching-non-generic-collections)
+  - [Mutability of Objects](#mutability-of-objects)
+- [Performance Considerations](#performance-considerations)
+
 ## List of All Features
 
 - [GenericArray](./Array.md)

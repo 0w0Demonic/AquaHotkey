@@ -1,5 +1,9 @@
 # <[Collections](./overview.md)/[HashMap](../../src/Collections/HashMap.ahk)>
 
+- [Overview](#overview)
+- [Equality Checks and Hash Codes](#equality-checks-and-hash-codes)
+- [Duck Types](#duck-types)
+
 ## Overview
 
 A hash-based [IMap](../Interfaces/IMap.md) implementation.

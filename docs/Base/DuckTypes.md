@@ -1,5 +1,22 @@
 # <[Base](./overview.md)/[DuckTypes](../../src/Base/DuckTypes.ahk)>
 
+- [Overview](#overview)
+- [How it Works](#how-it-works)
+- [Pattern Matching](#pattern-matching)
+  - [Literal Values](#literal-values)
+  - [Object Literals](#object-literals)
+  - [Array Literals](#array-literals)
+  - [Generic Arrays](#generic-arrays)
+  - [Nullable](#nullable)
+  - [Callable and Numeric](#callable-and-numeric)
+  - [Enums, Intersection and Union Types](#enums-intersection-and-union-types)
+  - [Record](#record)
+- [Writing Your Own Duck Types](#writing-your-own-duck-types)
+- [Using Functions as Type Patterns](#using-functions-as-type-patterns)
+- [Type-Checked Functions](#type-checked-functions)
+
+---
+
 - [Boolean](./DuckTypes/Boolean.md)
 - [Callable](./DuckTypes/Callable.md)
 - [Nullable](./DuckTypes/Nullable.md)

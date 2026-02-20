@@ -1,5 +1,7 @@
 # <[Base](../../Base/overview.md)/[DuckTypes](../DuckTypes.md)/[Numeric](../../../src/Base/DuckTypes/Numeric.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 A [duck type](../DuckTypes.md) that represents any numeric value, including

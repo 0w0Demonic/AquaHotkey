@@ -1,5 +1,7 @@
 # <[Collections](./overview.md)/[HashMap](../../src/Collections/HashSet.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 A hash-based [ISet](../Interfaces/ISet.md) implementation. It uses a

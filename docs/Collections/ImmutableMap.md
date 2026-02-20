@@ -1,5 +1,7 @@
 # <[Collections](./overview.md)/[ImmutableMap](../../src/Collections/ImmutableMap.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 An immutable [IMap](../Interfaces/IMap.md) implementation.

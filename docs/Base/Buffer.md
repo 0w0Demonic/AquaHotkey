@@ -1,5 +1,10 @@
 # <[Base](./overview.md)/[Buffer](../../src/Base/Buffer.ahk)>
 
+- [Overview](#overview)
+- [Size of AHK Numbers](#size-of-ahk-numbers)
+- [Creating Buffers](#creating-buffers)
+- [Move a ClipboardAll Into Your Clipboard](#move-a-clipboardall-into-your-clipboard)
+
 ## Overview
 
 A few methods for `Buffer` and its subclasses, especially for their creation.

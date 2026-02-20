@@ -1,5 +1,13 @@
 # <[Interfaces](./overview.md)/[IArray](../../src/Interfaces/IArray.ahk)>
 
+- [Overview](#overview)
+- [Duck Typing](#duck-typing)
+- [Construction](#construction)
+- [Default Operations](#default-operations)
+  - [General](#general)
+  - [Deque Methods](#deque-methods)
+  - [Filtering & Mapping](#filtering--mapping)
+
 ## Overview
 
 The base class for any array-like class. This includes `Array`,
@@ -23,7 +31,7 @@ keep the same base object as previously, but don't clone any elements.
 
 ## Default Operations
 
-Default operations of IArray include...
+### General
 
 - **Binary Search**
 

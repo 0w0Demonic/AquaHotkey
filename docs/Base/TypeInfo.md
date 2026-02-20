@@ -1,5 +1,11 @@
 # <[Base](./overview.md)/[TypeInfo](../../src/Base/TypeInfo.ahk)>
 
+- [Overview](#overview)
+- [Properties `.Type` and `.Class`](#properties-type-and-class)
+- [Properties `.Hierarchy` and `.Bases`](#properties-hierarchy-and-bases)
+- [`Class.ForName()`](#classforname)
+- [Class `.Name` Property](#class-name-property)
+
 ## Overview
 
 Properties for retrieving type information, such as the type and class of a

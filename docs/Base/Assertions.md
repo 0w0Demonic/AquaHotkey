@@ -1,5 +1,12 @@
 # <[Base](./overview.md)/[Assertions](../../src/Base/Assertions.ahk)>
 
+- [Overview](#overview)
+- [Removed Methods in v2](#removed-methods-in-v2)
+- [Function `Assert()`](#function-assert)
+- [Method `.Assert(Condition, Args*)`](#method-assertcondition-args)
+- [Method `.AssertType(T)`](#method-asserttypet)
+- [Some More Examples](#some-more-examples)
+
 ## Overview
 
 Introduces a set of assertion methods, perfect for validating parameters and

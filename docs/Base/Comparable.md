@@ -1,5 +1,10 @@
 # <[Base](./overview.md)/[Compare](../../src/Base/Compare.ahk)>
 
+- [Overview](#overview)
+- [Implementing `.Compare()`](#implementing-compare)
+- [Static `.Compare()` Method](#static-compare-method)
+- [Comparator Functions](#comparator-functions)
+
 ## Overview
 
 An interface for imposing natural order between values of the same type.

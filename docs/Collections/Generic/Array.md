@@ -1,5 +1,8 @@
 # <[Collections](../overview.md)/[Generic](./overview.md)/[Array](../../../src/Collections/Generic/Array.ahk)>
 
+- [Overview](#overview)
+- [Use as Type Pattern](#use-as-type-pattern)
+
 ## Overview
 
 A type-checked wrapper for [IArray](../../Interfaces/IArray.md) classes,

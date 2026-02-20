@@ -1,5 +1,7 @@
 # <[Func](./overview.md)/[Pipes](../../src/Func/Pipes.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 Allows streamlining code in the form of pipelines like you would in

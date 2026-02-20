@@ -1,5 +1,9 @@
 # <[Base](./overview.md)/[Error](../../src/Base/Error.ahk)>
 
+- [Overview](#overview)
+- [Throwing Errors](#throwing-errors)
+- [Error Causes](#error-causes)
+
 ## Overview
 
 Utilites related to errors, like throwing and error causes.

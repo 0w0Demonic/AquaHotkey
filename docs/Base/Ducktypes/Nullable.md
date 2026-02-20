@@ -1,5 +1,7 @@
 # <[Base](../../Base/overview.md)/[DuckTypes](../DuckTypes.md)/[Nullable](../../../src/Base/DuckTypes/Nullable.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 A [type wrapper](../DuckTypes.md#nullable) that allows matching both `unset`

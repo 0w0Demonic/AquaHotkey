@@ -1,5 +1,7 @@
 # <[Func](./overview.md)/[Lazy](../../src/Func/Lazy.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 A zero-parameter function whose value is computed once by retrieving a value

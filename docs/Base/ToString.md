@@ -1,5 +1,9 @@
 # <[Base](./overview.md)/[ToString](../../src/Base/ToString.ahk)>
 
+- [Overview](#overview)
+- [Method `.ToString()`](#method-tostring)
+- [How to Implement](#how-to-implement)
+
 ## Overview
 
 An interface for turning any value into a human-readable string representation

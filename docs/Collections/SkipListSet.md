@@ -1,5 +1,7 @@
 # <[Collections](./overview.md)/[SkipListSet](../../src/Collections/SkipListSet.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 An ordered implementation of [ISet](../Interfaces/ISet.md) that uses the keys

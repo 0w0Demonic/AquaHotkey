@@ -1,5 +1,7 @@
 # <[Base](../../Base/overview.md)/[DuckTypes](../DuckTypes.md)/[Boolean](../../../src/Base/DuckTypes/Boolean.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 A [duck type](../DuckTypes.md) that represents the boolean values `true`/`1`

@@ -9,3 +9,4 @@
 - test `IMap#TryDelete()` and `IMap#TryGet()` methods
 
 - add mapper functions to access an object property by name, for example `Prop(Name) => (Obj) => Obj.%Name%`
+- move fileutils back to IO

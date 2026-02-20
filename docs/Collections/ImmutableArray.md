@@ -1,5 +1,7 @@
 # <[Collections](./overview.md)/[ImmutableArray](../../src/Collections/ImmutableArray.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 An immutable implementation of [IArray](../Interfaces/IArray.md).

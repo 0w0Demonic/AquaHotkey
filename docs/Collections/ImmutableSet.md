@@ -1,5 +1,7 @@
 # <[Collections](./overview.md)/[ImmutableSet](../../src/Collections/ImmutableSet.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 An immutable [ISet](../Interfaces/ISet.md) implementation.

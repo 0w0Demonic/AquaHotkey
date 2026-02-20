@@ -1,5 +1,7 @@
 # <[Base](./overview.md)/[VarRef](../../src/Base/VarRef.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 `VarRef` now implements the `.Ptr` property, which attempts to find a pointer

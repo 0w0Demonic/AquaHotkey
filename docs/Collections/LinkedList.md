@@ -1,5 +1,7 @@
 # <[Collections](./overview.md)/[LinkedList](../../src/Collections/LinkedList.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 An implementation of [IArray](../Interfaces/IArray.md) as doubly linked list.

@@ -1,5 +1,12 @@
 # <[Func](./overview.md)/[Comparator](../../src/Func/Comparator.ahk)>
 
+- [Overview](#overview)
+- [Building Comparators](#building-comparators)
+- [Composition](#composition)
+- [Reversing](#reversing)
+- [Unset Handling](#unset-handling)
+- [General Notes](#general-notes)
+
 ## Overview
 
 Comparators are functions that impose a total ordering between two input values.

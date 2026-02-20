@@ -1,11 +1,17 @@
 # <[Interfaces](./overview.md)/[Enumerable2](../../src/Interfaces/Enumerable2.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 `Enumerable2` is the base interface for all things that are enumerable with
 exactly two parameters, such as maps. In general, methods work exactly as
 specified in `Enumerable1`, except that their names end with `2` and they
 take an additional parameter for the key.
+
+```ahk
+Array.ForEach2(  (Index, Value) => MsgBox(Index . ": " . Value)  )
+```
 
 Note that the functions passed to these methods are able to access `A_Index`.
 

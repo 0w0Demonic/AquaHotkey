@@ -21,11 +21,8 @@ MsgBox(Obj.Is(IArray))
 - [Enumerable2](./Enumerable2.md)
 - [IArray](./IArray.md)
 - [IBuffer](./IBuffer.md)
-- [IDelegatingMap](./IDelegatingMap.md)
 - [IMap](./IMap.md)
-- [Indexable](./Indexable.md)
 - [ISet](./ISet.md)
-- [Sizeable](./Sizeable.md)
 
 ## Enumerable1 and Enumerable2
 

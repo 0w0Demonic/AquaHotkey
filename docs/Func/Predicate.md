@@ -1,5 +1,14 @@
 # <[Func](./overview.md)/[Predicate](../../src/Func/Predicate.ahk)>
 
+- [Overview](#overview)
+- [Construction](#construction)
+- [Composition](#composition)
+- [Negation](#negation)
+- [Built-In Functions](#built-in-functions)
+- [Type Info](#type-info)
+- [Ordering](#ordering)
+- [Equality](#equality)
+
 ## Overview
 
 A predicate is a function that takes in one input and returns a boolean value

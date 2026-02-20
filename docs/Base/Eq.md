@@ -1,5 +1,11 @@
 # <[Base](./overview.md)/[Eq](../../src/Base/Eq.ahk)>
 
+- [Overview](#overview)
+- [How to Implement](#how-to-implement)
+  - [Checklist](#checklist)
+  - [Example](#example)
+- [Static `.Equals()` Method](#static-equals-method)
+
 ## Overview
 
 A universal way to test two values for equivalence.

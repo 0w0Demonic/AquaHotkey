@@ -1,5 +1,8 @@
 # <[Collections](../overview.md)/[Generic](./overview.md)/[Map](../../../src/Collections/Generic/Map.ahk)>
 
+- [Overview](#overview)
+- [Use as Type Pattern](#use-as-type-pattern)
+
 ## Overview
 
 A type-checked wrapper for [IMap](../../Interfaces/IMap.md) classes.

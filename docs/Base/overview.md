@@ -1,6 +1,22 @@
 # Module `<Base>`
 
 - [All Modules](../api-overview.md)
+- [List of Features](#list-of-features)
+- [Summary](#summary)
+- [Assertions](#assertions)
+- [Duck Types](#duck-types)
+- [Buffer](#buffer)
+- [ComValue](#comvalue)
+- [Equality Checks](#equality-checks)
+- [Error Handling](#error-handling)
+- [Hash Codes](#hash-codes)
+- [Object Manipulation](#object-manipulation)
+- [Comparing by Natural Order](#comparing-by-natural-order)
+- [String Representations](#string-representations)
+- [Type Information](#type-information)
+- [VarRef](#varref)
+- [Primitives](#primitives)
+- [File Utils](#file-utils)
 
 ## List of Features
 

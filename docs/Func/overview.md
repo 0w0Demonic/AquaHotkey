@@ -2,6 +2,20 @@
 
 - [All Modules](../api-overview.md)
 
+---
+
+- [List of All Features](#list-of-all-features)
+- [Class Diagram](#class-diagram)
+- [Type Casting](#type-casting)
+- [Comparator Functions](#comparator-functions)
+- [Continuation](#continuation)
+- [Function Composition](#function-composition)
+- [Keyword Arguments](#keyword-arguments)
+- [Lazy Evaluation](#lazy-evaluation)
+- [Predicates](#predicates)
+- [Pipes](#pipes)
+- [Supplier](#supplier)
+
 ## List of Features
 
 - [Cast](./Cast.md)
@@ -115,7 +129,7 @@ Value := L() ; evaluated for the first time
 Value := L() ; result is cached now
 ```
 
-## Predicate
+## Predicates
 
 - [<Func/Predicate>](./Func/Predicate.md)
 
@@ -146,7 +160,7 @@ MyVar.o0(DoThis).o0(DoThat, "foo").o0(MsgBox)
 MsgBox(DoThat(DoThat(MyVar), "foo"))
 ```
 
-**Supplier**:
+## Supplier
 
 - [<Func/Supplier>](./Func/Supplier.md)
 

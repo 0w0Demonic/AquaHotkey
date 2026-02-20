@@ -1,5 +1,7 @@
 # <[Func](./overview.md)/[Monoid](../../src/Func/Monoid.ahk)>
 
+- [Overview](#overview)
+
 ## Overview
 
 Monoids are binary operations with an identity (for example, addition).
