@@ -1,6 +1,9 @@
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 
+; TODO implement own `.BinarySearch()`?
+; TODO implement `.Length { set; }`?
+
 /**
  * An implementation of {@link IArray} as doubly linked list.
  * 
@@ -153,6 +156,7 @@ class LinkedList extends IArray {
     /**
      * Clears the list and the references between the nodes.
      * 
+     * @override {@link IArray#Clear()}
      * @example
      * L := LinkedList(1, 2, 3, 4)
      * L.Clear()

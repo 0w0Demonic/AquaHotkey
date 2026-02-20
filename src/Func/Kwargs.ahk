@@ -37,17 +37,9 @@
  * ControlSend.Signature := "Keys/K, Control/Ctrl/Ctl/C, WinTitle/Title, ..."
  * ControlSend.With({
  *     Keys: "hello",
- *     Ctrl: "Edit1",
- *     Title: "ahk_exe notepad.exe"
- * })
- * 
- * ; Mix aliases (case-insensitive)
- * ControlSend.With({
- *     K: "hello",
- *     control: "Edit1",
+ *     Control: "Edit1",
  *     WinTitle: "ahk_exe notepad.exe"
  * })
- * ```
  * 
  * ### Customizing Built-In Function Signatures
  * 

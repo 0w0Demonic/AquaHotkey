@@ -517,11 +517,11 @@ class Stream extends BaseStream
      * `ISet`.
      * 
      * If specified, `KeyExtractor` retrieves the key with which the value
-     * should be stored. `SetParam` determines what kind of `Set` should
+     * should be stored. `SetParam` determines what kind of set should
      * be used for storage.
      * 
-     * @param   {Func?}  KeyExtractor    function to create map keys
-     * @param   {Any?}   SetParam        internal map options
+     * @param   {Func?}  KeyExtractor  function to create map keys
+     * @param   {Any?}   SetParam      internal map options
      * @returns {Stream}
      * @see {@link HashMap}
      * @see {@link ISet.Create()}

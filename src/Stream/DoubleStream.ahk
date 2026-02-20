@@ -387,16 +387,15 @@ class DoubleStream extends BaseStream
     ;@region .Distinct()
 
     /**
-     * Returns a stream of unique elements by keeping track of them in a Map.
+     * Returns a stream of unique elements by keeping track of them in an
+     * `ISet`.
      * 
-     * `KeyExtractor` retrieves the Map key that should be used to store with,
-     * otherwise the value itself is used as key.
+     * `KeyExtractor` is a function that retrieves a key that should be kept
+     * track of in the set. `SetParam` produces a set that should be used
+     * to store keys with.
      * 
-     * `MapParam` determines the type of Map to use internally. For example,
-     * a `HashMap` is able to treat objects equivalent based on `.Eq()`.
-     * 
-     * @param   {Func}  KeyExtractor    function to create map keys
-     * @param   {Any?}  MapParam        internal map options
+     * @param   {Func}  KeyExtractor  function to create map keys
+     * @param   {Any?}  SetParam      internal map options
      * @returns {DoubleStream}
      * @example
      * ; <"foo">
@@ -407,16 +406,14 @@ class DoubleStream extends BaseStream
      * Array({ x: 23 }, { x: 35 }, { x: 23 }).DoubleStream()
      *         .Distinct((i, obj) => obj.x)
      */
-    Distinct(KeyExtractor, MapParam := Map()) {
-        Cache := IMap.Create(MapParam)
+    Distinct(KeyExtractor, SetParam := Set()) {
         GetMethod(KeyExtractor)
+        Cache := ISet.Create(SetParam)
         return this.Cast(DistinctBy)
 
         DistinctBy(&A, &B) {
             while (this(&A)) {
-                Key := KeyExtractor(A?, B?)
-                if (!Cache.Has(Key)) {
-                    Cache[Key] := true
+                if (Cache.Add(KeyExtractor(A?, B?))) {
                     return true
                 }
             }

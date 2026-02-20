@@ -1,6 +1,8 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
+ * @duck
+ * 
  * A monoid is a binary operation with an identity.
  * 
  * In other words:
@@ -66,7 +68,6 @@ class Product extends Any {
     static Identity => 1
 }
 
-; TODO make this more flexible
 /**
  * String concatenation
  */
