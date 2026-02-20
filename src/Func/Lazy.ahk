@@ -1,5 +1,7 @@
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
+; TODO allow wrapping methods / properties in a way for them to be lazy?
+
 /**
  * A zero-parameter function whose value is computed once by retrieving a value
  * from a {@link Supplier}, and then internally caching its result.
@@ -12,7 +14,7 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
- * LoadConfig := Lazy(() => FileRead("myFile"))
+ * LoadConfig := Lazy(() => FileRead("myFile.txt"))
  * 
  * LoadConfig() ; (file contents)
  * LoadConfig() ; (same file contents, but cached)
@@ -37,14 +39,14 @@ class Lazy extends Func {
      * Dice() ; 2 (cached value)
      * 
      * @example
-     * LoadConfig := Lazy(() => FileRead("myFile"))
+     * LoadConfig := Lazy(() => FileRead("myFile.txt"))
      */
     static Call(Supplier, Args*) {
         GetMethod(Supplier)
         Value := unset
         return this.Cast(Lazy)
 
-        Lazy() {
+        Lazy(*) {
             if (!IsSet(Value)) {
                 Value := Supplier(Args*)
             }

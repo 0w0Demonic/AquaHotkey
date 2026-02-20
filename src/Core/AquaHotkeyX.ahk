@@ -51,6 +51,8 @@
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 #Include "%A_LineFile%\..\..\Func\Comparator.ahk"
 #Include "%A_LineFile%\..\..\Func\Func.ahk"
+#Include "%A_LineFile%\..\..\Func\Kwargs.ahk"
+#Include "%A_LineFile%\..\..\Func\Lazy.ahk"
 #Include "%A_LineFile%\..\..\Func\Pipes.ahk"
 #Include "%A_LineFile%\..\..\Func\Supplier.ahk"
 #Include "%A_LineFile%\..\..\Func\Monoid.ahk"

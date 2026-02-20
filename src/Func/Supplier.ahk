@@ -29,7 +29,7 @@ class Supplier extends Func {
      * RollDice() ; 3 (random)
      * RollDice() ; 5 (random)
      */
-    static Call(Fn, Args*) => this.Cast(() => Fn(Args*))
+    static Call(Fn, Args*) => this.Cast((*) => Fn(Args*))
 
     /**
      * Returns a supplier that constantly returns the given `Value`.
@@ -40,7 +40,7 @@ class Supplier extends Func {
      * S := Supplier.Of(42)
      * S() ; 42
      */
-    static Of(Value) => this.Cast(() => Value)
+    static Of(Value) => this.Cast((*) => Value)
 
     /**
      * Creates a new supplier that transforms the value of this supplier
@@ -60,10 +60,7 @@ class Supplier extends Func {
      */
     Map(Mapper, Args*) {
         GetMethod(Mapper)
-        ObjSetBase(Mapped, ObjGetBase(this))
-        return Mapped
-
-        Mapped() => Mapper(this())
+        return this.Cast((*) => Mapper(this(Args*)))
     }
 }
 
