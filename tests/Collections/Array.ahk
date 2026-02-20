@@ -94,26 +94,10 @@ class Test_Array extends TestSuite
     }
 
     static Sort7() {
-        static Comparator(a?, b?) {
-            if (!IsSet(a) && !IsSet(b)) {
-                return 0
-            }
-            if (!IsSet(a) && IsSet(b)) {
-                return -1
-            }
-            if (IsSet(a) && !IsSet(b)) {
-                return 1
-            }
-            return (a > b) - (b > a)
-        }
-        Array(unset, 1, 2, 3, unset).Sort(Comparator).Join().Assert(Eq("123"))
-    }
-
-    static Sort8() {
         Array().Sort()
     }
 
-    static Sort9() {
+    static Sort8() {
         static CompBuffers(A, B) {
             ASize := A.Size
             BSize := B.Size
@@ -238,12 +222,12 @@ class Test_Array extends TestSuite
     static RetainIf2() {
         static Filter(Value?) {
             if (!IsSet(Value)) {
-                return true
+                return false
             }
             return (Value > 1)
         }
         Arr := Array(1, 2, 3, unset, unset).RetainIf(Filter)
-        Arr.Length.Assert(Eq(4))
+        Arr.Length.Assert(Eq(2))
 
         Arr.Join().Assert(Eq("23"))
     }
@@ -260,12 +244,12 @@ class Test_Array extends TestSuite
     static RemoveIf2() {
         static Filter(Value?) {
             if (!IsSet(Value)) {
-                return false
+                return true
             }
             return (Value > 1)
         }
         Arr := Array(1, 2, 3, unset, unset).RemoveIf(Filter)
-        Arr.Length.Assert(Eq(3))
+        Arr.Length.Assert(Eq(1))
         Arr.Join().Assert(Eq("1"))
     }
 

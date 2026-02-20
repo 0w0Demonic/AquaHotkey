@@ -90,6 +90,8 @@ class IArray {
             || (this == IArray)
                 && IsSet(Val)
                 && IsObject(Val)
+                && HasMethod(Val, "Clone")
+                && HasMethod(Val, "Delete")
                 && HasMethod(Val, "Get")
                 && HasMethod(Val, "Has")
                 && HasMethod(Val, "InsertAt")
@@ -104,6 +106,14 @@ class IArray {
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Abstract Props
+
+    /**
+     * Unsupported `.__New()` method.
+     * @see {@link Array#__New}
+     */
+    __New(*) {
+        throw PropertyError("not implemented")
+    }
 
     /**
      * Unsupported `.Clone()` method.
@@ -316,34 +326,11 @@ class IArray {
         return 0
     }
 
-    /**
-     * Finds the first element that matches the given `Condition`, returning
-     * its index, otherwise `0`.
-     * 
-     * ```ahk
-     * Condition(Value?, Args*) => Boolean
-     * ```
-     * 
-     * @param   {Func}  Condition  the given condition
-     * @param   {Any*}  Args       zero or more arguments
-     * @returns {Integer}
-     * @example
-     * Array.FindIndex((v) => (A_Index == 7) || (v == "expected value"))
-     */
-    FindIndex(Condition, Args*) {
-        GetMethod(Condition)
-        for Value in this {
-            if (Condition(Value?, Args*)) {
-                return A_Index
-            }
-        }
-        return 0
-    }
-
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Misc
 
+    ; TODO redefine as `.RemoveAt(...)`?
     /**
      * Clears the array.
      */
@@ -430,6 +417,7 @@ class IArray {
         return Result
     }
 
+    ; TODO change signature of `.Distinct()` to `SetParam, Hasher` instead?
     /**
      * Returns a new array of unique elements by keeping track of them
      * in an {@link ISet}.
@@ -660,6 +648,8 @@ class IArray {
         return this
     }
 
+    ; TODO remove param `Step`?
+
     /**
      * Returns an array slice from index `Begin` to `End` (inclusive),
      * selecting elements at an interval `Step`.
@@ -751,7 +741,9 @@ class IArray {
      * @example
      * Array(5, 1, 2, 7).Sort() ; [1, 2, 5, 7]
      */
-    Sort(Comp := Any.Compare, Reversed := false) {
+    Sort(Comp := DefaultComp, Reversed := false) {
+        static DefaultComp(A, B) => A.Compare(B)
+
         GetMethod(Comp)
         if (Reversed) {
             Comp := Comparator(Comp).Rev()

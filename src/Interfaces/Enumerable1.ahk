@@ -43,6 +43,19 @@ class Enumerable1 {
         }
         return ArrClass(this*)
     }
+
+    /**
+     * Collects elements into an {@link ISet}.
+     * 
+     * @param   {Any?}  SetParam  internal set options
+     * @see {@link ISet.Create()}
+     * @returns {ISet}
+     */
+    ToSet(SetParam := Set()) {
+        S := ISet.Create(SetParam)
+        S.Add(this*)
+        return S
+    }
     
     /**
      * Reduces all elements by passing them variadically into the given
@@ -66,19 +79,6 @@ class Enumerable1 {
     Collect(Collector) {
         GetMethod(Collector)
         return Collector(this*)
-    }
-
-    /**
-     * Collects elements into an {@link ISet}.
-     * 
-     * @param   {Any?}  SetParam  internal set options
-     * @see {@link ISet.Create()}
-     * @returns {ISet}
-     */
-    ToSet(SetParam?) {
-        S := ISet.Create(SetParam?)
-        S.Add(this*)
-        return S
     }
 
     /**
@@ -291,9 +291,51 @@ class Enumerable1 {
         return false
     }
 
+    /**
+     * Finds the first element that matches the given `Condition`, returning
+     * its index, otherwise `0`.
+     * 
+     * ```ahk
+     * Condition(Value?, Args*) => Boolean
+     * ```
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments
+     * @returns {Integer}
+     * @example
+     * Array.FindIndex((v) => (A_Index == 7) || (v == "expected value"))
+     */
+    FindIndex(Condition, Args*) {
+        GetMethod(Condition)
+        for Value in this {
+            if (Condition(Value?, Args*)) {
+                return A_Index
+            }
+        }
+        return 0
+    }
+
+    /**
+     * Returns the index of the given value, otherwise `0`. Elements are
+     * checked in terms of {@link AquaHotkey_Eq `.Eq()`} equality.
+     * 
+     * @param   {Any}   Val  value to be searched
+     * @returns {Integer}
+     * @example
+     * Array("a", "b", "c").IndexOf("b") ; 2
+     */
+    IndexOf(Val) {
+        for Value in this {
+            if (IsSet(Value) && Val.Eq(Value)) {
+                return A_Index
+            }
+        }
+        return 0
+    }
+
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Any()/All()/None()
+    ;@region Quantifiers
 
     /**
      * Determines whether any of the elements fulfill the given `Condition`.
@@ -467,13 +509,16 @@ class Enumerable1 {
         Result := Prefix
         if (Delim == "") {
             for Value in this {
-                (IsSet(Value) && Result .= String(Value))
+                AquaHotkey_ToString.ToString(&Value)
+                Result .= Value
             }
-            return Result . Suffix
+            Result .= Suffix
+            return Result
         }
 
         for Value in this {
-            (IsSet(Value) && Result .= String(Value))
+            AquaHotkey_ToString.ToString(&Value)
+            Result .= Value
             Result .= Delim
         }
         return SubStr(Result, 1, -StrLen(Delim)) . Suffix
