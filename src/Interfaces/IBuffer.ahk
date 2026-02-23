@@ -1,3 +1,7 @@
+
+; TODO
+; - add constructor?
+
 /**
  * @interface
  * @description
@@ -11,6 +15,7 @@
  */
 class IBuffer {
     ;@region Type Info
+
     /**
      * Determines whether the buffer is buffer-like.
      * 
@@ -31,8 +36,11 @@ class IBuffer {
             && HasProp(Val, "Ptr") && HasProp(Val, "Size")
         
     }
-    ;@endregion
-    
+
+    ;@endregion   
+    ;---------------------------------------------------------------------------
+    ;@region Read/Write Methods
+
     static __New() {
         static Define := {}.DefineProp
         if (this != IBuffer) {
@@ -50,38 +58,28 @@ class IBuffer {
                 "Int", "UInt", "Int64", "UInt64",
                 "Float", "Double", "Ptr", "UPtr")
         {
-            Define(Proto, "Get" . T, { Call: ObjBindMethod(Get,,, T) })
-            Define(Proto, "Put" . T, { Call: ObjBindMethod(Put,,, T) })
-        }
-
-        static Get(Buf, NumType, Offset := 0) {
-            return NumGet(Buf, Offset, NumType)
-        }
-
-        static Put(Buf, NumType, Value, Offset := 0) {
-            NumPut(NumType, Value, Buf, Offset)
-            return Buf
+            Define(Proto, "Get" . T, { Call: ObjBindMethod(this, "Get", T )})
+            Define(Proto, "Put" . T, { Call: ObjBindMethod(this, "Put", T ) })
         }
     }
 
     /**
-     * Reads a <NumType> from this Buffer.
+     * Retrieves a number from the buffer.
      * 
-     * @param   {Integer?}  Offset  byte offset
+     * @param   {String}    NumType  AHK number type
+     * @param   {Integer?}  Offset   byte offset
      * @returns {Number}
      */
-
-    ; Get<NumType>(Offset := 0) { ... }
+    Get(NumType, Offset := 0) => NumGet(this, Offset, NumType)
 
     /**
-     * Writes a <NumType> into the Buffer.
+     * Writes a number into the buffer.
      * 
-     * @param   {Number}    Value   <NumType> value to write
-     * @param   {Integer?}  Offset  byte offset
-     * @returns {this}
+     * @param   {String}    NumType  AHK number type
+     * @param   {Number}    Value    value to write
+     * @param   {Integer?}  Offset   byte offset
      */
-
-    ; Put<NumType>(Value, Offset := 0) { ... }
+    Put(NumType, Value, Offset := 0) => NumPut(NumType, Value, this, Offset)
 
     /**
      * Reads a string from the buffer.
@@ -120,6 +118,10 @@ class IBuffer {
         return this
     }
 
+    ;@endregion   
+    ;---------------------------------------------------------------------------
+    ;@region Filling
+
     /**
      * Fills the buffer with zeros.
      * 
@@ -140,6 +142,10 @@ class IBuffer {
         DllCall("RtlFillMemory", "Ptr", this.Ptr, "Ptr", this.Size, "Int", Byte)
         return this
     }
+
+    ;@endregion   
+    ;---------------------------------------------------------------------------
+    ;@region Hex Dump
 
     /**
      * Returns a hexadecimal representation of the buffer.
@@ -186,6 +192,10 @@ class IBuffer {
         }
         return Out
     }
+
+    ;@endregion   
+    ;---------------------------------------------------------------------------
+    ;@region Define()
 
     /**
      * Defines a position in the Buffer as a dynamic property.
@@ -238,6 +248,10 @@ class IBuffer {
             Set: (Buf, Value) => NumPut(NumType, Value, Buf, Offset)
         })
     }
+    
+    ;@endregion   
+    ;---------------------------------------------------------------------------
+    ;@region Slice()
 
     /**
      * Returns a buffer view that encloses a subsection of the current buffer.
