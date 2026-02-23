@@ -1,6 +1,10 @@
-#Include "%A_LineFile%\..\BaseStream.ahk"
-#Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\BaseStream.ahk"
+#Include "%A_LineFile%\..\..\Func\Cast.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
+
+; TODO
+; - probably remove static method, because `Zip()` does the trick
 
 /**
  * A double-size {@link Stream}.
@@ -16,6 +20,7 @@ class DoubleStream extends BaseStream
 {
     ;---------------------------------------------------------------------------
     ;@region Construction
+
     /**
      * Creates an infinite stream of the given value.
      * 
@@ -25,7 +30,7 @@ class DoubleStream extends BaseStream
      * @param   {Any}  Value  the value to be repeated
      * @returns {DoubleStream}
      * @example
-     * Stream.Repeat(5) ; <(1, 5), (2, 5), (3, 5), (4, 5), (5, 5), ...>
+     * DoubleStream.Repeat(5) ; <(1, 5), (2, 5), (3, 5), (4, 5), (5, 5), ...>
      */
     static Repeat(Value) {
         Counter := 0
@@ -72,7 +77,7 @@ class DoubleStream extends BaseStream
      * @param   {Any*}  Values  one or more values to be cycled through
      * @returns {Stream}
      * @example
-     * Stream.Cycle(1, 3, 7) ; <1, 3, 7, 1, 3, 7, 1, 3, ...>
+     * DoubleStream.Cycle(1, 3, 7) ; <(1, 1), (2, 3), (3, 7), (4, 1), ...>
      */
     static Cycle(Values*) {
         if (!Values.Length) {
@@ -353,7 +358,24 @@ class DoubleStream extends BaseStream
      */
     TakeWhile(Condition, Args*) {
         GetMethod(Condition)
-        return this.Cast( (&A, &B) => this(&A, &B) && Condition(A?, B?, Args*) )
+        return this.Cast(TakeWhile)
+
+        TakeWhile(&A, &B) => this(&A, &B) && !!Condition(A?, B?, Args*)
+    }
+
+    /**
+     * Returns a new double stream that terminates as soon as an element
+     * fulfills the given `Condition`.
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
+     * @returns {DoubleStream}
+     */
+    TakeUntil(Condition, Args*) {
+        GetMethod(Condition)
+        return this.Cast(TakeUntil)
+
+        TakeUntil(&A, &B) => this(&A, &B) && !Condition(A?, B?, Args*)
     }
 
     /**
@@ -382,9 +404,34 @@ class DoubleStream extends BaseStream
         }
     }
 
+    /**
+     * Returns a new double stream that skips elements as long as its elements
+     * do not fulfill the given `Condition`.
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more arguments for the condition
+     * @returns {DoubleStream}
+     */
+    DropUntil(Condition, Args*) {
+        GetMethod(Condition)
+        NoDrop := false
+        return this.Cast(DropUntil)
+
+        DropUntil(&A, &B) {
+            while (this(&A, &B)) {
+                if (NoDrop || (NoDrop |= !!Condition(A?, B?, Args*))) {
+                    return true
+                }
+            }
+            return false
+        }
+    }
+
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region .Distinct()
+
+    ; TODO just use a HashSet() as map, `Array` as key extractor?
 
     /**
      * Returns a stream of unique elements by keeping track of them in an
