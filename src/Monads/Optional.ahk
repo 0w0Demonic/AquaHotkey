@@ -22,6 +22,283 @@
  * MsgBox(OptA.Eq(OptB)) ; true
  */
 class Optional {
+    ;@region Construction
+
+    /**
+     * Returns an optional with no value present.
+     * 
+     * @constructor
+     * @returns {Optional}
+     * @example
+     * Opt := Optional.Empty()
+     * Opt.IsPresent ; false
+     */
+    static Empty() => Optional()
+
+    /**
+     * Returns an optional with the given nonnull value.
+     * 
+     * @constructor
+     * @param   {Any}  Value  any value
+     * @returns {Optional}
+     * @example
+     * Opt := Optional.Of(42)
+     * Opt.IsPresent ; true
+     */
+    static Of(Value) => Optional(Value)
+
+    /**
+     * Constructs a new optional describing the given `Value` if specified,
+     * otherwise an empty optional.
+     * 
+     * @param   {Any?}  Value  the value contained in the optional
+     * @returns {Optional}
+     * @example
+     * Opt   := Optional("foo")
+     * Empty := Optional()
+     */
+    __New(Value?) {
+        (IsSet(Value) && this.DefineProp("Value", { Get: (_) => Value }))
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Value Presence
+
+    /**
+     * Returns `true`, if a value is present for this optional.
+     * 
+     * @readonly
+     * @property {Boolean}
+     * @example
+     * Optional("foo").IsPresent ; true
+     * Optional(unset).IsPresent ; false
+     */
+    IsPresent => ObjHasOwnProp(this, "Value")
+
+    /**
+     * Returns `true`, if this Optional does not contain a value.
+     * 
+     * @readonly
+     * @property {Boolean}
+     * @example
+     * Optional("foo").IsAbsent ; false
+     * Optional(unset).IsAbsent ; true
+     */
+    IsAbsent => !ObjHasOwnProp(this, "Value")
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Side Effects
+
+    /**
+     * If a value is present, calls the given `Action` function on the value.
+     * 
+     * `Action` is called using the value as first argument, followed by zero
+     * or more additional arguments `Args*`.
+     * 
+     * @param   {Func}  Action  the function to be called
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {this}
+     * @example
+     * Optional("Hello, world!").IfPresent(MsgBox)
+     */
+    IfPresent(Action, Args*) {
+        (ObjHasOwnProp(this, "Value") && Action(this.Value, Args*))
+        return this
+    }
+
+    /**
+     * If no value is present, calls the given `Action` function.
+     * 
+     * `Action` is called using zero or more arguments `Args*`
+     * 
+     * @param   {Func}  EmptyAction  the function to be called
+     * @param   {Any*}  Args         zero or more additional arguments
+     * @returns {this}
+     * @example
+     * Optional.Empty().IfAbsent(() => MsgBox("no value present"))
+     */
+    IfAbsent(EmptyAction, Args*) {
+        (ObjHasOwnProp(this, "Value") || EmptyAction(Args*))
+        return this
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Filtering
+
+    /**
+     * Filters the value based on the given `Condition`.
+     * The optional becomes empty, if `Condition` evaluates to `false`.
+     * 
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
+     * @returns {Optional}
+     * @example
+     * Optional(4).RetainIf(IsNumber) ; Optional(4)
+     */
+    RetainIf(Condition, Args*) {
+        if (!ObjHasOwnProp(this, "Value")) {
+            return this
+        }
+        if (!Condition(this.Value, Args*)) {
+            return Optional()
+        }
+        return this
+    }
+
+    /**
+     * Removes the value if the value fulfills the given `Condition`.
+     *
+     * @param   {Func}  Condition  the given condition
+     * @param   {Any*}  Args       zero or more additional arguments
+     * @returns {Optional}
+     * @example
+     * Optional(4).RemoveIf(IsNumber) ; Optional.Empty()
+     */
+    RemoveIf(Condition, Args*) {
+        if (!ObjHasOwnProp(this, "Value")) {
+            return this
+        }
+        if (Condition(this.Value, Args*)) {
+            return Optional()
+        }
+        return this
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Transformation
+
+    /**
+     * If present, applies the given `Mapper` function to the value and returns
+     * a new optional containing its result.
+     * 
+     * `Mapper` is called using the value as first argument, followed by zero
+     * or more additional arguments `Args*`.
+     * 
+     * @param   {Func}  Mapper  function to transform the value
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {Optional}
+     * @example
+     * Multiply(x, y) {
+     *     return x * y
+     * }
+     * 
+     * Optional(4).Map(Multiply, 2)       ; Optional(8)
+     * Optional.Empty().Map(Multiply, 2)  ; Optional.Empty()
+     */
+    Map(Mapper, Args*) {
+        if (!ObjHasOwnProp(this, "Value")) {
+            return this
+        }
+        return Optional(Mapper(this.Value, Args*))
+    }
+
+    /**
+     * If present, applies the given `Mapper` function to the inner value and
+     * flat-maps the resulting `Optional`.
+     * 
+     * @param   {Func}  Mapper  the given mapper function
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {Optional}
+     * @example
+     * ; Optional<2>
+     * Optional.Of(A).FlatMap(A => A.Find(Even))
+     */
+    FlatMap(Mapper, Args*) {
+        if (!ObjHasOwnProp(this, "Value")) {
+            return this
+        }
+        O := Mapper(this.Value, Args*)
+        if (!(O is Optional)) {
+            throw TypeError("Expected an Optional",, Type(O))
+        }
+        return O
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Retrieving Values
+
+    /**
+     * If present, returns the value of the optional, otherwise throws an
+     * `UnsetError`.
+     * 
+     * @returns {Any}
+     * @example
+     * Optional("foo").Get()  ; "foo"
+     * Optional.Empty().Get() ; Error!
+     */
+    Get() {
+        if (ObjHasOwnProp(this, "Value")) {
+            return this.Value
+        }
+        throw UnsetError("value unset")
+    }
+
+    /**
+     * If present, returns the value, otherwise returns the given default value.
+     * 
+     * @param   {Any}  Default  default value to return if no value is present
+     * @returns {Any}
+     * @example
+     * Optional(2).OrElse("")      ; 2
+     * Optional.Empty().OrElse("") ; ""
+     */
+    OrElse(Default) {
+        if (ObjHasOwnProp(this, "Value")) {
+            return this.Value
+        }
+        return Default
+    }
+
+    /**
+     * Returns the value if present, otherwise calls the `Supplier` function
+     * to obtain a default value.
+     *
+     * @param   {Func}  Supplier  function to provide a default value
+     * @param   {Any*}  Args      zero or more additional arguments
+     * @returns {Any}
+     * @example
+     * Optional(4).OrElseGet(() => 6) ; 4
+     * Optional.Empty().OrElseGet()
+     */
+    OrElseGet(Supplier, Args*) {
+        if (ObjHasOwnProp(this, "Value")) {
+            return this.Value
+        }
+        return Supplier(Args*)
+    }
+
+    /**
+     * Returns the value if present, otherwise throws an exception provided by
+     * the `ExceptionSupplier`.
+     * 
+     * @param   {Func?}  ExceptionSupplier  function to provide an exception
+     * @param   {Any*}   Args               zero or more arguments
+     * @returns {Any}
+     * @example
+     * ; `throw ValueError("argument is not a number")`
+     * Optional("foo").RetainIf(IsNumber)
+     *                .OrElseThrow(ValueError, "argument is not a number")
+     */
+    OrElseThrow(ExceptionSupplier := Error, Args*) {
+        if (ObjHasOwnProp(this, "Value")) {
+            return this.Value
+        }
+        try Err := ExceptionSupplier(Args*)
+        if (IsSet(Err)) {
+            throw Err
+        }
+        throw ValueError("value unset")
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Commons
+
     /**
      * Determines whether this optional is equal to another `Other` optional.
      * This is true, when both optionals are empty, or when both contain
@@ -54,233 +331,6 @@ class Optional {
     HashCode() => (ObjHasOwnProp(this, "Value") && this.Value.HashCode())
 
     /**
-     * Returns an optional with no value present.
-     * 
-     * @example
-     * Opt := Optional.Empty()
-     * Opt.IsPresent ; false
-     * 
-     * @returns {Optional}
-     */
-    static Empty() => Optional()
-
-    /**
-     * Constructs a new optional describing the given `Value` if specified,
-     * otherwise an empty optional.
-     * 
-     * @example
-     * Opt   := Optional("foo")
-     * Empty := Optional()
-     * 
-     * @param   {Any?}  Value  the value contained in the optional
-     * @returns {Optional}
-     */
-    __New(Value?) {
-        (IsSet(Value) && this.DefineProp("Value", { Get: (_) => Value }))
-    }
-
-    /**
-     * Returns `true`, if a value is present for this optional.
-     * 
-     * @example
-     * Optional("foo").IsPresent ; true
-     * Optional(unset).IsPresent ; false
-     * 
-     * @returns {Boolean}
-     */
-    IsPresent => ObjHasOwnProp(this, "Value")
-
-    /**
-     * Returns `true`, if this Optional does not contain a value.
-     * 
-     * @example
-     * Optional("foo").IsAbsent ; false
-     * Optional(unset).IsAbsent ; true
-     * 
-     * @returns {Boolean}
-     */
-    IsAbsent => !ObjHasOwnProp(this, "Value")
-
-    /**
-     * If a value is present, calls the given `Action` function on the value.
-     * 
-     * `Action` is called using the value as first argument, followed by zero
-     * or more additional arguments `Args*`.
-     * 
-     * @example
-     * Optional("Hello, world!").IfPresent(MsgBox)
-     *
-     * @param   {Func}  Action  the function to be called
-     * @param   {Any*}  Args    zero or more additional arguments
-     * @returns {this}
-     */
-    IfPresent(Action, Args*) {
-        (ObjHasOwnProp(this, "Value") && Action(this.Value, Args*))
-        return this
-    }
-
-    /**
-     * If no value is present, calls the given `Action` function.
-     * 
-     * `Action` is called using zero or more arguments `Args*`
-     * 
-     * @example
-     * Optional.Empty().IfAbsent(() => MsgBox("no value present"))
-     * 
-     * @param   {Func}  EmptyAction  the function to be called
-     * @param   {Any*}  Args         zero or more additional arguments
-     * @returns {this}
-     */
-    IfAbsent(EmptyAction, Args*) {
-        (ObjHasOwnProp(this, "Value") || EmptyAction(Args*))
-        return this
-    }
-
-    /**
-     * Filters the value based on the given `Condition`.
-     * The optional becomes empty, if `Condition` evaluates to `false`.
-     * 
-     * @example
-     * Optional(4).RetainIf(IsNumber) ; Optional(4)
-     *
-     * @param   {Func}  Condition  the given condition
-     * @param   {Any*}  Args       zero or more additional arguments
-     * @returns {Optional}
-     */
-    RetainIf(Condition, Args*) {
-        if (!ObjHasOwnProp(this, "Value")) {
-            return this
-        }
-        if (!Condition(this.Value, Args*)) {
-            return Optional()
-        }
-        return this
-    }
-
-    /**
-     * Removes the value if the value fulfills the given `Condition`.
-     * 
-     * @example
-     * Optional(4).RemoveIf(IsNumber) ; Optional.Empty()
-     *
-     * @param   {Func}  Condition  the given condition
-     * @param   {Any*}  Args       zero or more additional arguments
-     * @returns {Optional}
-     */
-    RemoveIf(Condition, Args*) {
-        if (!ObjHasOwnProp(this, "Value")) {
-            return this
-        }
-        if (Condition(this.Value, Args*)) {
-            return Optional()
-        }
-        return this
-    }
-
-    /**
-     * If present, applies the given `Mapper` function to the value and returns
-     * a new optional containing its result.
-     * 
-     * `Mapper` is called using the value as first argument, followed by zero
-     * or more additional arguments `Args*`.
-     * 
-     * @example
-     * Multiply(x, y) {
-     *     return x * y
-     * }
-     * 
-     * Optional(4).Map(Multiply, 2)       ; Optional(8)
-     * Optional.Empty().Map(Multiply, 2)  ; Optional.Empty()
-     *
-     * @param   {Func}  Mapper  function to transform the value
-     * @param   {Any*}  Args    zero or more additional arguments
-     * @returns {Optional}
-     */
-    Map(Mapper, Args*) {
-        if (!ObjHasOwnProp(this, "Value")) {
-            return this
-        }
-        return Optional(Mapper(this.Value, Args*))
-    }
-
-    /**
-     * If present, returns the value of the optional, otherwise throws an
-     * `UnsetError`.
-     * 
-     * @example
-     * Optional("foo").Get()  ; "foo"
-     * Optional.Empty().Get() ; Error!
-     * 
-     * @returns {Any}
-     */
-    Get() {
-        if (ObjHasOwnProp(this, "Value")) {
-            return this.Value
-        }
-        throw UnsetError("value unset")
-    }
-
-    /**
-     * If present, returns the value, otherwise returns the given default value.
-     * 
-     * @example
-     * Optional(2).OrElse("")      ; 2
-     * Optional.Empty().OrElse("") ; ""
-     *
-     * @param   {Any}  Default  default value to return if no value is present
-     * @returns {Any}
-     */
-    OrElse(Default) {
-        if (ObjHasOwnProp(this, "Value")) {
-            return this.Value
-        }
-        return Default
-    }
-
-    /**
-     * Returns the value if present, otherwise calls the `Supplier` function
-     * to obtain a default value.
-     * 
-     * @example
-     * Optional(4).OrElseGet(() => 6) ; 4
-     * Optional.Empty().OrElseGet()
-     *
-     * @param   {Func}  Supplier  function to provide a default value
-     * @param   {Any*}  Args      zero or more additional arguments
-     * @returns {Any}
-     */
-    OrElseGet(Supplier, Args*) {
-        if (ObjHasOwnProp(this, "Value")) {
-            return this.Value
-        }
-        return Supplier(Args*)
-    }
-
-    /**
-     * Returns the value if present, otherwise throws an exception provided by
-     * the `ExceptionSupplier`.
-     * 
-     * @example
-     * ; `throw ValueError("argument is not a number")`
-     * Optional("foo").RetainIf(IsNumber)
-     *                .OrElseThrow(ValueError, "argument is not a number")
-     *
-     * @param   {Func?}  ExceptionSupplier  function to provide an exception
-     * @param   {Any*}   Args               zero or more arguments
-     * @returns {Any}
-     */
-    OrElseThrow(ExceptionSupplier := Error, Args*) {
-        if (ObjHasOwnProp(this, "Value")) {
-            return this.Value
-        }
-        try Err := ExceptionSupplier(Args*)
-        if (IsSet(Err)) {
-            throw Err
-        }
-        throw ValueError("value unset")
-    }
-
-    /**
      * Returns the string representation of the optional.
      * 
      * @example
@@ -298,19 +348,23 @@ class Optional {
         return Type(this) . "{ " . String(this.Value) . " }"
     }
 }
-;@endregion
 
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region Extensions
-class AquaHotkey_Optional {
-    static __New() => (this == AquaHotkey_Optional)
-                   && (IsSet(AquaHotkey))
-                   && (AquaHotkey is Class)
-                   && (AquaHotkey.__New)(this)
+
+class AquaHotkey_Optional extends AquaHotkey {
+    static __New() {
+        if (this == AquaHotkey_Optional) {
+            super.__New()
+        }
+    }
     
     /**
      * Provides a universal `.Optional()` method.
      */
     class Any {
+        ; TODO rename to `.ToOptional()`?
         /**
          * Returns a new optional that wraps arount the element.
          * 
@@ -322,4 +376,5 @@ class AquaHotkey_Optional {
         Optional() => Optional(this)
     }
 }
+
 ;@endregion
