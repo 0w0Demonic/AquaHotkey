@@ -1,6 +1,14 @@
 # <[Base](./overview.md)/[FileUtils](../../src/IO/FileUtils.ahk)>
 
-## Summary
+- [\<Base/FileUtils\>](#basefileutils)
+  - [Overview](#overview)
+  - [Standard Input/Output/Error Streams](#standard-inputoutputerror-streams)
+  - [`Path()` Function](#path-function)
+  - [Enumerating Lines in Files](#enumerating-lines-in-files)
+  - [Name Property of File Objects](#name-property-of-file-objects)
+  - [File Loops](#file-loops)
+
+## Overview
 
 ## Standard Input/Output/Error Streams
 
@@ -11,7 +19,7 @@ Open the standard input, output, and error streams but using `FileOpen.StdIn`,
 (FileOpen.StdOut).WriteLine("Hello, world!")
 ```
 
-## SplitPath, But Easier
+## `Path()` Function
 
 Introducing `Path()`, which works exactly like `SplitPath()`, but returns an
 object of all fields.
@@ -53,4 +61,24 @@ Returns the file name of the `File` object.
 
 ```ahk
 FileObj.Name ; "C:\...\myFile.txt"
+```
+
+## File Loops
+
+`LoopFiles()` lets you create a [Continuation](../Func/Continuation.md), which
+works very similarly to [streams](../Stream/Stream.md) and lets you create
+functional pipelines to handle files and directories.
+
+```ahk
+; equivalent to:
+;   loop files A_Desktop . "\*", "FR" {
+;       if (A_LoopFileExt != ".ahk") {
+;           continue
+;       }
+;       MsgBox("AHK file: " . A_LoopFilePath)
+;   }
+
+LoopFiles(A_Desktop . "\*", "FR")
+    .RetainIf((*) => A_LoopFileExt = ".ahk")
+    .ForEach((*) => MsgBox("AHK file: " . A_LoopFilePath))
 ```

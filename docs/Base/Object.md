@@ -1,12 +1,13 @@
 # <[Base](./overview.md)/[Object](../../src/Base/Object.ahk)>
 
-- [Overview](#overview)
-- [Working With Property Descriptors](#working-with-property-descriptors)
-- [Method `.TransformProp()`](#method-transformprop)
-- [Method `.DefineProps()`](#method-defineprops)
-- [Function `ObjFromDesc()`](#function-objfromdesc)
-- [Method `.GetPropDesc()`](#method-getpropdesc)
-- [Some Other Things](#some-other-things)
+- [\<Base/Object\>](#baseobject)
+  - [Overview](#overview)
+  - [Working With Property Descriptors](#working-with-property-descriptors)
+  - [Method `.TransformProp()`](#method-transformprop)
+  - [Method `.DefineProps()`](#method-defineprops)
+  - [Function `ObjFromDesc()`](#function-objfromdesc)
+  - [Method `.GetPropDesc()`](#method-getpropdesc)
+  - [Some Other Things](#some-other-things)
 
 ## Overview
 

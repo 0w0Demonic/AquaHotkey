@@ -2,21 +2,26 @@
 
 - [All Modules](../api-overview.md)
 - [List of Features](#list-of-features)
-- [Summary](#summary)
-- [Assertions](#assertions)
-- [Duck Types](#duck-types)
-- [Buffer](#buffer)
-- [ComValue](#comvalue)
-- [Equality Checks](#equality-checks)
-- [Error Handling](#error-handling)
-- [Hash Codes](#hash-codes)
-- [Object Manipulation](#object-manipulation)
-- [Comparing by Natural Order](#comparing-by-natural-order)
-- [String Representations](#string-representations)
-- [Type Information](#type-information)
-- [VarRef](#varref)
-- [Primitives](#primitives)
-- [File Utils](#file-utils)
+
+---
+
+- [Module `<Base>`](#module-base)
+  - [List of Features](#list-of-features)
+  - [Overview](#overview)
+  - [Assertions](#assertions)
+  - [Duck Types](#duck-types)
+  - [Buffer](#buffer)
+  - [ComValue](#comvalue)
+  - [Equality Checks](#equality-checks)
+  - [Error Handling](#error-handling)
+  - [Hash Codes](#hash-codes)
+  - [Object Manipulation](#object-manipulation)
+  - [Comparing by Natural Order](#comparing-by-natural-order)
+  - [String Representations](#string-representations)
+  - [Type Information](#type-information)
+  - [VarRef](#varref)
+  - [Primitives](#primitives)
+  - [File Utils](#file-utils)
 
 ## List of Features
 
@@ -35,7 +40,7 @@
 - [TypeInfo](./TypeInfo.md)
 - [VarRef](./VarRef.md)
 
-## Summary
+## Overview
 
 This module contains a variety of core utilities and foundational features that
 are used throughout the library. It includes the basic building blocks for

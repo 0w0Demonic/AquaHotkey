@@ -4,17 +4,18 @@
 
 ---
 
-- [List of All Features](#list-of-all-features)
-- [Class Diagram](#class-diagram)
-- [Type Casting](#type-casting)
-- [Comparator Functions](#comparator-functions)
-- [Continuation](#continuation)
-- [Function Composition](#function-composition)
-- [Keyword Arguments](#keyword-arguments)
-- [Lazy Evaluation](#lazy-evaluation)
-- [Predicates](#predicates)
-- [Pipes](#pipes)
-- [Supplier](#supplier)
+- [Module `<Func>`](#module-func)
+  - [List of Features](#list-of-features)
+  - [Class Diagram](#class-diagram)
+  - [Type Casting](#type-casting)
+  - [Comparator Functions](#comparator-functions)
+  - [Continuation](#continuation)
+  - [Function Composition](#function-composition)
+  - [Keyword Arguments](#keyword-arguments)
+  - [Lazy Evaluation](#lazy-evaluation)
+  - [Predicates](#predicates)
+  - [Pipes](#pipes)
+  - [Supplier](#supplier)
 
 ## List of Features
 

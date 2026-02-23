@@ -1,6 +1,7 @@
 # <[Func](./overview.md)/[Monoid](../../src/Func/Monoid.ahk)>
 
-- [Overview](#overview)
+- [\<Func/Monoid\>](#funcmonoid)
+  - [Overview](#overview)
 
 ## Overview
 

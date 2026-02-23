@@ -1,7 +1,8 @@
 # <[Func](./overview.md)/[Kwargs](../../src/Func/Kwargs.ahk)>
 
-- [Overview](#overview)
-- [Defining Own Signatures](#defining-own-signatures)
+- [\<Func/Kwargs\>](#funckwargs)
+  - [Overview](#overview)
+  - [Defining Own Signatures](#defining-own-signatures)
 
 ## Overview
 

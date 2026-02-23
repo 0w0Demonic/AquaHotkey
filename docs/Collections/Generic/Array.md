@@ -1,7 +1,8 @@
 # <[Collections](../overview.md)/[Generic](./overview.md)/[Array](../../../src/Collections/Generic/Array.ahk)>
 
-- [Overview](#overview)
-- [Use as Type Pattern](#use-as-type-pattern)
+- [\<Collections/Generic/Array\>](#collectionsgenericarray)
+  - [Overview](#overview)
+  - [Use as Type Pattern](#use-as-type-pattern)
 
 ## Overview
 

@@ -1,11 +1,12 @@
 # <[Func](./overview.md)/[Transducer](./Transducer.md)>
 
-- [Overview](#overview)
-- [Methods](#methods)
-  - [`.RetainIf()`](#retainif)
-  - [`.RemoveIf()`](#removeif)
-  - [`.Map()`](#map)
-  - [`.Finally()`](#finally)
+- [\<Func/Transducer\>](#functransducer)
+  - [Overview](#overview)
+  - [Methods](#methods)
+    - [`.RetainIf()`](#retainif)
+    - [`.RemoveIf()`](#removeif)
+    - [`.Map()`](#map)
+    - [`.Finally()`](#finally)
 
 ## Overview
 

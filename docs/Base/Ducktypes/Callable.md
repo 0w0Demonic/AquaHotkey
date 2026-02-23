@@ -1,6 +1,7 @@
 # <[Base](../overview.md)/[DuckTypes](../DuckTypes.md)/[Callable](./Callable.md)>
 
-- [Overview](#overview)
+- [\<Base/DuckTypes/Callable\>](#baseducktypescallable)
+  - [Overview](#overview)
 
 ## Overview
 

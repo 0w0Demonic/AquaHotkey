@@ -1,8 +1,9 @@
 # <[Base](../../Base/overview.md)/[DuckTypes](../DuckTypes.md)/[Record](../../../src/Base/DuckTypes/Record.ahk)>
 
-- [Overview](#overview)
-- [Pattern Matching](#pattern-matching)
-- [Subtypes](#subtypes)
+- [\<Base/DuckTypes/Record\>](#baseducktypesrecord)
+  - [Overview](#overview)
+  - [Pattern Matching](#pattern-matching)
+  - [Subtypes](#subtypes)
 
 ## Overview
 

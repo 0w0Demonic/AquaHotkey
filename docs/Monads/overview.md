@@ -2,12 +2,21 @@
 
 - [All Modules](../api-overview.md)
 
-## Summary
+---
+
+- [Module `<Monads>`](#module-monads)
+  - [Overview](#overview)
+  - [List of Features](#list-of-features)
+  - [Optional](#optional)
+  - [TryOp](#tryop)
+
+## Overview
 
 At its simplest form, a monad is something that wraps a value and provides a
 way to apply functions to it. Take `Optional` for example: it wraps a value
 that may or may not be present, where operations like `.Map()` transform
-the into a new `Optional` with the function applied to the inner value, if it exists.
+the into a new `Optional` with the function applied to the inner value, if it
+exists.
 
 ## List of Features
 

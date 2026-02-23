@@ -1,6 +1,7 @@
 # <[Base](../../Base/overview.md)/[DuckTypes](../DuckTypes.md)/[Numeric](../../../src/Base/DuckTypes/Numeric.ahk)>
 
-- [Overview](#overview)
+- [\<Base/DuckTypes/Numeric\>](#baseducktypesnumeric)
+  - [Overview](#overview)
 
 ## Overview
 

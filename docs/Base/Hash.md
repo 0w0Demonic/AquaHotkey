@@ -1,9 +1,10 @@
 # <[Base](./overview.md)/[Hash](../../src/Base/Hash.ahk)>
 
-- [Overview](#overview)
-- [How to Implement](#how-to-implement)
-- [Static `.Hash()` Method](#static-hash-method)
-- [Duck Types](#duck-types)
+- [\<Base/Hash\>](#basehash)
+  - [Overview](#overview)
+  - [How to Implement](#how-to-implement)
+  - [Static `.Hash()` Method](#static-hash-method)
+  - [Duck Types](#duck-types)
 
 ## Overview
 

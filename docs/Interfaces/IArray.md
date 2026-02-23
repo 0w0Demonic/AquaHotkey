@@ -1,12 +1,13 @@
 # <[Interfaces](./overview.md)/[IArray](../../src/Interfaces/IArray.ahk)>
 
-- [Overview](#overview)
-- [Duck Typing](#duck-typing)
-- [Construction](#construction)
-- [Default Operations](#default-operations)
-  - [General](#general)
-  - [Deque Methods](#deque-methods)
-  - [Filtering & Mapping](#filtering--mapping)
+- [\<Interfaces/IArray\>](#interfacesiarray)
+  - [Overview](#overview)
+  - [Duck Typing](#duck-typing)
+  - [Construction](#construction)
+  - [Default Operations](#default-operations)
+    - [General](#general)
+    - [Deque Methods](#deque-methods)
+    - [Filtering \& Mapping](#filtering--mapping)
 
 ## Overview
 

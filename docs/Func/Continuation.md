@@ -1,11 +1,12 @@
 # <[Func](./overview.md)/[Continuation](../../src/Func/Continuation.ahk)>
 
-- [Overview](#overview)
-- [Parallels to Stream](#parallels-to-stream)
-- [Technical Insight](#technical-insight)
-  - [General](#general)
-  - [Early Termination](#early-termination)
-  - [Composition](#composition)
+- [\<Func/Continuation\>](#funccontinuation)
+  - [Overview](#overview)
+  - [Parallels to Stream](#parallels-to-stream)
+  - [Technical Insight](#technical-insight)
+    - [General](#general)
+    - [Early Termination](#early-termination)
+    - [Composition](#composition)
 
 ## Overview
 

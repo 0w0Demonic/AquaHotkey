@@ -1,7 +1,8 @@
 # <[Collections](../overview.md)/[Generic](./overview.md)/[Map](../../../src/Collections/Generic/Map.ahk)>
 
-- [Overview](#overview)
-- [Use as Type Pattern](#use-as-type-pattern)
+- [\<Collections/Generic/Map\>](#collectionsgenericmap)
+  - [Overview](#overview)
+  - [Use as Type Pattern](#use-as-type-pattern)
 
 ## Overview
 

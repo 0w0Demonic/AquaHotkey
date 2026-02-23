@@ -1,14 +1,15 @@
 # ComValue
 
-- [Overview](#overview)
-- [VARIANT Type Constants](#variant-type-constants)
-  - [As Constants](#as-constants)
-  - [As Constructors](#as-constructors)
-- [Automatic Inclusion of `VT_ARRAY` and `VT_BYREF` Flags](#automatic-inclusion-of-vt_array-and-vt_byref-flags)
-- [Improvements for `ComValueRef`](#improvements-for-comvalueref)
-  - [Constructor Method](#constructor-method)
-  - [Getter and Setter Methods](#getter-and-setter-methods)
-- [List of All VARIANT Types](#list-of-all-variant-types)
+- [ComValue](#comvalue)
+  - [Overview](#overview)
+  - [VARIANT Type Constants](#variant-type-constants)
+    - [As Constants](#as-constants)
+    - [As Constructors](#as-constructors)
+  - [Automatic Inclusion of `VT_ARRAY` and `VT_BYREF` Flags](#automatic-inclusion-of-vt_array-and-vt_byref-flags)
+  - [Improvements for `ComValueRef`](#improvements-for-comvalueref)
+    - [Constructor Method](#constructor-method)
+    - [Getter and Setter Methods](#getter-and-setter-methods)
+  - [List of All VARIANT Types](#list-of-all-variant-types)
 
 ## Overview
 

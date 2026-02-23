@@ -1,8 +1,9 @@
 # <[Collections](./overview)/[SkipListMap](../../src/Collections/SkipListMap.ahk)>
 
-- [Overview](#overview)
-- [Some Short Technical Insight](#some-short-technical-insight)
-- [Methods `.TryGet()` and `.TryDelete()`](#methods-tryget-and-trydelete)
+- [\<Collections/SkipListMap\>](#collectionsskiplistmap)
+  - [Overview](#overview)
+  - [Some Short Technical Insight](#some-short-technical-insight)
+  - [Methods `.TryGet()` and `.TryDelete()`](#methods-tryget-and-trydelete)
 
 ## Overview
 

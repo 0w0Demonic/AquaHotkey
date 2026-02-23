@@ -1,6 +1,7 @@
 # <[Collections](./overview.md)/[ImmutableMap](../../src/Collections/ImmutableMap.ahk)>
 
-- [Overview](#overview)
+- [\<Collections/ImmutableMap\>](#collectionsimmutablemap)
+  - [Overview](#overview)
 
 ## Overview
 

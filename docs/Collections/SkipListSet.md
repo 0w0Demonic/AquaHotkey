@@ -1,6 +1,7 @@
 # <[Collections](./overview.md)/[SkipListSet](../../src/Collections/SkipListSet.ahk)>
 
-- [Overview](#overview)
+- [\<Collections/SkipListSet\>](#collectionsskiplistset)
+  - [Overview](#overview)
 
 ## Overview
 

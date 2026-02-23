@@ -1,9 +1,10 @@
 # <[Collections](./overview.md)/[Set](../../src/Collections/Set.ahk)>
 
-- [Overview](#overview)
-- [Create](#create)
-- [Map to Set](#map-to-set)
-- [Set to Map](#set-to-map)
+- [\<Collections/Set\>](#collectionsset)
+  - [Overview](#overview)
+  - [Create](#create)
+  - [Map to Set](#map-to-set)
+  - [Set to Map](#set-to-map)
 
 ## Overview
 

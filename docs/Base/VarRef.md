@@ -1,6 +1,7 @@
 # <[Base](./overview.md)/[VarRef](../../src/Base/VarRef.ahk)>
 
-- [Overview](#overview)
+- [\<Base/VarRef\>](#basevarref)
+  - [Overview](#overview)
 
 ## Overview
 

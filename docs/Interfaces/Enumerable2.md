@@ -1,6 +1,7 @@
 # <[Interfaces](./overview.md)/[Enumerable2](../../src/Interfaces/Enumerable2.ahk)>
 
-- [Overview](#overview)
+- [\<Interfaces/Enumerable2\>](#interfacesenumerable2)
+  - [Overview](#overview)
 
 ## Overview
 

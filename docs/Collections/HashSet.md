@@ -1,6 +1,7 @@
 # <[Collections](./overview.md)/[HashMap](../../src/Collections/HashSet.ahk)>
 
-- [Overview](#overview)
+- [\<Collections/HashMap\>](#collectionshashmap)
+  - [Overview](#overview)
 
 ## Overview
 

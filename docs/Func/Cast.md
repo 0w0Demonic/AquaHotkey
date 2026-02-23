@@ -1,9 +1,10 @@
 # <[Func](./overview.md)/[Cast](../../src/Func/Cast.ahk)>
 
-- [Overview](#overview)
-- [Static `.Call()`](#static-call)
-- [Static Method `.Cast()`](#static-method-cast)
-- [Instance Method `.Cast()`](#instance-method-cast)
+- [\<Func/Cast\>](#funccast)
+  - [Overview](#overview)
+  - [Static `.Call()`](#static-call)
+  - [Static Method `.Cast()`](#static-method-cast)
+  - [Instance Method `.Cast()`](#instance-method-cast)
 
 ## Overview
 

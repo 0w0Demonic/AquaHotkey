@@ -1,9 +1,10 @@
 # <[Base](./overview.md)/[Compare](../../src/Base/Compare.ahk)>
 
-- [Overview](#overview)
-- [Implementing `.Compare()`](#implementing-compare)
-- [Static `.Compare()` Method](#static-compare-method)
-- [Comparator Functions](#comparator-functions)
+- [\<Base/Compare\>](#basecompare)
+  - [Overview](#overview)
+  - [Implementing `.Compare()`](#implementing-compare)
+  - [Static `.Compare()` Method](#static-compare-method)
+  - [Comparator Functions](#comparator-functions)
 
 ## Overview
 

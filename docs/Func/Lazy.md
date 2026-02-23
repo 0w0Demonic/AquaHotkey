@@ -1,6 +1,7 @@
 # <[Func](./overview.md)/[Lazy](../../src/Func/Lazy.ahk)>
 
-- [Overview](#overview)
+- [\<Func/Lazy\>](#funclazy)
+  - [Overview](#overview)
 
 ## Overview
 

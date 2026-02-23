@@ -1,6 +1,7 @@
 # <[Collections](./overview.md)/[LinkedList](../../src/Collections/LinkedList.ahk)>
 
-- [Overview](#overview)
+- [\<Collections/LinkedList\>](#collectionslinkedlist)
+  - [Overview](#overview)
 
 ## Overview
 

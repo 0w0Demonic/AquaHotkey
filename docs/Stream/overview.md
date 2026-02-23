@@ -11,7 +11,7 @@
 - [Stream](./Stream.md)
 - [Zip](./Zip.md)
 
-## Summary
+## Overview
 
 Streams are a powerful abstraction for working with sequences of data.
 It consists of different "stages" (such as `.Map()`, `.RetainIf()` and

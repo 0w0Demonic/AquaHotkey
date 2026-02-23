@@ -1,6 +1,7 @@
 # <[Base](../../Base/overview.md)/[DuckTypes](../DuckTypes.md)/[Boolean](../../../src/Base/DuckTypes/Boolean.ahk)>
 
-- [Overview](#overview)
+- [\<Base/DuckTypes/Boolean\>](#baseducktypesboolean)
+  - [Overview](#overview)
 
 ## Overview
 

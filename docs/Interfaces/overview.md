@@ -1,19 +1,21 @@
 # Module `<Interfaces>`
 
-- [All Modules](../api-overview.md)
+- [All Modules](../api-overview.md)o
+  
+---
 
-## Summary
+- [Module `<Interfaces>`](#module-interfaces)
+  - [Overview](#overview)
+  - [List of Features](#list-of-features)
+  - [Enumerable1 and Enumerable2](#enumerable1-and-enumerable2)
+  - [Collection Interfaces](#collection-interfaces)
+  - [Other Interfaces](#other-interfaces)
+
+## Overview
 
 Interfaces represent contracts that classes can implement to guarantee the
 presence of certain methods or properties. In AquaHotkeyX, they either act
 as abstract classes, or as mixins for default implementations.
-
-Each of the interfaces can be used as duck types.
-
-```ahk
-Obj := ...
-MsgBox(Obj.Is(IArray))
-```
 
 ## List of Features
 
@@ -26,8 +28,8 @@ MsgBox(Obj.Is(IArray))
 
 ## Enumerable1 and Enumerable2
 
-- [Enumerable1](./Enumerable1.md)
-- [Enumerable2](./Enumerable2.md)
+- [`<Interfaces/Enumerable1>`](./Enumerable1.md)
+- [`<Interfaces/Enumerable2>`](./Enumerable2.md)
 
 Interface for types supporting iteration via the for-loop. Defines the
 contract for single-parameter iteration.
@@ -74,31 +76,7 @@ between different implementations of the same interface.
 ## Other Interfaces
 
 - [<Interfaces/IBuffer>](./Interfaces/IBuffer.md)
-- [<Interfaces/IDelegatingMap>](./Interfaces/IDelegatingMap.md)
-- [<Interfaces/Indexable>](./Interfaces/Indexable.md)
-- [<Interfaces/Sizeable>](./Interfaces/Sizeable.md)
-- [<Interfaces/Deque>](./Interfaces/Deque.md)
-
-**IBuffer**:
 
 Interface for buffer-like objects with pointer and size properties.
 It implements many buffer related methods such as reading/writing, and hex
 dumps.
-
-**IDelegatingMap**:
-
-A skeletal implementation of `IMap` that delegates all operations to an
-underlying map instance. Useful for writing simple map wrappers.
-
-**Indexable**:
-
-Interface for types supporting access via indexing operators.
-
-**Sizeable**:
-
-Interface for types with a measurable `.Size` property.
-
-**Deque**:
-
-Interface for double-ended queue collections supporting efficient operations
-at both ends.

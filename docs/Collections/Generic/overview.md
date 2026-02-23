@@ -5,14 +5,17 @@
 
 ---
 
-- [List of All Features](#list-of-all-features)
-- [What Are Generic Collections?](#what-are-generic-collections)
-- [How They Work](#how-they-work)
-- [Using Generics as Type Pattern](#using-generics-as-type-pattern)
-- [Some Caveats](#some-caveats)
-  - [Matching Non-Generic Collections](#matching-non-generic-collections)
-  - [Mutability of Objects](#mutability-of-objects)
-- [Performance Considerations](#performance-considerations)
+- [Module `<Collections/Generic>`](#module-collectionsgeneric)
+  - [List of All Features](#list-of-all-features)
+  - [What Are Generic Collections?](#what-are-generic-collections)
+  - [How They Work](#how-they-work)
+    - [Backing Collections](#backing-collections)
+    - [Element Types](#element-types)
+  - [Using Generics as Type Pattern](#using-generics-as-type-pattern)
+  - [Some Caveats](#some-caveats)
+    - [Matching Non-Generic Collections](#matching-non-generic-collections)
+    - [Mutability of Objects](#mutability-of-objects)
+  - [Performance Considerations](#performance-considerations)
 
 ## List of All Features
 

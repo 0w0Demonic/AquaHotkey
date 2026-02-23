@@ -1,6 +1,7 @@
 # <[Base](../../Base/overview.md)/[DuckTypes](../DuckTypes.md)/[Nullable](../../../src/Base/DuckTypes/Nullable.ahk)>
 
-- [Overview](#overview)
+- [\<Base/DuckTypes/Nullable\>](#baseducktypesnullable)
+  - [Overview](#overview)
 
 ## Overview
 

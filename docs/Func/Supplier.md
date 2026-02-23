@@ -1,8 +1,9 @@
 # <[Func](./overview.md)/[Supplier](../../src/Func/Supplier.ahk)>
 
-- [Overview](#overview)
-- [Constant Functions](#constant-functions)
-- [Composition](#composition)
+- [\<Func/Supplier\>](#funcsupplier)
+  - [Overview](#overview)
+  - [Constant Functions](#constant-functions)
+  - [Composition](#composition)
 
 ## Overview
 

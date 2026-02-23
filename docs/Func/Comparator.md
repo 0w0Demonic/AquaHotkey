@@ -1,11 +1,12 @@
 # <[Func](./overview.md)/[Comparator](../../src/Func/Comparator.ahk)>
 
-- [Overview](#overview)
-- [Building Comparators](#building-comparators)
-- [Composition](#composition)
-- [Reversing](#reversing)
-- [Unset Handling](#unset-handling)
-- [General Notes](#general-notes)
+- [\<Func/Comparator\>](#funccomparator)
+  - [Overview](#overview)
+  - [Building Comparators](#building-comparators)
+  - [Composition](#composition)
+  - [Reversing](#reversing)
+  - [Unset Handling](#unset-handling)
+  - [General Notes](#general-notes)
 
 ## Overview
 

@@ -4,14 +4,15 @@
 
 ---
 
-- [List of Features](#list-of-features)
-- [Summary](#summary)
-- [Class Diagram](#class-diagram)
-- [Generic Collections](#generic-collections)
-- [Hash-Based Collections](#hash-based-collections)
-- [Immutable Collections](#immutable-collections)
-- [SkipListMap and SkipListSet](#skiplistmap-and-skiplistset)
-- [Other Collections](#other-collections)
+- [Module `<Collections>`](#module-collections)
+  - [List of Features](#list-of-features)
+  - [Summary](#summary)
+  - [Class Diagram](#class-diagram)
+  - [Generic Collections](#generic-collections)
+  - [Hash-Based Collections](#hash-based-collections)
+  - [Immutable Collections](#immutable-collections)
+  - [SkipListMap and SkipListSet](#skiplistmap-and-skiplistset)
+  - [Other Collections](#other-collections)
 
 ## List of Features
 

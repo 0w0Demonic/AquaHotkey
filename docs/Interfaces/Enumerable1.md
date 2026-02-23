@@ -1,11 +1,12 @@
 # <[Interfaces](./overview.md)/[Enumerable1](../../src/Interfaces/Enumerable1.ahk)>
 
-- [Overview](#overview)
-- [Collection](#collection)
-- [Side Effects](#side-effects)
-- [Find Values](#find-values)
-- [Quantifiers](#quantifiers)
-- [Reduction](#reduction)
+- [\<Interfaces/Enumerable1\>](#interfacesenumerable1)
+  - [Overview](#overview)
+  - [Collection](#collection)
+  - [Side Effects](#side-effects)
+  - [Find Values](#find-values)
+  - [Quantifiers](#quantifiers)
+  - [Reduction](#reduction)
 
 ## Overview
 

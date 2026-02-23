@@ -1,6 +1,7 @@
 # <[Func](./overview.md)/[Pipes](../../src/Func/Pipes.ahk)>
 
-- [Overview](#overview)
+- [\<Func/Pipes\>](#funcpipes)
+  - [Overview](#overview)
 
 ## Overview
 

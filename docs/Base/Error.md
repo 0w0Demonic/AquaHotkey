@@ -1,8 +1,9 @@
 # <[Base](./overview.md)/[Error](../../src/Base/Error.ahk)>
 
-- [Overview](#overview)
-- [Throwing Errors](#throwing-errors)
-- [Error Causes](#error-causes)
+- [\<Base/Error\>](#baseerror)
+  - [Overview](#overview)
+  - [Throwing Errors](#throwing-errors)
+  - [Error Causes](#error-causes)
 
 ## Overview
 

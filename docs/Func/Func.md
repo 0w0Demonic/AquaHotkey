@@ -1,10 +1,11 @@
 # <[Func](./overview.md)/[Func](../../src/Func/Func.ahk)>
 
-- [Overview](#overview)
-- [Memoization](#memoization)
-- [Try-Catch-Finally](#try-catch-finally)
-- [Wrap in Loop Behavior](#wrap-in-loop-behavior)
-- [`Self()` Function](#self-function)
+- [\<Func/Func\>](#funcfunc)
+  - [Overview](#overview)
+  - [Memoization](#memoization)
+  - [Try-Catch-Finally](#try-catch-finally)
+  - [Wrap in Loop Behavior](#wrap-in-loop-behavior)
+  - [`Self()` Function](#self-function)
 
 ## Overview
 
