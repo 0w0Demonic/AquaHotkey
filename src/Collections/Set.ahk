@@ -42,24 +42,23 @@ class Set extends ISet {
     }
 
     /**
-     * Adds one or more values to the set.
+     * Adds values to the set.
      * 
-     * @param   {Any}   Value   any value
      * @param   {Any*}  Values  zero or more values
-     * @returns {Boolean}
+     * @returns {Integer}
+     * @override {@link ISet#Add}
      * @example
      * S := Set()
      * S.Add("value1", "value2")
      * MsgBox(S.Contains("value1")) ; true
      */
-    Add(Value, Values*) {
-        Changed := (!this.M.Has(Value))
-        this.M.Set(Value, true)
-        for V in Values {
-            Changed |= (!this.M.Has(V))
-            this.M.Set(V, true)
+    Add(Values*) {
+        Count := 0
+        for Value in Values {
+            Changed += !this.M.Has(Value)
+            (this.M).Set(Value, true)
         }
-        return Changed
+        return Count
     }
 
     /**
@@ -82,24 +81,24 @@ class Set extends ISet {
         return Obj
     }
 
-    /**
-     * Deletes one or more values from the set. If the set contained
-     * any of the values, this method returns `true`, otherwise `false`.
-     * 
-     * @param   {Any}   Value   any value
-     * @param   {Any*}  Values  more values
-     * @returns {Boolean}
-     */
-    Delete(Value, Values*) {
-        M := this.M
-        Changed := M.Has(Value)
-        M.Delete(Value)
+    ; TODO use `.TryDelete()`?
 
-        for V in Values {
-            Changed |= M.Has(V)
-            M.Delete(V)
+    /**
+     * Deletes values from the set. This method returns the amount of elements
+     * that were removed from the set.
+     * 
+     * @param   {Any*}  Values  zero or more values
+     * @returns {Integer}
+     * @override {@link IMap#Delete()}
+     */
+    Delete(Values*) {
+        M := this.M
+        Count := 0
+        for Value in Values {
+            Count += !!M.Has(Value)
+            M.Delete(Value)
         }
-        return Changed
+        return Count
     }
 
     /**

@@ -111,22 +111,23 @@ class ISet {
     ;---------------------------------------------------------------------------
     ;@region Unimplemented
 
+    ; TODO redefine return value as amount of new elements instead of boolean
     /**
      * Unimplemented `.Add()` method.
      * 
      * ---
      * 
-     * Adds one or more values to the set.
+     * Adds values to the set. This method returns the amount of elements
+     * that were added to the set.
      * 
-     * @param   {Any}   Value   any value
      * @param   {Any*}  Values  zero or more values
-     * @returns {Boolean}
+     * @returns {Integer}
      * @example
      * S := Set()
      * S.Add("value1", "value2")
      * MsgBox(S.Size) ; 2
      */
-    Add(Value, *) {
+    Add(*) {
         throw PropertyError("not implemented")
     }
 
@@ -146,7 +147,7 @@ class ISet {
      * 
      * ---
      * 
-     * Clones the set.
+     * Clones the set (shallow copy).
      * 
      * @returns {ISet}
      */
@@ -159,12 +160,13 @@ class ISet {
      * 
      * ---
      * 
+     * Deletes values from the set.
      * Deletes one or more values from the set. If the set contained any of
      * the values, this method returns `true`, otherwise `false`.
      * 
      * @param   {Any}   Value   any value
      * @param   {Any*}  Values  more values
-     * @returns {Boolean}
+     * @returns {Integer}
      */
     Delete(Value, Values*) {
         throw PropertyError("not implemented")
@@ -226,19 +228,14 @@ class ISet {
     /**
      * Determines whether any of the given values are present in the set.
      * 
-     * @param   {Any}   Value   any value
      * @param   {Any*}  Values  zero or more values
      * @returns {Boolean}
      * @example
      * Set(1, 2, 3).ContainsAny(2, 5) ; true
      */
-    ContainsAny(Value, Values*) {
-        if (this.Contains(Value)) {
-            return true
-        }
-
-        for V in Values {
-            if (this.Contains(V)) {
+    ContainsAny(Values*) {
+        for Value in Values {
+            if (this.Contains(Value)) {
                 return true
             }
         }
@@ -248,18 +245,31 @@ class ISet {
     /**
      * Determines whether all of the given values are present in the set.
      * 
-     * @param   {Any}   Value   any value
      * @param   {Any*}  Values  zero or more values
      * @returns {Boolean}
      * @example
      * Set(1, 2, 3).ContainsAll(1, 2, 3) ; true
      */
-    ContainsAll(Value, Values) {
-        if (!this.Contains(Value)) {
-            return false
+    ContainsAll(Values*) {
+        for Value in Values {
+            if (!this.Contains(Value)) {
+                return false
+            }
         }
-        for V in Values {
-            if (!this.Contains(V)) {
+        return true
+    }
+
+    /**
+     * Determines whether none of the given values are present in the set.
+     * 
+     * @param   {Any*}  Values  zero or more values
+     * @returns {Boolean}
+     * @example
+     * Set(1, 2, 3).ContainsNone(4, 5, 6) ; true
+     */
+    ContainsNone(Values*) {
+        for Value in Values {
+            if (this.Contains(Value)) {
                 return false
             }
         }
