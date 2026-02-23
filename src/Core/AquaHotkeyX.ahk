@@ -43,6 +43,7 @@
 #Include "%A_LineFile%\..\..\Base\Hash.ahk"
 
 #Include "%A_LineFile%\..\..\IO\FileUtils.ahk"
+#Include "%A_LineFile%\..\..\IO\Path.ahk"
 
 ;@endregion
 ;-------------------------------------------------------------------------------
