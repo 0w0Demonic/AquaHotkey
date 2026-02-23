@@ -85,6 +85,7 @@
 #Include "%A_LineFile%\..\..\Monads\Optional.ahk"
 #Include "%A_LineFile%\..\..\Monads\TryOp.ahk"
 
+#Include "%A_LineFile%\..\..\Stream\Count.ahk"
 #Include "%A_LineFile%\..\..\Stream\Range.ahk"
 #Include "%A_LineFile%\..\..\Stream\Gatherer.ahk"
 

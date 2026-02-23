@@ -64,9 +64,7 @@
   - [IArray](./Interfaces/IArray.md)
   - [IBuffer](./Interfaces/IBuffer.md)
   - [IMap](./Interfaces/IMap.md)
-  - [Indexable](./Interfaces/Indexable.md)
   - [ISet](./Interfaces/ISet.md)
-  - [Sizeable](./Interfaces/Sizeable.md)
 
 - [IO](./IO/overview.md)
   - [FileUtils](./IO/FileUtils.md)
@@ -80,6 +78,7 @@
   - [BaseStream](./Stream/BaseStream.md)
   - [DoubleStream](./Stream/DoubleStream.md)
   - [Gatherer](./Stream/Gatherer.md)
+  - [Count](./Stream/Count.md)
   - [Range](./Stream/Range.md)
   - [Stream](./Stream/Stream.md)
   - [Zip](./Collections/Zip.md)
