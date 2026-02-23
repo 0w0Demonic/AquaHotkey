@@ -1,4 +1,9 @@
-# Range
+# <[Stream](./overview.md)/[Range](../../src/Stream/Range.ahk)>
+
+- [\<Stream/Range\>](#streamrange)
+  - [Overview](#overview)
+
+## Overview
 
 Returns an enumerable functions that returns an arithmetic progression
 between `Start` and `End`, optionally at the specified interval `Step`

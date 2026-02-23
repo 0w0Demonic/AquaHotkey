@@ -2,6 +2,15 @@
 
 - [All Modules](../api-overview.md)
 
+---
+
+- [Module `<String>`](#module-string)
+  - [List of Features](#list-of-features)
+  - [String](#string)
+  - [Formatting](#formatting)
+  - [Matching](#matching)
+  - [Substrings](#substrings)
+
 ## List of Features
 
 - [String](./String.md)

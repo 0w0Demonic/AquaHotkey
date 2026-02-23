@@ -58,8 +58,8 @@ class IBuffer {
                 "Int", "UInt", "Int64", "UInt64",
                 "Float", "Double", "Ptr", "UPtr")
         {
-            Define(Proto, "Get" . T, { Call: ObjBindMethod(this, "Get", T )})
-            Define(Proto, "Put" . T, { Call: ObjBindMethod(this, "Put", T ) })
+            Define(Proto, "Get" . T, { Call: (Proto.Get).Bind(unset, T) })
+            Define(Proto, "Put" . T, { Call: (Proto.Put).Bind(unset, T) })
         }
     }
 
@@ -78,8 +78,12 @@ class IBuffer {
      * @param   {String}    NumType  AHK number type
      * @param   {Number}    Value    value to write
      * @param   {Integer?}  Offset   byte offset
+     * @returns {this}
      */
-    Put(NumType, Value, Offset := 0) => NumPut(NumType, Value, this, Offset)
+    Put(NumType, Value, Offset := 0) {
+        NumPut(NumType, Value, this, Offset)
+        return this
+    }
 
     /**
      * Reads a string from the buffer.

@@ -55,7 +55,7 @@ class Set extends ISet {
     Add(Values*) {
         Count := 0
         for Value in Values {
-            Changed += !this.M.Has(Value)
+            Count += !this.M.Has(Value)
             (this.M).Set(Value, true)
         }
         return Count

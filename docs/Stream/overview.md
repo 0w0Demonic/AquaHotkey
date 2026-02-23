@@ -2,9 +2,25 @@
 
 - [All Modules](../api-overview.md)
 
+---
+
+- [Module `<Stream>`](#module-stream)
+  - [List of Features](#list-of-features)
+  - [Overview](#overview)
+  - [Class Diagram](#class-diagram)
+  - [BaseStream](#basestream)
+  - [Count](#count)
+  - [DoubleStream](#doublestream)
+  - [Gatherer](#gatherer)
+  - [Range](#range)
+  - [Stream](#stream)
+  - [Zip](#zip)
+
+
 ## List of Features
 
 - [BaseStream](./BaseStream.md)
+- [Count](./Count.md)
 - [DoubleStream](./DoubleStream.md)
 - [Gatherer](./Gatherer.md)
 - [Range](./Range.md)
@@ -52,6 +68,17 @@ simultaneously.
 
 This class should not be used directly, but rather through its base classes
 like [Stream](./Stream.md) and [DoubleStream](./DoubleStream.md).
+
+## Count
+
+- [<Stream/Count>](./Count.md)
+
+An infinite stream of numbers, starting at `Start` and increasing by `Step`.
+
+```ahk
+Count() ; <1, 2, 3, 4, ...>
+Count(10, 2) ; <10, 12, 14, 16, ...>
+```
 
 ## DoubleStream
 

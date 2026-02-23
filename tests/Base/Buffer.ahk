@@ -53,7 +53,8 @@ class Test_Buffer extends TestSuite
     }
 
     static GetChar_PutChar() {
-        Buf := Buffer(8).PutChar(45, 0)
+        Buf := Buffer(8)
+        Buf.PutChar(45, 0)
         Buf.GetChar(0).Assert(Eq(45))
     }
 

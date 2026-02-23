@@ -13,4 +13,6 @@
 - move fileutils back to IO (in docs)
 - use more JSDoc tags
 - turn `Path()` into a whole class
-- figure out how to do loose coupling
+- figure out how to do loose coupling / mutual deps
+- stream and doublestream should strictly enforce the return type when
+  using `.FlatMap()`.

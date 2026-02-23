@@ -1,12 +1,25 @@
-# Stream
+# <[Stream](./overview.md)/[Stream](../../src/Stream/Stream.ahk)>
+
+- [\<Stream/Stream\>](#streamstream)
+  - [Overview](#overview)
+  - [What's a Stream?](#whats-a-stream)
+    - [Lazy Eval - Example](#lazy-eval---example)
+    - [Works With Anything](#works-with-anything)
+    - [Use in For-Loops](#use-in-for-loops)
+    - [Filtering Elements](#filtering-elements)
+    - [Recap: Some golden rules](#recap-some-golden-rules)
+  - [Gatherer API](#gatherer-api)
+  - [Some Technical Insight](#some-technical-insight)
+  - [Performance](#performance)
+
+## Overview
 
 Streams are what happens when you stop writing for-loops and start thinking in
 pipelines. They're lazy, expressive, and powerful; Perfect for anyone who
 wants to slice, filter, and map data without boilerplate.
 
 ```ahk
-Array(1, 2, 3, 4, 5, 6)
-    .Stream()
+Array(1, 2, 3, 4, 5, 6).Stream()
     .RetainIf(x => x > 2)
     .ForEach(MsgBox)
 ```
@@ -66,13 +79,14 @@ MyMap.DoubleStream()
 "String".Stream()
 ```
 
-Working with `Range()` is especially fun:
+Working with `Range()` and `Count()` is especially fun:
 
 ```ahk
-Range(100).Stream() ; <1, 2, 3, 4, 5, ...>
+Range(10) ; <1, 2, 3, ..., 10>
+Count() ; <1, 2, 3, ...>
 ```
 
-### Loop-Friendly, Too
+### Use in For-Loops
 
 If you don't want to do *everything* with streams, that's totally fine.
 You can still perform most of the filtering and mapping with streams, and
@@ -86,7 +100,7 @@ for Value in Stream {
 }
 ```
 
-### Quick heads-up on naming
+### Filtering Elements
 
 Instead of `.Filter()`, there's two separate methods:
 
@@ -100,31 +114,18 @@ Same goes for `Array`, `Map`, and `Stream`. It’s just more expressive this way
 - Use `.Stream()` to get a stream of size 1
 - Use `.DoubleStream()` get a stream of size 2
 - After `.Map()` or `.FlatMap()`, you're always working with single values
-- Prefer composing with `Mapper`, `Combiner`, `Condition` for clarity
 - For optimal performance, cut down on elements quickly
 - Don’t stream giant strings unless you know what you’re doing
 
-## Collector and Gatherer API
+## Gatherer API
 
-`Collector` and `Gatherer` provide some really powerful operations for
-collecting elements into different types of data structures and transforming
-data on the fly.
+The [Gatherer API](./Gatherer.md) provides some really powerful operations
+for transforming data on the fly.
 
 ```ahk
-C := Collector
-G := Gatherer
-
-; Map {
-;     true:  Map { true: [452, ...], false: [8, ...] },
-;     false: Map { true: [347, ...], false: [3, ...] }
-; }
-MyStream.Collect(C.Partition(IsEven, C.Partition(GreaterThan100)))
-
-; <(1, 2, 3), (2, 3, 4), (4, 5, 6)>
-Array(1, 2, 3, 4, 5).Stream().Gather(G.SlidingWindows(3))
+; <[1, 2], [3, 4], [5, 6]>
+Range(6).Stream().Gather(WindowSliding(2))
 ```
-
-For more fun, see: [Collector](./Collector.md), [Gatherer](./Gatherer.md)
 
 ## Some Technical Insight
 
@@ -196,10 +197,9 @@ the previous enumerator. If there are elements left, `&Out` receives
 `Mapper(&A)` as output. Finally, it returns `true` if successful, otherwise
 `false`.
 
-## Performance: good, but don’t be reckless
+## Performance
 
-Streams are fast enough for most things - especially numbers and
-simple objects.
+Streams are fast enough for most things - especially numbers and simple objects.
 
 To get the most performance out of streams, you should filter the results
 (e.g. with `.RetainIf()` and `.RemoveIf()`) as early as possible in the
