@@ -1,10 +1,9 @@
 #Requires AutoHotkey v2
 
-; TODO rename "Mixins" to "Interfaces"?
-;      (... or just remove completely?)
-
-; TODO add something where it checks if the property is already present, and
-;      in that case the property is not overridden?
+; TODO
+; - move `AquaHotkey.CreateClass()` to just `CreateClass()` ?
+; - mixins should just be classes that can't overwrite existing properties
+; - reconsider what to do with `.Mixins` property on classes
 
 /**
  * @file AquaHotkey.ahk

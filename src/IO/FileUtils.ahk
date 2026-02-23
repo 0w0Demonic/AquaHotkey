@@ -1,5 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+;@region Extensions
 /**
  * File utilities.
  * 
@@ -7,8 +8,7 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class AquaHotkey_FileUtils extends AquaHotkey
-{
+class AquaHotkey_FileUtils extends AquaHotkey {
     ;@region FileOpen
     class FileOpen {
         /**
@@ -108,6 +108,10 @@ class AquaHotkey_FileUtils extends AquaHotkey
     ;@endregion
 }
 
+;@endregion
+;-------------------------------------------------------------------------------
+;@region LoopFiles()
+
 /**
  * Creates a new file stream.
  * 
@@ -127,30 +131,4 @@ LoopFiles(Pattern, Mode := "F") {
     }
 }
 
-
-/**
- * Separates a file name or URL into its name, directory, extension,
- * and drive.
- * 
- * @param   {String}  Str  a file name or URL
- * @returns {Object}
- * @example
- * ; {
- * ;     Name:      "Address List.txt",
- * ;     Dir:       "C:\My Documents",
- * ;     Ext:       "txt"
- * ;     NameNoExt: "Address List"
- * ;     Drive:     "C:"
- * ; }
- * Path("C:\My Documents\Address List.txt")
- */
-Path(Str) {
-    SplitPath(Str, &Name, &Dir, &Ext, &NameNoExt, &Drive)
-    return {
-        Name: Name,
-        Dir: Dir,
-        Ext: Ext,
-        NameNoExt: NameNoExt,
-        Drive: Drive
-    }
-}
+;@endregion

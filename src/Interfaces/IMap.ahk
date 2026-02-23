@@ -1,4 +1,9 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
+
+; TODO
+; - figure out how to return value of `.PutIfAbsent()`
 
 /**
  * @interface
@@ -25,24 +30,6 @@ class IMap {
     }
 
     ;@region Construction
-
-    /**
-     * Returns an array of all keys in the map.
-     * 
-     * @returns {Array}
-     * @example
-     * Map(1, 2, "foo", "bar").Keys() ; [1, "foo"]
-     */
-    Keys() => Array(this*)
-
-    /**
-     * Returns an array of all values in the map.
-     * 
-     * @returns {Array}
-     * @example
-     * Map(1, 2, "foo", "bar").Values() ; [2, "bar"]
-     */
-    Values() => Array(this.__Enum(2).Bind(&Ignore)*)
 
     /**
      * Creates a new `IMap`.
@@ -93,6 +80,28 @@ class IMap {
 
     ;@endregion
     ;---------------------------------------------------------------------------
+    ;@region Keys and Values
+
+    /**
+     * Returns an array of all keys in the map.
+     * 
+     * @returns {Array}
+     * @example
+     * Map(1, 2, "foo", "bar").Keys() ; [1, "foo"]
+     */
+    Keys() => Array(this*)
+
+    /**
+     * Returns an array of all values in the map.
+     * 
+     * @returns {Array}
+     * @example
+     * Map(1, 2, "foo", "bar").Values() ; [2, "bar"]
+     */
+    Values() => Array(this.__Enum(2).Bind(&Ignore)*)
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Type Info
 
     /**
@@ -112,6 +121,7 @@ class IMap {
                 && HasMethod(Val, "Set")
                 && HasMethod(Val, "__Enum")
                 && HasProp(Val, "Count")
+                && HasProp(Val, "__Item")
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -257,7 +267,8 @@ class IMap {
     }
 
     /**
-     * If present, creates a new mapping given the key and its current mapped value.
+     * If present, creates a new mapping given the key and its current mapped
+     * value.
      * 
      * ```ahk
      * Mapper(Key: Any, Value: Any, Args: Any*) => Any
