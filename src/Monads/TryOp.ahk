@@ -1,9 +1,12 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; dev note: because of `TryOp.Call()`, the constructors of `TryOp.Success` and
+;          `TryOp.Failure` must also use `static Call()`.
+
 ;@region TryOp
 /**
  * Abstracts the use of try-catch blocks into a container object that is
- * either a `Call.Success` containing a value, or a `Call.Failure` containing
+ * either a `TryOp.Success` containing a value, or a `TryOp.Failure` containing
  * an error object.
  * 
  * @module  <Monads/TryOp>
@@ -96,7 +99,7 @@ class TryOp {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Actions
+    ;@region Side Effects
 
     /**
      * Performs the given action no matter what the result of the operation is.
@@ -398,6 +401,17 @@ class TryOp {
         throw MethodError("not implemented")
     }
 
+    /**
+     * Recovers a failed try-operation of any error type.
+     * 
+     * @param   {Func}        RecoverFunction  function to recover value
+     * @param   {Any*}        Args             zero or more additional arguments
+     * @returns {TryOp}
+     */
+    RecoverAny(RecoverFunction, Args*) {
+        throw MethodError("not implemented")
+    }
+
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region TryOp.Success
@@ -410,6 +424,7 @@ class TryOp {
          * Constructs a new successful try-operation that contains
          * the given value.
          * 
+         * @constructor
          * @param   {Any}  Value  any value
          * @returns {TryOp.Success}
          * @example
@@ -422,6 +437,7 @@ class TryOp {
          * Constructs a new successful try-operation that contains
          * the given value.
          * 
+         * @constructor
          * @param   {Any}  Value  any value
          * @example
          * ; TryOp.Success(42)
@@ -431,21 +447,40 @@ class TryOp {
             this.DefineProp("Value", { Get: (_) => Value })
         }
 
+        /**
+         * @see {@link TryOp#Succeeded}
+         */
         Succeeded => true
+
+        /**
+         * @see {@link TryOp#Failed}
+         */
         Failed => false
 
+        /**
+         * @see {@link TryOp#Then()}
+         */
         Then(Action, Args*) {
             Action(this.Value, Args*)
             return this
         }
 
+        /**
+         * @see {@link TryOp#OnFailure()}
+         */
         OnFailure(Action, *) => this
 
+        /**
+         * @see {@link TryOp#OnSuccess()}
+         */
         OnSuccess(Action, Args*) {
             Action(this.Value, Args*)
             return this
         }
 
+        /**
+         * @see {@link TryOp#RetainIf()}
+         */
         RetainIf(Condition, Args*) {
             try {
                 if (Condition(this.Value, Args*)) {
@@ -464,6 +499,9 @@ class TryOp {
             }
         }
 
+        /**
+         * @see {@link TryOp#RemoveIf()}
+         */
         RemoveIf(Condition, Args*) {
             try {
                 if (!Condition(this.Value, Args*)) {
@@ -482,6 +520,20 @@ class TryOp {
             }
         }
 
+        /**
+         * @see {@link TryOp#Map()}
+         */
+        Map(Mapper, Args*) {
+            try {
+                return TryOp.Success(Mapper(this.Value, Args*))
+            } catch as Err {
+                return TryOp.Failure(Err)
+            }
+        }
+
+        /**
+         * @see {@link TryOp#FlatMap()}
+         */
         FlatMap(Mapper, Args*) {
             try {
                 Result := Mapper(this.Value, Args*)
@@ -494,31 +546,51 @@ class TryOp {
             }
         }
 
+        /**
+         * @see {@link TryOp#Transform()}
+         */
         Transform(Mapper, Args*) => Mapper(this, Args*)
 
+        /**
+         * @see {@link TryOp#Get()}
+         */
         Get() => this.Value
 
+        /**
+         * @see {@link TryOp#OrElse()}
+         */
         OrElse(DefaultValue) {
             return this.Value
         }
 
+        /**
+         * @see {@link TryOp#OrElseGet()}
+         */
         OrElseGet(RecoverFunction, *) => this.Value
 
+        /**
+         * @see {@link TryOp#OrElseRun()}
+         */
         OrElseRun(Action, *) {
             ; nothing
         }
 
+        /**
+         * @see {@link TryOp#OrElseThrow()}
+         */
         OrElseThrow(ErrorSupplier?, *) => this.Value
 
-        Map(Mapper, Args*) {
-            try {
-                return TryOp.Success(Mapper(this.Value, Args*))
-            } catch as Err {
-                return TryOp.Failure(Err)
-            }
+        /**
+         * @see {@link TryOp#Recover()}
+         */
+        Recover(ErrorType, RecoverFunction, *) {
+            return this
         }
 
-        Recover(ErrorType, RecoverFunction, *) {
+        /**
+         * @see {@link TryOp#RecoverAny()}
+         */
+        RecoverAny(RecoverFunction, *) {
             return this
         }
     }
@@ -531,8 +603,28 @@ class TryOp {
      */
     class Failure extends TryOp
     {
+        /**
+         * Constructs a new failed try-operation that contains the given error.
+         * 
+         * @constructor
+         * @param   {Error}  Err  an error
+         * @returns {TryOp.Failure}
+         * @example
+         * ; TryOp.Success(42)
+         * SuccessfulTry := TryOp.Failure(IndexError("out of bounds"))
+         */
         static Call(Err) => (Object.Call)(this, Err)
 
+        /**
+         * Constructs a new failed try-operation that contains the given error.
+         * 
+         * @constructor
+         * @param   {Error}  Err  an error
+         * @returns {TryOp.Failure}
+         * @example
+         * ; TryOp.Success(42)
+         * SuccessfulTry := TryOp.Failure(IndexError("out of bounds"))
+         */
         __New(Err) {
             if (!(Err is Error)) {
                 throw TypeError("Expected an Error",, Type(Err))
@@ -540,17 +632,29 @@ class TryOp {
             this.DefineProp("Value", { Get: (_) => Err })
         }
 
+        /**
+         * @see {@link TryOp#Succeeded}
+         */
         Succeeded => false
+
+        /**
+         * @see {@link TryOp#Failed}
+         */
         Failed => true
 
-        Get() {
-            throw this.Value
-        }
-
+        /**
+         * @see {@link TryOp#Then()}
+         */
         Then(ThenFunction, *) => this
 
+        /**
+         * @see {@link TryOp#OnSuccess()}
+         */
         OnSuccess(Action, *) => this
 
+        /**
+         * @see {@link TryOp#OnFailure()}
+         */
         OnFailure(ErrorType, Action, Args*) {
             GetMethod(Action)
             Err := this.Value
@@ -574,18 +678,58 @@ class TryOp {
             return this
         }
 
+        /**
+         * @see {@link TryOp#RetainIf()}
+         */
         RetainIf(Condition, *) => this
+
+        /**
+         * @see {@link TryOp#RemoveIf()}
+         */
         RemoveIf(Condition, *) => this
 
-        FlatMap(Mapper, *) => this
+        /**
+         * @see {@link TryOp#Map()}
+         */
         Map(Mapper, *) => this
+
+        /**
+         * @see {@link TryOp#FlatMap()}
+         */
+        FlatMap(Mapper, *) => this
+
+        /**
+         * @see {@link TryOp#Transform()}
+         */
         Transform(Mapper, *) => this
 
+        /**
+         * @see {@link TryOp#Get()}
+         */
+        Get() {
+            throw this.Value
+        }
+
+        /**
+         * @see {@link TryOp#OrElse()}
+         */
         OrElse(DefaultValue) => DefaultValue
+
+        /**
+         * @see {@link TryOp#OrElseGet()}
+         */
         OrElseGet(Supplier, Args*) => Supplier(this.Value, Args*)
+        
+        /**
+         * @see {@link TryOp#OrElseRun()}
+         */
         OrElseRun(Action, Args*) {
             Action(Args*)
         }
+
+        /**
+         * @see {@link TryOp#OrElseThrow()}
+         */
         OrElseThrow(ErrorSupplier?, Args*) {
             if (IsSet(ErrorSupplier)) {
                 throw ErrorSupplier(this.Value, Args*)
@@ -593,6 +737,9 @@ class TryOp {
             throw this.Value
         }
 
+        /**
+         * @see {@link TryOp#Recover()}
+         */
         Recover(ErrorType, RecoverFunction, Args*) {
             GetMethod(RecoverFunction)
             Value := this.Value
@@ -619,6 +766,18 @@ class TryOp {
                 return TryOp.Failure(Err)
             }
         }
+
+        /**
+         * @see {@link TryOp#RecoverAny()}
+         */
+        RecoverAny(RecoverFunction, Args*) {
+            GetMethod(RecoverFunction)
+            try {
+                return TryOp.Success(RecoverFunction(this.Value, Args*))
+            } catch as Err {
+                return TryOp.Failure(Err)
+            }
+        }
     }
     ;@endregion
 }
@@ -627,17 +786,21 @@ class TryOp {
 ;-------------------------------------------------------------------------------
 ;@region Extensions
 
-class AquaHotkey_Try {
-    static __New() => (this == AquaHotkey_Try)
-                   && (IsSet(AquaHotkey))
-                   && (AquaHotkey is Class)
-                   && (AquaHotkey.__New)(this)
+class AquaHotkey_Try extends AquaHotkey {
+    static __New() {
+        if (this == AquaHotkey_Try) {
+            super.__New()
+        }
+    }
 
     class Object {
         /**
          * Tries to call this object with `Args*`, wrapped in a try-operation.
          * 
+         * @param   {Any*}  Args  zero or more arguments
          * @returns {TryOp}
+         * @example
+         * FileContents := FileRead.TryCall("myFile.txt").OrElse("")
          */
         TryCall(Args*) {
             GetMethod(this)
