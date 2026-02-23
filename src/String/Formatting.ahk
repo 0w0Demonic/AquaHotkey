@@ -190,15 +190,6 @@ class AquaHotkey_StringFormatting extends AquaHotkey {
         ;@region Case
 
         /**
-         * Converts the string to lowercase.
-         * 
-         * @returns {String}
-         * @example
-         * "FOO".ToLower() ; "foo"
-         */
-        ToLower() => StrLower(this)
-
-        /**
          * Converts this string to uppercase.
          * 
          * @returns {String}
@@ -206,6 +197,15 @@ class AquaHotkey_StringFormatting extends AquaHotkey {
          * "foo".ToUpper() ; "FOO"
          */
         ToUpper() => StrUpper(this)
+
+        /**
+         * Converts the string to lowercase.
+         * 
+         * @returns {String}
+         * @example
+         * "FOO".ToLower() ; "foo"
+         */
+        ToLower() => StrLower(this)
 
         /**
          * Converts this string to title case.

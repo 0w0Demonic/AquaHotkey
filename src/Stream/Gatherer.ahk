@@ -1,4 +1,9 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\Stream.ahk"
+#Include "%A_LineFile%\..\..\Func\Cast.ahk"
+
+; TODO
+; - implement a linked list structure for the sake of buffering stream elements?
 
 /**
  * Gatherers are functions that can transform a sequence of input

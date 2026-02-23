@@ -1,6 +1,10 @@
 #Include "%A_LineFile%\..\..\Stream\Stream.ahk"
 #Include "%A_LineFile%\..\..\Stream\DoubleStream.ahk"
 
+; TODO
+; - add `.Zip()` and `.ZipWith()` as stream methods?
+; - cartesion product?
+
 /**
  * Combines two enumerable object (arrays, maps, etc.) into a
  * {@link DoubleStream}. The stream stop as soon as one of the enumerables
