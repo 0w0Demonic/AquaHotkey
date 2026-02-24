@@ -2,12 +2,17 @@
  * @mixin
  * @description
  * 
- * Mixin class for types that can enumerated with 2 parameters.
+ * Mixin class for types that can enumerated with 2 parameters. As opposed
+ * to {@link Enumerable1}, methods are suffixed with `2`.
+ * For example, `.ForEach2()` is the two-parameter version of `.ForEach()`.
  * 
- * In general, functions used for side effects (`.ForEach()`) or reduction
- * (`.Reduce()`, `.Any2()`, etc.) are able to access the loop variable
- * `A_Index`.
+ * `Enumerable2.Strict` defines the same methods, except that they aren't
+ * prefixed. This is useful for things like {@link DoubleStream}, which are
+ * strictly 2-parameter.
  * 
+ * @module  <Interfaces/Enumerable1>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
  * for Value1, Value2 in Obj { ... }
  */

@@ -5,16 +5,14 @@
  * @description
  * 
  * Mixin class for types that can be enumerated with 1 parameter.
+ * This provides many methods for collecting elements into data structures,
+ * side effects (`.ForEach()`), finding values, quantifiers, and reduction.
  * 
- * In general, functions used for side effects (`.ForEach()`) or reduction
- * (`.Reduce()`, `.Any1()`, etc.) are able to access the loop variable
- * `A_Index`.
- * 
+ * @module  <Interfaces/Enumerable1>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @example
- * MyArray.Any((Value?) {
- *     Idx := A_Index
- *     ... ; do something with the element
- * })
+ * Range(1, 100).Any(Eq(20)) ; true
  */
 class Enumerable1 {
     static __New() => this.ApplyOnto(IArray, IMap, Enumerator)
