@@ -2,6 +2,8 @@
 
 - [\<String/Formatting\>](#stringformatting)
   - [Overview](#overview)
+  - [Formatting](#formatting)
+  - [String Replacements](#string-replacements)
   - [Insert, Overwrite, Delete](#insert-overwrite-delete)
   - [Word Wrapping](#word-wrapping)
   - [Trimming](#trimming)
@@ -12,10 +14,32 @@
 
 String formatting.
 
+## Formatting
+
+Use `.Formatted(Args*)` to use the string as `Format()`-string.
+
+```ahk
+; equivalent to: Format("...", "Juliet")
+"My {}, my special girl".Formatted("Juliet")
+```
+
+## String Replacements
+
+`StrReplace()` and `RegExReplace()` come in the form of methods `.Replace()`
+and `.RegExReplace()`.
+
+```ahk
+; --> "banana"
+"banama".Replace("m", "n")
+
+; --> "abc"
+"abc123".RegExReplace("\d+")
+```
+
 ## Insert, Overwrite, Delete
 
-Use `.Insert()`, `.Overwrite()` and `.Delete()` to insert, overwrite and delete
-sections in the string, respectively.
+Use `.Insert()`, `.Overwrite()` and `.Delete()` to mutate sections in the
+string.
 
 ```ahk
 "banaa".Insert("n", -1)    ; "banana"

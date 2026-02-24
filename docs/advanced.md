@@ -2,13 +2,15 @@
 
 This file covers some slightly more advanced, but still common use cases.
 
-- [Extending Nested Classes](#extending-nested-classes)
-- [Extending Functions](#extending-functions)
-- [Field Declarations](#field-declarations)
-- [Some More Technical Insight](#some-more-technical-insight)
-- [Backup Classes](#backup-classes)
-- [Overriding Existing Properties](#how-to-override-existing-properties)
-- [Shared Extensions](#shared-extensions-with-aquahotkey_multiapply)
+- [Advanced - Class Prototyping](#advanced---class-prototyping)
+  - [Extending Nested Classes](#extending-nested-classes)
+  - [Extending Functions](#extending-functions)
+  - [Field Declarations](#field-declarations)
+  - [Some More Technical Insight](#some-more-technical-insight)
+  - [Backup Classes](#backup-classes)
+    - [Overriding Existing Properties](#overriding-existing-properties)
+  - [Shared Extensions with `AquaHotkey_MultiApply`](#shared-extensions-with-aquahotkey_multiapply)
+  - [Quick Summary](#quick-summary)
 
 ## Extending Nested Classes
 

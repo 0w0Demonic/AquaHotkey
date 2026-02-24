@@ -9,6 +9,16 @@ If you're interested in the reasoning and history behind AquaHotkey, check out
 [About AquaHotkey](../rambling/00_about.md). It covers some of the design
 choices and how the library evolved into its current form.
 
+---
+
+- [Basics - Class Prototyping](#basics---class-prototyping)
+  - [Including the Library](#including-the-library)
+  - [Getting Started](#getting-started)
+  - [Exercises](#exercises)
+  - [Solutions](#solutions)
+  - [Best Practices](#best-practices)
+  - [Quick Summary](#quick-summary)
+
 ## Including the Library
 
 First, go ahead and clone the repo:

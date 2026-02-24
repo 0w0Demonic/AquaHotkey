@@ -1,4 +1,13 @@
-# DLL
+# <[System](./overview.md)/[DLL](../../src/System/DLL.ahk)>
+
+- [\<System/DLL\>](#systemdll)
+  - [Overview](#overview)
+  - [Usage](#usage)
+  - [Defining Function Signatures](#defining-function-signatures)
+    - [Supported Data Types](#supported-data-types)
+  - [Function Resolution Behavior](#function-resolution-behavior)
+  - [Using Hidden Ordinal Functions](#using-hidden-ordinal-functions)
+  - [Limitations](#limitations)
 
 ## Overview
 

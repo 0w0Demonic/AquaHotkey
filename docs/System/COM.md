@@ -1,4 +1,14 @@
-# COM
+# <[System](./overview.md)/[COM](../../src/System/COM.ahk)>
+
+- [\<System/COM\>](#systemcom)
+  - [Overview](#overview)
+    - [`(required) static CLSID => String`](#required-static-clsid--string)
+    - [`(optional) static IID => String`](#optional-static-iid--string)
+    - [`(optional) static MethodSignatures => Object`](#optional-static-methodsignatures--object)
+    - [`(optional) static EventSink => Class`](#optional-static-eventsink--class)
+    - [`(optional) static ReturnTypes => Object`](#optional-static-returntypes--object)
+  - [Example](#example)
+  - [AbstractCom Class](#abstractcom-class)
 
 ## Overview
 
@@ -86,8 +96,6 @@ COM objects, but have no CLSID and are generally returned by other COM objects
 
 Use `static ReturnTypes` to specify the return types of properties owned by the
 COM object.
-
-### Example
 
 ```ahk
 class Word extends Com {

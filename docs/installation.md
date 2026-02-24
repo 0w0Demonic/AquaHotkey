@@ -1,5 +1,9 @@
 # Installation
 
+- [Installation](#installation)
+  - [Aris](#aris)
+  - [Advanced Setup](#advanced-setup)
+
 To get started, clone this repository and (ideally) put it in one of the
 AutoHotkey [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib).
 
@@ -27,7 +31,8 @@ aris install AquaHotkey
 
 Otherwise, I recommend checking it out, honestly a really cool project.
 Also, special thanks to [Descolada](https://github.com/Descolada) and
-[JoyHak](https://github.com/JoyHak) for including it in the index.
+[JoyHak](https://github.com/JoyHak) for including AquaHotkey in the package
+index.
 
 ## Advanced Setup
 
