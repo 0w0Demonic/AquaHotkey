@@ -1,6 +1,9 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
+; TODO
+; - accomodate Enumerable1 and Enumerable2 without overwriting existing stuff
+
 /**
  * Creates a registry stream.
  * 
@@ -84,7 +87,7 @@ LoopRead(InputFile, OutputFile?) {
 class Continuation extends Func {
     static __New() {
         if (this == Continuation) {
-            this.Backup(Enumerable1, Enumerable2)
+            this.Backup(Enumerable1)
         }
     }
 
@@ -445,68 +448,19 @@ class Continuation extends Func {
     ;@region Reduction
 
     /**
-     * Collects all elements to an array.
-     * 
-     * @returns {Array}
-     */
-    ToArray() {
-        Arr := Array()
-        this.ForEach((Value?) => Arr.Push(Value?))
-        return Arr
-    }
-
-    /**
-     * Performs the given `Action` for each element.
-     * 
-     * ```ahk
-     * Action(Value: Any?) => void
-     * ```
-     * 
-     * @param   {Func}  Action  the function to call
-     * @param   {Any*}  Args    zero or more arguments
-     */
-    ForEach(Action, Args*) {
-        this(ForEach)
-
-        ForEach(Value?) {
-            Action(Value?, Args*)
-            return true
-        }
-    }
-
-    /**
-     * Reduces elements of the continuation into a final result.
-     * 
-     * ```ahk
-     * Reducer(Left: Any, Right: Any?) => Any
-     * ```
-     * 
-     * @param   {Func}  Reducer  combines two values repeatedly
-     * @param   {Any?}  Initial  initial value
-     * @returns {Any}
-     */
-    Reduce(Reducer, Initial?) {
-        GetMethod(Reducer)
-        if (!IsSet(Initial) && Reducer.Is(Monoid)) {
-            Initial := Reducer.Identity
-        }
-        this(Reduce)
-        return Initial
-
-        Reduce(Value?) {
-            if (!IsSet(Initial)) {
-                Initial := (Value?)
-            } else {
-                Initial := Reducer(Initial, Value?)
-            }
-        }
-    }
-
-    /**
      * Returns an {@link Enumerator} for this continuation.
      * 
      * @param   {Integer}  ArgSize  param-size of for-loop
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) => this.ToArray().__Enum(ArgSize)
+    __Enum(ArgSize) {
+        Arr := Array()
+        this(Collect)
+        return Arr.__Enum(ArgSize)
+
+        Collect(Value?) {
+            Arr.Push(Value?)
+            return true
+        }
+    }
 }

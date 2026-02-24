@@ -58,7 +58,4 @@ Deletion() {
     MsgBox("end")
 }
 
-C1 := Comparator.Num()
-C2 := Comparator.Num()
-
-MsgBox(C1 == C2)
+LoopParse("foo").ForEach(MsgBox)
