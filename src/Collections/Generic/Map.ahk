@@ -275,6 +275,19 @@ class GenericMap extends IDelegatingMap {
  * Extension methods related to {@link GenericMap}.
  */
 class AquaHotkey_GenericMap extends AquaHotkey {
+    static __New() {
+        if (this != AquaHotkey_GenericMap) {
+            return
+        }
+
+        if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
+            ({}.DefineProp)(this.IMap, "OfType", { Call: Disabled_OfType })
+        }
+        super.__New()
+
+        static Disabled_OfType(Cls, K, V) => Cls
+    }
+
     class IMap {
         /**
          * Returns a generic map class.

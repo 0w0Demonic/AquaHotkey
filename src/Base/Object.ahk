@@ -1,5 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO static constructors like `Object.WithBase()`?
+
 /**
  * Object utilities, mostly for the creation of new properties.
  * 

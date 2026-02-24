@@ -14,11 +14,15 @@ class Path {
      * @constructor
      * @param   {String}  Str  file path or URL
      */
-    __New(Path) {
+    static Call(Path) {
         if (!(Path is String)) {
             throw TypeError("Expected a String",, Type(Path))
         }
-        this.DefineProp("Value", { Get: (_) => Path })
+        
+        Result := Object()
+        ObjSetBase(Result, this.Prototype)
+        Result.DefineProp("Value", { Get: (_) => Path })
+        return Result
     }
 
     ;@endregion

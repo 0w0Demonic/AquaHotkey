@@ -511,9 +511,7 @@ class AquaHotkey_GenericArray extends AquaHotkey {
         }
         super.__New()
 
-        static Disabled_OfType(Cls, T, Constraint?) {
-            return Cls
-        }
+        static Disabled_OfType(Cls, T, Constraint?) => Cls
     }
 
     class Class {
