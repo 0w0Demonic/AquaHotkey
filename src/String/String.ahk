@@ -16,6 +16,8 @@
  */
 class AquaHotkey_String extends AquaHotkey {
     class String {
+        ;@region Enumeration
+
         /**
          * Enumerates all characters in the string.
          * 
@@ -55,6 +57,24 @@ class AquaHotkey_String extends AquaHotkey {
             }
         }
 
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Splitting
+
+        /**
+         * Separates the string into an array of substrings using `Delimiter`.
+         * 
+         * @param   {String?/Array?}  Delimiters  boundaries between substrings
+         * @param   {String?}         OmitChars   list of characters to trim
+         * @param   {Integer}         MaxParts    maximum number of substrings
+         * @returns {Array}
+         * @example
+         * "a,b,c".Split(",") ; ["a", "b", "c"]
+         */
+        Split(Delimiters := "", OmitChars?, MaxParts?) {
+            return StrSplit(this, Delimiters?, OmitChars?, MaxParts?)
+        }
+
         /**
          * Splits the string into an array of separate lines.
          * 
@@ -67,6 +87,10 @@ class AquaHotkey_String extends AquaHotkey {
          * )".Lines() ; ["Hello,", "world!"]
          */
         Lines() => StrSplit(this, "`n", "`r")
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Concatenation
 
         /**
          * Returns this string prepended by `Before`.
@@ -100,6 +124,10 @@ class AquaHotkey_String extends AquaHotkey {
          */
         Surround(Before, After := Before) => (Before . this . After)
 
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Misc.
+
         /**
          * Returns this string repeated `n` times.
          * 
@@ -131,86 +159,9 @@ class AquaHotkey_String extends AquaHotkey {
             return Str
         }
         
-        /**
-         * Formats by using the string as format pattern.
-         * 
-         * If an object is passed, it is converted to a string by using its
-         * `ToString() method`.
-         * 
-         * @param   {Any*}  Args  zero or more additional arguments
-         * @returns {String}
-         * @example
-         * "a: {}, b: {}".Formatted(2, 42) ; "a: 2, b: 42"
-         */ 
-        Formatted(Args*) {
-            Input := Array()
-            for Value in Args {
-                Input.Push(String(Value))
-            }
-            return Format(this, Input*)
-        }
-
-        /**
-         * Replaces occurrences of `Pattern` in the string.
-         * 
-         * @param   {String}      Pattern    string to replace
-         * @param   {String?}     Rep        replacement string
-         * @param   {Primitive?}  CaseSense  case-sensitivity
-         * @param   {VarRef?}     Out        (out) number of replacements made
-         * @param   {Integer?}    Limit      replacement limit
-         * @returns {String}
-         * @example
-         * "abz".Replace("z", "c") ; "abc"
-         */
-        Replace(Pattern, Rep := "", CaseSense := false, &Out?, Limit := -1) {
-            return StrReplace(this, Pattern, Rep, CaseSense, &Out, Limit)
-        }
-
-        /**
-         * Separates the string into an array of substrings using `Delimiter`.
-         * 
-         * @param   {String?/Array?}  Delimiters  boundaries between substrings
-         * @param   {String?}         OmitChars   list of characters to trim
-         * @param   {Integer}         MaxParts    maximum number of substrings
-         * @returns {Array}
-         * @example
-         * "a,b,c".Split(",") ; ["a", "b", "c"]
-         */
-        Split(Delimiters := "", OmitChars?, MaxParts?) {
-            return StrSplit(this, Delimiters?, OmitChars?, MaxParts?)
-        }
-
-        /**
-         * Returns a substring at index `Start` and length `Length` in
-         * characters.
-         * 
-         * @param   {Integer}   Start   starting index
-         * @param   {Integer?}  Length  length in characters
-         * @returns {String}
-         * @example
-         * "123abc789".Sub(4, 3) ; "abc"
-         */
-        Sub(Start, Length?) => SubStr(this, Start, Length?)
-
-        /**
-         * Returns a substring at index `Start` and length `Length` in
-         * characters. Unlike `SubStr()`, `Length` defaults to 1 when
-         * omitted.
-         * 
-         * @param   {Integer}   Start   starting index
-         * @param   {Integer?}  Length  length in characters
-         * @returns {String}
-         * @example
-         * ("foo bar")[5] ; "b"
-         */
-        __Item[Start, Length := 1] {
-            get {
-                if (Abs(Start) > StrLen(this)) {
-                    throw ValueError("index out of bounds",, Start)
-                }
-                return SubStr(this, Start, Length)
-            }
-        }
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Properties
 
         /**
          * Returns the length of the string in characters.
@@ -243,5 +194,7 @@ class AquaHotkey_String extends AquaHotkey {
                 return StrPut(this, Encoding)
             }
         }
+
+        ;@endregion
     }
 }

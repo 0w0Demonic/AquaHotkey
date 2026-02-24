@@ -9,6 +9,65 @@
  */
 class AquaHotkey_StringFormatting extends AquaHotkey {
     class String {
+        ;@region Formatting
+
+        /**
+         * Formats by using the string as format pattern.
+         * 
+         * If an object is passed, it is converted to a string by using its
+         * `ToString() method`.
+         * 
+         * @param   {Any*}  Args  zero or more additional arguments
+         * @returns {String}
+         * @example
+         * "a: {}, b: {}".Formatted(2, 42) ; "a: 2, b: 42"
+         */ 
+        Formatted(Args*) {
+            Input := Array()
+            for Value in Args {
+                Input.Push(String(Value))
+            }
+            return Format(this, Input*)
+        }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Replacements
+
+        /**
+         * Replaces occurrences of `Pattern` in the string.
+         * 
+         * @param   {String}      Pattern    string to replace
+         * @param   {String?}     Rep        replacement string
+         * @param   {Primitive?}  CaseSense  case-sensitivity
+         * @param   {VarRef?}     Out        (out) number of replacements made
+         * @param   {Integer?}    Limit      replacement limit
+         * @returns {String}
+         * @example
+         * "abz".Replace("z", "c") ; "abc"
+         */
+        Replace(Pattern, Rep := "", CaseSense := false, &Out?, Limit := -1) {
+            return StrReplace(this, Pattern, Rep, CaseSense, &Out, Limit)
+        }
+
+        /**
+         * Replaces occurrences of a regex expression in the string.
+         * 
+         * @param   {String}    Pattern  regular expression
+         * @param   {String?}   Replace  replacement string
+         * @param   {VarRef?}   Count    output count
+         * @param   {Integer?}  Limit    maximum number of replacements
+         * @param   {Integer?}  Start    position to start searching from
+         * @returns {String}
+         * @example
+         * "Test123Hello".RegExReplace("\d++", "") ; "TestHello"
+         */
+        RegExReplace(Pattern, Replace?, &Count?, Limit?, Start?) {
+            return RegExReplace(this, Pattern, Replace?, &Count, Limit?, Start?)
+        }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
         ;@region Mutation
 
         /**

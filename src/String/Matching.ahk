@@ -60,22 +60,6 @@ class AquaHotkey_StringMatching extends AquaHotkey {
         }
 
         /**
-         * Replaces occurrences of a regex expression in the string.
-         * 
-         * @param   {String}    Pattern  regular expression
-         * @param   {String?}   Replace  replacement string
-         * @param   {VarRef?}   Count    output count
-         * @param   {Integer?}  Limit    maximum number of replacements
-         * @param   {Integer?}  Start    position to start searching from
-         * @returns {String}
-         * @example
-         * "Test123Hello".RegExReplace("\d++", "") ; "TestHello"
-         */
-        RegExReplace(Pattern, Replace?, &Count?, Limit?, Start?) {
-            return RegExReplace(this, Pattern, Replace?, &Count, Limit?, Start?)
-        }
-
-        /**
          * Returns the match object for the first occurrence of a regular
          * expression `Pattern`.
          * 
