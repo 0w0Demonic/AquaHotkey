@@ -64,90 +64,90 @@ class URI {
      * @see {@link https://en.wikipedia.org/wiki/Uniform_Resource_Identifier Wikipedia}
      */
     static Call(Str) {
+        static VALID_SCHEME := "Si)^[a-z][a-z+.-]*$"
+        static INVALID_CHARS  := "i)[^\w.!~*'();/?:@&=+$,[\]%-]"
+        local p, q, ; index values
+              r,    ; result object
+              t     ; type of object based on `Scheme`, if applicable
+
+        if (this != URI) {
+            throw MethodError("Method must be called directly by URI class")
+        }
+
         if (!(Str is String)) {
             throw TypeError("Expected a String",, Type(Str))
         }
 
-        Result := Object()
-        Result.DefineProp("Value", { Get: (_) => Str })
-        
-        ; Scheme
-        ;   scheme://user:pass@example.org:8182/path/to/file?k=v#frag
-        ;   ______v
-        Index := InStr(Str, ":")
-        if (Index) {
-            Scheme := SubStr(Str, 1, Index - 1)
+        r := Object()
+        ObjSetBase(r, URI.Prototype)
+        r.DefineProp("Value", { Get: (_) => Str })
+
+        n := StrLen(Str) + 1
+        p := InStr(Str, ":")
+        if (p) {
+            Scheme := SubStr(Str, 1, p - 1)
+            t := URI.Types.Get(Scheme, false)
+            if (t) {
+                ObjSetBase(r, t.Prototype)
+            } else if (!(Scheme ~= VALID_SCHEME)) {
+                throw ValueError("invalid scheme",, Scheme)
+            } else {
+                ObjSetBase(r, URI.Prototype)
+            }
+            r.DefineProp("Scheme", { Get: (_) => Scheme })
+
+            p++ ; skip ":"
+            if (SubStr(Str, p, 1) == "/") {
+                ParseHierarchy()
+            } else {
+                q := InStr(Str, "#", unset, p) || n
+                if (q == p) {
+                    throw ValueError("expected scheme-specific part")
+                }
+                Spec := SubStr(Str, p, q - p)
+                Check(Spec ~= INVALID_CHARS)
+                r.DefineProp("SchemeSpecificPart", { Get: (_) => Spec })
+            }
         } else {
-            Scheme := ""
+            p++
+            ParseHierarchy()
         }
-        Index += 1
+        if (SubStr(Str, p, 1) == "#") {
+            Frag := SubStr(Str, p + 1)
+            Check(Frag ~= INVALID_CHARS)
+            r.DefineProp("Fragment", { Get: (_) => Frag })
+        }
+        return r
 
-        T := URI.Types.Get(Scheme, false)
-        if (T) {
-            ObjSetBase(Result, T.Prototype)
-        } else if (!(Scheme ~= "i)^[a-z]?[a-z0-9+.-]*$")) {
-            MsgBox(Scheme)
-            throw ValueError("invalid scheme",, Scheme)
-        } else {
-            ObjSetBase(Result, URI.Prototype)
+        ParseHierarchy() {
+            if (SubStr(Str, p, 2) == "//") {
+                p += 2
+                q := RegExMatch(Str, "[/?#]", unset, p) || n
+                Authority := SubStr(Str, p, q - p)
+                Check(Authority ~= INVALID_CHARS)
+                r.DefineProp("Authority", { Get: (_) => Authority })
+                p := q
+            }
+            q := RegExMatch(Str, "[?#]", unset, p) || n
+            Path := SubStr(Str, p, q - p)
+            r.DefineProp("Path", { Get: (_) => Path })
+            p := q
+            if (SubStr(Str, p, 1) == "?") {
+                p++
+                q := InStr(Str, "#", unset, p) || n
+                Query := SubStr(Str, p, q - p)
+                Check(Query ~= INVALID_CHARS)
+                r.DefineProp("Query", { Get: (_) => Query })
+                p := q
+            }
         }
 
-        Result.DefineProp("Scheme", { Get: (_) => Scheme })
-        End := StrLen(Str) + 1
-
-        IsOpaque := SubStr(Str, Index, 1) != "/"
-        Result.DefineProp("IsOpaque", { Get: (_) => IsOpaque })
-
-        ; Authority
-        ;   scheme://user:pass@example.org:8182/path/to/file?k=v#frag
-        ;            __________________________v
-        if (SubStr(Str, Index, 2) == "//") {
-            Index += 2
-            Next := RegExMatch(Str, "[/?#]", unset, Index + 2) || End
-            Authority := SubStr(Str, Index, Next - Index)
-            Index := Next + 1
-        } else {
-            Authority := ""
+        Check(Pos) {
+            if (Pos) {
+                throw ValueError("invalid char at #" . Pos,,
+                                SubStr(Str, Pos, 1))
+            }
         }
-        Result.DefineProp("Authority", { Get: (_) => Authority })
-
-        ; Path
-        ;   scheme://user:pass@example.org:8182/path/to/file?k=v#frag
-        ;                                       ____________v
-        Next := RegExMatch(Str, "[?#]", unset, Index + 1) || End
-        Path := SubStr(Str, Index, Next - Index)
-        Result.DefineProp("Path", { Get: (_) => Path })
-        
-        ; Query
-        ;   scheme://user:pass@example.org:8182/path/to/file?k=v#frag
-        ;                                                    ___v
-        Index := Next + 1
-        if (SubStr(Str, Next, 1) == "?") {
-            Next := InStr(Str, "#", unset, Index) || End
-            Query := SubStr(Str, Index, Next - Index)
-            Index := Next + 1
-        } else {
-            Query := ""
-        }
-        Result.DefineProp("Query", { Get: (_) => Query })
-
-        ; Fragment
-        ;   scheme://user:pass@example.org:8182/path/to/file?k=v#frag
-        ;                                                        ____v
-        if (SubStr(Str, Next, 1) == "#") {
-            Fragment := SubStr(Str, Next + 1)
-        } else {
-            Fragment := ""
-        }
-        Result.DefineProp("Fragment", { Get: (_) => Fragment })
-
-        Cls := URI.Types.Get(Scheme, false)
-        if (Cls) {
-            ObjSetBase(Result, Cls.Prototype)
-        } else {
-            ObjSetBase(Result, URI.Prototype)
-        }
-        return Result
     }
 
     ;@endregion
@@ -160,11 +160,7 @@ class URI {
      * @abstract
      * @property {String}
      */
-    Value {
-        get {
-            throw PropertyError("property not found")
-        }
-    }
+    Value => ""
 
     /**
      * The URI scheme.
@@ -172,11 +168,15 @@ class URI {
      * @abstract
      * @property {String}
      */
-    Scheme {
-        get {
-            throw PropertyError("property not found")
-        }
-    }
+    Scheme => ""
+
+    /**
+     * The scheme-specific part for non-hierarchical URIs.
+     * 
+     * @abstract
+     * @property {String}
+     */
+    SchemeSpecificPart => ""
 
     /**
      * The authority of the URI.
@@ -184,11 +184,7 @@ class URI {
      * @abstract
      * @property {String}
      */
-    Authority {
-        get {
-            throw PropertyError("property not found")
-        }
-    }
+    Authority => ""
 
     /**
      * Path defined by the URI.
@@ -196,11 +192,7 @@ class URI {
      * @abstract
      * @property {String}
      */
-    Path {
-        get {
-            throw PropertyError("property not found")
-        }
-    }
+    Path => ""
 
     /**
      * The URI query.
@@ -208,11 +200,7 @@ class URI {
      * @abstract
      * @property {String}
      */
-    Query {
-        get {
-            throw PropertyError("property not found")
-        }
-    }
+    Query => ""
 
     /**
      * The URI fragment.
@@ -220,33 +208,25 @@ class URI {
      * @abstract
      * @property {String}
      */
-    Fragment {
-        get {
-            throw PropertyError("property not found")
-        }
-    }
+    Fragment => ""
 
     /**
      * Determines whether this URI is absolute. A URI is absolute whenever
      * it defines a scheme.
      * 
      * @readonly
-     * @property {String}
+     * @property {Boolean}
      */
-    IsAbsolute => (this.Scheme) != ""
+    IsAbsolute => (this.Scheme != "")
 
     /**
      * Determines whether this URI is opaque. A URI is considered opaque if the
      * scheme-specific part does not start with a forward slash character.
      * 
      * @readonly
-     * @property {Strig}
+     * @property {Boolean}
      */
-    IsOpaque {
-        get {
-            throw PropertyError("property not found")
-        }
-    }
+    IsOpaque => (this.Path == "")
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -258,6 +238,22 @@ class URI {
      * @returns {String}
      */
     ToString() => (this.Value)
+
+    /**
+     * Returns a detailed string representation of the URI.
+     * 
+     * @returns {String}
+     */
+    ToDebugString() => (Object.Prototype.ToString)({
+        Value: this.Value,
+        Scheme: this.Scheme,
+        SchemeSpecificPart: this.SchemeSpecificPart,
+        Authority: this.Authority,
+        Path: this.Path,
+        Query: this.Query,
+        Fragment: this.Fragment,
+        base: ObjGetBase(this)
+    })
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -344,3 +340,17 @@ class AquaHotkey_URI extends AquaHotkey {
 }
 
 ;@endregion
+
+; URI {
+;   Authority: "",
+;   Fragment: "frag",
+;   Path: "/a/b/../c",
+;   Query: "key=value",
+;   Scheme: "",
+;   SchemeSpecificPart: "",
+;   Value: "/a/b/../c?key=value#frag"
+; }
+
+URI("/a/b/../c?key=value#frag")
+    .ToDebugString()
+    .ToClipboard()
