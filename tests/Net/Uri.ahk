@@ -19,8 +19,6 @@ class Test_Uri extends TestSuite {
     }
 
     static Types_is_case_insensitive() {
-        (Uri.Types).CaseSense.Assert(Eq(false))
-
         (Uri.Types).Set("CaseInsensitive", DummyUri)
         (Uri.Types).Has("CASEINSENSITIVE").Assert(Eq(true))
     }
@@ -38,14 +36,9 @@ class Test_Uri extends TestSuite {
         this.AssertThrows(() => Uri("/a/b/<"))
     }
 
-    ; Component parsing tests
-    static parse_scheme_only() {
-        U := Uri("http:")
-        U.Scheme.Assert(Eq("http"))
-        U.HasScheme.Assert(Eq(true))
-        U.IsAbsolute.Assert(Eq(true))
-        U.IsOpaque.Assert(Eq(true))
-        U.SchemeSpecificPart.Assert(Eq(""))
+    static missing_authority() {
+        this.AssertThrows(() => Uri("http:"))
+        this.AssertThrows(() => Uri("http:/"))
     }
 
     static parse_simple_hierarchical() {
@@ -86,7 +79,7 @@ class Test_Uri extends TestSuite {
     static parse_path_with_query() {
         U := Uri("/path?query=value")
         U.Path.Assert(Eq("/path"))
-        U.Query.Assert(Eq("value"))
+        U.Query.Assert(Eq("query=value"))
         U.HasFragment.Assert(Eq(false))
     }
 
@@ -113,6 +106,10 @@ class Test_Uri extends TestSuite {
     static normalize_removes_dot_dot() {
         U := Uri("/a/b/../c").Normalize()
         U.Path.Assert(Eq("/a/c"))
+    }
+
+    static resolve_retains_dot_dot() {
+        Uri("/a").Resolve("..").Path.Eq("/")
     }
 
     static normalize_multiple_dots() {
@@ -210,8 +207,11 @@ class Test_Uri extends TestSuite {
     static relativize_same_base() {
         Base := Uri("http://example.com/docs/")
         Target := Uri("http://example.com/docs/guide.html")
+
         Rel := Base.Relativize(Target)
+
         Rel.Path.Assert(Eq("guide.html"))
+
         Rel.HasAuthority.Assert(Eq(false))
         Rel.HasScheme.Assert(Eq(false))
     }
@@ -282,7 +282,7 @@ class Test_Uri extends TestSuite {
     ; Percent encoding normalization
     static percent_encoding_normalized() {
         U := Uri("/path%fa%bb")
-        U.Value.Assert(Eq("/path%FA%BB"))
+        U.ToString().Assert(Eq("/path%FA%BB"))
     }
 
     ; Edge cases

@@ -4,7 +4,7 @@
 
 ; TODO
 ; - fit URL percent encoding into this, somehow. Make it fast.
-; - find a way to remove generic map again without too much hassle
+; - find a way to make URIs comparable
 
 ;@region Uri
 
@@ -42,7 +42,7 @@ class Uri {
      * 
      * @returns {Any}
      */
-    Open() => Run(this.Value)
+    Open() => Run(String(this))
 
     /**
      * Determines whether the resource represented by the given string exists.
@@ -78,7 +78,6 @@ class Uri {
         static Init() {
             M := Map()
             M.CaseSense := false
-
             M.DefineProp("Set", { Call: Set })
             M.DefineProp("__Item", { Set: __Item_set })
             return M
@@ -155,8 +154,7 @@ class Uri {
      * @see {@link https://en.wikipedia.org/wiki/Uniform_Resource_Identifier Wikipedia}
      */
     static Call(Str) {
-        ; URI Generic Syntax, RFC 3986, ch. 3.1. - Scheme
-        static VALID_SCHEME := "Si)^[a-z][a-z+.-]*$"
+        static VALID_SCHEME      := "Si)^[a-z][a-z+.-]*$"
         static INVALID_SEQUENCES := "
         (
         Six)
@@ -200,7 +198,6 @@ class Uri {
         ; initialize result object with `Value` prop (entire URI string)
         r := Object()
         ObjSetBase(r, Uri.Prototype)
-        r.DefineProp("Value", { Get: (_) => Str })
 
         ; try to find scheme (the part before ":")
         n := StrLen(Str) + 1
@@ -401,34 +398,38 @@ class Uri {
     ;@region String Features
 
     /**
-     * The complete URI as string. This property is always overriden when
-     * constructing a new instance of URI.
-     * 
-     * @abstract
-     * @property {String}
-     */
-    Value => ""
-
-    /**
-     * Determines whether the URI is empty.
-     * 
-     * @property {Boolean}
-     */
-    IsEmpty => (this.Value == "")
-
-    /**
-     * Determines whether the URI is not empty.
-     * 
-     * @property {Boolean}
-     */
-    IsNotEmpty => (this.Value != "")
-
-    /**
-     * Returns a string representation of the URI.
+     * Returns a string representation of this URI.
      * 
      * @returns {String}
      */
-    ToString() => (this.Value)
+    ToString() {
+        Str := ""
+        if (this.HasScheme) {
+            Str .= this.Scheme
+            Str .= ":"
+        }
+        if (this.IsOpaque) {
+            Str .= this.SchemeSpecificPart
+        } else {
+            if (this.HasAuthority) {
+                Str .= "//"
+                Str .= this.Authority
+            }
+            if (this.HasPath) {
+                Str .= this.Path
+            }
+            if (this.HasQuery) {
+                Str .= "?"
+                Str .= this.Query
+            }
+        }
+        if (this.HasFragment) {
+            Str .= "#"
+            Str .= this.Fragment
+        }
+        this.DefineProp("ToString", { Call: (_) => Str })
+        return Str
+    }
 
     /**
      * Returns a detailed string representation of the URI.
@@ -436,7 +437,7 @@ class Uri {
      * @returns {String}
      */
     ToDebugString() => (Object.Prototype.ToString)({
-        Value: this.Value,
+        Value: this.ToString(),
         Scheme: this.Scheme,
         SchemeSpecificPart: this.SchemeSpecificPart,
         Authority: this.Authority,
@@ -562,19 +563,27 @@ class Uri {
     static NormalizePath(Path) {
         Segs := Array()
         loop parse Path, "/" {
-            Seg := A_LoopField
-            switch {
-                case (Seg == "" || Seg == "."):
-                    continue
-                case ((Seg == "..") && Segs.Length && (Segs[-1] != "..")):
+            switch (A_LoopField) {
+              case "", ".":
+                continue
+              case "..":
+                if (Segs.Length && Segs[-1] != "..") {
                     Segs.Pop()
-                default:
-                    Segs.Push(Seg)
+                    continue
+                }
             }
+            Segs.Push(A_LoopField)
         }
+
         Normalized := ""
         for Seg in Segs {
-            Normalized .= "/" . Seg
+            if (A_Index != 1 || SubStr(Path, 1, 1) == "/") {
+                Normalized .= "/"
+            }
+            Normalized .= Seg
+        }
+        if (SubStr(Path, -1, 1) == "/") {
+            Normalized .= "/"
         }
         return Normalized
     }
@@ -614,17 +623,16 @@ class Uri {
             return Other
         }
 
-        ThisPath := this.Normalize().Path
-        OtherPath := Other.Normalize().Path
+        ThisPath := Uri.NormalizePath(this.Path)
+        OtherPath := Uri.NormalizePath(Other.Path)
 
         Len := StrLen(ThisPath)
-        if (ThisPath != OtherPath) {
-            if (SubStr(StrLen(ThisPath), -1) != "/") {
+        if (ThisPath !== OtherPath) {
+            if (SubStr(ThisPath, -1, 1) != "/") {
                 ThisPath .= "/"
                 ++Len
             }
             if (SubStr(OtherPath, 1, Len) != ThisPath) {
-                MsgBox(SubStr(OtherPath, 1, Len) . ", " . ThisPath)
                 return Other
             }
         }
@@ -751,23 +759,20 @@ class Uri {
      * Resolves a relative path.
      * 
      * @private
-     * @param   {String}   Base        base path
-     * @param   {String}   Child       child path
-     * @param   {Boolean}  IsAbsolute  whether the path is absolute
+     * @param   {String}    Base        base path
+     * @param   {String}    Child       child path
+     * @param   {Boolean?}  IsAbsolute  whether the base path is absolute
      * @returns {String}
      */
-    static ResolvePath(Base, Child, IsAbsolute) {
+    static ResolvePath(Base, Child, IsAbsolute := true) {
         SlashIndex := InStr(Base, "/", unset, unset, -1)
         Len := StrLen(Child)
-        
+
         Path := ""
         if (Len == 0) {
-            if (SlashIndex) {
-                Path := SubStr(Base, 1, Len)
-            }
         } else {
-            if (SlashIndex > 1 || !IsAbsolute) {
-                Path := SubStr(Base, SlashIndex) . Child
+            if (SlashIndex || !IsAbsolute) {
+                Path := SubStr(Base, 1, SlashIndex) . Child
             } else {
                 Path := "/" . Child
             }
@@ -792,8 +797,8 @@ class AquaHotkey_Uri extends AquaHotkey {
         Open() => Uri(this).Open()
 
         /**
-         * Coerces this string into a {@link Resource} and determines whether it
-         * exists.
+         * Coerces this string into a {@link Resource} and determines whether
+         * it exists.
          * 
          * @returns {Boolean}
          */
