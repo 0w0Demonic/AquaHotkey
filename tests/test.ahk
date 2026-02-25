@@ -42,6 +42,10 @@
      #Include "%A_LineFile%\..\Monads\TryOp.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------
+;@region Net\
+     #Include "%A_LineFile%\..\Net\Uri.ahk"
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region Stream\
      #Include "%A_LineFile%\..\Stream\Collector.ahk"
 

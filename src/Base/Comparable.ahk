@@ -233,19 +233,20 @@ class AquaHotkey_Comparable extends AquaHotkey
          */
         Lt(Other) => (this.Compare(Other) < 0)
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Number
+
     class Number {
         /**
          * Compares this number with another number. Numeric strings are not
          * accepted by this method.
          * 
-         * @example
-         * (123).Compare(23.8723) ; 1
-         * 
          * @param   {Number}  Other  any number
          * @returns {Integer}
+         * @example
+         * (123).Compare(23.8723) ; 1
          */
         Compare(Other) {
             if (!(Other is Number)) {
@@ -255,19 +256,20 @@ class AquaHotkey_Comparable extends AquaHotkey
             return (this > Other) - (Other > this)
         }
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region String
+
     class String {
         /**
          * Compares this string with another string via case-insensitive
          * string comparison.
          * 
-         * @example
-         * "foo".Compare("bar") ; 1
-         * 
          * @param   {String}  Other  any string
          * @returns {Integer}
+         * @example
+         * "foo".Compare("bar") ; 1
          */
         Compare(Other) {
             if (!(Other is String)) {
@@ -276,10 +278,12 @@ class AquaHotkey_Comparable extends AquaHotkey
             return StrCompare(this, Other)
         }
     }
-    ;@endregion
 
-    ; TODO change to IArray?
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Array
+    ; TODO change to IArray?
+
     class Array {
         /**
          * Compares this array with another array. This is done by comparing its
@@ -318,9 +322,11 @@ class AquaHotkey_Comparable extends AquaHotkey
             }
         }
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Class
+
     class Class {
         /**
          * Returns a type-checked comparison function.

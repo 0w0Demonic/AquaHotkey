@@ -97,7 +97,7 @@
 
 ;@endregion
 ;-------------------------------------------------------------------------------
-;@region Mixins
+;@region Interfaces
 
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
@@ -106,6 +106,12 @@
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IBuffer.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Net
+
+#Include "%A_LineFile%\..\..\Net\Uri.ahk"
 
 ;@endregion
 ;-------------------------------------------------------------------------------
