@@ -1,6 +1,8 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 ; TODO static constructors like `Object.WithBase()`?
+; TODO find a way to differentiate between `Method()` (create prop desc) and
+;      `Method()` (create object mapper)
 
 /**
  * Object utilities, mostly for the creation of new properties.
@@ -154,7 +156,11 @@ class AquaHotkey_Object extends AquaHotkey {
  * MsgBox(Obj.Value)             ; 42
  * Obj.Value := "something else" ; Error! This property is read-only.
  */
-ObjFromDesc(Desc) => {}.DefineProps(Desc)
+ObjFromDesc(Desc) {
+    Obj := Object()
+    Obj.DefineProp(Desc)
+    return Obj
+}
 
 /**
  * Creates a property descriptor that resembles a field whose value is

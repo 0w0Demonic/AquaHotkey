@@ -29,18 +29,17 @@ class AquaHotkey_ToString extends AquaHotkey
 {
     /**
      * Helper function that converts a value into a string, with additional
-     * `unset` support and surrounding strings with double quotes (`""`).
+     * `unset` support.
      * 
      * Only custom `ToString()` methods should call this.
      * 
-     * @protected
      * @param   {Any?}  Val  any value
      * @returns {String}
      * @example
-     * AquaHotkey_ToString.ToString(unset) ; "unset"
-     * AquaHotkey_ToString.ToString("foo") ; '"foo"'
+     * AquaHotkey_ToString(unset) ; "unset"
+     * AquaHotkey_ToString("foo") ; '"foo"'
      */
-    static ToString(&Val) {
+    static Call(&Val) {
         Val := IsSet(Val) ? String(Val) : "unset"
     }
 
@@ -86,8 +85,8 @@ class AquaHotkey_ToString extends AquaHotkey
                     Result .= ", "
                 }
                 Value := PropDesc.Value
-                AquaHotkey_ToString.ToString(&PropName)
-                AquaHotkey_ToString.ToString(&Value)
+                AquaHotkey_ToString(&PropName)
+                AquaHotkey_ToString(&Value)
                 Result .= PropName . ": " . Value
             }
             Result .= " }"
@@ -126,7 +125,7 @@ class AquaHotkey_ToString extends AquaHotkey
                 if (A_Index != 1) {
                     Result .= ", "
                 }
-                AquaHotkey_ToString.ToString(&Value)
+                AquaHotkey_ToString(&Value)
                 Result .= Value
             }
             Result .= "]"
@@ -153,8 +152,8 @@ class AquaHotkey_ToString extends AquaHotkey
                 if (A_Index != 1) {
                     Result .= ", "
                 }
-                AquaHotkey_ToString.ToString(&Key)
-                AquaHotkey_ToString.ToString(&Value)
+                AquaHotkey_ToString(&Key)
+                AquaHotkey_ToString(&Value)
                 Result .= Key
                 Result .= ": "
                 Result .= Value
@@ -205,7 +204,7 @@ class AquaHotkey_ToString extends AquaHotkey
          */
         ToString(Args*) {
             if (!Args.Length) {
-                return "Class " . this.Name
+                return "Class " . this.Prototype.__Class
             }
             if (Args.Length != 1) {
                 throw ValueError("invalid param count: " . Args.Length)
@@ -290,7 +289,7 @@ class AquaHotkey_ToString extends AquaHotkey
             Result := Type(this) . "<"
             if (IsSetRef(this)) {
                 Value := %this%
-                AquaHotkey_ToString.ToString(&Value)
+                AquaHotkey_ToString(&Value)
                 Result .= Value
             } else {
                 Result .= "unset"

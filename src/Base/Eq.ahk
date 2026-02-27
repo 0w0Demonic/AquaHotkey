@@ -1,4 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 
 ; TODO static Equals() for duck types
 ; TODO refactor collection classes to use `Any.Equals` OR custom predicates
@@ -223,7 +224,8 @@ class Class {
         if ((A is this) && (B is this)) {
             return (A == B) || A.Eq(B)
         }
-        throw TypeError("Expected a(n) " . this.Name,, Type(A) . ", " . Type(B))
+        throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                        Type(A) . ", " . Type(B))
     }
 }
 
@@ -383,6 +385,7 @@ class ByReference extends AquaHotkey_MultiApply {
 ;-------------------------------------------------------------------------------
 ;@region Map
 
+; TODO change to IMap?
 class Map {
     /**
      * Determines whether this `Map` is equal to the `Other` value.

@@ -1,3 +1,5 @@
+#Include "%A_LineFile%\..\..\DuckTypes.ahk"
+
 /**
  * @duck
  * 

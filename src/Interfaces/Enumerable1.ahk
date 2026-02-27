@@ -37,7 +37,8 @@ class Enumerable1 {
             throw TypeError("Expected a Class",, Type(ArrClass))
         }
         if (!IArray.CanCastFrom(ArrClass)) {
-            throw TypeError("Expected an IArray type",, ArrClass.Name)
+            throw TypeError("Expected an IArray type",,
+                    ArrClass.Prototype.__Class)
         }
         return ArrClass(this*)
     }
@@ -507,7 +508,7 @@ class Enumerable1 {
         Result := Prefix
         if (Delim == "") {
             for Value in this {
-                AquaHotkey_ToString.ToString(&Value)
+                AquaHotkey_ToString(&Value)
                 Result .= Value
             }
             Result .= Suffix
@@ -515,7 +516,7 @@ class Enumerable1 {
         }
 
         for Value in this {
-            AquaHotkey_ToString.ToString(&Value)
+            AquaHotkey_ToString(&Value)
             Result .= Value
             Result .= Delim
         }

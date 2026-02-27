@@ -1,3 +1,7 @@
+#Include "%A_LineFile%\..\..\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\Eq.ahk"
+#Include "%A_LineFile%\..\..\Hash.ahk"
+
 /**
  * @duck
  * 

@@ -1,7 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
-; TODO allow hash codes in HashMap/HashSet to be customizable?
-
 /**
  * Adds a universal `.HashCode()` method which generates a stable,
  * well-distributed integer from a value.
@@ -108,8 +106,24 @@ class AquaHotkey_Hash extends AquaHotkey
      */
     static Prime => 0x00000100000001B3
 
-    ; TODO make this imperative?
-    ; static Step(&Current, Value) ...
+    /**
+     * Creates a hash from values iteratively.
+     * 
+     * @param   {VarRef}  Result  (out) current result
+     * @param   {Any}     Value   any value
+     * @example
+     * ...
+     * a := unset
+     * b := 234
+     * AquaHotkey_Hash(&Result, a?)
+     * AquaHotkey_Hash(&Result, b?)
+     * return Result
+     */
+    static Call(&Result, Val?) {
+        Result := (
+            (Result ?? 0xCBF29CE484222325) ^ (IsSet(Value) && Value.HashCode()))
+                * 0x00000100000001B3
+    }
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -177,6 +191,9 @@ class AquaHotkey_Hash extends AquaHotkey
     ;---------------------------------------------------------------------------
     ;@region String
 
+    ; TODO outsource this into a DLL or something. Also add
+    ;      case-insensitive hash.
+
     class String {
         /**
          * Creates a hash value from all characters in this string.
@@ -189,7 +206,7 @@ class AquaHotkey_Hash extends AquaHotkey
             static Prime  := AquaHotkey_Hash.Prime
 
             Result := Offset
-            Loop Parse, this {
+            loop parse, this {
                 Result := (Result ^ Ord(A_LoopField)) * Prime
             }
             return Result

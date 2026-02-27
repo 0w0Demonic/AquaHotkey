@@ -70,7 +70,8 @@ class IArray {
         ; let's be lenient and assume everything works *after*
         ; construction.
         if (!this.IsInstance(Result)) {
-            throw TypeError("Expected a(n) " . this.Name,, Type(Result))
+            throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                            Type(Result))
         }
         return Result
     }
@@ -243,10 +244,10 @@ class IArray {
      */
     static Mismatch(A, B) {
         if (!A.Is(this)) {
-            throw TypeError("Expected a(n) " . this.Name,, Type(A))
+            throw TypeError("Expected a(n) " . this.Prototype.__Class,, Type(A))
         }
         if (!B.Is(this)) {
-            throw TypeError("Expected a(n) " . this.Name,, Type(B))
+            throw TypeError("Expected a(n) " . this.Prototype.__Class,, Type(B))
         }
         Enumer1 := A.__Enum(1)
         Enumer2 := B.__Enum(1)

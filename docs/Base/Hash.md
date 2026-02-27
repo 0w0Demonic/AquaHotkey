@@ -4,6 +4,7 @@
   - [Overview](#overview)
   - [How to Implement](#how-to-implement)
   - [Static `.Hash()` Method](#static-hash-method)
+  - [Static `.Call()`](#static-call)
   - [Duck Types](#duck-types)
 
 ## Overview
@@ -65,6 +66,20 @@ class Point {
     ; both `this.X` and `this.Y` are assured to be instance of `Integer`
     HashCode() => Integer.Hash(this.X, this.Y)
 }
+```
+
+## Static `.Call()`
+
+Use `AquaHotkey_Hash(&Result, Value?)` to create a hash iteratively.
+
+```ahk
+...
+a := unset
+b := 42
+
+AquaHotkey_Hash(&Result, a?)
+AquaHotkey_Hash(&Result, b?)
+return Result
 ```
 
 ## Duck Types

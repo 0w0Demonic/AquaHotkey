@@ -1,4 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\Eq.ahk"
 
 ; TODO use own class (e.g. `TypeDef`) for composing intersections, unions, etc.?
 
@@ -472,7 +473,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * Creates a type class that represents a union of the specified types.
          * 
          * @param   {Class*}  Types  one or more classes
-         * @returns {Class}
+         * @returns {Func}
          * @example
          * StringOrInteger := Type.Union(String, Integer)
          */
@@ -511,7 +512,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * types.
          * 
          * @param   {Class*}  Types  one or more classes
-         * @returns {Class}
+         * @returns {Func}
          * @example
          * T := Type.Union({ status: 200 }, { data: Any })
          * 
@@ -553,7 +554,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * values. On pattern matching, `.Eq()` is used for comparing values.
          * 
          * @param   {Any*}  Values  one or more values
-         * @returns {Class}
+         * @returns {Func}
          * @example
          * Permission := Type.Enum("Admin", "User", "Guest")
          * 

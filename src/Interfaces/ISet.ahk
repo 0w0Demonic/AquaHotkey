@@ -337,12 +337,12 @@ class ISet {
         Enumer := this.__Enum(1)
 
         Enumer(&Value)
-        AquaHotkey_ToString.ToString(&Value)
+        AquaHotkey_ToString(&Value)
         Result .= Value
 
         while (Enumer(&Value)) {
             Result .= ", "
-            AquaHotkey_ToString.ToString(&Value)
+            AquaHotkey_ToString(&Value)
             Result .= Value
         }
 

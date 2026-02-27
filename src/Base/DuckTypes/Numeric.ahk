@@ -1,3 +1,6 @@
+#Include "%A_LineFile%\..\..\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\Comparable.ahk"
+
 /**
  * A number or numeric string (as determined by `IsNumber()`).
  * 
@@ -54,6 +57,6 @@ class Numeric extends Primitive {
         if (IsNumber(A) && IsNumber(B)) {
             return (A > B) - (B > A)
         }
-        throw TypeError("Expected a " . this.Name,, Type(A) . ", " . Type(B))
+        throw TypeError("Expected a Numeric",, Type(A) . ", " . Type(B))
     }
 }

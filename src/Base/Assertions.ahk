@@ -1,4 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\DuckTypes.ahk"
 
 /**
  * Provides a wide range of chainable assertion methods.

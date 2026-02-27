@@ -100,7 +100,7 @@ class GenericArray extends IArray {
                 throw TypeError("Expected a Class",, Type(C))
             }
             if (!HasBase(C, Class)) {
-                throw TypeError("Expected a type wrapper",, C.Name)
+                throw TypeError("Expected a type wrapper",, C.Prototype.__Class)
             }
             T := C(T) ; e.g.: `T := Nullable(String)`
         }
@@ -537,8 +537,8 @@ class AquaHotkey_GenericArray extends AquaHotkey {
          * T := LinkedList.OfType(Nullable(User))
          */
         static OfType(T, Constraint?) {
-            OuterType := this.Name
-            InnerType := (T is Class) ? T.Name : String(T)
+            OuterType := this.Prototype.__Class
+            InnerType := (T is Class) ? T.Prototype.__Class : String(T)
             return AquaHotkey.CreateClass(
                     GenericArray, (OuterType . "<" . InnerType . ">"),
                     this, T, Constraint?)

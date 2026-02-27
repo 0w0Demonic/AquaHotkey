@@ -64,8 +64,7 @@ On occasions, however, things might get a little complicated.
   }
   ```
 
-- Use `AutoHotkey_ToString.ToString(Val?)` to handle `unset` values more
-  easily:
+- Use `AutoHotkey_ToString(Val?)` to handle `unset` values more easily:
 
   ```ahk
   ; (ISet's `.ToString()` method)
@@ -74,12 +73,12 @@ On occasions, however, things might get a little complicated.
       Enumer := this.__Enum(1)
 
       Enumer(&Value)
-      AquaHotkey_ToString.ToString(&Value)
+      AquaHotkey_ToString(&Value)
       Result .= Value
 
       while (Enumer(&Value)) {
           Result .= ", "
-          AquaHotkey_ToString.ToString(&Value)
+          AquaHotkey_ToString(&Value)
           Result .= Value
       }
 
