@@ -229,7 +229,7 @@ class Uri {
 
                 ; the scheme-specific part of the URI
                 Spec := SubStr(Str, p, q - p)
-                r.DefineProp("SchemeSpecificPart", { Get: (_) => Spec })
+                r.DefineProp("SchemeSpecific", { Get: (_) => Spec })
             }
         } else {
             ; no scheme was found; try to parse path / authority
@@ -291,7 +291,7 @@ class Uri {
      * @abstract
      * @property {String}
      */
-    SchemeSpecificPart => ""
+    SchemeSpecific => ""
 
     /**
      * The authority of the URI.
@@ -341,7 +341,7 @@ class Uri {
      * 
      * @property {Boolean}
      */
-    HasSchemeSpecificPart => ObjHasOwnProp(this, "SchemeSpecificPart")
+    HasSchemeSpecific => ObjHasOwnProp(this, "SchemeSpecific")
 
     /**
      * Determines whether this URI has a defined authority.
@@ -409,7 +409,7 @@ class Uri {
             Str .= ":"
         }
         if (this.IsOpaque) {
-            Str .= this.SchemeSpecificPart
+            Str .= this.SchemeSpecific
         } else {
             if (this.HasAuthority) {
                 Str .= "//"
@@ -439,7 +439,7 @@ class Uri {
     ToDebugString() => (Object.Prototype.ToString)({
         Value: this.ToString(),
         Scheme: this.Scheme,
-        SchemeSpecificPart: this.SchemeSpecificPart,
+        SchemeSpecific: this.SchemeSpecific,
         Authority: this.Authority,
         Path: this.Path,
         Query: this.Query,
@@ -483,7 +483,7 @@ class Uri {
 
         ; scheme-specific part
         if (this.IsOpaque) {
-            return this.SchemeSpecificPart == Other.SchemeSpecificPart
+            return this.SchemeSpecific == Other.SchemeSpecific
         }
 
         ; path, query, authority
@@ -513,7 +513,7 @@ class Uri {
 
         if (this.IsOpaque) {
             ; scheme-specific part
-            Result ^= this.SchemeSpecificPart
+            Result ^= this.SchemeSpecific
         } else {
             ; path, query, authority
             Result ^= this.HasPath && this.Path.HashCode()
