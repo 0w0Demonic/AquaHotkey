@@ -170,5 +170,31 @@ class AquaHotkey_StringMatching extends AquaHotkey {
         }
 
         ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Start/End
+
+        /**
+         * Determines whether this string starts with `Str`.
+         * 
+         * @param   {String}    Str        string to be searched
+         * @param   {Boolean?}  CaseSense  case sensitivity
+         * @returns {Boolean}
+         */
+        StartsWith(Str, CaseSense := false) => (CaseSense)
+                ? SubStr(this, 1, StrLen(Str)) == Str
+                : SubStr(this, 1, StrLen(Str)) = Str
+
+        /**
+         * Determines whether this string ends with `Str`.
+         * 
+         * @param   {String}    Str        string to be searched
+         * @param   {Boolean?}  CaseSense  case-sensitivity
+         * @returns {Boolean}
+         */
+        EndsWith(Str, CaseSense := false) => (CaseSense)
+                ? SubStr(this, -StrLen(Str)) == Str
+                : SubStr(this, -StrLen(Str)) = Str
+
+        ;@endregion
     }
 }

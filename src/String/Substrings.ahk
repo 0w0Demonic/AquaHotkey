@@ -9,7 +9,7 @@
  */
 class AquaHotkey_Substrings extends AquaHotkey {
     class String {
-        ;@region By Index
+        ;@region General
 
         /**
          * Returns a substring at index `Start` and length `Length` in
@@ -36,9 +36,61 @@ class AquaHotkey_Substrings extends AquaHotkey {
          */
         __Item[Start, Length := 1] => SubStr(this, Start, Length)
 
+        /**
+         * Returns the character at the given index.
+         * 
+         * @param   {Integer}  Index  character index
+         * @returns {String}
+         */
+        CharAt(Index) => SubStr(this, Index, 1)
+
+        /**
+         * Returns the code point of the character at the given index.
+         * 
+         * @param   {Integer}  Index  character index
+         * @returns {String}
+         */
+        OrdAt(Index) => Ord(SubStr(this, Index, 1))
+
         ;@endregion
         ;-----------------------------------------------------------------------
-        ;@region String Matching
+        ;@region Index Cut
+
+        /**
+         * Returns a substring that ends just before the given index.
+         * 
+         * @param   {Integer}  Index  character index
+         * @returns {String}
+         */
+        BeforeIndex(Index) => SubStr(this, 1, Index - 1)
+
+        /**
+         * Returns a substring that ends on the given index.
+         * 
+         * @param   {Integer}  Index  character index
+         * @returns {String}
+         */
+        UntilIndex(Index) => SubStr(this, 1, Index)
+
+        /**
+         * Returns a substring that starts at the given index.
+         * 
+         * @param   {Integer}  Index  character index
+         * @returns {String}
+         */
+        FromIndex(Index) => SubStr(this, Index)
+
+        /**
+         * Returns a substring that starts just after the given index.
+         * 
+         * @param   {Integer}  Index  character index
+         * @returns {String}
+         */
+        AfterIndex(Index) => SubStr(this, Index + 1)
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region String Cut
 
         /**
          * Returns a substring that ends just before a specified occurrence
@@ -123,7 +175,7 @@ class AquaHotkey_Substrings extends AquaHotkey {
 
         ;@endregion
         ;-----------------------------------------------------------------------
-        ;@region Regex Matching
+        ;@region Regex Cut
 
         /**
          * Returns a substring that ends just before the first match of a
