@@ -70,6 +70,9 @@
   - [FileUtils](./IO/FileUtils.md)
   - [Path](./IO/Path.md)
 
+- [Net](./Net/overview.md)
+  - [Uri](./Net/Uri.md)
+
 - [Monads](./Monads/overview.md)
   - [Optional](./Monads/Optional.md)
   - [TryOp](./Monads/TryOp.md)
