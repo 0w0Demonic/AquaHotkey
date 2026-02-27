@@ -1,12 +1,10 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 ; TODO static Equals() for duck types
 ; TODO refactor collection classes to use `Any.Equals` OR custom predicates
-; TODO check whether `IArray` or `IMap` is allowed here
-
 ; TODO change Any.Equals() to *not* allow unset, and offset to Nullable(Any) ?
-
 
 /**
  * Adds a universal `.Eq()` method for checking whether two values are
@@ -383,10 +381,9 @@ class ByReference extends AquaHotkey_MultiApply {
 
 ;@endregion
 ;-------------------------------------------------------------------------------
-;@region Map
+;@region IMap
 
-; TODO change to IMap?
-class Map {
+class IMap {
     /**
      * Determines whether this `Map` is equal to the `Other` value.
      * 

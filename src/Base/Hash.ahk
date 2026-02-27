@@ -1,4 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 /**
  * Adds a universal `.HashCode()` method which generates a stable,
@@ -141,9 +143,9 @@ class AquaHotkey_Hash extends AquaHotkey
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Array
+    ;@region IArray
 
-    class Array {
+    class IArray {
         /**
          * Creates a hash from all elements in this array. Elements are
          * allowed to be `unset`.
@@ -165,9 +167,9 @@ class AquaHotkey_Hash extends AquaHotkey
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Map
+    ;@region IMap
 
-    class Map {
+    class IMap {
         /**
          * Creates a hash from all key-value pairs in this map.
          * Key-value pairs in the map are not allowed to have `unset` values.

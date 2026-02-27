@@ -1,5 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Func\Comparator.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
+#Include "%A_LineFile%\..\..\Base\DuckTypes.ahk"
 
 /**
  * Introduces an interface for imposing the natural order between values of
@@ -281,21 +283,20 @@ class AquaHotkey_Comparable extends AquaHotkey
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Array
-    ; TODO change to IArray?
+    ;@region IArray
 
-    class Array {
+    class IArray {
         /**
          * Compares this array with another array. This is done by comparing its
          * elements.
          * 
-         * @param   {Array}  Other  any array
+         * @param   {IArray}  Other  any array
          * @returns {Integer}
          * @example
          * ([1, 2, 3]).Compare([1, 2, 4]) ; -1
          */
         Compare(Other) {
-            if (!(Other is Array)) {
+            if (!Other.Is(Array)) {
                 throw TypeError("Expected an Array",, Type(Other))
             }
             ThisEnumer := this.__Enum(1)
