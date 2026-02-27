@@ -1,8 +1,9 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
-#Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
+#Include "%A_LineFile%\..\..\Base\DuckTypes.ahk"
 #Include "%A_LineFile%\..\..\Base\Comparable.ahk"
 #Include "%A_LineFile%\..\..\Base\Eq.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 
 ; TODO `.Shuffle()` for LinkedList, with the help of the list iterator
 
@@ -422,7 +423,6 @@ class IArray {
         return Result
     }
 
-    ; TODO change signature of `.Distinct()` to `SetParam, Hasher` instead?
     /**
      * Returns a new array of unique elements by keeping track of them
      * in an {@link ISet}.
@@ -727,8 +727,6 @@ class IArray {
         }
         return this
     }
-
-    ; TODO sort in place and/or with a new array?
 
     /**
      * Sorts elements in place according to the given comparator function.

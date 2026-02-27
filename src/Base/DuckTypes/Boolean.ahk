@@ -35,6 +35,4 @@ class Boolean extends Integer {
      * Boolean(0)     ; false
      */
     static Call(Val) => !!Val
-
-    ; TODO `OfNullable(Val?)`?
 }

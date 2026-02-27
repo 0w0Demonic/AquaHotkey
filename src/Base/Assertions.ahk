@@ -43,10 +43,6 @@ class AquaHotkey_Assertions extends AquaHotkey {
             }
             throw TypeError("type mismatch", -2)
         }
-
-        ; TODO probably add back equality methods
-        ;      (don't have to do my homeboy Assertions.ahk dirty like that)
-
     }
 }
 

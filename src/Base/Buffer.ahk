@@ -19,7 +19,6 @@ class AquaHotkey_Buffer extends AquaHotkey
          * @returns {Integer}
          */
         static SizeOf(NumType) {
-            ; TODO move this somewhere else?
             static NumTypes := Init()
             static Init() {
                 M := Map()

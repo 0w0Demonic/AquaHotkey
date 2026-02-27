@@ -63,7 +63,7 @@ class Test_Uri extends TestSuite {
     static parse_opaque_uri() {
         U := Uri("mailto:user@example.com")
         U.Scheme.Assert(Eq("mailto"))
-        U.SchemeSpecificPart.Assert(Eq("user@example.com"))
+        U.SchemeSpecific.Assert(Eq("user@example.com"))
         U.IsOpaque.Assert(Eq(true))
         U.HasAuthority.Assert(Eq(false))
     }
@@ -129,7 +129,7 @@ class Test_Uri extends TestSuite {
 
     static normalize_opaque_unchanged() {
         U := Uri("mailto:user@example.com").Normalize()
-        U.SchemeSpecificPart.Assert(Eq("user@example.com"))
+        U.SchemeSpecific.Assert(Eq("user@example.com"))
     }
 
     ; Equality tests
