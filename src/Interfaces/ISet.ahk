@@ -211,14 +211,15 @@ class ISet {
      * 
      * Returns the element size of this set.
      * 
-     * @returns {Integer}
+     * @abstract
+     * @property {Integer}
      * @example
      * Set(1, 2, 3, 4).Size() ; 4
      */
     Size {
-        get {
-            throw PropertyError("not implemented")
-        }
+      get {
+        throw PropertyError("not implemented")
+      }
     }
 
     ;@endregion

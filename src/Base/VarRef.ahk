@@ -14,24 +14,25 @@ class AquaHotkey_VarRef extends AquaHotkey {
          * This is particularly useful for passing strings to `DllCall()`
          * by reference.
          * 
-         * @returns {Integer}
+         * @readonly
+         * @property {Integer}
          * @example
          * Str := "Hello, world!"
          * DllCall("...", "Ptr", &Str)
          */
         Ptr {
-            get {
-                if (!IsSetRef(this)) {
-                    throw UnsetError("unset value")
-                }
-                if (!IsObject(%this%)) {
-                    return StrPtr(%this%)
-                }
-                if (HasProp(%this%, "Ptr")) {
-                    return %this%.Ptr
-                }
-                return ObjPtr(%this%)
+          get {
+            if (!IsSetRef(this)) {
+                throw UnsetError("unset value")
             }
+            if (!IsObject(%this%)) {
+                return StrPtr(%this%)
+            }
+            if (HasProp(%this%, "Ptr")) {
+                return %this%.Ptr
+            }
+            return ObjPtr(%this%)
+          }
         }
     }
 }

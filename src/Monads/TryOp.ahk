@@ -65,23 +65,23 @@ class TryOp {
     /**
      * Determines whether the `TryOp` is successful.
      * 
-     * @returns {Boolean}
+     * @property {Boolean}
      */
     Succeeded {
-        get {
-            throw MethodError("not implemented")
-        }
+      get {
+        throw MethodError("not implemented")
+      }
     }
 
     /**
      * Determines whether the `TryOp` failed.
      * 
-     * @returns {Boolean}
+     * @property {Boolean}
      */
     Failed {
-        get {
-            throw MethodError("not implemented")
-        }
+      get {
+        throw MethodError("not implemented")
+      }
     }
 
     /**

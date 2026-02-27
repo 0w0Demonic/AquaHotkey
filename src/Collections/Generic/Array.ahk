@@ -140,16 +140,16 @@ class GenericArray extends IArray {
      * This property should be overridden by subclasses of `GenericArray`.
      * 
      * @abstract
-     * @returns {Any}
+     * @property {Any}
      * @example
      * StrArr := String[]("foo", "bar")
      * 
      * MsgBox(String(StrArr.ComponentType)) ; "class String"
      */
     ComponentType {
-        get {
-            throw PropertyError("component type not found")
-        }
+      get {
+        throw PropertyError("component type not found")
+      }
     }
 
     /**
@@ -166,22 +166,29 @@ class GenericArray extends IArray {
      * This property should be overridden by subclasses of `GenericArray`.
      * 
      * @abstract
-     * @returns {Any}
+     * @property {Class}
      * @example
      * LL := LinkedList.OfType(String)
      * 
      * MsgBox(String(LL.ArrayType)) ; "class LinkedList"
      */
     ArrayType {
-        get {
-            throw PropertyError("array type not found")
-        }
+      get {
+        throw PropertyError("array type not found")
+      }
     }
 
+    /**
+     * The name of the class.
+     * 
+     * @abstract
+     * @property {String}
+     * @see {@link AquaHotkey_TypeInfo}
+     */
     static Name {
-        get {
-            throw PropertyError("not implemented")
-        }
+      get {
+        throw PropertyError("not implemented")
+      }
     }
 
     /**

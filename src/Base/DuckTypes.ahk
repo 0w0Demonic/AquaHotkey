@@ -1,4 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\DuckTypes.ahk"
 #Include "%A_LineFile%\..\Eq.ahk"
 
 ; TODO use own class (e.g. `TypeDef`) for composing intersections, unions, etc.?

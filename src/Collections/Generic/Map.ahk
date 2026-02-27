@@ -112,15 +112,16 @@ class GenericMap extends IDelegatingMap {
     /**
      * Returns the map type which the generic map wraps around.
      * 
-     * @returns {Class}
+     * @abstract
+     * @property {Class}
      * @example
      * M := SkipListMap.OfType(String, { Value: Integer })
      * M.MapType ; SkipListMap
      */
     MapType {
-        get {
-            throw PropertyError("abstract property")
-        }
+      get {
+        throw PropertyError("abstract property")
+      }
     }
 
     /**
@@ -142,9 +143,9 @@ class GenericMap extends IDelegatingMap {
      * M.KeyType ; class String
      */
     KeyType {
-        get {
-            throw PropertyError("abstract property")
-        }
+      get {
+        throw PropertyError("abstract property")
+      }
     }
 
     /**
@@ -160,15 +161,15 @@ class GenericMap extends IDelegatingMap {
      * Returns the value type associated with this generic map.
      * 
      * @abstract
-     * @returns {Class}
+     * @property {Class}
      * @example
      * M := Map.OfType(String, Integer)("foo", 12)
      * M.ValueType ; class Integer
      */
     ValueType {
-        get {
-            throw PropertyError("abstract property")
-        }
+      get {
+        throw PropertyError("abstract property")
+      }
     }
 
     /**

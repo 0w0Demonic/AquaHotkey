@@ -26,8 +26,7 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
          * by name. Classes that are made at runtime should override this
          * method.
          * 
-         * @readonly
-         * @returns {Class}
+         * @property {Class}
          * @example
          * "foo".Class ; String (class)
          */
@@ -39,40 +38,39 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
         /**
          * Returns the chain of bases of this value, including the value itself.
          * 
-         * @returns {Array}
+         * @property {Array}
          * @example
          * ; ["foo", String.Prototype, Primitive.Prototype, Any.Prototype]
          * "foo".Hierarchy
          */
         Hierarchy {
-            get {
-                Val := this
-                Result := Array(Val)
-                while (Val := ObjGetBase(Val)) {
-                    Result.Push(Val)
-                }
-                return Result
+          get {
+            Val := this
+            Result := Array(Val)
+            while (Val := ObjGetBase(Val)) {
+                Result.Push(Val)
             }
+            return Result
+          }
         }
 
         /**
          * Returns the chain of bases of this value.
          * 
-         * @readonly
-         * @returns {Array}
+         * @property {Array}
          * @example
          * ; [String.Prototype, Primitive.Prototype, Any.Prototype]
          * "foo".Bases
          */
         Bases {
-            get {
-                Val := this
-                Result := Array()
-                while (Val := ObjGetBase(Val)) {
-                    Result.Push(Val)
-                }
-                return Result
+          get {
+            Val := this
+            Result := Array()
+            while (Val := ObjGetBase(Val)) {
+                Result.Push(Val)
             }
+            return Result
+          }
         }
     }
 

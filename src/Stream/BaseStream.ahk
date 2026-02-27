@@ -95,9 +95,9 @@ class BaseStream extends Enumerator {
      * @returns {Integer}
      */
     Size {
-        get {
-            throw PropertyError("Unknown size")
-        }
+      get {
+        throw PropertyError("Unknown size")
+      }
     }
 
     /**

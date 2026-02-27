@@ -653,12 +653,12 @@ class LinkedList extends IArray {
          * 
          * @private
          * @abstract
-         * @type {LinkedList}
+         * @property {LinkedList}
          */
         List {
-            get {
-                throw PropertyError("List not found")
-            }
+          get {
+            throw PropertyError("List not found")
+          }
         }
 
         /**

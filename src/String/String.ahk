@@ -183,16 +183,16 @@ class AquaHotkey_String extends AquaHotkey {
          * "foo".Size["UTF-8"]  ; 4
          */
         SizeInBytes[Encoding?] {
-            get {
-                if (!IsSet(Encoding)) {
-                    return StrPut(this)
-                }
-                if (IsObject(Encoding)) {
-                    throw TypeError("Expected a String or Integer",,
-                                    Type(Encoding))
-                }
-                return StrPut(this, Encoding)
+          get {
+            if (!IsSet(Encoding)) {
+                return StrPut(this)
             }
+            if (IsObject(Encoding)) {
+                throw TypeError("Expected a String or Integer",,
+                                Type(Encoding))
+            }
+            return StrPut(this, Encoding)
+          }
         }
 
         ;@endregion

@@ -93,9 +93,9 @@ class Test_Func_CustomMap extends Map {
     }
     
     __Item[Key] {
-        get {
-            ++this.Hits
-            return super[Key]
-        }
+      get {
+        ++this.Hits
+        return super[Key]
+      }
     }
 }
