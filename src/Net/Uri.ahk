@@ -30,41 +30,6 @@ class Uri {
     }
 
     /**
-     * Opens the resource represented by the given string.
-     * 
-     * @param   {String}  Str  string representing a resource
-     * @returns {Any}
-     */
-    static Open(Str) => this(Str).Open()
-
-    /**
-     * Opens the resource. Subclases should override this method, if needed.
-     * 
-     * @returns {Any}
-     */
-    Open() => Run(String(this))
-
-    /**
-     * Determines whether the resource represented by the given string exists.
-     * 
-     * @param   {Uri}  Res  the given resource
-     * @returns {Boolean}
-     */
-    static Exists(Res) {
-        throw MethodError("not implemented")
-    }
-
-    /**
-     * Determines whether this resource exists. Subclasses should override this
-     * method.
-     * 
-     * @returns {Boolean}
-     */
-    Exists() {
-        throw MethodError("not implemented")
-    }
-
-    /**
      * Map that holds schemes mapped to their resource handlers.
      * 
      * @readonly
@@ -789,21 +754,6 @@ class Uri {
 
 class AquaHotkey_Uri extends AquaHotkey {
     class String {
-        /**
-         * Coerces this string into a {@link Resource} and opens it.
-         * 
-         * @returns {Any}
-         */
-        Open() => Uri(this).Open()
-
-        /**
-         * Coerces this string into a {@link Resource} and determines whether
-         * it exists.
-         * 
-         * @returns {Boolean}
-         */
-        Exists() => Uri(this).Exists()
-
         /**
          * Converts this string into a {@link Resource}.
          * 
