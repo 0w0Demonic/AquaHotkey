@@ -23,7 +23,7 @@ Tuple(Values*) => ImmutableArray.FromArray(Values)
 ;@region ImmutableArray
 
 /**
- * An immutable view of an {@link IArray}
+ * An immutable view of an {@link IArray}.
  * 
  * @module  <Collections/ImmutableArray>
  * @author  0w0Demonic

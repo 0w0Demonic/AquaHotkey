@@ -1,3 +1,6 @@
+#Include "%A_LineFile%\..\IArray.ahk"
+#Include "%A_LineFile%\..\IMap.ahk"
+
 /**
  * @mixin
  * @description

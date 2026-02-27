@@ -1,5 +1,4 @@
 #Include "%A_LineFile%\..\Cast.ahk"
-#Include "%A_LineFile%\..\Func.ahk"
 
 /**
  * Utility for creating reduction operations.
@@ -21,7 +20,7 @@ class Transducer extends Func {
      * @constructor
      * @returns {Transducer}
      */
-    static Call() => this.Cast(Self)
+    static Call() => this.Cast(x => x)
 
     /**
      * Creates a reducer stage that only accepts elements for which the given

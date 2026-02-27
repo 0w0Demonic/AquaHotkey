@@ -1,3 +1,8 @@
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Stream\Stream.ahk"
+#Include "%A_LineFile%\..\..\Base\ToString.ahk"
+#Include "%A_LineFile%\..\..\Func\Comparator.ahk"
 ; TODO Intersection(), Disjunction(), Union(), etc.
 ; TODO generics?
 

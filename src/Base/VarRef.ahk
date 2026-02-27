@@ -14,7 +14,6 @@ class AquaHotkey_VarRef extends AquaHotkey {
          * This is particularly useful for passing strings to `DllCall()`
          * by reference.
          * 
-         * @readonly
          * @property {Integer}
          * @example
          * Str := "Hello, world!"

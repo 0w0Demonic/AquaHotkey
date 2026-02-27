@@ -1,3 +1,7 @@
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Base\Eq.ahk"
+#Include "%A_LineFile%\..\..\Base\Hash.ahk"
+
 ;@region Optional
 
 /**

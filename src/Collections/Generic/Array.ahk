@@ -1,4 +1,7 @@
 #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\..\Base\Hash.ahk"
+#Include "%A_LineFile%\..\..\..\Base\Eq.ahk"
 #Include "%A_LineFile%\..\..\..\Interfaces\IArray.ahk"
 
 ;@region GenericArray

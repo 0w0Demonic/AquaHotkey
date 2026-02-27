@@ -1,3 +1,5 @@
+#Include "%A_LineFile%\..\Cast.ahk"
+
 /**
  * A zero parameter function that represents a supplier of results.
  * 

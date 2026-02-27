@@ -1,4 +1,9 @@
-#Include <AquaHotkey>
+#Include "%A_LineFile%\..\..\Collections\Set.ahk"
+#Include "%A_LineFile%\..\..\Stream\DoubleStream.ahk"
+#Include "%A_LineFile%\..\..\Monads\Optional.ahk"
+#Include "%A_LineFile%\..\..\Func\Monoid.ahk"
+#Include "%A_LineFile%\..\IArray.ahk"
+#Include "%A_LineFile%\..\IMap.ahk"
 
 /**
  * @mixin

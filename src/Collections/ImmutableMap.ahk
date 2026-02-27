@@ -1,3 +1,4 @@
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 ;@region ImmutableMap

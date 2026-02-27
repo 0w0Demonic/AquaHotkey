@@ -1,3 +1,7 @@
+#Include "%A_LineFile%\..\..\Base\Comparable.ahk"
+#Include "%A_LineFile%\..\..\Base\Eq.ahk"
+#Include "%A_LineFile%\..\..\Base\Hash.ahk"
+
 /**
  * Represents a file path or URL.
  * 

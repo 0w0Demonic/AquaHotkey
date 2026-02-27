@@ -1,4 +1,5 @@
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
+#Include "%A_LineFile%\..\Stream.ahk"
 
 /**
  * Returns a {@link Stream} containing an arithmetic progression of numbers

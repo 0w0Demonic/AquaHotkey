@@ -1,5 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 
 ; TODO
 ; - accomodate Enumerable1 and Enumerable2 without overwriting existing stuff

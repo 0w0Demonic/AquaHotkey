@@ -1,3 +1,4 @@
+#Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 

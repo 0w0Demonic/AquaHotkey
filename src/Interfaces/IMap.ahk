@@ -1,4 +1,3 @@
-#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 
@@ -180,9 +179,9 @@ class IMap {
      * @see {@link Map#Count}
      */
     Count {
-        get {
-            throw PropertyError("not implemented")
-        }
+      get {
+        throw PropertyError("not implemented")
+      }
     }
 
     /**

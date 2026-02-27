@@ -1,3 +1,5 @@
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\ISet.ahk"
 #Include "%A_LineFile%\..\Set.ahk"
 
 ;@region ImmutableSet

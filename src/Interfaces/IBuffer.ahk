@@ -1,3 +1,4 @@
+#Include "%A_LineFile%\..\..\Base\DuckTypes.ahk"
 
 ; TODO
 ; - add constructor?
@@ -175,7 +176,7 @@ class IBuffer {
         }
 
         VarSetStrCapacity(&Out,
-                (this.Size                    * (StrLen(Delimiter) + 1))
+               (this.Size                    * (StrLen(Delimiter) + 1))
             + ((this.Size - 1) // LineLength * (StrLen(Delimiter) - 1)))
 
         if (!LineLength) {

@@ -1,4 +1,4 @@
-#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\IMap.ahk"
 
 ; TODO
 ; - remove this?

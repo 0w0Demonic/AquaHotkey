@@ -1,6 +1,7 @@
-#Include "%A_LineFile%\..\Set.ahk"
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\ISet.ahk"
 
-; TODO allow 0-arg call on methods like `.Add()`?
+;@region Set
 
 /**
  * An implementation of {@link ISet} that uses the keys of an {@link IMap}
@@ -172,6 +173,10 @@ class Set extends ISet {
         set => ((this.M).Capacity := value)
     }
 }
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Extensions
 
 /**
  * Extension methods related to {@link Set}.

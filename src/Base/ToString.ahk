@@ -1,4 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 
 /**
  * Provides string representations across all AutoHotkey types by adding
