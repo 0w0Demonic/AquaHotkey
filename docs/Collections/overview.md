@@ -64,9 +64,9 @@ Object
 |
 `- ISet
    |- Set
-   |  `- HashSet
-   |- ImmutableSet
-   `- SkipListSet
+   |  |- HashSet
+   |  `- SkipListSet
+   `- ImmutableSet
 ```
 
 ## Generic Collections

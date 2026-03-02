@@ -1,4 +1,4 @@
-# <[Collections](./overview)/[SkipListMap](../../src/Collections/SkipListMap.ahk)>
+# <[Collections](./overview.md)/[SkipListMap](../../src/Collections/SkipListMap.ahk)>
 
 - [\<Collections/SkipListMap\>](#collectionsskiplistmap)
   - [Overview](#overview)
@@ -12,8 +12,6 @@ An ordered map implementation based on a
 
 Key-value pairs are stored in sorted order based on the natural ordering of
 keys, or alternatively, a custom [Comparator](../Func/Comparator.md).
-
-In order to support natural ordering
 
 ```ahk
 ; natural ordering
