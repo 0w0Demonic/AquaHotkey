@@ -146,3 +146,158 @@ class AquaHotkey_BufferEditor extends AquaHotkey {
         Editor() => BufferEditor(this)
     }
 }
+
+class AquaHotkey_Serialize {
+    static __New() {
+        this.ApplyOnto(File, BufferEditor)
+    }
+
+    WriteObject(Val?) {
+        Refs := Map()
+        switch {
+            case (!IsSet(Val)):
+                this.Write("u")
+            case (ObjGetBase(Val) == String.Prototype):
+                this.Write('"')
+                this.WriteUInt(StrPut(Val, "UTF-16"))
+                this.Write(Val)
+            case (IsFloat(Val)):
+                this.Write("f")
+                this.WriteDouble(Val)
+            case (IsInteger(Val)):
+                this.Write("i")
+                this.WriteInt64(Val)
+            default:
+                Ref := Refs.Get(Val, 0)
+                if (Ref) {
+                    ; reference to previously seen object
+                    this.Write("#")
+                    this.WriteUInt(Ref)
+                } else {
+                    Refs.Set(Val, Refs.Count + 1)
+                    Val.Serialize(this)
+                }
+        }
+    }
+
+    ReadObject(&Result) {
+        Tag := this.Read()
+        switch (Tag) {
+          case "u":
+            Result := unset
+            return true
+          case '"':
+            Size := this.ReadUShort()
+            Result := this.Read(Size)
+            return true
+          case "i":
+            Result := this.ReadInt64()
+            return true
+          case "f":
+            Result := this.ReadDouble()
+            return true
+          case "{":
+            ; TODO
+            Result := Object()
+            while (this.ReadObject(&Prop) && this.ReadObject(&Value)) {
+                Result.DefineProp(Prop, { Value: Value })
+            }
+            return true
+          case "}":
+            return false
+          case ">":
+            TLen := this.ReadUShort()
+            T := this.Read(TLen)
+
+            ; TODO put this in secluded area
+            Cls := %T%
+            if (!(Cls is Class)) {
+                throw TypeError("Expected a Class",, Type(Cls))
+            }
+            if (!HasMethod(Cls, "Deserialize")) {
+                Result := Object()
+                ObjSetBase(Result, T.Prototype)
+                while (this.ReadObject(&Prop) && this.ReadObject(&Value)) {
+                    Result.DefineProp(Prop, { Value: Value })
+                }
+                return true
+            }
+        }
+    }
+}
+
+class AquaHotkey_Serialization extends AquaHotkey {
+    class IArray {
+        Serialize(Out) {
+            Out.Write("a")
+            if (ObjGetBase(this) == Array.Prototype) {
+                Out.WriteUShort(0)
+            } else {
+                T := Type(this)
+                Out.WriteUShort(StrPut(T, "UTF-16"))
+                Out.Write(T)
+            }
+            Out.WriteUInt(this.Length)
+            for Value in this {
+                Out.WriteObject(Value?)
+            }
+        }
+
+        static Deserialize(Out) {
+            TLen := Out.ReadUShort()
+            if (TLen == 0) {
+                M := Map()
+            } else {
+                T := Out.Read(TLen)
+            }
+            ; TODO
+        }
+    }
+
+    class IMap {
+        Serialize(Output) {
+            Output.Write("m")
+            if (ObjGetBase(this) == Map.Prototype) {
+                Output.WriteUShort(0)
+            } else {
+                T := Type(this)
+                Output.WriteUShort(StrPut(T, "UTF-16"))
+                Output.Write(T)
+            }
+            Output.WriteUInt(this.Count)
+            for Key, Value in this {
+                Output.WriteObject(Key?)
+                Output.WriteObject(Value?)
+            }
+        }
+    }
+
+    class Object {
+        Serialize(Output) {
+            if (ObjGetBase(this) == Object.Prototype) {
+                Output.Write("{")
+                for PropertyName in ObjOwnProps(this) {
+                    PropDesc := this.GetOwnPropDesc(PropertyName)
+                    if (!ObjHasOwnProp(PropDesc, "Value")) {
+                        continue
+                    }
+                    Value := PropDesc.Value
+                    Output.WriteObject(PropertyName)
+                    Output.WriteObject(Value)
+                }
+                Output.Write("}")
+                return
+            }
+        }
+    }
+    
+    class IBuffer {
+        Serialize(Out) {
+            Out.Write("b")
+            Out.WriteUInt(this.Size)
+            Out.RawWrite(this)
+        }
+    }
+}
+
+FileOpen("result.txt", "w").WriteObject({ foo: "bar", baz: "qux" })
