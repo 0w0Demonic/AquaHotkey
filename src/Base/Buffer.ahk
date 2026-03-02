@@ -11,15 +11,16 @@ class AquaHotkey_Buffer extends AquaHotkey
 {
     ;@region Buffer
     class Buffer {
-        ;@region AHK Number Types
         /**
-         * Returns the size of the AHK number type in bytes.
+         * Map that holds all AHK number types mapped to their size in bytes.
          * 
-         * @param   {String}  NumType  AHK number type
-         * @returns {Integer}
+         * @property {Map<String, Integer>} NumTypes
          */
-        static SizeOf(NumType) {
+        static NumTypes {
+          get {
             static NumTypes := Init()
+            return NumTypes.Clone()
+
             static Init() {
                 M := Map()
                 M.CaseSense := false
@@ -45,11 +46,21 @@ class AquaHotkey_Buffer extends AquaHotkey
 
                 return M
             }
+          }
+        }
 
-            if (IsObject(NumType)) {
+        ;@region AHK Number Types
+        /**
+         * Returns the size of the AHK number type in bytes.
+         * 
+         * @param   {String}  NumType  AHK number type
+         * @returns {Integer}
+         */
+        static SizeOf(NumType) {
+            if (!(NumType is String)) {
                 throw TypeError("Expected a String",, Type(NumType))
             }
-            Result := NumTypes.Get(NumType, false)
+            Result := Buffer.NumTypes.Get(NumType, false)
             if (!Result) {
                 throw ValueError("Invalid number type",, NumType)
             }
