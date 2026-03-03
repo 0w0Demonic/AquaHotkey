@@ -2,6 +2,8 @@
 #Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Hash.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Eq.ahk"
+#Include "%A_LineFile%\..\..\..\IO\Serializer.ahk"
+#Include "%A_LineFile%\..\..\..\IO\Serial.ahk"
 #Include "%A_LineFile%\..\..\..\Interfaces\IArray.ahk"
 
 ;@region GenericArray
@@ -317,6 +319,56 @@ class GenericArray extends IArray {
      * MsgBox(String(LL)) ; "LinkedList<Integer>[1, 2, 3, 4]"
      */
     ToString() => Type(this) . String(this.A)
+
+    /**
+     * Serializes the generic array into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        ; "{"-prefix
+        super.Serialize(Output, Refs)
+
+        ; custom data:
+        ; - array type
+        ; - component type
+        ; - length
+        ; - elements
+        Output.WriteObject(this.ArrayType, Refs)
+        Output.WriteObject(this.ComponentType, Refs)
+        Output.WriteUInt(this.Length)
+        for Value in this {
+            Output.WriteObject(Value?, Refs)
+        }
+    }
+
+    /**
+     * Reconstructs the generic array from binary.
+     * 
+     * @param   {InputStream}  Output  input stream
+     * @param   {Map}          Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        ; reconstruct generic array class from array + component type
+        Input.ReadObject(&ArrayType, Refs)
+        Input.ReadObject(&ComponentType, Refs)
+        Cls := ArrayType.OfType(ComponentType)
+
+        ; object construction
+        ObjSetBase(this, Cls.Prototype)
+        this.__Init()
+        this.__New()
+
+        ; fill with elements, as specified by array format
+        Length := Input.ReadUInt()
+        loop Length {
+            Input.ReadObject(&Value, Refs)
+            this.Push(Value?)
+        }
+    }
 
     ;@endregion
     ;---------------------------------------------------------------------------

@@ -19,3 +19,6 @@
 
 - `OutputStream` as duck type. In practice, just check whether it's a `File` or
   `BufferEditor`.
+
+- test `GenericArray` + `GenericMap` ser more thoroughly
+- move `.NativeType` into type info or something

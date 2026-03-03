@@ -266,6 +266,52 @@ class GenericMap extends IDelegatingMap {
             (this.M)[Key] := value
         }
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Commons
+
+    /**
+     * Serializes the generic array into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        super.Serialize(Output, Refs)
+        Output.WriteObject(this.MapType, Refs)
+        Output.WriteObject(this.KeyType, Refs)
+        Output.WriteObject(this.ValueType, Refs)
+        Output.WriteUInt(this.Count)
+        for Key, Value in this {
+            Output.WriteObject(Key?, Refs)
+            Output.WriteObject(Value?, Refs)
+        }
+    }
+
+    /**
+     * Reconstructs the generic map from binary.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        Input.ReadObject(&MapType, Refs)
+        Input.ReadObject(&KeyType, Refs)
+        Input.ReadObject(&ValueType, Refs)
+        Cls := MapType.OfType(KeyType, ValueType)
+        ObjSetBase(this, Cls.Prototype)
+        this.__Init()
+        this.__New()
+        Count := Input.ReadUInt()
+        loop Count {
+            Input.ReadObject(&Key, Refs)
+            Input.ReadObject(&Value, Refs)
+            this.Set(Key, Value)
+        }
+    }
 }
 
 ;@endregion
