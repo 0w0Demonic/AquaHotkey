@@ -39,11 +39,15 @@
  * - `Output`: output stream used to write binary data
  * - `Refs`: map containing previously serialized objects for reference tracking
  *
- * Implementations should always begin by calling:
+ * Implementations should always begin by calling...
  *
  * ```ahk
- * super.Serialize(Output, Refs)
+ * (T.Prototype.Serialize)(this, Output, Refs)
  * ```
+ * 
+ * ... where `T` is the *native type* that represents the object. Usually, it's
+ * fine to simply call `super.Serialize(Output, Refs)`, but it's a good idea to
+ * be 100% explicit.
  *
  * This writes the required object prefix and registers the object within
  * the reference system. Afterward, only the object-specific data needs
@@ -171,13 +175,6 @@ class AquaHotkey_Serial extends AquaHotkey {
                 this.Push(Value?)
             }
         }
-
-        /**
-         * The native type of the array object.
-         * 
-         * @property {Class}
-         */
-        NativeType => Array
     }
 
     ;@endregion
@@ -234,13 +231,6 @@ class AquaHotkey_Serial extends AquaHotkey {
                 this.Set(Key, Value)
             }
         }
-
-        /**
-         * The native type of this map object.
-         * 
-         * @property {Class}
-         */
-        NativeType => Map
     }
 
     ;@endregion
@@ -305,13 +295,6 @@ class AquaHotkey_Serial extends AquaHotkey {
                 this.DefineProp(PropName, { Value: Value })
             }
         }
-
-        /**
-         * The native type of this regular object.
-         * 
-         * @property {Class}
-         */
-        NativeType => Object
     }
 
     ;@endregion
@@ -360,13 +343,6 @@ class AquaHotkey_Serial extends AquaHotkey {
             this.Size := Input.ReadUInt()
             Input.RawRead(this)
         }
-
-        /**
-         * The native type of this buffer object.
-         * 
-         * @property {Class}
-         */
-        NativeType => Buffer
     }
 
     ;@endregion
