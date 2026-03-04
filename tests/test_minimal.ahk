@@ -1,23 +1,53 @@
 ; << for quick one-off tests >>
 #Requires AutoHotkey v2.0
 #Include <AquaHotkeyX>
-#Include "%A_LineFile%\..\..\src\IO\Serializer.ahk"
-#Include "%A_LineFile%\..\..\src\IO\Serial.ahk"
 
-; Ser := Map.OfType(Integer, Integer)(1, 2, 3, 4)
+class Version {
+    __New(Major, Minor, Patch) {
+        this.Major := Major
+        this.Minor := Minor
+        this.Patch := Patch
+    }
+
+    Serialize(Output, Refs) {
+        super.Serialize(Output, Refs)
+        Output.WriteInt64(this.Major)
+        Output.WriteInt64(this.Minor)
+        Output.WriteInt64(this.Patch)
+    }
+
+    Deserialize(Input, Refs) {
+        this.Major := Input.ReadInt64()
+        this.Minor := Input.ReadInt64()
+        this.Patch := Input.ReadInt64()
+    }
+}
+
+/*
+DllCall("QueryPerformanceFrequency", "Int64*", &Freq := 0)
+DllCall("QueryPerformanceCounter", "Int64*", &t1 := 0)
+
+F := FileOpen("result.txt", "w")
+V := Version(5, 2, 12)
+loop 10000 {
+    F.WriteObject(V)
+}
+F := FileOpen("result.txt", "r")
+loop 10000 {
+    F.ReadObject(&Output)
+}
+DllCall("QueryPerformanceCounter", "Int64*", &t2 := 0)
+Delta := (t2 - t1)
+TimeMs := Delta / Freq * 1000
+MsgBox(TimeMs)
+*/
 
 A := Object()
 B := Object()
-A.V := B
-B.V := A
+A.Value := B
+B.Value := A
 
-Ser := A
+FileOpen("result.txt", "w").WriteObject(Uri("https://www.github.com"))
+FileOpen("result.txt", "r").ReadObject(&Obj)
 
-B := Buffer(16, 0).Fill(42)
-
-FileOpen("result.txt", "w").WriteObject(B)
-FileOpen("result.txt", "r").ReadObject(&Output)
-
-MsgBox(Type(Output))
-MsgBox(Output.Size)
-MsgBox(Output.HexDump())
+MsgBox(Type(Obj))

@@ -8,6 +8,11 @@
 
 ;@region GenericArray
 
+; TODO this very likely breaks on deserialization when `<cfg/DisableGenerics>`
+;      is on. `Array.OfType(...)` just returns `Array`, whereas
+;      `GenericArray` is an object. Either wrap around, or use `Any` as
+;      constraint.
+
 /**
  * Introduces a type-checked wrapper for {@link IArray} classes with intuitive
  * array syntax (for example, `String[]`).
@@ -123,6 +128,19 @@ class GenericArray extends IArray {
         Define(this.Prototype, "ArrayType",     { Get: (_) => A })
 
         ToString(this) => ClassName . String(this.A)
+    }
+
+    /**
+     * Creates a new instance of this generic array class.
+     * 
+     * @constructor
+     * @param   {T*}  Values  zero or more values
+     */
+    __New(Values*) {
+        A := (this.ArrayType)()
+
+        this.DefineProp("A", { Get: (_) => A })
+        this.Push(Values*)
     }
 
     ;@endregion
@@ -334,10 +352,12 @@ class GenericArray extends IArray {
         ; custom data:
         ; - array type
         ; - component type
-        ; - length
-        ; - elements
+
         Output.WriteObject(this.ArrayType, Refs)
         Output.WriteObject(this.ComponentType, Refs)
+
+        ; - length of array
+        ; - array elements
         Output.WriteUInt(this.Length)
         for Value in this {
             Output.WriteObject(Value?, Refs)
@@ -357,12 +377,16 @@ class GenericArray extends IArray {
         Input.ReadObject(&ComponentType, Refs)
         Cls := ArrayType.OfType(ComponentType)
 
-        ; object construction
+        ; object construction. this has `GenericArray` as base already, but
+        ; since concrete implementations are subclasses, we need to "elevate"
+        ; the object once again.
         ObjSetBase(this, Cls.Prototype)
+
+        ; `.__New()` to create the backing array, `.__Init()` for moral support
         this.__Init()
         this.__New()
 
-        ; fill with elements, as specified by array format
+        ; read length of array, followed by the elements themselves
         Length := Input.ReadUInt()
         loop Length {
             Input.ReadObject(&Value, Refs)
@@ -476,19 +500,6 @@ class GenericArray extends IArray {
      * @returns {T}
      */
     RemoveAt(Index, Length?) => (this.A).RemoveAt(Index, Length?)
-
-    /**
-     * Creates a new instance of this generic array class.
-     * 
-     * @constructor
-     * @param   {T*}  Values  zero or more values
-     */
-    __New(Values*) {
-        A := (this.ArrayType)()
-
-        this.DefineProp("A", { Get: (_) => A })
-        this.Push(Values*)
-    }
 
     /**
      * Returns an {@link Enumerator} for the array.

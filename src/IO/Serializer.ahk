@@ -1,4 +1,5 @@
 #Include "%A_LineFile%\..\..\..\wip\BufferEditor.ahk"
+#Include "%A_LineFile%\..\Serial.ahk"
 
 /**
  * Implements binary serialization for many of the built-in AHK types and
@@ -10,8 +11,8 @@
  * ### Basic Usage
  * 
  * You can use an instance of either {@link BufferEditor} or {@link File} as
- * serializer. Use `.WriteObject()` to write binary representation of a
- * variable into the file/buffer. Use `.ReadObject()` to read binary data from
+ * serializer. Use `.WriteObject()` to write the binary representation of a
+ * variable into a file/buffer. Use `.ReadObject()` to read binary data from
  * the file/buffer and reconstruct it back into the original value.
  * 
  * ```ahk
@@ -77,13 +78,17 @@
  * 
  * Next, we specify the name of the class that the object is instance of,
  * which is `"Point"`. The binary representation continues with a 16-bit integer
- * that holds the string length of the class name, followed by the literal
- * class name.
+ * that holds the length of the class name in characters (which is `5`, in this
+ * case), followed by the literal class name `"Point"`.
  * 
- * For plain objects, the class name is omitted and the length equal to zero.
+ * If the object is a "normal" instance of its native type -- i.e. it is not
+ * an instance of a custom class, but rather directly of `Object`, `Array`,
+ * `Map`, or `Buffer` -- the class name is omitted and the length is set to
+ * zero. This allows the serializer to save space by not writing out the class
+ * name for plain objects, which are more common.
  * 
  * Based on the native object type -- if not otherwise specified (see custom
- * serialization) -- the "object data" is serialized in different ways:
+ * serialization) -- the data-specific part is serialized in different ways:
  * 
  * - `Array`:
  * 
@@ -101,13 +106,14 @@
  *   - Raw binary data.
  * 
  * - `Object`:
- *   Zero or more of...
+ *   Zero or more properties, which are defined as follows:
  * 
- *   - A nonzero 16-bit integer as property string length;
- *   - Property name as string;
- *   - Any serialized value.
+ *   - nonzero 16-bit integer as string length of the property in characters;
+ *   - the property name as string;
+ *   - any serialized value.
  * 
- *   The value `0` as property string length marks the end of the object.
+ *   The object is parsed for more properties are long as the string length
+ *   is nonzero. Value `0` marks the end of the object.
  * 
  * ---
  * 
@@ -145,18 +151,20 @@
  *    7B 00 00 01 00 56 7B 00 00 01 00 56 23 01 00 00 00 00 00 00 00
  *     {  .  .  .  .  V  {  .  .  .  .  V  #  .  .  .  .  .  .  .  .
  * 
- * 1.  [object #1]
- * 2.  [type: UShort 0]
+ * -----------------------------------------------------------------------------
+ * 
+ * 1.  [object #1]         <--- this object is being kept track off inside a
+ * 2.  [type: UShort 0]                 Map, with a unique ID of #1.
  * -.  [property]
  * 3.    [key length: UShort 1]
  * 4.    [key: String "V"]
  * -.    [value:
- * 5.      [object #2]
+ * 5.      [object #2]    <-- same goes for this object. This here is #2.
  * -.      [property]
  * 6.        [type: UShort 0]
  * 7.        [key length: UShort 1]
  * 8         [key: String "V"]
- * 9.        [value: #1]
+ * 9.        [value: #1]         <--- value of #2.V is a reference back to #1!
  * 10.     [end #2]]
  * 11. [end #1]
  * ```

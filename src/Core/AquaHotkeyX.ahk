@@ -44,6 +44,8 @@
 
 #Include "%A_LineFile%\..\..\IO\FileUtils.ahk"
 #Include "%A_LineFile%\..\..\IO\Path.ahk"
+#Include "%A_LineFile%\..\..\IO\Serializer.ahk"
+#Include "%A_LineFile%\..\..\IO\Serial.ahk"
 
 ;@endregion
 ;-------------------------------------------------------------------------------
