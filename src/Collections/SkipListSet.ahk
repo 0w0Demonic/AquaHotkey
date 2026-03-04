@@ -18,7 +18,11 @@ class SkipListSet extends Set {
      * @param   {Any*}  Values  zero or more elements
      * @returns {SkipListSet}
      */
-    static Call(Values*) => this.FromMap(SkipListMap(Values*))
+    __New(Values*) {
+        M := SkipListMap()
+        this.DefineProp("M", { Get: (_) => M })
+        this.Add(Values*)
+    }
 
     /**
      * Creates a subclass of {@link SkipListSet} that uses the given

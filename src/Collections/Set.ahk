@@ -19,7 +19,11 @@ class Set extends ISet {
      * @constructor
      * @param   {Any*}  Values  zero or more elements
      */
-    static Call(Values*) => this.FromMap(Map(), Values*)
+    __New(Values*) {
+        M := Map()
+        this.DefineProp("M", { Get: (_) => M })
+        this.Add(Values*)
+    }
 
     /**
      * Creates a set using the given backing map.
@@ -81,8 +85,6 @@ class Set extends ISet {
         ObjSetBase(Obj, ObjGetBase(this))
         return Obj
     }
-
-    ; TODO use `.TryDelete()`?
 
     /**
      * Deletes values from the set. This method returns the amount of elements

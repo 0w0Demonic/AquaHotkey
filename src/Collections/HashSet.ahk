@@ -17,5 +17,9 @@ class HashSet extends Set {
      * @param   {Any*}  Values  zero or more values
      * @returns {HashSet}
      */
-    static Call(Values*) => this.FromMap(HashMap(), Values*)
+    __New(Values*) {
+        M := HashMap()
+        this.DefineProp("M", { Get: (_) => M })
+        this.Add(Values*)
+    }
 }
