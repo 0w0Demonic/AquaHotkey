@@ -109,17 +109,16 @@ class GenericArray extends IArray {
             if (!(C is Class)) {
                 throw TypeError("Expected a Class",, Type(C))
             }
-            if (!HasBase(C, Class)) {
-                throw TypeError("Expected a type wrapper",, C.Prototype.__Class)
-            }
             T := C(T) ; e.g.: `T := Nullable(String)`
         }
 
-        ; remove the `__Class` that we created with `AquaHotkey.CreateClass()`.
-        ; we must assure prototypes are deletable.
-        ; 
-        ; (see docs on object destruction)
-        ClassName := this.Prototype.__Class
+        ; name of class represented in `static Name`. see <Base/TypeInfo>.
+        OuterType := A.Prototype.__Class
+        InnerType := (T is Class) ? T.Prototype.__Class : String(T)
+        ClassName := (OuterType . "<" . InnerType . ">")
+
+        ; remove `.__Class` to make sure that class prototypes are
+        ; deletable. (see AHK docs: `/Objects.htm#Custom_NewDelete`)
         Delete(this.Prototype, "__Class")
 
         Define(this, "Name", { Get: (_) => ClassName })
@@ -338,6 +337,10 @@ class GenericArray extends IArray {
      */
     ToString() => Type(this) . String(this.A)
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Serialization
+
     /**
      * Serializes the generic array into binary.
      * 
@@ -346,18 +349,9 @@ class GenericArray extends IArray {
      * @see {@link AquaHotkey_Serializer}
      */
     Serialize(Output, Refs) {
-        ; "{"-prefix
-        super.Serialize(Output, Refs)
-
-        ; custom data:
-        ; - array type
-        ; - component type
-
+        (Object.Prototype.Serialize)(this, Output, Refs)
         Output.WriteObject(this.ArrayType, Refs)
         Output.WriteObject(this.ComponentType, Refs)
-
-        ; - length of array
-        ; - array elements
         Output.WriteUInt(this.Length)
         for Value in this {
             Output.WriteObject(Value?, Refs)
@@ -375,11 +369,10 @@ class GenericArray extends IArray {
         ; reconstruct generic array class from array + component type
         Input.ReadObject(&ArrayType, Refs)
         Input.ReadObject(&ComponentType, Refs)
-        Cls := ArrayType.OfType(ComponentType)
-
-        ; object construction. this has `GenericArray` as base already, but
-        ; since concrete implementations are subclasses, we need to "elevate"
-        ; the object once again.
+        if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
+            ComponentType := Any
+        }
+        Cls := AquaHotkey.CreateClass(GenericArray,, ArrayType, ComponentType)
         ObjSetBase(this, Cls.Prototype)
 
         ; `.__New()` to create the backing array, `.__Init()` for moral support
@@ -610,10 +603,8 @@ class AquaHotkey_GenericArray extends AquaHotkey {
          * T := LinkedList.OfType(Nullable(User))
          */
         static OfType(T, Constraint?) {
-            OuterType := this.Prototype.__Class
-            InnerType := (T is Class) ? T.Prototype.__Class : String(T)
-            return AquaHotkey.CreateClass(
-                    GenericArray, (OuterType . "<" . InnerType . ">"),
+            return AquaHotkey.CreateClass(GenericArray,
+                    unset, ; class name is created by `static __New()`
                     this, T, Constraint?)
         }
     }

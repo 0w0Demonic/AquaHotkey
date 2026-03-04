@@ -48,18 +48,36 @@ class GenericMap extends IDelegatingMap {
             throw TypeError("Expected an IMap class",, String(M))
         }
 
-        ClassName := this.Prototype.__Class
+        MapName := M.Prototype.__Class
+        KeyName   := (K is Class) ? K.Prototype.__Class : String(K)
+        ValueName := (V is Class) ? V.Prototype.__Class : String(V)
+        ClassName := MapName . "<" . KeyName . ", " . ValueName . ">"
+
+        ; make sure that class prototypes are disposable.
         Delete(this.Prototype, "__Class")
 
+        ; (see <Base/TypeInfo>)
         Define(this, "Name", { Get: (_) => ClassName })
-        Define(this.Prototype, "ToString", { Call: ToString })
+        Define(this.Prototype, "Class",     { Get: (_) => this })
 
+        Define(this.Prototype, "ToString", { Call: ToString })
         Define(this.Prototype, "MapType",   { Get: (_) => M })
         Define(this.Prototype, "KeyType",   { Get: (_) => K })
         Define(this.Prototype, "ValueType", { Get: (_) => V })
-        Define(this.Prototype, "Class",     { Get: (_) => this })
 
         ToString(this) => ClassName . String(this.M)
+    }
+
+    /**
+     * Creates a new generic map containing the given elements.
+     * 
+     * @constructor
+     * @param   {Any*}  Args  alternating key-value pairs
+     */
+    __New(Args*) {
+        M := (this.MapType)()
+        ({}.DefineProp)(this, "M", { Get: (_) => M })
+        M.Set(Args*)
     }
 
     ;@endregion
@@ -226,18 +244,6 @@ class GenericMap extends IDelegatingMap {
     }
 
     /**
-     * Creates a new generic map containing the given elements.
-     * 
-     * @constructor
-     * @param   {Any*}  Args  alternating key-value pairs
-     */
-    __New(Args*) {
-        M := (this.MapType)()
-        ({}.DefineProp)(this, "M", { Get: (_) => M })
-        M.Set(Args*)
-    }
-
-    /**
      * Sets zero or more items.
      * 
      * @param   {Any*}  Args  alternating key-value pairs
@@ -269,7 +275,7 @@ class GenericMap extends IDelegatingMap {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Commons
+    ;@region Serialization
 
     /**
      * Serializes the generic array into binary.
@@ -279,7 +285,7 @@ class GenericMap extends IDelegatingMap {
      * @see {@link AquaHotkey_Serializer}
      */
     Serialize(Output, Refs) {
-        super.Serialize(Output, Refs)
+        (Object.Prototype.Serialize)(this, Output, Refs)
         Output.WriteObject(this.MapType, Refs)
         Output.WriteObject(this.KeyType, Refs)
         Output.WriteObject(this.ValueType, Refs)
@@ -301,10 +307,17 @@ class GenericMap extends IDelegatingMap {
         Input.ReadObject(&MapType, Refs)
         Input.ReadObject(&KeyType, Refs)
         Input.ReadObject(&ValueType, Refs)
-        Cls := MapType.OfType(KeyType, ValueType)
+        if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
+            KeyType := Any
+            ValueType := Any
+        }
+
+        Cls := AquaHotkey.CreateClass(GenericMap,, MapType, KeyType, ValueType)
         ObjSetBase(this, Cls.Prototype)
+
         this.__Init()
         this.__New()
+
         Count := Input.ReadUInt()
         loop Count {
             Input.ReadObject(&Key, Refs)
