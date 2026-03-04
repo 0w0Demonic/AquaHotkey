@@ -20,10 +20,7 @@
  * MaybeStr.IsInstance("Str") ; true
  * MaybeStr.IsInstance(342.1) ; false
  */
-class Nullable extends Class
-; note: `extends Class` - for now - because this is the specification for what
-;       a "type wrapper" is for generic arrays.
-{
+class Nullable {
     /**
      * Creates a new nullable type with the given inner type.
      * 
@@ -95,4 +92,28 @@ class Nullable extends Class
      * @returns {String}
      */
     ToString() => "Nullable<" . String(this.T) . ">"
+
+    /**
+     * Serializes this nullable type into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        Output.WriteObject(this.T, Refs)
+    }
+
+    /**
+     * Reconstructs this nullable type from binary.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        Input.ReadObject(&T, Refs)
+        this.DefineProp("T", { Get: (_) => T })
+    }
 }

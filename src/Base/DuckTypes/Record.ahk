@@ -30,7 +30,7 @@
  * }
  * MsgBox(Obj.Is(PermissionsMap))
  */
-class Record extends Class {
+class Record {
     ;@region Construction
 
     /**
