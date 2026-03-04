@@ -20,5 +20,7 @@
 - `OutputStream` as duck type. In practice, just check whether it's a `File` or
   `BufferEditor`.
 
-- test `GenericArray` + `GenericMap` ser more thoroughly
-- move `.NativeType` into type info or something
+## Serialization
+
+- throw error on unsupported types such as `Func`
+- for `GenericArray` and `GenericMap`, just serialize the backing map?

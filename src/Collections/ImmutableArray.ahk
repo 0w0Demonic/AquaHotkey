@@ -122,6 +122,34 @@ class ImmutableArray extends IArray {
 
     ;@endregion
     ;---------------------------------------------------------------------------
+    ;@region Serialization
+
+    /**
+     * Serializes this immutable array into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        Output.WriteObject(this.A, Refs)
+    }
+
+    /**
+     * Reconstructs this immutable array from binary.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        Input.ReadObject(&BackingArray, Refs)
+        this.DefineProp("A", { Get: (_) => BackingArray })
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region IArray overrides
 
     /**

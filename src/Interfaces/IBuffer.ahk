@@ -38,7 +38,41 @@ class IBuffer {
         
     }
 
-    ;@endregion   
+    ;@endregion 
+    ;---------------------------------------------------------------------------
+    ;@region Serialization
+
+    /**
+     * Serializes this buffer object into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        Output.WriteUInt(this.Size)
+        Output.RawWrite(this)
+    }
+
+    /**
+     * Reconstructs this buffer object from binary. This method assumes that
+     * the object can be constructed by calling the constructor with one
+     * parameter, which holds the `Size` property and byte count of the
+     * succeeding raw binary data.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Refs}         Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        Size := Input.ReadUInt()
+        this.__Init()
+        this.__New(Size)
+        Input.RawRead(this)
+    }
+
+    ;@endregion 
     ;---------------------------------------------------------------------------
     ;@region Read/Write Methods
 

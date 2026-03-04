@@ -79,6 +79,45 @@ class IMap {
 
     ;@endregion
     ;---------------------------------------------------------------------------
+    ;@region Serialization
+
+    /**
+     * Serializes this map object into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        Output.WriteUInt(this.Count)
+        for Key, Value in this {
+            Output.WriteObject(Key, Refs)
+            Output.WriteObject(Value, Refs)
+        }
+    }
+
+    /**
+     * Reconstructs this map object from binary. This method assumes the object
+     * can be properly constructed simply by calling the class object with
+     * no parameters. For example: `M := MapClass()`.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        this.__Init()
+        this.__New()
+        loop Input.ReadUInt() {
+            Input.ReadObject(&Key, Refs)
+            Input.ReadObject(&Value, Refs)
+            this.Set(Key, Value)
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Keys and Values
 
     /**

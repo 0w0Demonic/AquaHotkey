@@ -83,6 +83,43 @@ class IArray {
 
     ;@endregion
     ;---------------------------------------------------------------------------
+    ;@region Serialization
+
+    /**
+     * Serializes this array object into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        Output.WriteUInt(this.Length)
+        for Value in this {
+            Output.WriteObject(Value?, Refs)
+        }
+    }
+
+    /**
+     * Reconstructs this array object from binary. This method assumes an
+     * instance of this object can be created simply by calling the class
+     * object with no arguments -- i.e., `Arr := ArrayClass()`.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        this.__Init()
+        this.__New()
+        loop Input.ReadUInt() {
+            Input.ReadObject(&Value, Refs)
+            this.Push(Value?)
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Type Info
 
     /**

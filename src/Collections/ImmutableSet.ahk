@@ -89,6 +89,34 @@ class ImmutableSet extends ISet {
     Size => (this.S).Size
 
     ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Serialization
+
+    /**
+     * Serializes this immutable set into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        Output.WriteObject(this.S, Refs)
+    }
+
+    /**
+     * Reconstructs this immutable set from binary.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        Input.ReadObject(&BackingSet, Refs)
+        this.DefineProp("S", { Get: (_) => BackingSet })
+    }
+
+    ;@endregion
 }
 
 ;@endregion

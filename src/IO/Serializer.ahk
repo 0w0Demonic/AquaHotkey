@@ -217,7 +217,7 @@
 class AquaHotkey_Serializer {
     static __New() => this.ApplyOnto(File, BufferEditor)
 
-    ;@region .ReadObject()
+    ;@region .WriteObject()
 
     /**
      * Serializes objects or primitive types into a binary format.
@@ -308,7 +308,7 @@ class AquaHotkey_Serializer {
             Result := Class.ForName(this.Read(this.ReadUShort()))
             Refs[Refs.Count + 1] := Result
           default:
-            throw ValueError("invalid tag",, Tag)
+            throw ValueError("invalid tag",, Tag . " (" . Ord(Tag) . ")")
         }
     }
     

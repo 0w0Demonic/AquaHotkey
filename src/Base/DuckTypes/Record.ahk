@@ -159,4 +159,31 @@ class Record {
             && (this.KeyType).CanCastFrom(Other.KeyType)
             && (this.ValueType).CanCastFrom(Other.ValueType)
     }
+
+    /**
+     * Serializes this record into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        Output.WriteObject(this.KeyType, Refs)
+        Output.WriteObject(this.ValueType, Refs)
+    }
+
+    /**
+     * Reconstructs this record from binary.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        Input.ReadObject(&KeyType, Refs)
+        Input.ReadObject(&ValueType, Refs)
+        this.__Init()
+        this.__New(KeyType, ValueType)
+    }
 }

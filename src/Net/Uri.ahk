@@ -113,12 +113,16 @@ class Uri {
      * percent escapes (such as `%fa` into `%FA`), but no URL encoding/decoding
      * is done.
      * 
+     * Parameter #2 is internal and meant for serialization support; avoid
+     * using it.
+     * 
      * @constructor
-     * @param   {String}  
+     * @param   {String}   Str  string that represents a URI
+     * @param   {Object?}  r    plain object that should be constructed
      * @returns {Uri}
      * @see {@link https://en.wikipedia.org/wiki/Uniform_Resource_Identifier Wikipedia}
      */
-    static Call(Str) {
+    static Call(Str, r := {}) {
         static VALID_SCHEME      := "Si)^[a-z][a-z+.-]*$"
         static INVALID_SEQUENCES := "
         (
@@ -133,7 +137,6 @@ class Uri {
         )"
 
         local p, q, ; index values
-              r,    ; result object
               t,    ; type of object based on `Scheme`, if applicable
               n,    ; `StrLen(Str) + 1`
               e     ; start index of malformed URI sequence, if applicable
@@ -141,9 +144,14 @@ class Uri {
         if (this != Uri) {
             throw MethodError("Method must be called directly by Uri class")
         }
-        
         if (!(Str is String)) {
             throw TypeError("Expected a String",, Type(Str))
+        }
+        if (!IsObject(r)) {
+            throw TypeError("Expected an Object",, Type(r))
+        }
+        if (ObjOwnPropCount(r)) {
+            throw TypeError("Expected an empty Object",, ObjOwnPropCount(r))
         }
 
         ; check for invalid sequences
@@ -160,8 +168,8 @@ class Uri {
         ; normalize percent-encoding to uppercase
         Str := RegExReplace(Str, "i)(?<=%)[0-9a-f]{2}", "$U0")
 
-        ; initialize result object with `Value` prop (entire URI string)
-        r := Object()
+        ; start of construction. first, change the base to the standard `Uri`
+        ; class prototype.
         ObjSetBase(r, Uri.Prototype)
 
         ; try to find scheme (the part before ":")
@@ -402,7 +410,7 @@ class Uri {
      * @returns {String}
      */
     ToDebugString() => (Object.Prototype.ToString)({
-        Value: this.ToString(),
+        Value: String(this),
         Scheme: this.Scheme,
         SchemeSpecific: this.SchemeSpecific,
         Authority: this.Authority,
@@ -490,6 +498,35 @@ class Uri {
         }
         this.DefineProp("HashCode", { Call: (_) => Result })
         return Result
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Serialization
+
+    /**
+     * Converts this URI into binary based on its string representation.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        Str := String(this)
+        Output.WriteUInt(StrLen(Str))
+        Output.Write(Str)
+    }
+
+    /**
+     * Reconstructs the URI from binary.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        Uri(Input.Read(Input.ReadUInt()), this)
     }
 
     ;@endregion

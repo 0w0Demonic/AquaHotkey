@@ -118,6 +118,34 @@ class ImmutableMap extends IMap {
 
     ;@endregion
     ;---------------------------------------------------------------------------
+    ;@region Serialization
+
+    /**
+     * Serializes this immutable map into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        Output.WriteObject(this.M, Refs)
+    }
+
+    /**
+     * Reconstructs this immutable map from binary.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        Input.ReadObject(&BackingMap, Refs)
+        this.DefineProp("M", { Get: (_) => BackingMap })
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Stream Operations
 
     /**

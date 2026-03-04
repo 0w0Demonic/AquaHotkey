@@ -80,6 +80,9 @@
 #Include "%A_LineFile%\..\..\Collections\HashSet.ahk"
 #Include "%A_LineFile%\..\..\Collections\ImmutableSet.ahk"
 
+#Include "%A_LineFile%\..\..\Collections\SkipListMap.ahk"
+#Include "%A_LineFile%\..\..\Collections\SkipListSet.ahk"
+
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Functional

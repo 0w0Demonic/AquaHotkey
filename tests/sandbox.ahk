@@ -42,12 +42,19 @@ TimeMs := Delta / Freq * 1000
 MsgBox(TimeMs)
 */
 
-A := Object()
-B := Object()
-A.Value := B
-B.Value := A
+Ser(Obj) {
+    FileOpen("result.txt", "w").WriteObject(Obj)
+}
 
-FileOpen("result.txt", "w").WriteObject(Uri("https://www.github.com"))
-FileOpen("result.txt", "r").ReadObject(&Obj)
+SerDes(Obj) {
+    FileOpen("result.txt", "w").WriteObject(Obj)
+    FileOpen("result.txt", "r").ReadObject(&Obj)
+    return Obj
+}
 
-MsgBox(Type(Obj))
+Des() {
+    FileOpen("result.txt", "r").ReadObject(&Obj)
+    return Obj
+}
+
+Range(100).Collect(SkipListMap).o0(SerDes)

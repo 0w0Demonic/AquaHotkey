@@ -12,6 +12,8 @@
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class Set extends ISet {
+    ;@region Construction
+
     /**
      * Constructs a new set with backing `Map` containing the given
      * values as elements.
@@ -40,11 +42,50 @@ class Set extends ISet {
         Obj := Object()
         Obj.DefineProp("M", { Get: (_) => M })
         ObjSetBase(Obj, this.Prototype)
-        if (Values.Length) {
-            Obj.Add(Values*)
-        }
+        Obj.Add(Values*)
         return Obj
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Serialization
+
+    /**
+     * Serializes this set into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        Output.WriteUInt(this.Size)
+        for Value in this {
+            Output.WriteObject(Value, Refs)
+        }
+    }
+
+    /**
+     * Reconstructs this set object from binary. This method assumes the set
+     * can be properly constructed by calling `.__New()` with no parameters.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        this.__Init()
+        this.__New()
+        Size := Input.ReadUInt()
+        loop Size {
+            Input.ReadObject(&Value, Refs)
+            this.Add(Value)
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Implementation
 
     /**
      * Adds values to the set.
@@ -174,6 +215,8 @@ class Set extends ISet {
         get => this.M.Capacity
         set => ((this.M).Capacity := value)
     }
+
+    ;@endregion
 }
 
 ;@endregion
