@@ -29,10 +29,10 @@ class Boolean extends Integer {
      * Creates a boolean value from an arbitrary value.
      * 
      * @param   {Any}  Val  any value
-     * @returns {Boolean}
+     * @returns {Boolean?}
      * @example
      * Boolean("foo") ; true
      * Boolean(0)     ; false
      */
-    static Call(Val) => !!Val
+    static Call(Val?) => IsSet(Val) && !!Val
 }

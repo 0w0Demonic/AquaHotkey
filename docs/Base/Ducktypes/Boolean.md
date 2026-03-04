@@ -2,6 +2,7 @@
 
 - [\<Base/DuckTypes/Boolean\>](#baseducktypesboolean)
   - [Overview](#overview)
+  - [Value Conversion](#value-conversion)
 
 ## Overview
 
@@ -21,4 +22,16 @@ strings.
 (1).Is(Boolean) ; true
 
 Integer[].CanCastFrom(Boolean[]) ; because `Integer.CanCastFrom(Boolean)`
+```
+
+## Value Conversion
+
+Call `Boolean(Value)` to convert any value into a boolean. This is equivalent
+to `!!Value`. `unset` is converted to `false`.
+
+```ah
+Boolean(false)     ; !!(false) --> false
+Boolean("example") ; !!("example") --> true
+
+Boolean(unset) ; --> false
 ```

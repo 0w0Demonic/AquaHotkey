@@ -69,6 +69,8 @@
 - [IO](./IO/overview.md)
   - [FileUtils](./IO/FileUtils.md)
   - [Path](./IO/Path.md)
+  - [Serial](./IO/Serial.md)
+  - [Serializer](./IO/Serializer.md)
 
 - [Net](./Net/overview.md)
   - [Uri](./Net/Uri.md)
