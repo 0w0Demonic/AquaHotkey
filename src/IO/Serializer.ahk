@@ -279,7 +279,8 @@ class AquaHotkey_Serializer {
      * @param   {VarRef<Any>}  Result  (out) the original value
      * @param   {Map?}         Refs    a map of previously seen objects
      */
-    ReadObject(&Result, Refs := Map()) {
+    ReadObject(&Result?, Refs := Map()) {
+        ByRef := IsSet(Result)
         Tag := this.Read(1)
         switch (Tag) {
           case "u": Result := unset
@@ -310,6 +311,9 @@ class AquaHotkey_Serializer {
             Refs[Refs.Count + 1] := Result
           default:
             throw ValueError("invalid tag",, Tag . " (" . Ord(Tag) . ")")
+        }
+        if (!ByRef) {
+            return Result
         }
     }
     
