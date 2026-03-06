@@ -18,10 +18,10 @@
  * This interface requires the an object to implement the following properties:
  * 
  * ```ahk
- * Add(Value: Any, Values: Any*) => Boolean
+ * Add(Values: Any*) => Integer
  * Clear() => void
  * Clone() => ISet
- * Delete(Value: Any, Values: Any*) => Boolean
+ * Delete(Values: Any*) => Integer
  * Contains(Value: Any) => Boolean
  * __Enum(ArgSize: Integer) => Enumerator
  * Size => Integer
