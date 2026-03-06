@@ -202,10 +202,17 @@ class ByteArray extends IArray
 class AquaHotkey_ByteArray extends AquaHotkey {
     class IBuffer {
         /**
-         * Returns an {@link IArray} view of the buffer.
+         * Returns this buffer viewed as a {@link ByteArray}.
          * 
          * @returns {ByteArray}
          */
-        AsArray() => ByteArray(this)
+        AsByteArray() => ByteArray(this)
+
+        /**
+         * Creates a {@link ByteArray} out of a clone of this buffer.
+         * 
+         * @returns {ByteArray}
+         */
+        ToByteArray() => ByteArray(this.Clone())
     }
 }
