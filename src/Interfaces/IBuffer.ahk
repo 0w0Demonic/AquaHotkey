@@ -1,7 +1,6 @@
 #Include "%A_LineFile%\..\..\Base\DuckTypes.ahk"
-
-; TODO
-; - add constructor?
+#Include "%A_LineFile%\..\..\Collections\ByteArray.ahk"
+#Include "%A_LineFile%\..\IArray.ahk"
 
 /**
  * @interface
