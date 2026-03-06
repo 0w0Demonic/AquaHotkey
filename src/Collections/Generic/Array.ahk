@@ -150,7 +150,7 @@ class GenericArray extends IArray {
      * Returns the component type of this generic array. In other words, the
      * type which the array holds elements of.
      * 
-     * @returns {Any}
+     * @property {Any}
      * @see {@link GenericArray#ComponentType}
      */
     static ComponentType => (this.Prototype).ComponentType
@@ -175,15 +175,15 @@ class GenericArray extends IArray {
     }
 
     /**
-     * The type of array wrapped around.
+     * The type of array being wrapped around by this class.
      * 
-     * @returns {Any}
+     * @property {Class}
      * @see {@link GenericArray#ArrayType}
      */
     static ArrayType => (this.Prototype).ArrayType
 
     /**
-     * The type of array wrapped around.
+     * The type of array being wrapped around by this class.
      * 
      * This property should be overridden by subclasses of `GenericArray`.
      * 
@@ -200,26 +200,17 @@ class GenericArray extends IArray {
       }
     }
 
-    /**
-     * The name of the class.
-     * 
-     * @abstract
-     * @property {String}
-     * @see {@link AquaHotkey_TypeInfo}
-     */
-    static Name {
-      get {
-        throw PropertyError("not implemented")
-      }
-    }
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Duck Types
 
     /**
-     * Determines whether the given class `T` is equal to this generic array
+     * Determines whether the given class input is equal to this generic array
      * class, or considered its subtype.
      * 
      * This depends on the array and component type used by the class.
      * 
-     * @param   {Class<? extends IArray>}  Other  other generic array class
+     * @param   {Any}  Other  other generic array class
      * @returns {Boolean}
      * @example
      * Any[Nullable].CanCastFrom(String[])
@@ -399,7 +390,7 @@ class GenericArray extends IArray {
     Check(Val?) {
         if (!this.ComponentType.IsInstance(Val?)) {
             throw TypeError("Expected " . String(this.ComponentType),,
-                    Type(Val))
+                    IsSet(Val) ? Type(Val) : "unset")
         }
     }
 
@@ -597,7 +588,7 @@ class AquaHotkey_GenericArray extends AquaHotkey {
          * 
          * @param   {Any}   T           type pattern
          * @param   {Any?}  Constraint  additional type constraint
-         * @returns {Class<? extends GenericArray<Array, this>>}
+         * @returns {Class}
          * @example
          * User := { name: String, age: Integer }
          * T := LinkedList.OfType(Nullable(User))

@@ -1,10 +1,15 @@
 #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\..\Interfaces\IDelegatingMap.ahk"
+#Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\..\Base\Hash.ahk"
+#Include "%A_LineFile%\..\..\..\Base\Eq.ahk"
+#Include "%A_LineFile%\..\..\..\IO\Serializer.ahk"
 
 ;@region GenericMap
+
 /**
  * Introduces generic maps, in which key-value pairs are enforced to
- * be instanced of the given types.
+ * be instance of the given types.
  * 
  * @module  <Collections/Generic/Map>
  * @author  0w0Demonic
@@ -24,7 +29,6 @@ class GenericMap extends IDelegatingMap {
     /**
      * Constructs a new subclass of `GenericMap`.
      * 
-     * @private
      * @param   {Class}  M  map type
      * @param   {Class}  K  key type
      * @param   {Class}  V  value type
@@ -82,7 +86,7 @@ class GenericMap extends IDelegatingMap {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Type Info
+    ;@region Duck Types
 
     /**
      * Determines whether the given value is an instance of the generic
@@ -117,6 +121,33 @@ class GenericMap extends IDelegatingMap {
         return true
     }
 
+    /**
+     * Determines whether the given value is considered a subtype of this
+     * generic array class.
+     * 
+     * @param   {Any}  Other  any value
+     * @returns {Boolean}
+     * @example
+     * T1 := IMap.OfType(Number, Number)
+     * T2 := HashMap.OfType(Integer, Integer)
+     * 
+     * T1.CanCastFrom(T2) ; true
+     */
+    static CanCastFrom(Other) {
+        if (super.CanCastFrom(Other)) {
+            return true
+        }
+        if (!HasBase(Other, GenericMap)) {
+            return false
+        }
+        return (this.MapType).CanCastFrom(Other.MapType)
+            && (this.KeyType).CanCastFrom(Other.KeyType)
+            && (this.ValueType).CanCastFrom(Other.ValueType)
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Type Info
 
     /**
      * Returns the map type this class wraps around.
@@ -190,6 +221,10 @@ class GenericMap extends IDelegatingMap {
       }
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Commons
+
     /**
      * Returns a hash code for this generic map class.
      * 
@@ -225,7 +260,7 @@ class GenericMap extends IDelegatingMap {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Implementation
+    ;@region Type Checking
 
     /**
      * Determines whether the given key-value is valid for this map.
@@ -242,6 +277,10 @@ class GenericMap extends IDelegatingMap {
             throw TypeError("invalid value type", -2)
         }
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Implementation
 
     /**
      * Sets zero or more items.
@@ -356,15 +395,9 @@ class AquaHotkey_GenericMap extends AquaHotkey {
          * @param   {Any}  V  type of values
          * @returns {Class<? extends IMap>}
          */
-        static OfType(K, V) {
-            OwnName   := this.Prototype.__Class
-            KeyName   := (K is Class) ? K.Prototype.__Class : String(K)
-            ValueName := (V is Class) ? V.Prototype.__Class : String(V)
-            return AquaHotkey.CreateClass(
-                    GenericMap,
-                    OwnName . "<" . KeyName . ", " . ValueName . ">",
-                    this, K, V)
-        }
+        static OfType(K, V) => AquaHotkey.CreateClass(GenericMap,
+                unset,
+                this, K, V)
     }
 }
 
