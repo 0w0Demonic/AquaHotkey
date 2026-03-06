@@ -1,2 +1,5 @@
 .vscode/
 tests/result.txt
+*.exp
+*.lib
+*.obj
