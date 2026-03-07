@@ -1,5 +1,6 @@
 // https://www.github.com/0w0Demonic/AquaHotkey
 // <Collections/BitSet>
+// cl /LD /O2 /W4 /MD BitSet.c
 
 #include <intrin.h>
 #include <stdint.h>
@@ -15,6 +16,10 @@ size_t popcount(
         const uint8_t* data,
         size_t len
 ) {
+    if (!data || !len) {
+        return 0;
+    }
+
     size_t count = 0;
     const uint64_t* p64 = (const uint64_t*) data;
     size_t n64 = (len / 8);
