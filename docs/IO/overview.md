@@ -41,6 +41,9 @@ Class that represents file paths or URLs.
 - [`<IO/Serial>`](./Serial.md)
 
 Extensible serialization logic for the [AquaHotkey serializer](#serializer).
+This describes the different types of `.Serialize()` and `.Deserialize()`
+methods that are used for converting objects from and into their binary
+representation.
 
 ## Serializer
 
