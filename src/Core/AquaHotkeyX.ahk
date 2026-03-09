@@ -83,6 +83,9 @@
 #Include "%A_LineFile%\..\..\Collections\SkipListMap.ahk"
 #Include "%A_LineFile%\..\..\Collections\SkipListSet.ahk"
 
+#Include "%A_LineFile%\..\..\Collections\WeakRefMap.ahk"
+#Include "%A_LineFile%\..\..\Collections\WeakRefSet.ahk"
+
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Functional

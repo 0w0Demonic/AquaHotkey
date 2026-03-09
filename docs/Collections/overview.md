@@ -12,6 +12,7 @@
   - [Hash-Based Collections](#hash-based-collections)
   - [Immutable Collections](#immutable-collections)
   - [SkipListMap and SkipListSet](#skiplistmap-and-skiplistset)
+  - [Weak Reference Collections](#weak-reference-collections)
   - [Other Collections](#other-collections)
 
 ## List of Features
@@ -30,6 +31,8 @@
 - [SkipListMap](./SkipListMap.md)
 - [SkipListSet](./SkipListSet.md)
 - [Set](./Set.md)
+- [WeakRefMap](./WeakRefMap.md)
+- [WeakRefSet](./WeakRefSet.md)
 
 ## Summary
 
@@ -60,10 +63,12 @@ Object
 |  |- GenericMap
 |  |- HashMap
 |  |- ImmutableMap
+|  |- WeakRefMap
 |  `- SkipListMap
 |
 `- ISet
    |- Set
+   |  |- WeakRefSet
    |  |- HashSet
    |  `- SkipListSet
    `- ImmutableSet
@@ -167,6 +172,26 @@ SkipListSet(23, 12, 44, 2).Join(", ").MsgBox() ; "2, 12, 23, 44"
 
 - [<Base/Eq>](../Base/Eq.md)
 - [<Base/Hash>](../Base/Hash.md)
+
+
+## Weak Reference Collections
+
+- [<Collections/WeakRefMap>](./WeakRefMap.md)
+- [<Collections/WeakRefSet>](./WeakRefSet.md)
+
+Collections that hold weak references to their keys (in the case of maps) or
+values (in the case of sets). This means that the presence of an object in these collections won't prevent it from being disposed if there are no other strong references to it. When an object is disposed, it's automatically removed from the collection.
+
+```ahk
+O := Object()
+M := WeakRefMap()
+M[O] := "some value"
+
+; frees the object from the map.
+O := unset
+
+MsgBox(M.Count) ; 0
+```
 
 ## Other Collections
 

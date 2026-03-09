@@ -190,6 +190,8 @@ class ByteArray extends IArray
         Input.ReadObject(&B, Refs)
         this.__New(B)
     }
+
+    ;@endregion
 }
 
 ;@endregion

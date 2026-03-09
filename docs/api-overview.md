@@ -44,6 +44,8 @@
   - [Set](./Collections/Set.md)
   - [SkipListMap](./Collections/SkipListMap.md)
   - [SkipListSet](./Collections/SkipListSet.md)
+  - [WeakRefMap](./Collections/WeakRefMap.md)
+  - [WeakRefSet](./Collections/WeakRefSet.md)
 
 - [Func](./Func/overview.md)
   - [Cast](./Func/cast.md)

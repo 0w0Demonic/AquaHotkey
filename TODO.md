@@ -13,9 +13,4 @@
 - stream and doublestream should strictly enforce the return type when
   using `.FlatMap()`.
 
-- `OutputStream` as duck type. In practice, just check whether it's a `File` or
-  `BufferEditor`.
-
-## Serialization
-
-- throw error on unsupported types such as `Func`
+- `WeakRefMap`/`WeakRefSet` tests
