@@ -365,4 +365,32 @@ class AquaHotkey_Serial extends AquaHotkey {
 
         ; note: `.Deserialize()` is hard-coded in `.ReadObject()`.
     }
+
+    class Unsupported extends AquaHotkey_Ignore {
+        static __New() => this.ApplyOnto(
+                Error, File, Func, Gui, Gui.Control,
+                InputHook, Menu, MenuBar,
+                RegExMatchInfo, VarRef, ComValue)
+
+        /**
+         * Unsupported `.Serialize()` method.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            throw TypeError("Unsupported type",, Type(this))
+        }
+
+        /**
+         * Unsupported `.Deserialize()` method.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            throw TypeError("Unsupported type",, Type(this))
+        }
+    }
 }

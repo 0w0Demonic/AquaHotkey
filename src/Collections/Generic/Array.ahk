@@ -8,11 +8,6 @@
 
 ;@region GenericArray
 
-; TODO this very likely breaks on deserialization when `<cfg/DisableGenerics>`
-;      is on. `Array.OfType(...)` just returns `Array`, whereas
-;      `GenericArray` is an object. Either wrap around, or use `Any` as
-;      constraint.
-
 /**
  * Introduces a type-checked wrapper for {@link IArray} classes with intuitive
  * array syntax (for example, `String[]`).
