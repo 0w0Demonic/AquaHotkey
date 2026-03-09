@@ -1,8 +1,13 @@
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\String\String.ahk"
+
+;@region Extensions
+
 /**
- * Utility for `application/x-www-form-urlencoded` format.
+ * Provides simple URL encoding and decoding for strings
+ * (`application/x-www-form-urlencoded`).
  * 
- * When encoding/decoding a string, the following rules apply:
- * 
+ * The following rules apply during conversion:
  * - Alphanumeric characters and symbols `.`, `-`, `*`, `_` remain the same.
  * - The space character is converted into a plus sign `+`.
  * - All other characters are converted into bytes according to UTF-8, and
@@ -14,11 +19,37 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
+class AquaHotkey_UrlEncoding extends AquaHotkey {
+    class String {
+        /**
+         * URL-encodes the string.
+         * 
+         * @param   {String?}  Encoding  character encoding (default: "UTF-8")
+         * @returns {String}
+         * @note    UTF-8 is recommended as per RFC 3986 specification
+         * @example
+         * ; --> "%C3%BCasdkj%28%7D%C3%9F"
+         * "üasdkj(}ß".UrlEncode()
+         */
+        UrlEncode(Encoding := "UTF-8") => UrlEncode(this, Encoding)
 
-#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\..\String\String.ahk"
+        /**
+         * URL-decodes the string.
+         * 
+         * @param   {String?}  Encoding  character encoding (default: "UTF-8")
+         * @returns {String}
+         * @note    UTF-8 is recommended as per RFC 3986 specification
+         * @example
+         * ; --> "üasdkj(}ß"
+         * "%C3%BCasdkj%28%7D%C3%9F".UrlDecode()
+         */
+        UrlDecode(Encoding := "UTF-8") => UrlDecode(this, Encoding)
+    }
+}
 
+;@endregion
 ;-------------------------------------------------------------------------------
+;@region UrlEncode()
 
 /**
  * URL-encodes a string.
@@ -32,7 +63,7 @@
  * "üasdkj(}ß".UrlEncode()
  */
 UrlEncode(Str, Encoding := "UTF-8") {
-    static NEEDS_ENCODING := "[^\w .*-]"
+    static NEEDS_ENCODING := "[^\w+.*-]"
     static Hex := ["0", "1", "2", "3", "4", "5", "6", "7",
                    "8", "9", "A", "B", "C", "D", "E", "F"]
 
@@ -68,6 +99,10 @@ UrlEncode(Str, Encoding := "UTF-8") {
     }
     return Result
 }
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region UrlDecode()
 
 /**
  * URL-decodes a string.
@@ -114,37 +149,9 @@ UrlDecode(Str, Encoding := "UTF-8") {
             throw ValueError("Incomplete percent-escape at index " . p,,
                                 SubStr(Str, p + 1, 2))
         }
-        Result .= StrGet(Buf, Pos, Encoding)
+        Result .= StrGet(Buf, Encoding)
     }
 }
 
-/**
- * Extension methods related to {@link UrlEncode} and {@link UrlDecode}.
- */
-class AquaHotkey_UrlEncoding extends AquaHotkey {
-    class String {
-        /**
-         * URL-encodes the string.
-         * 
-         * @param   {String?}  Encoding  character encoding (default: "UTF-8")
-         * @returns {String}
-         * @note    UTF-8 is recommended as per RFC 3986 specification
-         * @example
-         * ; --> "%C3%BCasdkj%28%7D%C3%9F"
-         * "üasdkj(}ß".UrlEncode()
-         */
-        UrlEncode(Encoding := "UTF-8") => UrlEncode(this, Encoding)
-
-        /**
-         * URL-decodes the string.
-         * 
-         * @param   {String?}  Encoding  character encoding (default: "UTF-8")
-         * @returns {String}
-         * @note    UTF-8 is recommended as per RFC 3986 specification
-         * @example
-         * ; --> "üasdkj(}ß"
-         * "%C3%BCasdkj%28%7D%C3%9F".UrlDecode()
-         */
-        UrlDecode(Encoding := "UTF-8") => UrlDecode(this, Encoding)
-    }
-}
+;@endregion
+;-------------------------------------------------------------------------------
