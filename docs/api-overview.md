@@ -74,6 +74,7 @@
 
 - [Net](./Net/overview.md)
   - [Uri](./Net/Uri.md)
+  - [UrlEncoding](./Net/UrlEncoding.md)
 
 - [Monads](./Monads/overview.md)
   - [Optional](./Monads/Optional.md)

@@ -279,12 +279,6 @@ class Test_Uri extends TestSuite {
         this.AssertThrows(() => Uri("http:"))
     }
 
-    ; Percent encoding normalization
-    static percent_encoding_normalized() {
-        U := Uri("/path%fa%bb")
-        U.ToString().Assert(Eq("/path%FA%BB"))
-    }
-
     ; Edge cases
     static uri_with_empty_components() {
         U := Uri("http://example.com?")

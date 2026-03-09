@@ -4,6 +4,7 @@
   - [Overview](#overview)
   - [Create](#create)
   - [Properties](#properties)
+    - [Raw URI Components](#raw-uri-components)
     - [Value Presence](#value-presence)
   - [Navigation](#navigation)
     - [Normalization](#normalization)
@@ -66,6 +67,18 @@ is considered *opaque*.
 U.SchemeSpecific ; "//example.com/docs/guide.html?key=value"
 ```
 
+### Raw URI Components
+
+Components in the URI are URL-encoded. To retrieve components in their "raw"
+form without interpreting any escaped octets, use the equivalent property with
+`Raw` as prefix.
+
+```ahk
+U.RawScheme    ; ...
+U.RawAuthority ; ...
+...
+```
+
 ### Value Presence
 
 To determine whether the URI defines a component, use equivalent properties:
@@ -86,7 +99,8 @@ U.HasSchemeSpecific ; true
 ### Normalization
 
 Use `.Normalize()` to get a new URI with the path normalized. In other words,
-all empty segments and single dot segments are removed, and double dot segments are resolved if possible.
+all empty segments and single dot segments are removed, and double dot segments
+are resolved if possible.
 
 ```ahk
 Uri("/a/b/../c/./d").Normalize() ; --> "/a/c/d"
@@ -94,7 +108,9 @@ Uri("/a/b/../c/./d").Normalize() ; --> "/a/c/d"
 
 ### Relativization
 
-Use `.Relativize(Base)` to get a new URI that is relative to the specified base URI. If this URI and the base URI are not compatible, the method returns this URI.
+Use `.Relativize(Base)` to get a new URI that is relative to the specified
+base URI. If this URI and the base URI are not compatible, the method returns
+this URI.
 
 ```ahk
 Base := Uri("https://example.com/a/b/")

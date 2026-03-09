@@ -1,9 +1,9 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Base\Eq.ahk"
 #Include "%A_LineFile%\..\..\Base\Hash.ahk"
+#Include "%A_LineFile%\..\UrlEncoding.ahk"
 
 ; TODO
-; - fit URL percent encoding into this, somehow. Make it fast.
 ; - find a way to make URIs comparable
 
 ;@region Uri
@@ -187,7 +187,7 @@ class Uri {
             } else {
                 ObjSetBase(r, Uri.Prototype)
             }
-            r.DefineProp("Scheme", { Get: (_) => Scheme })
+            r.DefineProp("RawScheme", { Get: (_) => Scheme })
             p++ ; skip ":"
 
             ; does URI define a path?
@@ -202,7 +202,7 @@ class Uri {
 
                 ; the scheme-specific part of the URI
                 Spec := SubStr(Str, p, q - p)
-                r.DefineProp("SchemeSpecific", { Get: (_) => Spec })
+                r.DefineProp("RawSchemeSpecific", { Get: (_) => Spec })
             }
         } else {
             ; no scheme was found; try to parse path / authority
@@ -215,7 +215,7 @@ class Uri {
             if (InStr(Frag, "#")) {
                 throw ValueError('invalid char "#" in fragment',, Frag)
             }
-            r.DefineProp("Fragment", { Get: (_) => Frag })
+            r.DefineProp("RawFragment", { Get: (_) => Frag })
         }
         return r
 
@@ -226,13 +226,13 @@ class Uri {
                 p += 2
                 q := RegExMatch(Str, "[/?#]", unset, p) || n
                 Authority := SubStr(Str, p, q - p)
-                r.DefineProp("Authority", { Get: (_) => Authority })
+                r.DefineProp("RawAuthority", { Get: (_) => Authority })
                 p := q
             }
             ; path (terminates on either query "?" or fragment "#")
             q := RegExMatch(Str, "[?#]", unset, p) || n
             Path := SubStr(Str, p, q - p)
-            r.DefineProp("Path", { Get: (_) => Path })
+            r.DefineProp("RawPath", { Get: (_) => Path })
             p := q
 
             ; query
@@ -240,11 +240,63 @@ class Uri {
                 p++
                 q := InStr(Str, "#", unset, p) || n
                 Query := SubStr(Str, p, q - p)
-                r.DefineProp("Query", { Get: (_) => Query })
+                r.DefineProp("RawQuery", { Get: (_) => Query })
                 p := q
             }
         }
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Raw URI Components
+
+    /**
+     * The raw URI scheme.
+     * 
+     * @abstract
+     * @property {String}
+     */
+    RawScheme => ""
+
+    /**
+     * The raw scheme-specific part for non-hierarchical URIs.
+     * 
+     * @abstract
+     * @property {String}
+     */
+    RawSchemeSpecific => ""
+
+    /**
+     * The raw authority of the URI.
+     * 
+     * @abstract
+     * @property {String}
+     */
+    RawAuthority => ""
+
+    /**
+     * The raw path defined by the URI.
+     * 
+     * @abstract
+     * @property {String}
+     */
+    RawPath => ""
+
+    /**
+     * The raw URI query.
+     * 
+     * @abstract
+     * @property {String}
+     */
+    RawQuery => ""
+
+    /**
+     * The raw URI fragment.
+     * 
+     * @abstract
+     * @property {String}
+     */
+    RawFragment => ""
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -256,7 +308,13 @@ class Uri {
      * @abstract
      * @property {String}
      */
-    Scheme => ""
+    Scheme {
+      get {
+        Str := UrlDecode(this.RawScheme)
+        this.DefineProp("Scheme", { Get: (_) => Str })
+        return Str
+      }
+    }
 
     /**
      * The scheme-specific part for non-hierarchical URIs.
@@ -264,7 +322,13 @@ class Uri {
      * @abstract
      * @property {String}
      */
-    SchemeSpecific => ""
+    SchemeSpecific {
+      get {
+        Str := UrlDecode(this.RawSchemeSpecific)
+        this.DefineProp("SchemeSpecific", { Get: (_) => Str })
+        return Str
+      }
+    }
 
     /**
      * The authority of the URI.
@@ -272,7 +336,13 @@ class Uri {
      * @abstract
      * @property {String}
      */
-    Authority => ""
+    Authority {
+      get {
+        Str := UrlDecode(this.RawAuthority)
+        this.DefineProp("Authority", { Get: (_) => Str })
+        return Str
+      }
+    }
 
     /**
      * Path defined by the URI.
@@ -280,7 +350,13 @@ class Uri {
      * @abstract
      * @property {String}
      */
-    Path => ""
+    Path {
+      get {
+        Str := UrlDecode(this.RawPath)
+        this.DefineProp("Path", { Get: (_) => Str })
+        return Str
+      }
+    }
 
     /**
      * The URI query.
@@ -288,7 +364,13 @@ class Uri {
      * @abstract
      * @property {String}
      */
-    Query => ""
+    Query {
+      get {
+        Str := UrlDecode(this.RawQuery)
+        this.DefineProp("Query", { Get: (_) => Str })
+        return Str
+      }
+    }
 
     /**
      * The URI fragment.
@@ -296,7 +378,13 @@ class Uri {
      * @abstract
      * @property {String}
      */
-    Fragment => ""
+    Fragment {
+      get {
+        Str := UrlDecode(this.RawFragment)
+        this.DefineProp("Fragment", { Get: (_) => Str })
+        return Str
+      }
+    }
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -307,42 +395,42 @@ class Uri {
      * 
      * @property {Boolean}
      */
-    HasScheme => ObjHasOwnProp(this, "Scheme")
+    HasScheme => ObjHasOwnProp(this, "RawScheme")
 
     /**
      * Determines whether this URI has a defined scheme-specific part.
      * 
      * @property {Boolean}
      */
-    HasSchemeSpecific => ObjHasOwnProp(this, "SchemeSpecific")
+    HasSchemeSpecific => ObjHasOwnProp(this, "RawSchemeSpecific")
 
     /**
      * Determines whether this URI has a defined authority.
      * 
      * @property {Boolean}
      */
-    HasAuthority => ObjHasOwnProp(this, "Authority")
+    HasAuthority => ObjHasOwnProp(this, "RawAuthority")
 
     /**
      * Determines whether this URI has a defined path.
      * 
      * @property {Boolean}
      */
-    HasPath => ObjHasOwnProp(this, "Path")
+    HasPath => ObjHasOwnProp(this, "RawPath")
 
     /**
      * Determines whether this URI has a defined query.
      * 
      * @property {Boolean}
      */
-    HasQuery => ObjHasOwnProp(this, "Query")
+    HasQuery => ObjHasOwnProp(this, "RawQuery")
 
     /**
      * Determines whether this URI has a defined fragment.
      * 
      * @property {Boolean}
      */
-    HasFragment => ObjHasOwnProp(this, "Fragment")
+    HasFragment => ObjHasOwnProp(this, "RawFragment")
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -400,6 +488,7 @@ class Uri {
             Str .= "#"
             Str .= this.Fragment
         }
+        Str := UrlDecode(Str)
         this.DefineProp("ToString", { Call: (_) => Str })
         return Str
     }
