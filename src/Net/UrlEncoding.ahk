@@ -18,6 +18,12 @@
  * @module  <Net/UrlEncoding>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @example
+ * ; --> "%C3%BCasdkj%28%7D%C3%9F"
+ * "üasdkj(}ß".UrlEncode()
+ * 
+ * ; --> "üasdkj(}ß"
+ * "%C3%BCasdkj%28%7D%C3%9F".UrlDecode()
  */
 class AquaHotkey_UrlEncoding extends AquaHotkey {
     class String {
