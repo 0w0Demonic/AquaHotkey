@@ -1,14 +1,14 @@
 /**
  * Utility for `application/x-www-form-urlencoded` format.
  * 
- * When encodng/decoding a string, the following rules apply:
+ * When encoding/decoding a string, the following rules apply:
  * 
  * - Alphanumeric characters and symbols `.`, `-`, `*`, `_` remain the same.
  * - The space character is converted into a plus sign `+`.
  * - All other characters are converted into bytes according to UTF-8, and
  *   each byte represented by the hexadecimal format `%HH`.
  * 
- * Only UTF-8 is supported.
+ * It's recommended to use only UTF-8 as encoding.
  * 
  * @module  <Net/UrlEncoding>
  * @author  0w0Demonic
@@ -23,16 +23,18 @@
 /**
  * URL-encodes a string.
  * 
- * @param   {String}  Str  input string
+ * @param   {String}   Str       input string
+ * @param   {String?}  Encoding  character encoding (default: "UTF-8")
  * @returns {String}
+ * @note    UTF-8 is recommended as per RFC 3986 specification
  * @example
  * ; --> "%C3%BCasdkj%28%7D%C3%9F"
  * "üasdkj(}ß".UrlEncode()
  */
-UrlEncode(Str) {
+UrlEncode(Str, Encoding := "UTF-8") {
     static NEEDS_ENCODING := "[^\w .*-]"
     static Hex := ["0", "1", "2", "3", "4", "5", "6", "7",
-                    "8", "9", "A", "B", "C", "D", "E", "F"]
+                   "8", "9", "A", "B", "C", "D", "E", "F"]
 
     if (InStr(Str, " ")) {
         Str := StrReplace(Str, " ", "+")
@@ -44,6 +46,7 @@ UrlEncode(Str) {
     VarSetStrCapacity(&Result, StrLen(Str))
     p := 1
     Buf := Buffer(5, 0)
+    NullTerminatorSize := StrPut("", Encoding)
 
     loop {
         q := RegExMatch(Str, NEEDS_ENCODING, unset, p)
@@ -54,8 +57,8 @@ UrlEncode(Str) {
         }
 
         Char := SubStr(Str, q, 1)
-        BytesWritten := StrPut(Char, Buf, "UTF-8")
-        loop (BytesWritten - 1) {
+        BytesWritten := StrPut(Char, Buf, Encoding)
+        loop (BytesWritten - NullTerminatorSize) {
             Byte := NumGet(Buf, A_Index - 1, "UChar")
             Result .= "%"
             Result .= Hex[(Byte >>> 4) + 1]
@@ -69,13 +72,15 @@ UrlEncode(Str) {
 /**
  * URL-decodes a string.
  * 
- * @param   {String}  Str  input string
+ * @param   {String}   Str       input string
+ * @param   {String?}  Encoding  character encoding (default: "UTF-8")
  * @returns {String}
+ * @note    UTF-8 is recommended as per RFC 3986 specification
  * @example
  * ; --> "üasdkj(}ß"
  * "%C3%BCasdkj%28%7D%C3%9F".UrlDecode()
  */
-UrlDecode(Str) {
+UrlDecode(Str, Encoding := "UTF-8") {
     if (InStr(Str, "+")) {
         Str := StrReplace(Str, "+", " ")
     }
@@ -109,33 +114,37 @@ UrlDecode(Str) {
             throw ValueError("Incomplete percent-escape at index " . p,,
                                 SubStr(Str, p + 1, 2))
         }
-        Result .= StrGet(Buf, Pos, "UTF-8")
+        Result .= StrGet(Buf, Pos, Encoding)
     }
 }
 
 /**
- * Extension methods related to {@link UrlEncoding}.
+ * Extension methods related to {@link UrlEncode} and {@link UrlDecode}.
  */
 class AquaHotkey_UrlEncoding extends AquaHotkey {
     class String {
         /**
          * URL-encodes the string.
          * 
+         * @param   {String?}  Encoding  character encoding (default: "UTF-8")
          * @returns {String}
+         * @note    UTF-8 is recommended as per RFC 3986 specification
          * @example
          * ; --> "%C3%BCasdkj%28%7D%C3%9F"
          * "üasdkj(}ß".UrlEncode()
          */
-        UrlEncode() => UrlEncode(this)
+        UrlEncode(Encoding := "UTF-8") => UrlEncode(this, Encoding)
 
         /**
          * URL-decodes the string.
          * 
+         * @param   {String?}  Encoding  character encoding (default: "UTF-8")
          * @returns {String}
+         * @note    UTF-8 is recommended as per RFC 3986 specification
          * @example
          * ; --> "üasdkj(}ß"
          * "%C3%BCasdkj%28%7D%C3%9F".UrlDecode()
          */
-        UrlDecode() => UrlDecode(this)
+        UrlDecode(Encoding := "UTF-8") => UrlDecode(this, Encoding)
     }
 }
