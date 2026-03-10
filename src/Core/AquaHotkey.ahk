@@ -1075,6 +1075,9 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
      * @returns {this}
      */
     static __New(Receivers*) {
+        Log(Str, Args*) {
+            (AquaHotkey_Ignore.Log)(this, Str, Args*)
+        }
         LogVerbose(Str, Args*) {
             (AquaHotkey_Ignore.LogVerbose)(this, Str, Args*)
         }
@@ -1089,6 +1092,10 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
 
         Supplier := this
         for Receiver in Receivers {
+            if (!IsSet(Receiver)) {
+                Log("# .ApplyOnto(): ignoring target #{1} - unset", A_Index)
+                continue
+            }
             (AquaHotkey_Ignore.Apply)(this, Supplier, Receiver)
         }
         return this
@@ -1147,19 +1154,27 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
      * @returns {this}
      */
     static __New(Suppliers*) {
+        Log(Str, Args*) {
+            (AquaHotkey_Ignore.Log)(this, Str, Args*)
+        }
+        LogVerbose(Str, Args*) {
+            (AquaHotkey_Ignore.LogVerbose)(this, Str, Args*)
+        }
+
         if (this == AquaHotkey_Backup) {
             return
         }
-        (AquaHotkey_Ignore.LogVerbose)(this,
-                "# Backup class: {1}",
-                this.Prototype.__Class)
-
+        LogVerbose("# Backup class: {1}", this.Prototype.__Class)
         if (!Suppliers.Length) {
             throw ValueError("No source classes provided")
         }
 
         Receiver := this
         for Supplier in Suppliers {
+            if (!IsSet(Supplier)) {
+                Log("# .Backup(): ignoring param #{1} - unset", A_Index)
+                continue
+            }
             (AquaHotkey_Ignore.Apply)(this, Supplier, Receiver)
         }
         return this
