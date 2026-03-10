@@ -12,6 +12,7 @@
   - [Hash-Based Collections](#hash-based-collections)
   - [Immutable Collections](#immutable-collections)
   - [SkipListMap and SkipListSet](#skiplistmap-and-skiplistset)
+  - [Buffer Abstractions](#buffer-abstractions)
   - [Weak Reference Collections](#weak-reference-collections)
   - [Other Collections](#other-collections)
 
@@ -20,8 +21,8 @@
 - [Generic](./Generic/overview.md)
   - [Array](./Generic/Array.md)
   - [Map](./Generic/Map.md)
-- [Array](./Array.md)
-- [Map](./Map.md)
+- [BitSet](./BitSet.md)
+- [ByteArray](./ByteArray.md)
 - [HashMap](./HashMap.md)
 - [HashSet](./HashSet.md)
 - [ImmutableArray](./ImmutableArray.md)
@@ -173,6 +174,20 @@ SkipListSet(23, 12, 44, 2).Join(", ").MsgBox() ; "2, 12, 23, 44"
 - [<Base/Eq>](../Base/Eq.md)
 - [<Base/Hash>](../Base/Hash.md)
 
+## Buffer Abstractions
+
+- [<Collections/BitSet>](./BitSet.md)
+- [<Collections/ByteArray>](./ByteArray.md)
+
+Abstractions to buffers or memory segments, treated as a set of bits in a bit
+vector or an array of bytes, respectively.
+
+```ahk
+B := BitSet(0, 1, 2, 3, 5, 6) ; uses a `Buffer(1)` as backing storage
+
+; "41 41 41 41 41 41 41 41 41 41"
+ByteArray(10).Fill(65).AsBuffer().HexDump()
+```
 
 ## Weak Reference Collections
 

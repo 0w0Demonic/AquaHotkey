@@ -35,6 +35,8 @@
   - [Generic](./Collections/Generic/overview.md)
     - [Array](./Collections/Generic/Array.md)
     - [Map](./Collections/Generic/Map.md)
+  - [BitSet](./Collections/BitSet.md)
+  - [ByteArray](./Collections/ByteArray.md)
   - [HashMap](./Collections/HashMap.md)
   - [HashSet](./Collections/HashSet.md)
   - [ImmutableArray](./Collections/ImmutableArray.md)

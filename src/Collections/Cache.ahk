@@ -40,7 +40,7 @@ class Cache extends IDelegatingMap {
         if (Ttl < 0) {
             throw ValueError("Must be > 0",, Ttl)
         }
-        ; note:
+        ; note: do not assign `.__Class` to ensure the prototype is deleteable.
         Cls := Object()
         Proto := Object()
         Proto.DefineProp("TTL", { Get: (_) => Ttl })
