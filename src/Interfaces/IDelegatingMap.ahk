@@ -1,8 +1,5 @@
 #Include "%A_LineFile%\..\IMap.ahk"
 
-; TODO
-; - remove this?
-
 /**
  * @interface
  * @description
@@ -31,7 +28,7 @@ class IDelegatingMap extends IMap {
      * Clears the Map.
      */
     Clear() {
-        this.M.Clear()
+        (this.M).Clear()
     }
 
     /**
@@ -39,7 +36,7 @@ class IDelegatingMap extends IMap {
      * 
      * @param   {Any}  Key  map key
      */
-    Delete(Key) => this.M.Delete()
+    Delete(Key) => (this.M).Delete(Key)
 
     /**
      * Gets a value for the given map key.
@@ -48,7 +45,7 @@ class IDelegatingMap extends IMap {
      * @param   {Any?}  Default  default value
      * @returns {Any}
      */
-    Get(Key, Default?) => this.M.Get(Key, Default?)
+    Get(Key, Default?) => (this.M).Get(Key, Default?)
 
     /**
      * Determines whether the map has a value for the given key.
@@ -56,7 +53,7 @@ class IDelegatingMap extends IMap {
      * @param   {Any}  Key  map key
      * @returns {Boolean}
      */
-    Has(Key) => this.M.Has(Key)
+    Has(Key) => (this.M).Has(Key)
 
     /**
      * Sets zero or more items.
@@ -64,7 +61,7 @@ class IDelegatingMap extends IMap {
      * @param   {Any*}  Args  alternating key-value pairs
      */
     Set(Args*) {
-        this.M.Set(Args*)
+        (this.M).Set(Args*)
     }
 
     /**
@@ -73,14 +70,14 @@ class IDelegatingMap extends IMap {
      * @param   {Integer}  ArgSize  param-size of for-loop
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) => this.M.__Enum(ArgSize)
+    __Enum(ArgSize) => (this.M).__Enum(ArgSize)
 
     /**
      * Retrieves the count of key-value pairs in the Map.
      * 
      * @returns {Integer}
      */
-    Count => this.M.Count
+    Count => (this.M).Count
 
     /**
      * Gets and sets the capacity of the Map.
@@ -89,10 +86,8 @@ class IDelegatingMap extends IMap {
      * @returns {Integer}
      */
     Capacity {
-        get => this.M.Capacity
-        set {
-            this.M.Capacity := value
-        }
+        get => (this.M).Capacity
+        set => ((this.M).Capacity := value)
     }
 
     /**
@@ -102,10 +97,8 @@ class IDelegatingMap extends IMap {
      * @returns {Primitive}
      */
     CaseSense {
-        get => this.M.CaseSense
-        set {
-            this.M.CaseSense := value
-        }
+        get => (this.M).CaseSense
+        set => ((this.M).CaseSense := value)
     }
 
     /**
@@ -115,10 +108,8 @@ class IDelegatingMap extends IMap {
      * @returns {Any}
      */
     Default {
-        get => this.M.Default
-        set {
-            this.M.Default := value
-        }
+        get => (this.M).Default
+        set => ((this.M).Default := (value?))
     }
 
     /**
@@ -130,8 +121,6 @@ class IDelegatingMap extends IMap {
      */
     __Item[Key] {
         get => (this.M)[Key]
-        set {
-            (this.M)[Key] := (value?)
-        }
+        set => ((this.M)[Key] := (value?))
     }
 }
