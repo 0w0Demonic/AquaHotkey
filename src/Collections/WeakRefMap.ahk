@@ -1,6 +1,8 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
+; TODO add a way to use weak values?
+
 ;@region WeakRefMap
 
 /**
@@ -67,7 +69,10 @@ class WeakRefMap extends IMap {
      * @returns {WeakRefMap}
      */
     Clone() {
-        Copy := WeakRefMap()
+        Copy := Object()
+        ObjSetBase(Copy, ObjGetBase(this))
+        Copy.__Init()
+        Copy.__New()
         for Key, Value in this {
             Copy.Set(Key, Value) ; <-- use `.Set()` to add weak refs
         }
