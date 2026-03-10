@@ -14,3 +14,7 @@
   using `.FlatMap()`.
 
 - `WeakRefMap`/`WeakRefSet` tests
+
+- Deadline object
+- more cache strategies
+- time API with Win32
