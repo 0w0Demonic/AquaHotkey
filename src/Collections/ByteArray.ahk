@@ -5,6 +5,7 @@
 
 ; TODO refactor this to support different AHK number types / other structs
 ; TODO allow resizing the array with just `.Push()`, etc.
+; TODO support negative indexing?
 
 ;@region ByteArray
 
@@ -64,10 +65,12 @@ class ByteArray extends IArray
     /**
      * Retrieves a byte from the buffer. The index is 1-based.
      * 
+     * Negative indexing is not supported.
+     * 
      * Because a byte array always has a value if the index is valid,
      * param #2 (`Default`) is ignored.
      * 
-     * @param   {Integer}  Index  1-based array index
+     * @param   {Integer}  Index  positive 1-based array index
      * @returns {Integer}
      */
     Get(Index, *) => NumGet(this, Index - 1, "UChar")
@@ -76,10 +79,12 @@ class ByteArray extends IArray
      * Determines whether the given array index is valid. The index is
      * 1-based.
      * 
-     * @param   {Integer}  Index  1-based array index
+     * Negative indexing is not supported.
+     * 
+     * @param   {Integer}  Index  positive 1-based array index
      * @returns {Integer}
      */
-    Has(Index) => Index && (Abs(Index) < this.Size)
+    Has(Index) => (Index > 0) && (Index < this.Size)
 
     /**
      * Length of the array.
