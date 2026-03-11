@@ -4,22 +4,59 @@
 
 #include <intrin.h>
 #include <stdint.h>
+#include <windows.h>
 
-/**
- * @brief Counts the number of set bits in a buffer.
- * @param data pointer to memory buffer
- * @param len number of bytes in the buffer
- * @returns numbers of bits set to 1
- */
+#define CPUID_BASIC_INFO 0
+#define CPUID_FEATURES   1
+
+#define EAX(info) ((info)[0])
+#define EBX(info) ((info)[1])
+#define ECX(info) ((info)[2])
+#define EDX(info) ((info)[3])
+
+#define POPCNT (1u << 23)
+
+static BOOL gSupportsPopcnt = FALSE;
+static void checkSupportForPopcnt();
+__declspec(dllexport) size_t popcount(const uint8_t* data, size_t len);
+static size_t popcount_std(const uint8_t* data, size_t len);
+static size_t popcount_fallback(const uint8_t* data, size_t len);
+
+BOOL WINAPI
+DllMain(HINSTANCE hinstDLL,
+        DWORD fdwReason,
+        LPVOID lpvReserved)
+{
+    if (fdwReason == DLL_PROCESS_ATTACH) {
+        checkSupportForPopcnt();
+    }
+    return TRUE;
+}
+
+static void checkSupportForPopcnt() {
+    int info[4];
+
+    __cpuid(info, CPUID_BASIC_INFO);
+    if (CPUID_FEATURES <= EAX(info)) {
+        __cpuid(info, CPUID_FEATURES);
+        gSupportsPopcnt = ECX(info) & POPCNT;
+    }
+}
+
 __declspec(dllexport)
-size_t popcount(
-        const uint8_t* data,
-        size_t len
-) {
+size_t popcount(const uint8_t* data, size_t len) {
     if (!data || !len) {
         return 0;
     }
 
+    if (gSupportsPopcnt) {
+        return popcount_std(data, len);
+    } else {
+        return popcount_fallback(data, len);
+    }
+}
+
+static size_t popcount_std(const uint8_t* data, size_t len) {
     size_t count = 0;
     const uint64_t* p64 = (const uint64_t*) data;
     size_t n64 = (len / 8);
@@ -33,5 +70,19 @@ size_t popcount(
         count += __popcnt16(tail[i]);
     }
 
+    return count;
+}
+
+#define B2(n)    n,     n+1,     n+1,     n+2
+#define B4(n) B2(n), B2(n+1), B2(n+1), B2(n+2)
+#define B6(n) B4(n), B4(n+1), B4(n+1), B4(n+2)
+
+static size_t popcount_fallback(const uint8_t* data, size_t len) {
+    static const uint8_t table[256] = { B6(0), B6(1), B6(1), B6(2) };
+
+    size_t count = 0;
+    for (size_t i = 0; i < len; i++) {
+        count += table[data[i]];
+    }
     return count;
 }
