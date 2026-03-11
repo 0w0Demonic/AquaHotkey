@@ -57,9 +57,9 @@ class ByteArray extends IArray
      * Clones the array by creating a new array from a copy of the backing
      * buffer.
      * 
-     * @returns {IBuffer.Array}
+     * @returns {ByteArray}
      */
-    Clone() => IBuffer.Array( (this.B).Clone() )
+    Clone() => ByteArray( (this.B).Clone() )
 
     /**
      * Retrieves a byte from the buffer. The index is 1-based.
