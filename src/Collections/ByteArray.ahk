@@ -35,7 +35,7 @@ class ByteArray extends IArray
     ;@region Array Impl
 
     /**
-     * Creates a new instance from the given {@link IBuffer}.
+     * Creates a new byte array that wraps around the given {@link IBuffer}.
      * 
      * @constructor
      * @param   {IBuffer?}  Buf  the buffer to wrap around
@@ -53,6 +53,24 @@ class ByteArray extends IArray
             Get: (_)        => Buf.Size,
             Set: (_, Value) => (Buf.Size := Value) })
     }
+
+    /**
+     * Creates a new byte array that wraps around the given {@link IBuffer}.
+     * 
+     * @param   {IBuffer}  Buf  the buffer to wrap around
+     * @returns {ByteArray}
+     */
+    static FromBuffer(Buf) => this(Buf)
+
+    /**
+     * Creates a new byte array from a new buffer with given size and fill
+     * byte.
+     * 
+     * @param   {Integer}   Size      size in bytes
+     * @param   {Integer?}  FillByte  fill byte
+     * @returns {ByteArray}
+     */
+    static Create(Size, FillByte?) => this(Buffer(Size, FillByte?))
 
     /**
      * Clones the array by creating a new array from a copy of the backing
