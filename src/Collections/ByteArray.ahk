@@ -63,6 +63,25 @@ class ByteArray extends IArray
     static FromBuffer(Buf) => this(Buf)
 
     /**
+     * Creates a {@link ByteArray} by wrapping over a string in the given
+     * encodng.
+     * 
+     * @param   {String}      Str                    any string
+     * @param   {Primitive?}  Encoding               string encoding
+     * @param   {Boolean?}    IncludeNullTerminator  include null terminator
+     * @returns {ByteArray}
+     */
+    static OfString(Str, Encoding := "UTF-16", IncludeNullTerminator := true) {
+        Size := StrPut(Str, Encoding)
+        Buf := Buffer(Size)
+        StrPut(Str, Buf, Encoding)
+        if (!IncludeNullTerminator) {
+            Buf.Size -= StrPut("", Encoding)
+        }
+        return this(Buf)
+    }
+
+    /**
      * Creates a new byte array from a new buffer with given size and fill
      * byte.
      * 
@@ -239,5 +258,18 @@ class AquaHotkey_ByteArray extends AquaHotkey {
          * @returns {ByteArray}
          */
         ToByteArray() => ByteArray(this.Clone())
+    }
+    class String {
+        /**
+         * Returns a byte array that represents this string in the given
+         * encoding.
+         * 
+         * @param   {Primitive?}  Encoding               string encoding
+         * @param   {Boolean?}    IncludeNullTerminator  include null terminator
+         * @returns {ByteArray}
+         */
+        Bytes(Encoding?, IncludeNullTerminator?) {
+            return ByteArray.OfString(this, Encoding?, IncludeNullTerminator?)
+        }
     }
 }

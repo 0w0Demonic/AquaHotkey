@@ -291,6 +291,8 @@ class IBuffer {
     ;---------------------------------------------------------------------------
     ;@region Slice()
 
+    ; TODO negative indexing + default values, like `SubStr()`?
+
     /**
      * Returns a buffer view that encloses a subsection of the current buffer.
      * When using buffer views, you should generally NOT resize the buffer

@@ -174,24 +174,24 @@ class AquaHotkey_String extends AquaHotkey {
 
         /**
          * Returns the length of this string in bytes with the specified
-         * `Encoding`.
+         * `Encoding`. See `<Collections/ByteArray>` for converting strings into
+         * arrays of bytes.
          * 
-         * @param   {String?/Integer?}  Encoding  target string encoding
+         * @param   {Primitive?}  Encoding               string encoding
+         * @param   {Boolean}     IncludeNullTerminator  include null terminator
          * @returns {Integer}
+         * @see {@link ByteArray.OfString()}
          * @example
-         * "Hello, world!".Size ; UTF-16: (13 + 1) * 2 = 28 bytes
-         * "foo".Size["UTF-8"]  ; 4
+         * "Hello, world!".SizeInBytes ; UTF-16: (13 + 1) * 2 = 28 bytes
+         * "foo".SizeInBytes["UTF-8"]  ; 4
          */
-        SizeInBytes[Encoding?] {
+        SizeInBytes[Encoding := "UTF-16", IncludeNullTerminator := true] {
           get {
-            if (!IsSet(Encoding)) {
-                return StrPut(this)
+            Size := StrPut(this, Encoding)
+            if (!IncludeNullTerminator) {
+                Size -= StrPut("", Encoding)
             }
-            if (IsObject(Encoding)) {
-                throw TypeError("Expected a String or Integer",,
-                                Type(Encoding))
-            }
-            return StrPut(this, Encoding)
+            return Size
           }
         }
 
