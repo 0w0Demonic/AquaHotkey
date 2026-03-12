@@ -55,10 +55,10 @@ class BitSet extends ISet {
         if (!IsInteger(Value)) {
             throw TypeError("Expected an Integer",, Type(Value))
         }
-        if ((Value < 0) || (this.B.Size > (Value >>> 3))) {
+        if ((Value < 0) || (Value >>> 3) >= (this.B.Size)) {
             return false
         }
-        return NumGet(this.B, Value >>> 3, "UChar") & ~(1 << (Value & 0x07))
+        return !!(NumGet(this.B, Value >>> 3, "UChar") & (1 << (Value & 0x07)))
     }
 
     /**
