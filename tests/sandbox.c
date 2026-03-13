@@ -25,15 +25,27 @@ static bool has(unsigned int mask) {
     return !!(ECX(info) & mask);
 }
 
-EXPORT int cpu_features(void) {
-    int info[4];
-    __cpuid(info, CPUID_BASIC_INFO);
-
-    if (EAX(info) >= CPUID_FEATURES) {
-        __cpuid(info, CPUID_FEATURES);
-        return ECX(info);
+EXPORT void cpu_features(int info[4]) {
+    if (!info) {
+        return;
     }
-    return false;
+
+    __cpuid(info, CPUID_BASIC_INFO);
+    if (CPUID_FEATURES <= EAX(info)) {
+        __cpuid(info, CPUID_FEATURES);
+    }
+}
+
+EXPORT void cpu_extended_features(int info[4])
+{
+    if (!info) {
+        return;
+    }
+
+    __cpuid(info, CPUID_BASIC_INFO);
+    if (CPUID_FEATURES_EX <= EAX(info)) {
+        __cpuid(info, CPUID_FEATURES_EX);
+    }
 }
 
 #define SSE4_2 (1u << 20)
@@ -43,3 +55,10 @@ EXPORT int cpu_features(void) {
 EXPORT bool has_sse4_2(void) { return has(SSE4_2); }
 EXPORT bool has_popcnt(void) { return has(POPCNT); }
 EXPORT bool has_xsave(void)  { return has(XSAVE);  }
+
+EXPORT void cpuid(int info[4], int eax, int ecx)
+{
+    if (info) {
+        __cpuidex(info, eax, ecx);
+    }
+}
