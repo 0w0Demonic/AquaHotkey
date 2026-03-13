@@ -62,8 +62,8 @@ class BaseStream extends Enumerator {
 
         ; `BoundFunc`s are broken in terms of `MinParams`/`MaxParams`,
         ; but this doesn't affect this simple assertion.
-        if (f.MaxParams > this.Size) {
-            throw ValueError("invalid number of parameters",, f.MaxParams)
+        if (f.MinParams > this.Size) {
+            throw ValueError("invalid number of parameters",, f.MinParams)
         }
 
         return this.Cast(Source)
