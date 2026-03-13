@@ -28,6 +28,16 @@ talked about prototyping in AutoHotkey:
 > }
 > ```
 
+The post talks about a way to write custom properties and methods, and then
+drop them (in this case) into class prototypes like `Array.Prototype`, things
+you normally wouldn't touch. The result is that, since arrays inherit from
+`Array.Prototype`, the function above gets accepted as a new array method,
+where the first parameter is equal to the array that calls it.
+
+```ahk
+Array("foo", "bar", "baz").Contains("bar") ; 2
+```
+
 I immediately had to test it out, and I was thrilled. Somehow, AutoHotkey didn't
 complain even when adding things to `Any.Prototype`.
 
@@ -57,7 +67,9 @@ Now with classes. The very first prototype featured a simple loop through a
 predefined set of classes, each named after the target to extend, followed by
 "Extension". The rest is done by iterating through `ObjOwnProps(Cls)` and
 `ObjOwnProps(Cls.Prototype)`, and copying over all of the properties defined
-in the class.
+in the class. The idea is that - with `.DefineProp()` - there's lot of manual
+work to get things right, whereas classes do *all* of the work for you
+automatically.
 
 ```ahk
 class AquaHotkey {
@@ -83,10 +95,11 @@ It was already a *lot* more convenient. This abstraction completely took away
 the need to think about property descriptors directly. You simply define new
 properties exactly like how you would when writing custom classes.
 
-But it was pretty hard to maintain, and very rigid. You always had the same
-predefined set of extension classes. Introducing a new class meant having to
-add an entry in the array, a new file to put the class into, and then finally
-defining a new class with a very strict naming convention.
+But it was still relatively hard to maintain. Although this was a big
+improvement, it was very rigid. There's always one predefined set of extension
+classes, where introducing a new class means adding an entry in the array,
+a new file to put the class info, and then finally defining a new class with
+a strict naming convention.
 
 ## Second Prototype
 
@@ -95,9 +108,10 @@ The second iteration came with a new idea:
 >"What if I just use nested classes to define all of the things?"
 
 This time, all of the extensions were defined directly inside the `AquaHotkey`
-class itself. For example, `AquaHotkey.Array` would apply changes to `Array`.
-There was no need to explicitly list which classes should be extended, the
-structure itself carried that information.
+class itself. The metadata that is needed to determine *where* to overwrite
+is based on the names of the nested classes. For example, `AquaHotkey.Array`
+would apply changes to `Array`. There was no need to explicitly list which
+classes should be extended, the structure itself carried that information.
 
 ```ahk
 class AquaHotkey {
@@ -110,10 +124,11 @@ class AquaHotkey {
 }
 ```
 
-This made the design far cleaner, but two big questions remained:
+Two big questions remained:
 
-How could I make this modular? And how could I let other people add their own
-modules without needing to edit my source code?
+1. How do I modularize this?
+2. How do I let other people easily add their own modules without needing to
+   edit the source code directly?
 
 I kept experimenting, and at one point I created a subclass just to see what
 would happen:
@@ -163,8 +178,12 @@ class StringExtension extends AquaHotkey {
 "Hello, World!".SubStr(1, 7).Append("AquaHotkey!").MsgBox()
 ```
 
-With this, everything fell into place. It was easy to understand, modular,
-elegant, and extremely powerful. A completely new way to write AutoHotkey.
+Everything fell into place. It was easy to understand, modular, elegant,
+and extremely powerful. A completely new way to write AutoHotkey.
+
+With this design, you can very easily declare a class as being an extension
+class (`extends AquaHotkey`) and bundle one conceptual change across multiple
+objects into just one class.
 
 ## AquaHotkeyX
 
