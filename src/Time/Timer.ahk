@@ -45,31 +45,39 @@ class Timer extends Func {
      * Schedules this function to be executed repeatedly at the given interval
      * in milliseconds.
      * 
-     * The timer that waits before setting up repeated execution if
-     * `InitialDelay` is nonzero cannot be cancelled.
+     * The function is executed for the first time after the given duration,
+     * unless `InitialDelay` is specified. If `InitialDelay` is nonzero, a
+     * temporary timer object is used to wait for the given initial delay,
+     * otherwise, the function gets executed immediately.
      * 
      * @param   {Number}    Interval      duration in milliseconds
      * @param   {Number?}   InitialDelay  initial delay
      * @param   {Integer?}  Priority      thread priority
+     * @returns {this}
      */
-    ScheduleEvery(Interval, InitialDelay := 0, Priority?) {
+    ScheduleEvery(Interval, InitialDelay?, Priority?) {
         switch {
-          case (!IsNumber(Interval)):
-            throw TypeError("Expected a Number",, Type(Interval))
-          case (!IsNumber(InitialDelay)):
-            throw TypeError("Expected a Number",, Type(InitialDelay))
-          case (Interval < 0):
-            throw ValueError("Must be > 0",, Interval)
-          case (InitialDelay < 0):
-            throw ValueError("Must be > 0",, InitialDelay)
-          case (InitialDelay):
-            SetTimer(Init, -Integer(InitialDelay))
-          default:
-            Init()
+            case (!IsNumber(Interval)):
+                throw TypeError("Expected a Number",, Type(Interval))
+            case (Interval < 0):
+                throw ValueError("Must be > 0",, Interval)
+            case (!IsSet(InitialDelay)):
+                SetTimer(this, Integer(Interval), Priority?)
+            case (!IsNumber(InitialDelay)):
+                throw TypeError("Expected a Number",, Type(InitialDelay))
+            case (InitialDelay < 0):
+                throw ValueError("Must be > 0",, InitialDelay)
+            case (InitialDelay):
+                SetTimer(Init, Integer(-InitialDelay))
+            default:
+                Init()
         }
         return this
 
-        Init() => SetTimer(this, Integer(Interval))
+        Init() {
+            SetTimer(this, Integer(Interval), Priority?)
+            this()
+        }
     }
 
     /**
@@ -89,6 +97,15 @@ class Timer extends Func {
      */
     Priority {
         set => SetTimer(this, unset, value)
+    }
+
+    /**
+     * Sets the interval of the timer object.
+     * 
+     * @property {Integer}
+     */
+    Interval {
+        set => SetTimer(this, value)
     }
 }
 
