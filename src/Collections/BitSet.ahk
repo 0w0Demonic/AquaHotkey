@@ -9,7 +9,10 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class BitSet extends ISet {
+class BitSet extends ISet
+{
+    ;@region Construction
+
     /**
      * Creates a {@link BitSet} view from the given {@link IBuffer}.
      * 
@@ -27,13 +30,6 @@ class BitSet extends ISet {
     }
 
     /**
-     * The size of the bit set (number of 1-bits in the buffer).
-     * 
-     * @property {Integer}
-     */
-    Size => DllCall("BitSet\popcount", "Ptr", this.B.Ptr, "Ptr", this.B.Size)
-
-    /**
      * Constructs a new bit set that can hold the given number of bits.
      * 
      * @constructor
@@ -44,6 +40,17 @@ class BitSet extends ISet {
         this.DefineProp("B", { Get: (_) => Buf })
         this.Add(Values*)
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Set Impl
+
+    /**
+     * The size of the bit set (number of 1-bits in the buffer).
+     * 
+     * @property {Integer}
+     */
+    Size => DllCall("BitSet\popcount", "Ptr", this.B.Ptr, "Ptr", this.B.Size)
 
     /**
      * Determines whether the bit set contains the given index.
@@ -173,6 +180,8 @@ class BitSet extends ISet {
         }
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Serialization
 
     /**
@@ -200,7 +209,29 @@ class BitSet extends ISet {
     }
 
     ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Conversion
+
+    /**
+     * Returns the backing buffer of this bit set.
+     * 
+     * @returns {IBuffer}
+     */
+    AsBuffer() => (this.B)
+
+    /**
+     * Returns a copy of the backing buffer of this bit set.
+     * 
+     * @returns {IBuffer}
+     */
+    ToBuffer() => (this.B).Clone()
+
+    ;@endregion
 }
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Extensions
 
 /**
  * Extension methods related to {@link BitSet}.
