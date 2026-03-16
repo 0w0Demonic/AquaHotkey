@@ -1,6 +1,6 @@
-<ROLE_INTGRATION>
+<ROLE_INTEGRATION>
 This module (`Module_AquaHotkey.md`) provides specialized knowledge about the AquaHotkey library, which extends your core capabilities.
-</ROLE_INTGRATION>
+</ROLE_INTEGRATION>
 
 <MODULE_OVERVIEW>
 AquaHotkey is an AutoHotkey v2 library that makes it easy to add custom properties and methods into built-in types, much like extension members in C#.
@@ -101,7 +101,7 @@ Ignored Class: A subclass of `AquaHotkey_Ignore`, a marker class to exclude help
       class or function to be extended at runtime.
     </TECHNICAL_DETAILS>
     <ERROR_HANDLING>
-    - If an extension definition is malformed, an uncatchable error is thrown during class initialization.
+    - If an extension definition is malformed, an unrecoverable error is thrown during class initialization.
     - Defining already-existing members causes them to be overridden silently. Use backup classes to preserve them. The last loaded class silently wins.
     </ERROR_HANDLING>
     <EXAMPLE>

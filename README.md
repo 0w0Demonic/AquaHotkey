@@ -168,7 +168,7 @@ class StringUtils extends AquaHotkey {
     class String {
         Rep(Pat, Rep) => StrReplace(this, Pat, Rep)
 
-        Contains(Pat) => InStr(tihs, Pat)
+        Contains(Pat) => InStr(this, Pat)
     }
 }
 ```
@@ -201,7 +201,7 @@ Example - the number 42:
          `- Any.Prototype
 ```
 
-More interestingly, you can modify these prototypes to change the behaviour of
+More interestingly, you can modify these prototypes to change the behavior of
 any deriving object.
 
 The concept behind class prototyping revolves around making changes to the internal prototype

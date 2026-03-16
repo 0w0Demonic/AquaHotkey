@@ -64,7 +64,7 @@ class ByteArray extends IArray
 
     /**
      * Creates a {@link ByteArray} by wrapping over a string in the given
-     * encodng.
+     * encoding.
      * 
      * @param   {String}      Str                    any string
      * @param   {Primitive?}  Encoding               string encoding

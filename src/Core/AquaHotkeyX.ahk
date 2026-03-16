@@ -1,7 +1,7 @@
 #Requires AutoHotkey v2
 
 /**
- * @version 3.0.0-alpha
+ * @version 3.0.0
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
@@ -69,6 +69,7 @@
     #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
     #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
     #Include "%A_LineFile%\..\..\Interfaces\IBuffer.ahk"
+    #Include "%A_LineFile%\..\..\Interfaces\IDelegatingMap.ahk"
     #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
     #Include "%A_LineFile%\..\..\Interfaces\ISet.ahk"
 ;@endregion

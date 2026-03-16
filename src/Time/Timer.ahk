@@ -41,6 +41,7 @@ class Timer extends Func {
         return this
     }
 
+    ; TODO consider returning the temporary timer, if InitialDelay is nonzero
     /**
      * Schedules this function to be executed repeatedly at the given interval
      * in milliseconds.

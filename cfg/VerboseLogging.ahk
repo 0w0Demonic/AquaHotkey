@@ -1,7 +1,7 @@
 /**
  * @config
  * 
- * Marker class that activate verbose logging in AquaHotkey's core classes.
+ * Marker class that activates verbose logging in AquaHotkey's core classes.
  * Very helpful for debugging, and activated by default for the unit tests.
  * 
  * @module  <cfg/VerboseLogging>

@@ -8,7 +8,7 @@ understand and use AquaHotkey effectively.
 
 ## How to Use
 
-Directly feed the prompt to your AI assistent, or integrate it into its
+Directly feed the prompt to your AI assistant, or integrate it into its
 context or knowledge base.
 
 ## Structure

@@ -19,6 +19,9 @@
  * 
  * ; 9030000
  * RemindMeIn := (2).Hours + (30).Minutes + (30).Seconds
+ * 
+ * ; 150000
+ * ((2.5).Minutes)
  */
 class AquaHotkey_Duration extends AquaHotkey {
     class Number {
