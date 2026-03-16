@@ -4,16 +4,23 @@
 ; TODO find a way to differentiate between `Method()` (create prop desc) and
 ;      `Method()` (create object mapper)
 
+;@region Extensions
+
 /**
  * Object utilities, mostly for the creation of new properties.
+ * 
+ * For the sake of convenience, properties are defined in `Any`. This is
+ * because e.g. `Number.Prototype` is an object (`IsObject(Number.Prototype)`),
+ * yet it doesn't own object properties.
  * 
  * @module  <Base/Object>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class AquaHotkey_Object extends AquaHotkey {
-    class Object {
+    class Any {
         ;@region General
+
         /**
          * Creates a `BoundFunc` which calls a method `MethodName` bound to this
          * particular instance, followed by zero or more arguments `Args*`.
@@ -140,10 +147,60 @@ class AquaHotkey_Object extends AquaHotkey {
             }
             return ({}.GetOwnPropDesc)(Obj, PropName)
         }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Delegates
+
+        /**
+         * Defines a new property with the given name and property descriptor.
+         * 
+         * @param   {String}  Name  name of the property
+         * @param   {Object}  Desc  property descriptor
+         * @returns {this}
+         */
+        DefineProp(Name, Desc) => ({}.DefineProp)(this, Name, Desc)
+
+        /**
+         * Deletes a property by name.
+         * 
+         * @param   {String}  Name  name of the property
+         * @returns {Object}
+         */
+        DeleteProp(Name) => ({}.DeleteProp)(this, Name)
+
+        /**
+         * Returns a descriptor for a given property, compatible with
+         * {@link Object#DefineProp}.
+         * 
+         * @param   {String}  Name  name of the property
+         * @returns {Object}
+         */
+        GetOwnPropDesc(Name) => ({}.GetOwnPropDesc)(this, Name)
+
+        /**
+         * Determines whether this object owns a property with the specified
+         * name.
+         * 
+         * @param   {String}  Name  name of the property
+         * @returns {Boolean}
+         */
+        HasOwnProp(Name) => ({}.HasOwnProp)(this, Name)
+
+        /**
+         * Enumerates the object's own properties.
+         * 
+         * @returns {Enumerator}
+         */
+        OwnProps() => ObjOwnProps(this)
     }
+
+    ;@endregion
 }
 
-;@region Prop Descs
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Prop Constructors
 
 /**
  * Creates an object described only by the property descriptors in `Desc`.
@@ -314,11 +371,12 @@ ConstantRef(&Value) => { Get: (_) => Value }
 /**
  * Defines a new property that resembles a struct field in AHK alpha.
  * 
- * @param   {Any}  T  the type of struct field
+ * @param   {Any}       T     the type of struct field
+ * @param   {Integer?}  Pack  alignment of the property, if applicable
  * @returns {Object}
  * @example
  * Obj.DefineProp("Value", StructField("u32"))
  */
-StructField(T) => { Type: T }
+StructField(T, Pack?) => { Type: T, Pack: (Pack?) }
 
 ;@endregion
