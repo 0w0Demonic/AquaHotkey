@@ -53,35 +53,25 @@ class Uri {
                 }
                 Enumer := Values.__Enum(1)
                 while (Enumer(&Key) && Enumer(&Value)) {
-                    ValidateScheme(Key)
-                    ValidateUriSubclass(Value)
+                    if (!(Key is String)) {
+                        throw TypeError("Expected a String",, Type(Key))
+                    }
+                    if (!(Key ~= "i)^[a-z][a-z0-9+.-]*$")) {
+                        throw ValueError("invalid scheme",, Key)
+                    }
+                    if (!(Value is Class)) {
+                        throw TypeError("Expected a Class",, Type(Value))
+                    }
+                    if (!HasBase(Value, Uri)) {
+                        throw TypeError("Expected a subclass of Uri",,
+                                        Value.Prototype.__Class)
+                    }
                 }
                 (Map.Prototype.Set)(M, Values*)
             }
 
-            __Item_set(MapObj, Value, Key) {
-                ValidateScheme(Key)
-                ValidateUriSubclass(Value)
-            }
+            __Item_set(MapObj, Value, Key) => Set(MapObj, Key, Value)
 
-            ValidateScheme(Key) {
-                if (!(Key is String)) {
-                    throw TypeError("Expected a String",, Type(Key))
-                }
-                if (!(Key ~= "i)^[a-z][a-z0-9+.-]*$")) {
-                    throw ValueError("invalid scheme",, Key)
-                }
-            }
-
-            ValidateUriSubclass(Cls) {
-                if (!(Cls is Class)) {
-                    throw TypeError("Expected a Class",, Type(Cls))
-                }
-                if (!HasBase(Cls, Uri)) {
-                    throw TypeError("Expected a subclass of Uri",,
-                                    Cls.Prototype.__Class)
-                }
-            }
         }
       }
     }
