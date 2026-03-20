@@ -111,7 +111,32 @@ class Uri {
      * @returns {Uri}
      * @see {@link https://en.wikipedia.org/wiki/Uniform_Resource_Identifier Wikipedia}
      */
-    static Call(Str, r := {}) {
+    static Call(Str) {
+        if (this.TryParse(Str, &Out)) {
+            return Out
+        }
+        throw Out
+    }
+
+    /**
+     * Creates a new Uri by parsing the given string.
+     * 
+     * @param   {String}  Str  string that represents a URI
+     * @see {@link Uri()}
+     * @returns {Uri}
+     */
+    static Parse(Str) => this(Str)
+
+    /**
+     * Attempts to parse a URI string into separate components, outputting
+     * either an instance of {@link Uri} or an {@link Error} into `&Out`.
+     * Returns `true` on success, otherwise `false`.
+     * 
+     * @param   {String}             Str  string that represents a URI
+     * @param   {VarRef<Uri|Error>}  Out  (out) output Uri or Error
+     * @returns {Boolean}
+     */
+    static TryParse(Str, &Out) {
         static VALID_SCHEME      := "Si)^[a-z][a-z+.-]*$"
         static INVALID_SEQUENCES := "
         (
@@ -126,16 +151,12 @@ class Uri {
         )"
 
         if (this != Uri) {
-            throw MethodError("Method must be called directly by Uri class")
+            Out := MethodError("Method must be called directly by Uri class")
+            return false
         }
         if (!(Str is String)) {
-            throw TypeError("Expected a String",, Type(Str))
-        }
-        if (!IsObject(r)) {
-            throw TypeError("Expected an Object",, Type(r))
-        }
-        if (ObjOwnPropCount(r)) {
-            throw TypeError("Expected an empty Object",, ObjOwnPropCount(r))
+            Out := TypeError("Expected a String",, Type(Str))
+            return false
         }
 
         ; check for invalid sequences
@@ -143,11 +164,12 @@ class Uri {
         if (e) {
             BadChar := SubStr(Str, e, 1)
             if (BadChar == "%") {
-                throw ValueError("bad percent escape at #" . e, -2,
+                Out := ValueError("bad percent escape at #" . e, -2,
                                     SubStr(Str, e, 3))
             } else {
-                throw ValueError("invalid char at #" . e, -2, BadChar)
+                Out := ValueError("invalid char at #" . e, -2, BadChar)
             }
+            return false
         }
         ; normalize percent-encoding to uppercase
         Str := RegExReplace(Str, "i)(?<=%)[0-9a-f]{2}", "$U0")
@@ -156,6 +178,7 @@ class Uri {
         ; fields (raw parts), then the actual result object as deriving object
         ; that contains all other properties through lazy init.
         b := Object()
+        r := Object()
         ObjSetBase(b, Uri.Prototype)
         ObjSetBase(r, b)
 
@@ -170,7 +193,8 @@ class Uri {
             if (t) {
                 ObjSetBase(b, t.Prototype)
             } else if (!(Scheme ~= VALID_SCHEME)) {
-                throw ValueError("invalid scheme",, Scheme)
+                Out := ValueError("invalid scheme",, Scheme)
+                return false
             }
             b.DefineProp("RawScheme", { Get: (_) => Scheme })
             p++ ; skip ":"
@@ -182,7 +206,8 @@ class Uri {
                 ; parse until fragment (can't be next char directly)
                 q := InStr(Str, "#", unset, p) || n
                 if (q == p) {
-                    throw ValueError("expected scheme-specific part")
+                    Out := ValueError("expected scheme-specific part")
+                    return false
                 }
 
                 ; the scheme-specific part of the URI
@@ -198,11 +223,13 @@ class Uri {
         if (SubStr(Str, p, 1) == "#") {
             Frag := SubStr(Str, p + 1)
             if (InStr(Frag, "#")) {
-                throw ValueError('invalid char "#" in fragment',, Frag)
+                Out := ValueError('invalid char "#" in fragment',, Frag)
+                return false
             }
             b.DefineProp("RawFragment", { Get: (_) => Frag })
         }
-        return r
+        Out := r
+        return true
 
         ; [//authority]<path>[?<query>]
         ParseHierarchy() {
@@ -451,27 +478,27 @@ class Uri {
     ToString() {
         Str := ""
         if (this.HasScheme) {
-            Str .= this.Scheme
+            Str .= this.RawScheme
             Str .= ":"
         }
         if (this.IsOpaque) {
-            Str .= this.SchemeSpecific
+            Str .= this.RawSchemeSpecific
         } else {
             if (this.HasAuthority) {
                 Str .= "//"
-                Str .= this.Authority
+                Str .= this.RawAuthority
             }
             if (this.HasPath) {
-                Str .= this.Path
+                Str .= this.RawPath
             }
             if (this.HasQuery) {
                 Str .= "?"
-                Str .= this.Query
+                Str .= this.RawQuery
             }
         }
         if (this.HasFragment) {
             Str .= "#"
-            Str .= this.Fragment
+            Str .= this.RawFragment
         }
         Str := UrlDecode(Str)
         this.DefineProp("ToString", { Call: (_) => Str })
@@ -579,7 +606,6 @@ class Uri {
     ;---------------------------------------------------------------------------
     ;@region Serialization
 
-    ; TODO fix
     /**
      * Converts this URI into binary based on its string representation.
      * 
@@ -602,7 +628,10 @@ class Uri {
      * @see {@link AquaHotkey_Serializer}
      */
     Deserialize(Input, Refs) {
-        Uri(Input.Read(Input.ReadUInt()), this)
+        U := Uri( Input.Read( Input.ReadUInt() ) )
+        Base := ObjGetBase(U)
+        ObjSetBase(U, Object.Prototype)
+        ObjSetBase(this, Base)
     }
 
     ;@endregion
