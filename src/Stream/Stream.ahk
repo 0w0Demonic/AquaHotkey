@@ -202,8 +202,9 @@ class Stream extends BaseStream
     Size => 1
 
     ;@endregion
-
+    ;---------------------------------------------------------------------------
     ;@region Filtering
+    
     /**
      * Returns a new stream that retains elements only if they match the
      * given `Condition`.
@@ -250,9 +251,11 @@ class Stream extends BaseStream
             return false
         }   
     }
-    ;@endregion
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Transformation
+
     /**
      * Returns a new stream that transforms its elements by applying the given
      * `Mapper` function.
@@ -269,6 +272,33 @@ class Stream extends BaseStream
         Map(&Out) {
             if (this(&Out)) {
                 Out := Mapper(Out?, Args*)
+                return true
+            }
+            return false
+        }
+    }
+
+    /**
+     * Returns a {@link DoubleStream} by transforming the elements of this
+     * stream using two separate mapper functions.
+     * 
+     * @param   {Func}  KeyMapper    produces keys
+     * @param   {Func}  ValueMapper  produces values
+     * @returns {DoubleStream}
+     * @example
+     * ; <(1, 2), (3, 4)>
+     * Stream.Of({ First: 1, Second: 2 }, { First: 3, Second: 4 })
+     *       .Split((o) => o.First, (o) => o.Second)
+     */
+    Split(KeyMapper, ValueMapper) {
+        GetMethod(KeyMapper)
+        GetMethod(ValueMapper)
+        return DoubleStream.Cast(Split)
+
+        Split(&Key, &Value) {
+            if (this(&Elem)) {
+                Key := KeyMapper(Elem?)
+                Value := ValueMapper(Elem?)
                 return true
             }
             return false
