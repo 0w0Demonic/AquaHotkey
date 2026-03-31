@@ -1,4 +1,5 @@
 #Include "%A_LineFile%\..\MatchResult.ahk"
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 #Include "%A_LineFile%\..\..\Monads\Optional.ahk"
 #Include "%A_LineFile%\..\..\Stream\DoubleStream.ahk"
