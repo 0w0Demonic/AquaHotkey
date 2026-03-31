@@ -262,6 +262,24 @@ class Parser extends Func {
     }
 
     /**
+     * Creates a parser that matches a regular expression that has to match
+     * exactly at the specified position. This is done with the help of PCRE's
+     * `(*COMMIT)` feature.
+     * 
+     * `Mapper` converts a regex match object into a result. By default, it
+     * returns the entire matched string (i.e. `MatchObj[0]`).
+     * 
+     * @template                         R          return type of `Mapper`
+     * @param   {String}                 Pattern    regex pattern to search
+     * @param   {(RegExMatchInfo) => R}  Mapper     function that creates value
+     * @returns {Parser<R>}
+     */
+    static Regex(Pattern, Mapper?) => this.FirstRegex(
+        RegExReplace(Pattern, "^(?:[\w``]++\))?", "$0(*COMMIT)"),
+        Mapper?
+    )
+
+    /**
      * Creates a parser that searches for the first occurrence of a regex
      * pattern, discarding any characters before it. `Mapper` is a function
      * that maps the regex match object to the value of the successful parse
@@ -274,8 +292,14 @@ class Parser extends Func {
      * @returns {Parser<R>}
      */
     static FirstRegex(Pattern, Mapper := DefaultMapper) {
+        /**
+         * Returns the overall string match of the regex match object.
+         * @param   {RegExMatchInfo}  MatchObj  a regex match object
+         * @returns {String}
+         */
         static DefaultMapper(MatchObj) => MatchObj[0]
 
+        ; assert that `Pattern` compiles correctly
         RegExMatch("", Pattern)
         return this.Cast(FirstRegex)
 
@@ -541,7 +565,6 @@ class Parser extends Func {
      * @example
      * ; MatchResult.Success { Pos: 4, Value: 1 }
      * "<1>".Parse( Parser.Digit().Between("<", ">") )
-     * 
      */
     Between(Prefix, Suffix := Prefix) {
         if (Prefix is Primitive) {
