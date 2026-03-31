@@ -100,7 +100,7 @@ class Parser extends Func {
      * 
      * @returns {Parser<String>}
      */
-    static Digit() => this.One(IsDigit, "digit")
+    static Digit() => this.One(IsDigit, "digit").Map(Number)
 
     /**
      * Creates a parser that matches one or more digits (as determined by
@@ -108,7 +108,7 @@ class Parser extends Func {
      * 
      * @returns {Parser<String>}
      */
-    static Digits() => this.OneOrMore(IsDigit, "digits")
+    static Digits() => this.OneOrMore(IsDigit, "digits").Map(Number)
 
     /**
      * Creates a parser that matches a specified string `Str` with the given
@@ -361,8 +361,7 @@ class Parser extends Func {
                 Pos := Result.Pos
                 Values.Push(Result.Value)
             }
-
-            return MatchResult.Success(Combiner(Values*), Result.Pos)
+            return MatchResult.Success(Combiner(Values*), Pos)
         }
     }
 
@@ -468,7 +467,7 @@ class Parser extends Func {
      * @param    {Any?}          DefaultValue  default value on failure
      * @returns  {Parser<R>}
      */
-    ZeroOrMore(Combiner := Array, DefaultValue := "") {
+    ZeroOrMore(Combiner := Array, DefaultValue := []) {
         return this.AtLeastOnce(Combiner).OrElse(DefaultValue)
     }
 
@@ -510,9 +509,10 @@ class Parser extends Func {
      * delimited by `Delim`. `Combiner` is a function that combines all results
      * into a final result.
      * 
-     * @template                 R         return type of `Combiner`
-     * @param   {String|Parser}  Delim     delimiter pattern
-     * @param   {(Args*) => R}   Combiner  function that combines all values
+     * @template                 R             return type of `Combiner`
+     * @param   {String|Parser}  Delim         delimiter pattern
+     * @param   {(Args*) => R}   Combiner      function that combines all values
+     * @param   {Any?}           DefaultValue  fallback default value
      * @returns {Parser<R>}
      * @example
      * ; MatchResult.Success { Pos: 8, Value: ["a", "b", "c" ] }
@@ -522,8 +522,9 @@ class Parser extends Func {
      *           .Between("[", "]")
      * )
      */
-    ZeroOrMoreDelimitedBy(Delim, Combiner := Array) {
-        return this.AtLeastOnceDelimitedBy(Delim, Combiner).OrElse("")
+    ZeroOrMoreDelimitedBy(Delim, Combiner := Array, DefaultValue := []) {
+        return this.AtLeastOnceDelimitedBy(Delim, Combiner)
+                   .OrElse(DefaultValue)
     }
 
     ;@endregion
@@ -744,7 +745,7 @@ class Parser extends Func {
         Map(&Input, Pos := 1) {
             Result := this(&Input, Pos)
             return (Result.Ok)
-                ? MatchResult.Success(Mapper(Result.Value, Args*), Pos)
+                ? MatchResult.Success(Mapper(Result.Value, Args*), Result.Pos)
                 : Result
         }
     }
