@@ -420,6 +420,16 @@ class Parser extends Func {
         return Psr
     }
 
+    /**
+     * Creates a parser that behaves like `Psr`, but can be used in a static
+     * context. This method is useful for recursive parsers that need to
+     * reference themselves directly or indirectly.
+     * 
+     * @param   {VarRef<Parser>}  Psr  reference to the parser to be defined
+     * @returns {Parser}
+     */
+    static Rule(&Psr) => this.Cast((&Input, Pos := 1) => Psr(&Input, Pos))
+
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Quantifications
