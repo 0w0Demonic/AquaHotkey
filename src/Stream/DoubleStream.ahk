@@ -1,5 +1,5 @@
-#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\BaseStream.ahk"
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 

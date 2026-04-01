@@ -1,5 +1,3 @@
-#Include "%A_LineFile%\..\..\Base\ToString.ahk"
-
 /**
  * Result type used by {@link Parser}.
  * 
