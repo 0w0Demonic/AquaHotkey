@@ -5,8 +5,6 @@
 
 ; TODO move into separate "Immutable/" folder?
 ; TODO use immutability as criterium for use as type pattern?
-; TODO attach `Prototype` to the `Tuple` function to allow `... is Tuple`?
-; TODO add equivalent functions to Map or Set?
 
 ;@region Tuple()
 
@@ -17,6 +15,9 @@
  * @returns {ImmutableArray}
  */
 Tuple(Values*) => ImmutableArray.FromArray(Values)
+
+; allows the use of `Tuple(...) is Tuple`
+({}.DefineProp)(Tuple, "Prototype", { Value: ImmutableArray.Prototype })
 
 ;@endregion
 ;-------------------------------------------------------------------------------
