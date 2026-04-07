@@ -196,6 +196,38 @@ class AquaHotkey_Object extends AquaHotkey {
     }
 
     ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region WithBase()
+
+    class Object {
+        /**
+         * Creates a new object with the specified base object.
+         * 
+         * This method can only be called directly by the `Object` class, and
+         * no subclasses.
+         * 
+         * @param   {Object}  BaseObj  the base object
+         * @returns {Object}
+         * @example
+         * BaseObj     := Object()
+         * DerivingObj := Object.WithBase(BaseObj)
+         */
+        static WithBase(BaseObj) {
+            if (this != Object) {
+                throw TypeError('This method can only be called by Object',,
+                            this.Prototype.__Class)
+            }
+            if (!IsObject(BaseObj)) {
+                throw TypeError("Expected an Object",, Type(BaseObj))
+            }
+
+            Obj := Object()
+            ObjSetBase(Obj, BaseObj)
+            return Obj
+        }
+    }
+
+    ;@endregion
 }
 
 ;@endregion
