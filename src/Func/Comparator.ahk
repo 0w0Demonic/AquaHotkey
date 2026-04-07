@@ -1,8 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
-; TODO remove mapper in `Num` and `Alpha`?
-
 /**
  * A comparator is a function that determines a natural ordering between its
  * two input values. This is mainly used for creating custom sorting logic.

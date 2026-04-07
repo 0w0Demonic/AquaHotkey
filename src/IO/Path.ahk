@@ -2,6 +2,9 @@
 #Include "%A_LineFile%\..\..\Base\Eq.ahk"
 #Include "%A_LineFile%\..\..\Base\Hash.ahk"
 
+; TODO make this actually useful
+; TODO interop with <Net/URI>
+
 /**
  * Represents a file path or URL.
  * 

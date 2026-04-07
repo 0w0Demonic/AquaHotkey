@@ -5,8 +5,6 @@
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 
-; TODO `.Shuffle()` for LinkedList, with the help of the list iterator
-
 /**
  * @interface
  * @description

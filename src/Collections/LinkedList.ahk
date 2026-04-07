@@ -2,9 +2,6 @@
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 
-; TODO implement own `.BinarySearch()`?
-; TODO implement `.Length { set; }`?
-
 /**
  * An implementation of {@link IArray} as doubly linked list.
  * 
@@ -571,9 +568,28 @@ class LinkedList extends IArray {
     /**
      * Returns the size of the linked list.
      * 
-     * @returns {Integer}
+     * @property {Integer}
      */
-    Length => this.Size
+    Length {
+        get => this.Size
+        set {
+            if (!IsInteger(value)) {
+                throw TypeError("Expected an Integer",, Type(value))
+            }
+            if (value < 0) {
+                throw ValueError("Must be > 0",, value)
+            }
+            if (value > this.Size) {
+                loop (value - this.Size) {
+                    this.Push(unset)
+                }
+            } else {
+                loop (this.Size - value) {
+                    this.Pop()
+                }
+            }
+        }
+    }
 
     /**
      * Gets or retrieves elements at the given index. `unset` is allowed to be
@@ -593,6 +609,16 @@ class LinkedList extends IArray {
     __Item[Index] {
         get => this.Get(Index)
         set => this.Set(Index, Value?)
+    }
+
+    /**
+     * The capacity of this linked list, which equal to the number of elements.
+     * 
+     * @property {Integer}
+     */
+    Capacity {
+        get => this.Length
+        set => (this.Length := value)
     }
 
     ;@endregion

@@ -2,6 +2,8 @@
 #Include "%A_LineFile%\..\..\Comparable.ahk"
 
 /**
+ * @duck
+ * 
  * A number or numeric string (as determined by `IsNumber()`).
  * 
  * @module  <Base/DuckTypes/Numeric>
