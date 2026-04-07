@@ -9,6 +9,11 @@
  * A simple parser combinator intended to parse grammers such as regex,
  * csv format string patterns etc.
  * 
+ * Parser combinators consist of multiple smaller components - parser
+ * functions - which are defined as follows:
+ * 
+ * ParserFunction(&Input, Pos := 1)
+ * 
  * Parser functions are defined as follows:
  * 
  * ```ahk
@@ -313,6 +318,38 @@ class Parser extends Func {
                 : MatchResult.Failure(
                     Pattern,
                     Pos)
+        }
+    }
+
+    /**
+     * Creates a parser that searches for all occurrences of this parser,
+     * discarding any other information.
+     * 
+     * @template                R         return type of `Combiner`
+     * @param   {(Args*) => R}  Combiner  function that creates value
+     * @returns {Parser<R>}
+     */
+    FindAll(Combiner := Array) {
+        GetMethod(Combiner)
+        return this.Cast(FindAll)
+
+        FindAll(&Input, Pos := 1) {
+            Values := Array()
+            Len := StrLen(Input)
+
+            while (Pos <= Len) {
+                Result := this(&Input, Pos)
+                if (Result.Ok) {
+                    Values.Push(Result.Value)
+                    Pos := Result.Pos
+                } else {
+                    Pos++
+                }
+            }
+            
+            return (Values.Length)
+                ? MatchResult.Success(Combiner(Values*), Pos)
+                : MatchResult.Failure("no matches", Pos)
         }
     }
 
