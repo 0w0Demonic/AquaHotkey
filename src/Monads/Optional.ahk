@@ -344,12 +344,12 @@ class Optional {
      */
     ToString() {
         if (!ObjHasOwnProp(this, "Value")) {
-            return Type(this) . "{ unset }"
+            return Type(this) . " { unset }"
         }
         if (this.Value is String) {
-            return Type(this) . '{ "' . this.Value . '" }'
+            return Type(this) . ' { "' . this.Value . '" }'
         }
-        return Type(this) . "{ " . String(this.Value) . " }"
+        return Type(this) . " { " . String(this.Value) . " }"
     }
 }
 
