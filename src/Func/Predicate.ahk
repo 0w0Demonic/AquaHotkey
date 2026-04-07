@@ -1,9 +1,8 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Base\Assertions.ahk"
 #Include "%A_LineFile%\..\Cast.ahk"
 
 ;@region Predicate
-
-; TODO `.AsAssertion()` method?
 
 /**
  * A predicate is a function that takes one input and returns a boolean
@@ -213,6 +212,15 @@ class Predicate extends Func {
         Pred.DefineProp("Negate", { Call: (_) => this })
         return Pred
     }
+
+    /**
+     * Converts this predicate into an assertion method.
+     * 
+     * @returns {Func}
+     * @example
+     * MustBeInteger := Predicate(IsNumber).AsAssertion()
+     */
+    AsAssertion() => Assertion(this)
 }
 
 ;@endregion
@@ -244,9 +252,6 @@ DerivesFrom(Cls) => Predicate.Cast((Val?) => IsSet(Val) && (Val is Cls))
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Ordering
-
-; TODO let the comparison predicates (`Gt()`, etc.) be able to use some of the
-;      `Comparator` functionalities?
 
 /**
  * Returns a {@link Predicate} that determines whether the input is

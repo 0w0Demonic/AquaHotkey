@@ -59,3 +59,21 @@ Assert(Result) {
         throw ValueError("failed assertion", -2)
     }
 }
+
+/**
+ * Creates an 1-parameter function that asserts that the given `Condition` is
+ * true for its input, otherwise an error is thrown.
+ * 
+ * @param   {(Val?, Args*) => Boolean}  Condition  the condition to assert
+ * @param   {Any*}                      Args       zero or more arguments
+ * @returns {Func}
+ * @example
+ * MustBeInteger := Assertion(IsInteger)
+ * 
+ * MustBeInteger("345")  ; o.k.
+ * MustBeInteger([1, 2]) ; Error!
+ */
+Assertion(Condition, Args*) {
+    GetMethod(Condition)
+    return (Val?) => Assert(Condition(Val?, Args*))
+}
