@@ -1,5 +1,5 @@
-#Include <AquaHotkey>
-#Include <AquaHotkey\src\Interfaces\IMap>
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 /**
  * A doubly-linked list-backed {@link IMap} that preserves insertion order.
@@ -272,9 +272,7 @@ class OrderedMap extends IMap {
 }
 
 /**
- * @extension
- * 
- * Extension methods related to {@link OrderedMap}
+ * Extension methods related to {@link OrderedMap}.
  */
 class AquaHotkey_OrderedMap extends AquaHotkey {
     class IMap {

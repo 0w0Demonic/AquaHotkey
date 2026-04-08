@@ -44,6 +44,8 @@
   - [ImmutableMap](./Collections/ImmutableMap.md)
   - [ImmutableSet](./Collections/ImmutableSet.md)
   - [LinkedList](./Collections/LinkedList.md)
+  - [OrderedMap](./Collections/OrderedMap.md)
+  - [OrderedSet](./Collections/OrderedSet.md)
   - [Set](./Collections/Set.md)
   - [SkipListMap](./Collections/SkipListMap.md)
   - [SkipListSet](./Collections/SkipListSet.md)

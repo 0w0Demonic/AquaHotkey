@@ -1,6 +1,8 @@
-#Requires AutoHotkey v2.0
-
+#Include "%A_LineFile%\..\Set.ahk"
 #Include "%A_LineFile%\..\OrderedMap.ahk"
+#Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\ISet.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 /**
  * A doubly-linked list-backed {@link ISet} that preserves insertion order.
@@ -62,6 +64,9 @@ class OrderedSet extends Set {
     }
 }
 
+/**
+ * Extension methods related to {@link OrderedSet}.
+ */
 class AquaHotkey_OrderedSet extends AquaHotkey {
     class ISet {
         /**
@@ -72,9 +77,3 @@ class AquaHotkey_OrderedSet extends AquaHotkey {
         Ordered() => OrderedSet(this*)
     }
 }
-#Include <AquaHotkeyX>
-
-OS := Map(1, false, 2, false).AsSet().Ordered()
-
-OS.Shove(0)
-OS.Join(", ").MsgBox()

@@ -46,6 +46,8 @@
     #Include "%A_LineFile%\..\..\Collections\ImmutableMap.ahk"
     #Include "%A_LineFile%\..\..\Collections\ImmutableSet.ahk"
     #Include "%A_LineFile%\..\..\Collections\LinkedList.ahk"
+    #Include "%A_LineFile%\..\..\Collections\OrderedMap.ahk"
+    #Include "%A_LineFile%\..\..\Collections\OrderedSet.ahk"
     #Include "%A_LineFile%\..\..\Collections\Set.ahk"
     #Include "%A_LineFile%\..\..\Collections\SkipListMap.ahk"
     #Include "%A_LineFile%\..\..\Collections\SkipListSet.ahk"

@@ -10,6 +10,7 @@
   - [Class Diagram](#class-diagram)
   - [Generic Collections](#generic-collections)
   - [Hash-Based Collections](#hash-based-collections)
+  - [Ordered Collections](#ordered-collections)
   - [Immutable Collections](#immutable-collections)
   - [SkipListMap and SkipListSet](#skiplistmap-and-skiplistset)
   - [Buffer Abstractions](#buffer-abstractions)
@@ -29,6 +30,8 @@
 - [ImmutableMap](./ImmutableMap.md)
 - [ImmutableSet](./ImmutableSet.md)
 - [LinkedList](./LinkedList.md)
+- [OrderedMap](./OrderedMap.md)
+- [OrderedSet](./OrderedSet.md)
 - [SkipListMap](./SkipListMap.md)
 - [SkipListSet](./SkipListSet.md)
 - [Set](./Set.md)
@@ -120,6 +123,23 @@ MsgBox(S.Size) ; 1 (because `Arr1` and `Arr2` are equivalent)
 
 - [IMap](../Interfaces/IMap.md)
 - [ISet](../Interfaces/ISet.md)
+
+## Ordered Collections
+
+- [OrderedMap](./OrderedMap.md)
+- [OrderedSet](./OrderedSet.md)
+
+Collections which are backed by doubly-linked list to preserve insertion order.
+
+On top of the regular collection interfaces, `OrderedMap` and `OrderedSet`
+have special methods `.Push()` and `.Shove()` for adding elements at the
+"back" or the "front" of the collection, respectively.
+
+```ahk
+OS := OrderedSet(1, 2, 3) ; --> 1, 2, 3
+OS.Shove(0)               ; --> 0, 1, 2, 3
+OS.Push(4)                ; --> 0, 1, 2, 3, 4
+```
 
 ## Immutable Collections
 
