@@ -146,7 +146,7 @@ class AquaHotkey_Func extends AquaHotkey {
             WithCatch(Args*) {
                 try {
                     return this(Args*)
-                } catch as Err {
+                } catch Any as Err {
                     OnCatch(Err)
                 } finally {
                     OnFinally()

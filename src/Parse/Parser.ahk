@@ -1001,7 +1001,7 @@ class Parser extends Func {
 ;@region Extensions
 
 /**
- * @extension Extensions related to {@link Parser}.
+ * Extension methods related to {@link Parser}.
  */
 class AquaHotkey_Parser extends AquaHotkey {
     class String {

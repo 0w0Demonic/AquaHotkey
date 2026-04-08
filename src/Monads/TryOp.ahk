@@ -41,7 +41,7 @@ class TryOp {
         try {
             Value := Supplier(Args*)
             return (Object.Call)(TryOp.Success, Value)
-        } catch as Err {
+        } catch Any as Err {
             return (Object.Call)(TryOp.Failure, Err)
         }
     }
@@ -494,7 +494,7 @@ class TryOp {
                     Name := "(unnamed)"
                 }
                 return TryOp.Failure(Error("Did not match condition: " . Name))
-            } catch as Err {
+            } catch Any as Err {
                 return TryOp.Failure(Err)
             }
         }
@@ -515,7 +515,7 @@ class TryOp {
                     Name := "(unnamed)"
                 }
                 return TryOp.Failure(Error("Matched condition: " . Name))
-            } catch as Err {
+            } catch Any as Err {
                 return TryOp.Failure(Err)
             }
         }
@@ -526,7 +526,7 @@ class TryOp {
         Map(Mapper, Args*) {
             try {
                 return TryOp.Success(Mapper(this.Value, Args*))
-            } catch as Err {
+            } catch Any as Err {
                 return TryOp.Failure(Err)
             }
         }
@@ -541,7 +541,7 @@ class TryOp {
                     throw TypeError("Expected a Call",, Type(Result))
                 }
                 return Result
-            } catch as Err {
+            } catch Any as Err {
                 return TryOp.Failure(Err)
             }
         }
@@ -762,7 +762,7 @@ class TryOp {
 
             try {
                 return TryOp.Success(RecoverFunction(Value, Args*))
-            } catch as Err {
+            } catch Any as Err {
                 return TryOp.Failure(Err)
             }
         }
@@ -774,7 +774,7 @@ class TryOp {
             GetMethod(RecoverFunction)
             try {
                 return TryOp.Success(RecoverFunction(this.Value, Args*))
-            } catch as Err {
+            } catch Any as Err {
                 return TryOp.Failure(Err)
             }
         }
