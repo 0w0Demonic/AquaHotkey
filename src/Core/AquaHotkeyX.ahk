@@ -26,6 +26,7 @@
     #Include "%A_LineFile%\..\..\Base\Hash.ahk"
     #Include "%A_LineFile%\..\..\Base\Object.ahk"
     #Include "%A_LineFile%\..\..\Base\Primitives.ahk"
+    #Include "%A_LineFile%\..\..\Base\Property.ahk"
     #Include "%A_LineFile%\..\..\Base\ToString.ahk"
     #Include "%A_LineFile%\..\..\Base\TypeInfo.ahk"
     #Include "%A_LineFile%\..\..\Base\VarRef.ahk"

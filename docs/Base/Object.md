@@ -2,7 +2,6 @@
 
 - [\<Base/Object\>](#baseobject)
   - [Overview](#overview)
-  - [Working With Property Descriptors](#working-with-property-descriptors)
   - [Method `.TransformProp()`](#method-transformprop)
   - [Method `.DefineProps()`](#method-defineprops)
   - [Function `ObjFromDesc()`](#function-objfromdesc)
@@ -11,34 +10,14 @@
 
 ## Overview
 
-Object utilities, mostly for the creation of new properties.
+Object utilities, mostly for the creation of new object, or interacting with
+properties.
 
 ```ahk
 class Point {
     ; declare `X` and `Y` as immutable properties
     __New(X, Y) => this.DefineProps({ X: Constant(X), Y: Constant(Y) })
 }
-```
-
-## Working With Property Descriptors
-
-AutoHotkey's object protocol is based on property descriptors, which are plain
-objects that define the behaviour of a property. This makes the language
-incredibly flexible, but it can be a bit verbose at times.
-
-To make it easier to work with, AquaHotkeyX provides some helper functions
-for creating property descriptors. It features both very common patterns like
-`Constant`, but also very hacky ones like `CheckedField`, which defines a
-property that checks the type of the value being set.
-
-```ahk
-Obj := Object()
-Obj.DefineProp("Value", CheckedField(Integer, 42))
-
-MsgBox(Obj.Value) ; 42
-Obj.Value := 23
-MsgBox(Obj.Value) ; 23
-Obj.Value := "not an integer" ; TypeError!
 ```
 
 ## Method `.TransformProp()`

@@ -27,15 +27,15 @@
 
 - [Assertions](./Assertions.md)
 - [Buffer](./Buffer.md)
+- [Comparable](./Comparable.md)
 - [ComValue](./ComValue.md)
 - [DuckTypes](./DuckTypes.md)
 - [Eq](./Eq.md)
 - [Error](./Error.md)
-- [FileUtils](./FileUtils.md)
 - [Hash](./Hash.md)
 - [Object](./Object.md)
-- [Comparable](./Comparable.md)
 - [Primitives](./Primitives.md)
+- [Property](./Property.md)
 - [ToString](./ToString.md)
 - [TypeInfo](./TypeInfo.md)
 - [VarRef](./VarRef.md)
@@ -208,6 +208,7 @@ Integer.Hash(23, 41, 9734, 12)
 ## Object Manipulation
 
 - [<Base/Object>](./Object.md)
+- [<Base/Property>](./Property.md)
 
 Core object utilities for introspection and manipulation properties.
 
