@@ -1,5 +1,12 @@
 #Requires AutoHotkey v2.0
-#Include <AquaHotkeyX>
+
+#Include <AquaHotkey>
+#Include <AquaHotkey\src\Base\Eq>
+#Include <AquaHotkey\src\Base\Hash>
+#Include <AquaHotkey\src\Base\Object>
+#Include <AquaHotkey\src\Base\DuckTypes>
+
+;@region Class Construction
 
 /**
  * Creates a new {@link DataObject} class based on the given schema.
@@ -78,6 +85,17 @@ class DataObject {
     }
 
     /**
+     * Returns the schema imposed by this data object class.
+     * 
+     * @returns {Object}
+     */
+    static Schema => (this.Prototype).Schema
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Object Construction
+
+    /**
      * Initializes the fields of the data object before calling
      * {@link DataObject#__New `.__New()`}.
      */
@@ -113,6 +131,10 @@ class DataObject {
         }
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Commons
+
     /**
      * Returns a string representation of this data object class.
      * 
@@ -134,51 +156,6 @@ class DataObject {
             Obj.DefineProp(PropertyName, { Value: this.%PropertyName% })
         }
         return String(Obj)
-    }
-
-    /**
-     * Returns the schema imposed by this data object class.
-     * 
-     * @returns {Object}
-     */
-    static Schema => (this.Prototype).Schema
-
-    /**
-     * Determines whether the input value is an instance of this data object
-     * class.
-     * 
-     * @param   {Any?}  Val  any value
-     * @returns {Boolean}
-     * @example
-     * T := DataClass({ Value: Integer })
-     * 
-     * Obj := T({ Value: 42 })
-     * Obj.Is(T) ; true
-     */
-    static IsInstance(Val?) {
-        if (!IsSet(Val)) {
-            return false
-        }
-        if (Val is DataObject) {
-            return (this.Prototype.Schema).CanCastFrom(Val.Schema)
-        }
-        return (this.Prototype.Schema).IsInstance(Val)
-    }
-
-    /**
-     * Determines whether the given value is considered the same type as, or a
-     * subtype of this data object class. This requires that the input is
-     * another data object class with compatible schema (via
-     * {@link AquaHotkey_DuckTypes `.CanCastFrom()`}).
-     * 
-     * @param   {Any}  T  type pattern
-     * @returns {Boolean}
-     * @example
-     * DataClass({ Value: Any }).CanCastFrom(DataClass({ Value: String }))
-     */
-    static CanCastFrom(T) {
-        return HasBase(T, DataObject)
-            && (this.Prototype.Schema).CanCastFrom(T.Prototype.Schema)
     }
 
     /**
@@ -255,4 +232,48 @@ class DataObject {
         }
         return Result
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Type Info
+
+    /**
+     * Determines whether the input value is an instance of this data object
+     * class.
+     * 
+     * @param   {Any?}  Val  any value
+     * @returns {Boolean}
+     * @example
+     * T := DataClass({ Value: Integer })
+     * 
+     * Obj := T({ Value: 42 })
+     * Obj.Is(T) ; true
+     */
+    static IsInstance(Val?) {
+        if (!IsSet(Val)) {
+            return false
+        }
+        if (Val is DataObject) {
+            return (this.Prototype.Schema).CanCastFrom(Val.Schema)
+        }
+        return (this.Prototype.Schema).IsInstance(Val)
+    }
+
+    /**
+     * Determines whether the given value is considered the same type as, or a
+     * subtype of this data object class. This requires that the input is
+     * another data object class with compatible schema (via
+     * {@link AquaHotkey_DuckTypes `.CanCastFrom()`}).
+     * 
+     * @param   {Any}  T  type pattern
+     * @returns {Boolean}
+     * @example
+     * DataClass({ Value: Any }).CanCastFrom(DataClass({ Value: String }))
+     */
+    static CanCastFrom(T) {
+        return HasBase(T, DataObject)
+            && (this.Prototype.Schema).CanCastFrom(T.Prototype.Schema)
+    }
 }
+
+;@endregion

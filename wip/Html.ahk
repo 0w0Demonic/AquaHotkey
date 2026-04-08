@@ -156,11 +156,11 @@ Defer(Closer, Runner) {
 
 #Include <AquaHotkey\src\Base\Primitives> ; for `.MsgBox()`
 
-"<!-- this is a test y'all -->"
-    .Parse(Html.Comment())
-    .ToString()
-    .ToClipboard()
-    .MsgBox()
+; "<!-- this is a test y'all -->"
+;     .Parse(Html.Comment())
+;     .ToString()
+;     .ToClipboard()
+;     .MsgBox()
 
 ; HtmlTag {
 ;   Attributes: [
@@ -169,8 +169,22 @@ Defer(Closer, Runner) {
 ;   ],
 ;   Tag: header
 ; }
-'<header id="head" class="head with buttons">'
-    .Parse(Html.StartTag())
-    .ToString()
-    .ToClipboard()
-    .MsgBox()
+
+; '<header id="head" class="head with buttons">'
+;     .Parse(Html.StartTag())
+;     .ToString()
+;     .ToClipboard()
+;     .MsgBox()
+
+Choice(Psrs*) => Parser.AnyOf(Psrs*)
+AtLeastThree(Str) => Parser.String(Str)
+        .AtLeastOnceDelimitedBy(Parser.Whitespace())
+        .SuchThat(A => A.Length >= 3, "at least 3 characters required")
+
+HorizontalLine := Parser.Whitespace()
+    .SuchThat(s => StrLen(s) < 4, "less than 4 characters indentation")
+    .FollowedBy((["-", "*", "_"]).Map(AtLeastThree).Collect(Choice))
+    .FollowedBy(Parser.Whitespace())
+    .FollowedBy(Parser.Regex("\v?"))
+
+MsgBox(HorizontalLine.Matches(&Input := "   -  -     -  "))
