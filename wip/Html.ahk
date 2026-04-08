@@ -117,43 +117,6 @@ class HtmlAttribute {
     }
 }
 
-/**
- * Executes a function and guarantees that a cleanup routine runs afterward,
- * regardless of whether an exception occurred.
- * 
- * This is intended as a lightweight "defer" mechanism to ensure handles,
- * buffers, or other resources are released automatically.
- * 
- * It is recommended to use v2.1-alpha.3+ together with its introduction to
- * multi-line function declarations, but it isn't required.
- * 
- * @param   {() => void}  Closer  cleanup function
- * @param   {() => void}  Runner  function containing main execution logic
- * @example
- * Handle := DllCall("OpenFile", ...)
- * Defer(() => DllCall("CloseHandle", "Ptr", Handle), () {
- *   ; (do something with the file handle...)
- *   
- *   ; you can nest, if you want.
- *   Handle2 := ...
- *   Defer(() => DllCall("CloseHandle", "Ptr", Handle2), () {
- *     ...
- *   })
- * })
- */
-Defer(Closer, Runner) {
-    GetMethod(Closer)
-    GetMethod(Runner)
-    try {
-        Runner()
-    } catch as Err {
-    }
-    Closer()
-    if (IsSet(Err)) {
-        throw Err
-    }
-}
-
 #Include <AquaHotkey\src\Base\Primitives> ; for `.MsgBox()`
 
 ; "<!-- this is a test y'all -->"

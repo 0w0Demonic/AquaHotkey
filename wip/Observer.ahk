@@ -1,12 +1,13 @@
 #Include <AquaHotkeyX>
 #Include "%A_LineFile%\..\OrderedMap.ahk"
 
+; TODO move this somewhere else at some point
+
 /**
  * Represents an observable object that holds a map of events and their
  * callback functions.
  * 
- * TODO ...
- * @module  <.../Observer>
+ * @module  <Base/Observable>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
@@ -102,24 +103,10 @@ class Observable {
  */
 EmptyEnumerator(*) => false
 
-class Property {
-    static Reactive(Callback, Value?) {
-        GetMethod(Callback)
-        return { Get: Getter, Set: Setter }
-
-        Getter(this) {
-            Callback(Value?)
-            return Value
-        }
-
-        Setter(this, NewValue?) {
-            Callback(NewValue?)
-            Value := (NewValue?)
-        }
-    }
-}
-
-class Access {
+/**
+ * 
+ */
+class Access extends Any {
     static Method(Name, Args*) {
         if (!(Name is Primitive)) {
             throw TypeError("Expected a String",, Type(Name))
@@ -134,11 +121,3 @@ class Access {
         return (Obj) => Obj.%Name%[Args*]
     }
 }
-
-Obj := Object()
-Obj.DefineProp(
-    "Name",
-    Property.Reactive(MsgBox)
-)
-
-Obj.Name := 23
