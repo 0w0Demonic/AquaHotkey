@@ -173,10 +173,10 @@ class Parser extends Func {
      * a predicate function `Condition`.
      * 
      * @param   {Predicate}  Condition  function that matches characters
-     * @param   {String}     Name       name of the pattern
+     * @param   {String?}    Name       name of the pattern
      * @returns {Parser<String>}
      */
-    static One(Condition, Name) {
+    static One(Condition, Name := GetMethod(Condition).Name) {
         GetMethod(Condition)
         if (!(Name is Primitive)) {
             throw TypeError("Expected a String",, Type(Name))
@@ -199,10 +199,10 @@ class Parser extends Func {
      * determined by a predicate function `Condition`.
      * 
      * @param   {Predicate}  Condition  function that matches characters
-     * @param   {String}     Name       name of the pattern
+     * @param   {String?}    Name       name of the pattern
      * @returns {Parser<String>}
      */
-    static OneOrMore(Condition, Name) {
+    static OneOrMore(Condition, Name := GetMethod(Condition).Name) {
         GetMethod(Condition)
         if (!(Name is Primitive)) {
             throw TypeError("Expected a String",, Type(Name))
@@ -236,7 +236,7 @@ class Parser extends Func {
      * @param   {(Char) => Boolean}  Fn    character predicate
      * @param   {String}             Name  pattern name
      */
-    static ZeroOrMore(Fn, Name) => this.OneOrMore(Fn, Name).OrElse("")
+    static ZeroOrMore(Fn, Name?) => this.OneOrMore(Fn, Name?).OrElse("")
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -711,17 +711,22 @@ class Parser extends Func {
      * @param   {String?}        Name    name of the pattern
      * @returns {Parser<T>}
      */
-    NotFollowedBy(Suffix, Name := Suffix) {
+    NotFollowedBy(Suffix, Name?) {
         if (Suffix is Primitive) {
-            Name := Suffix
+            if (!IsSet(Name)) {
+                Name := Suffix
+            }
             Suffix := this.Cast(Parser.String(Suffix))
         }
         GetMethod(Suffix)
+        if (!IsSet(Name)) {
+            Name := GetMethod(Suffix).Name
+        }
         if (!(Name is Primitive)) {
             throw TypeError("Expected a String",, Type(Name))
         }
         return this.Cast(NotFollowedBy)
-
+        
         NotFollowedBy(&Input, Pos := 1) {
             Result := this(&Input, Pos)
             if (!Result.Ok) {
@@ -844,9 +849,10 @@ class Parser extends Func {
      * the match if the condition is `false`.
      * 
      * @param   {(T, Args*) => Boolean}  Condition  predicate function
+     * @param   {String?}                Name       name of pattern
      * @returns {Parser<T>}
      */
-    SuchThat(Condition, Name) {
+    SuchThat(Condition, Name := GetMethod(Condition).Name) {
         GetMethod(Condition)
         return this.Cast(SuchThat)
 
