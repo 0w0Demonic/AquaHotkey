@@ -131,6 +131,56 @@ class OrderedMap extends IMap {
     Push(Key, Value) => this.Set(Key, Value)
 
     /**
+     * Removes the first item in the ordered map and outputs it into
+     * `&Key` and `&Value`.
+     * 
+     * @param   {VarRef}  Key    (out) item key
+     * @param   {VarRef}  Value  (out) item value
+     */
+    Poll(&Key, &Value) {
+        if (!this.Count) {
+            throw ValueError("Map is empty")
+        }
+        Head := this.Head
+        (this.M).Delete(Head.Key)
+
+        this.Head := this.Head.Next
+        if (!(this.M).Count) {
+            this.Tail := false
+        } else {
+            this.Head.Prev := false
+        }
+
+        Key := Head.Key
+        Value := Head.Value
+    }
+
+    /**
+     * Returns the last item in the ordered map and outputs it into `&Key`
+     * and `&Value`.
+     * 
+     * @param   {VarRef}  Key    (out) item key
+     * @param   {VarRef}  Value  (out) item value
+     */
+    Pop(&Key, &Value) {
+        if (!this.Count) {
+            throw ValueError("Map is empty")
+        }
+        Tail := this.Tail
+        (this.M).Delete(Tail.Key)
+
+        this.Tail := this.Tail.Prev
+        if (!(this.M).Count) {
+            this.Head := false
+        } else {
+            this.Tail.Next := false
+        }
+
+        Key := Tail.Key
+        Value := Tail.Value
+    }
+
+    /**
      * Prepends key-value pairs to the beginning of the ordered map.
      *
      * @param   {Any*}  Values  alternating key-value pairs
@@ -228,6 +278,7 @@ class OrderedMap extends IMap {
             Key := Node.Key
             Value := Node.Value
             Node := Node.Next
+            return true
         }
     }
 

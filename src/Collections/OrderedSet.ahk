@@ -62,6 +62,26 @@ class OrderedSet extends Set {
         }
         return Count
     }
+
+    /**
+     * Removes and returns the first element in the ordered set.
+     * 
+     * @returns {Any}
+     */
+    Poll() {
+        (this.M).Poll(&Key, &Value)
+        return Key
+    }
+
+    /**
+     * Removes and returns the last element in the ordered set.
+     * 
+     * @returns {Any}
+     */
+    Pop() {
+        (this.M).Pop(&Key, &Value)
+        return Key
+    }
 }
 
 /**
