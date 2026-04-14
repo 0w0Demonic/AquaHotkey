@@ -1,5 +1,5 @@
 #Include <AquaHotkeyX>
-#Include "%A_LineFile%\..\OrderedMap.ahk"
+#Include <AquaHotkey\src\Collections\OrderedMap>
 
 ; TODO move this somewhere else at some point
 
@@ -18,7 +18,7 @@ class Observable {
      * @readonly
      * @type {IMap}
      */
-    Events := false
+    Events := false ; stop VSCode plugin from complaining
 
     /**
      * Creates a new `Observable` with the given
@@ -104,9 +104,21 @@ class Observable {
 EmptyEnumerator(*) => false
 
 /**
+ * Utility class for creating functions that access methods and properties of
+ * an input object.
  * 
+ * @module  <.../Access> ; TODO find out where to put this
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class Access extends Any {
+    /**
+     * Creates a function that accesses the specified method of its input.
+     * 
+     * @param   {String}  Name  name of method
+     * @param   {Any*}    Args  zero or more arguments
+     * @returns {Func}
+     */
     static Method(Name, Args*) {
         if (!(Name is Primitive)) {
             throw TypeError("Expected a String",, Type(Name))
@@ -114,6 +126,15 @@ class Access extends Any {
         return (Obj) => Obj.%Name%(Args*)
     }
 
+    /**
+     * Creates a function that accesses the specified property of its input.
+     * 
+     * @param   {String}  Name  name of property
+     * @param   {Any*}    Args  zero or more arguments
+     * @returns {Func}
+     * @example
+     * Array({ x: 1, y: 2 }, { x: 3, y: 4 }).Map(Access.Property("x")) ; [1, 2]
+     */
     static Property(Name, Args*) {
         if (!(Name is Primitive)) {
             throw TypeError("Expected a String",, Type(Name))
