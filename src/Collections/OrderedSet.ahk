@@ -94,6 +94,11 @@ class AquaHotkey_OrderedSet extends AquaHotkey {
          * 
          * @returns {OrderedSet}
          */
-        Ordered() => OrderedSet(this*)
+        Ordered() {
+            if (this is OrderedSet) {
+                return this
+            }
+            return OrderedSet(this*)
+        }
     }
 }
