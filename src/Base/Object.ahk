@@ -19,6 +19,25 @@
  */
 class AquaHotkey_Object extends AquaHotkey {
     class Any {
+        static __New() {
+            ; save indirection
+            static Define := {}.DefineProp
+            static GetProp := {}.GetOwnPropDesc
+            Proto := this.Prototype
+
+            Define(Proto, "BindMethod", { Call: ObjBindMethod })
+            Define(Proto, "OwnProps",   { Call: ObjOwnProps   })
+
+            Copy(Name) {
+                Define(Proto, Name, GetProp(Object.Prototype, Name))
+            }
+
+            Copy("DefineProp")
+            Copy("DeleteProp")
+            Copy("GetOwnPropDesc")
+            Copy("HasOwnProp")
+        }
+
         ;@region General
 
         /**

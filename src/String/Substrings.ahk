@@ -9,6 +9,10 @@
  */
 class AquaHotkey_Substrings extends AquaHotkey {
     class String {
+        static __New() {
+            ({}.DefineProp)(this.Prototype, "Sub", { Call: SubStr })
+        }
+
         ;@region General
 
         /**

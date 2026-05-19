@@ -10,13 +10,6 @@
  * @see     https://www.github.com/0w0Demonic
  */
 class LinkedList extends IArray {
-    static __New() {
-        if (this == LinkedList) {
-            ({}.DefineProp)(this.Prototype, "__New",
-                    ({}.GetOwnPropDesc)(this.Prototype, "Push"))
-        }
-    }
-
     ;@region Private
 
     /**
@@ -144,7 +137,9 @@ class LinkedList extends IArray {
      * @constructor
      * @param   {Any*}  Values  zero or more values.
      */
-    __New(Values*) => this.Push(Values*) ; aliased by `static __New()`
+    __New(Values*) {
+        this.Push(Values*)
+    }
 
     /**
      * Destructor that clears the list and the references between the nodes.
@@ -250,7 +245,7 @@ class LinkedList extends IArray {
      * the node.
      * 
      * @param   {Integer}  Index  index of element
-     * @returns 
+     * @returns {Any}
      */
     Delete(Index) {
         Node := this.RequiredNodeAt(Index)
@@ -634,7 +629,6 @@ class LinkedList extends IArray {
 
     ; TODO reversed iterator?
     ; TODO probably generalize this into IArray.Iterator or something
-    ; TODO add feature `.Iterator(Index)`?
     /**
      * An iterator for the linked list that allows bidirectional traversal and
      * modification of the list during iteration.

@@ -10,6 +10,10 @@
  */
 class AquaHotkey_TypeInfo extends AquaHotkey {
     class Any {
+        static __New() {
+            ({}.DefineProp)(this.Prototype, "Type", { Call: Type })
+        }
+
         /**
          * Returns the type of this value via `Type()`.
          * 

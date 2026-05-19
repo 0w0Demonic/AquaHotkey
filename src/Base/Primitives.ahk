@@ -9,6 +9,21 @@
  */
 class AquaHotkey_Primitives extends AquaHotkey {
     class Primitive {
+        static __New() {
+            static Define := {}.DefineProp
+            Proto := this.Prototype
+
+            for Name, Fn in ObjOwnProps({
+                ToFloat: Float, ToNumber: Number, ToInteger: Integer,
+                Abs: Abs, ASin: ASin, ACos: ACos, ATan: ATan,
+                Ceil: Ceil, Chr: Chr, Cos: Cos, Exp: Exp,
+                Floor: Floor, Ln: Ln, Sin: Sin, Sqrt: Sqrt,
+                Tan: Tan, Mod: Mod, Round: Round })
+            {
+                Define(Proto, Name, { Call: Fn })
+            }
+        }
+
         /**
          * Outputs the value as text inside a message box.
          * 
@@ -136,11 +151,12 @@ class AquaHotkey_Primitives extends AquaHotkey {
         Exp()     => Exp(this)
         Floor()   => Floor(this)
         Ln()      => Ln(this)
-        Mod(N)    => Mod(this, N)
-        Round(N?) => Round(this, N?)
         Sin()     => Sin(this)
         Sqrt()    => Sqrt(this)
         Tan()     => Tan(this)
+
+        Mod(N)    => Mod(this, N)
+        Round(N?) => Round(this, N?)
 
         /**
          * Returns the logarithm base `BaseN` of this number.

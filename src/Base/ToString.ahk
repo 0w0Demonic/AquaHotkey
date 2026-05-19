@@ -47,6 +47,10 @@ class AquaHotkey_ToString extends AquaHotkey
 
     ;@region Any
     class Any {
+        static __New() {
+            ({}.DefineProp)(this.Prototype, "ToString", { Call: String })
+        }
+
         /**
          * Default `.ToString()` method.
          * 

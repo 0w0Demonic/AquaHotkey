@@ -61,5 +61,16 @@ class Test_Object extends TestSuite
         Obj.DefineProp("DoSomething", Property.Method(DoSomething))
         Obj.DoSomething().Assert(Eq(42))
     }
+
+    static Method_OwnProps_equal_to_ObjOwnProps() {
+        ({}.GetOwnPropDesc)(Any.Prototype, "OwnProps").Call
+            .Assert(Eq(ObjOwnProps))
+    }
+
+    static Any_DefineProp_equal_to_Object_DefineProp() {
+        GetProp := {}.GetOwnPropDesc
+        GetProp(Any.Prototype, "DefineProp").Call
+            .Assert(Eq(GetProp(Object.Prototype, "DefineProp").Call))
+    }
 }
 

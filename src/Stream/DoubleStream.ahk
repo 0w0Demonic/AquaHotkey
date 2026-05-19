@@ -503,8 +503,16 @@ class DoubleStream extends BaseStream
 
 ;@region Extensions
 
+/**
+ * Extensions related to {@link DoubleStream}.
+ */
 class AquaHotkey_DoubleStream extends AquaHotkey {
     class Any {
+        static __New() {
+            ({}.DefineProp)(this.Prototype, "DoubleStream",
+                    { Call: DoubleStream })
+        }
+
         /**
          * Creates a {@link DoubleStream} for this value.
          * 

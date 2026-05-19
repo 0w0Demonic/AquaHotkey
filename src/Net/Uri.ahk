@@ -911,6 +911,10 @@ class Uri {
 
 class AquaHotkey_Uri extends AquaHotkey {
     class String {
+        static __New() {
+            ({}.DefineProp)(this.Prototype, "ToUri", { Call: Uri })
+        }
+
         /**
          * Converts this string into a {@link Resource}.
          * 

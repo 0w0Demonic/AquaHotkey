@@ -9,6 +9,24 @@
  */
 class AquaHotkey_StringFormatting extends AquaHotkey {
     class String {
+        static __New() {
+            static Define := {}.DefineProp
+            Proto := this.Prototype
+            
+            for Name, Fn in ObjOwnProps({
+                Replace: StrReplace,
+                RegExReplace: RegExReplace,
+                Trim: Trim,
+                LTrim: Trim,
+                RTrim: RTrim,
+                ToUpper: StrUpper,
+                ToLower: StrLower,
+                ToTitle: StrTitle
+            }) {
+                Define(Proto, Name, { Call: Fn })
+            }
+        }
+
         ;@region Formatting
 
         /**

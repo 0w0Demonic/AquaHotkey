@@ -634,8 +634,16 @@ class Stream extends BaseStream
 ;-------------------------------------------------------------------------------
 ;@region Extensions
 
+/**
+ * Extensions related to {@link Stream}.
+ */
 class AquaHotkey_Stream extends AquaHotkey {
     class Any {
+        static __New() {
+            ({}.DefineProp)(this.Prototype, "Stream",
+                    { Call: Stream })
+        }
+
         /**
          * Returns a new {@link Stream} for this value.
          * 

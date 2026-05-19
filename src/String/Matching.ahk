@@ -9,6 +9,25 @@
  */
 class AquaHotkey_StringMatching extends AquaHotkey {
     class String {
+        static __New() {
+            static Define := {}.DefineProp
+            Proto := this.Prototype
+
+            for Name, Fn in ObjOwnProps({
+                IsDigit:  IsDigit,
+                IsXDigit: IsXDigit,
+                IsAlpha:  IsAlpha,
+                IsUpper:  IsUpper,
+                IsLower:  IsLower,
+                IsAlnum:  IsAlnum,
+                IsSpace:  IsSpace,
+                IsTime:   IsTime,
+                RegExMatch: RegExMatch,
+            }) {
+                Define(Proto, Name, { Call: Fn })
+            }
+        }
+
         ;@region Is Functions
 
         /**

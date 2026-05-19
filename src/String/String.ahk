@@ -16,6 +16,11 @@
  */
 class AquaHotkey_String extends AquaHotkey {
     class String {
+        static __New() {
+            ({}.DefineProp)(this.Prototype, "Split",  { Call: StrSplit })
+            ({}.DefineProp)(this.Prototype, "Length", { Get:  StrLen   })
+        }
+
         ;@region Enumeration
 
         /**

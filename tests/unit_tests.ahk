@@ -9,6 +9,7 @@
      #Include "%A_LineFile%\..\Base\Eq.ahk"
      #Include "%A_LineFile%\..\Base\Error.ahk"
      #Include "%A_LineFile%\..\Base\Object.ahk"
+     #Include "%A_LineFile%\..\Base\Primitives.ahk"
      #Include "%A_LineFile%\..\Base\Comparable.ahk"
      #Include "%A_LineFile%\..\Base\DuckTypes.ahk"
      #Include "%A_LineFile%\..\Base\TypeInfo.ahk"

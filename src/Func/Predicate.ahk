@@ -24,6 +24,8 @@ class Predicate extends Func {
                    IsSpace, IsTime, DirExist, FileExist, ProcessExist] {
             this.Cast(Fn)
         }
+
+        ({}.DefineProp)(this.Prototype, "AsAssertion", { Call: Assertion })
     }
 
     ;@region Static
