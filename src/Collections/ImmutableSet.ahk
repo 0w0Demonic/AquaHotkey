@@ -135,6 +135,7 @@ class AquaHotkey_ImmutableSet extends AquaHotkey {
          * @returns {ImmutableSet}
          */
         Freeze() {
+            ; TODO find better way to determine immutability
             if (this is ImmutableSet) {
                 return this
             }

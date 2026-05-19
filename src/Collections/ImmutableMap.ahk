@@ -186,6 +186,7 @@ class AquaHotkey_ImmutableMap extends AquaHotkey {
          * Clone.Set(5, 6) ; Error!
          */
         Freeze() {
+            ; TODO find better way to determine immutability
             if (this is ImmutableMap) {
                 return this
             }

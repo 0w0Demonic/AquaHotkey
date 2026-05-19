@@ -17,6 +17,7 @@
 Tuple(Values*) => ImmutableArray.FromArray(Values)
 
 ; allows the use of `Tuple(...) is Tuple`
+; TODO find a way to absolutely *force* this line to execute
 ({}.DefineProp)(Tuple, "Prototype", { Value: ImmutableArray.Prototype })
 
 ;@endregion
@@ -205,6 +206,7 @@ class AquaHotkey_ImmutableArray extends AquaHotkey {
          * T := Tuple(1, 2, 3, 4)
          */
         Freeze() {
+            ; TODO find a more comprehensive way to determine immutability
             if (this is ImmutableArray) {
                 return this
             }

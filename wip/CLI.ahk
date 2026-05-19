@@ -20,12 +20,10 @@ class CliOption extends Parser {
         return this.Cast(this.String(Name))
     }
 
-    static Value() {
-        return this.Whitespace().Then(this.AnyOf(
-            this.ZeroOrMore((c) => (c != '"'), "non-quote").Between('"'),
-            this.OneOrMore((c) => !IsSpace(c), "non-whitespace")
-        ))
-    }
+    static Value() => this.Whitespace().Then(this.AnyOf(
+        this.Regex('"([^"]*+)"', (Match) => Match[1]),
+        this.Regex("\K[^-]\S*+")
+    ))
 
     static KeyValue(Name) {
         return this.Sequence(Array, this.Flag(Name), this.Value())
@@ -66,6 +64,10 @@ class CliOption extends Parser {
 
 #Include <AquaHotkey\src\Base\Primitives>
 
-OptionD := CliOption.JavaOption("D")
+; OptionD := CliOption.JavaOption("D")
+; 
+; "-Djava.awt.DoSomething=false".Parse(OptionD).ToString().MsgBox()
 
-"-Djava.awt.DoSomething=false".Parse(OptionD).ToString().MsgBox()
+GitCommit := CliOption.Subcommand("commit", CliOption.KeyValue("m"))
+
+'commit -m "Fixed the fix..."'.Parse(GitCommit).ToString().MsgBox()
