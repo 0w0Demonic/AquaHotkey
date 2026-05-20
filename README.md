@@ -14,6 +14,7 @@ built-in types like `Array`, `String` or `Map` to match your own style
 and preferences.
 
 ```ahk
+; "Hello, AquaHotkey!"
 "Hello, World!".SubStr(1, 7).Append("AquaHotkey!").MsgBox()
 ```
 
@@ -63,23 +64,19 @@ Also see:
 - [How does this work?](#a-short-insight-into-class-prototyping)
 - [AquaHotkeyX](#aquahotkeyx)
 
-## Why this Matters
+## Core Idea
 
-With regular AutoHotkey libraries, you usually end up with piles of utility
-functions. you must remember which function works on which type, invent naming
-rules, or write big checks like "if this is a string, else if this is an
-array ...". Works, but it becomes clunky very quickly.
+Coming from other programming languages, there might be a set of methods that
+the equivalent in AutoHotkey might not have. A good example might be the wide
+set of methods like `.map()`, `.includes()` and `.forEach()` provided to
+arrays in JavaScript.
 
-AquaHotkey is a framework for "class prototyping" in AutoHotkey v2 - the ability
-to add properties and methods to built-in types like `String` and `Array`.
-
-Let's say we want to add some simple array methods to reuse across your
-script. Normally, you'd start by calling `Array.Prototype.DefineProp(...)`, and
-defining everything as a bunch of global functions. Like this:
+Because AutoHotkey uses prototype-based objects just like JavaScript, you can
+define these features yourself with the help of `.DefineProp(...)` and the use
+of property descriptors.
 
 ```ahk
 Array.Prototype.DefineProp("ForEach", { Call: Array_ForEach })
-Array.Prototype.DefineProp("Contains", { Call: Array_Contains })
 
 Array_ForEach(this, Action, Args*) {
     GetMethod(Action)
@@ -88,21 +85,15 @@ Array_ForEach(this, Action, Args*) {
     }
     return this
 }
-
-Array_Contains(this, ExpectedValue) {
-    for Value in this {
-        if (Value == ExpectedValue) {
-            return true
-        }
-    }
-    return false
-}
 ```
 
-This works, but doing it manually is difficult, tedious, and very error-prone.
+This works just fine, if you need only a few simple utility functions, but
+doing this manually is *tedious*, and requires quite a bit of knowledge about
+objects in AHK.
 
 In AquaHotkey, all of this is done declaratively using "extension classes"
-that specify which properties should be added to which targets.
+that each contain the properties and methods that should be added to the
+built-in classes.
 
 ```ahk
 class ArrayUtils extends AquaHotkey {
@@ -113,13 +104,45 @@ class ArrayUtils extends AquaHotkey {
 }
 ```
 
-The greatest advantage of this is being exposed to regular class-based
-syntax. Instead of implementing everything as global functions, you can write
-things as if you had direct access to the built-in class, which is much
-more intuitive and feels a lot more natural.
+After you're done, you can use these new methods anywhere you want!
 
-Instead of huge "do-everything" functions, you can break up things into smaller
-parts. Like this:
+```ahk
+Arr := Array(1, 2, 3)
+Arr.ForEach(MsgBox)    ; 1, 2, 3
+Arr.Contains(2)        ; true
+```
+
+## Why This Matters
+
+### Customizability
+
+One of the main things that AquaHotkey is concerned with is *making things
+fun through customization*. It lets you shape AutoHotkey into something that
+matches your own mental model by expressing things in a new and expressive
+way. It's also great for making interaction with other libraries a lot more
+seamless:
+
+```ahk
+#Include <SomeJsonLibrary>
+
+class JsonUtils extends AquaHotkey {
+    class Object {
+        ; object to JSON string
+        ToJson() => Json.Stringify(this)
+    }
+    class String {
+        ; JSON string to object
+        ToJson() => Json.Dump(this)
+    }
+}
+```
+
+### Features That Feel "Fundamental" to the Language
+
+With AquaHotkey, you can very easily add features that appear as if they're
+fundamental to the language, something that'd otherwise be almost impossible.
+
+As a test, let me show you how to add a universal `.ToString()` method.
 
 ```ahk
 class ToString extends AquaHotkey {
@@ -146,20 +169,27 @@ class ToString extends AquaHotkey {
 ```
 
 Strings get string methods, arrays get array methods, and so on. The objects
-themselves "know" what to do.
+themselves "know" what to do. We've just successfully made `String(Value)`
+a feature that works on (almost) all data types.
 
-We've just successfully made `String(Value)` a feature that works on (almost)
-all data types.
+---
 
 This type of meta-programming uncovers a beautiful, but yet still vastly
 unexplored part of AutoHotkey, and it's my job to be your tour guide.
 If you're interested, you can check out [AquaHotkeyX](#aquahotkeyx), where
 these patterns are taken to their extreme.
 
-### Massively Reusable
+### Easy to Use
 
-When you're done writing a class, you can put it into a separate file, and
-`#Include` it across multiple scripts.
+If you know how classes work (you probably should), then learning how to use
+this library takes almost no effort at all.
+
+### Modular
+
+Changes that belong to one feature can live together in a single extension
+class. That means you can move them into their own file, `#Include` them
+when needed, and slowly build up your own collection of reusable language
+features.
 
 **StringUtils.ahk**:
 
