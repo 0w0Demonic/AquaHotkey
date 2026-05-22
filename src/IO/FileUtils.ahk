@@ -55,10 +55,10 @@ class AquaHotkey_FileUtils extends AquaHotkey {
          */
         __Enum(n) {
             if (n > 1) {
-                return Enumer1
+                return Enumer2
             }
             LineNumber := 0
-            return Enumer2
+            return Enumer1
 
             Enumer1(&Line) {
                 if (this.AtEOF) {
