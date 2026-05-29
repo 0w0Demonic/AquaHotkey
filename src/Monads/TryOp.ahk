@@ -787,13 +787,11 @@ class TryOp {
 ;@region Extensions
 
 class AquaHotkey_Try extends AquaHotkey {
-    static __New() {
-        if (this == AquaHotkey_Try) {
-            super.__New()
-        }
-    }
-
     class Object {
+        static __New() {
+            ({}.DefineProp)(this.Prototype, "TryCall", { Call: TryOp })
+        }
+
         /**
          * Tries to call this object with `Args*`, wrapped in a try-operation.
          * 
@@ -802,10 +800,7 @@ class AquaHotkey_Try extends AquaHotkey {
          * @example
          * FileContents := FileRead.TryCall("myFile.txt").OrElse("")
          */
-        TryCall(Args*) {
-            GetMethod(this)
-            return TryOp(this, Args*)
-        }
+        TryCall(Args*) => TryOp(this, Args*)
     }
 }
 

@@ -358,16 +358,14 @@ class Optional {
 ;@region Extensions
 
 class AquaHotkey_Optional extends AquaHotkey {
-    static __New() {
-        if (this == AquaHotkey_Optional) {
-            super.__New()
-        }
-    }
-    
     /**
      * Provides a universal `.Optional()` method.
      */
     class Any {
+        static __New() {
+            ({}.DefineProp)(this.Prototype, "Optional", { Call: Optional })
+        }
+
         ; TODO rename to `.ToOptional()`?
         /**
          * Returns a new optional that wraps arount the element.
