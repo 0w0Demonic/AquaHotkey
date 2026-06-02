@@ -961,10 +961,45 @@ class AquaHotkey_Ignore
 
             DoRecursion := false
             PropDesc := GetPropDesc(Supplier, Name)
-            if (ObjHasOwnProp(PropDesc, "Value")) {
-                DoRecursion := (PropDesc.Value is Class)
-            } else if ObjHasOwnProp(Supplier, "Get") {
-                try DoRecursion := ((PropDesc.Get)(Supplier) is Class)
+
+            ; determine whether this is a nested class. it MUST explicitly be
+            ; in the form of `{ get; call; }`, we don't allow simple
+            ; `{ value; }` property descriptors.
+            ; 
+            ; dev-note: we can't change for the `Name` property of functions,
+            ;           (which is `""` only when explicitly defined as nested
+            ;           class) because there's occasions we have to create our
+            ;           own property descriptors. `MaxParams` should be fine
+            ;           because varargs aren't counted.
+            ;    (maybe just write a dirty fix in `NestedClassProperty`?)
+            if ((Supplier is Class)
+                    && ObjHasOwnProp(PropDesc, "Get")
+                    && ObjHasOwnProp(PropDesc, "Call")
+                    && (ObjOwnPropCount(PropDesc) == 2)
+                    && (PropDesc.Get.MaxParams == 1) ; paranoia
+                    && (PropDesc.Call.MaxParams == 1))
+            {
+                Log(3, "calling {}.{} (get): is this a nested class?",
+                        SupplierName, Name)
+                try {
+                    DoRecursion := ((PropDesc.Get)(Supplier) is Class)
+                    if (DoRecursion) {
+                        Log(4, "yes.")
+                    } else {
+                        Log(4, "no.")
+                    }
+                }
+                catch Any as Err
+                {
+                    ; even more paranoia
+                    Log(3, Type(Err))
+                    if ((Err is Error)
+                        && ObjHasOwnProp(Err, "Message")
+                        && ObjHasOwnProp(GetPropDesc(Err, "Message"), "Value"))
+                    {
+                        Log(3, Err.Message)
+                    }
+                }
             }
 
             if (!DoRecursion) {
