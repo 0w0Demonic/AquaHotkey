@@ -60,3 +60,4 @@
     #Include "%A_LineFile%\..\String\String.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------
+TestSuite.Close()

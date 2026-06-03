@@ -51,7 +51,7 @@ class Test_Func extends TestSuite {
 
         ; 100ms max time for calculation, which is not enough if this function
         ; runs at O(2^n)
-        SetTimer(() => (IsSet(Result) || Timeout()))
+        SetTimer(() => (IsSet(Result) || Timeout()), -250)
         Result := FibonacciSequence(80)
 
         Timeout() {

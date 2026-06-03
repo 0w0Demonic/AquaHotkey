@@ -1,30 +1,43 @@
 #Requires AutoHotkey v2
 #Include <AquaHotkey/cfg/VerboseLogging>
 
-; OnExit((*) => MsgBox(TestSuite.FailCount))
-
 class TestSuite
 {
 
 static TestCount := 0
 static FailCount := 0
+static Line      := "--------------------------------------------------------------------------------"
+
+static Close() {
+    FileObj := FileOpen(A_LineFile . "\..\result.txt", "a")
+    FileObj.Write(Format("
+    (
+    Total:  {2}
+    Failed: {3}
+    )", this.Line, this.TestCount, this.FailCount))
+    FileObj.Close()
+    ExitApp(0)
+}
+
 
 static __New() {
     static OutFile := (A_LineFile . "\..\result.txt")
-    static Ln := "--------------------------------------------------------------------------------"
 
+    ; this should be the case on the first iteration
     if (this == TestSuite) {
         ToolTip("running...")
         SetTimer(() => ToolTip(), -400)
 
-        FileOpen(OutFile, "w").Write(Format("
+        FileObj := FileOpen(OutFile, "w")
+        FileObj.Write(Format("
         (
         TESTS: AutoHotkey {1}
 
         {2}
         {3}
 
-        )", A_AhkVersion, FormatTime(unset, "yyyy/MM/dd HH:mm:ss"), Ln))
+        )", A_AhkVersion, FormatTime(unset, "yyyy/MM/dd HH:mm:ss"), this.Line))
+        FileObj.Close()
         return
     }
 
@@ -40,7 +53,7 @@ static __New() {
         RunWithTimeout(() => Fn(this), &Err)
         Output .= FormatTestResult(Fn, Err?)
     }
-    Output .= Ln
+    Output .= this.Line
     Output .= "`n"
     FileAppend(Output, OutFile)
 
@@ -73,7 +86,7 @@ static __New() {
         Output  := Format("{:-77}[{}]`n", Name, (Success ? "x" : " "))
 
         if (!Success) {
-            Output .= Ln
+            Output .= TestSuite.Line
             Output .= "`n"
             Output .= E.Message . "`n"
             if (E.Extra == "") {
@@ -81,7 +94,7 @@ static __New() {
             }
             Output .= "Specifically: " . E.Extra . "`n"
             Output .= FormatStack(E)
-            Output .= Ln
+            Output .= TestSuite.Line
             Output .= "`n"
         }
         return Output
