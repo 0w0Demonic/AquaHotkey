@@ -21,23 +21,15 @@ and preferences.
 Setting up this one-liner to work is really easy! Just do the following:
 
 ```ahk
+#Requires AutoHotkey v2
 #Include <AquaHotkey>
 
 class StringUtil extends AquaHotkey {
-    class String {
-        SubStr(Start, Length?) {
-            ; `this` - a string instance
-            return SubStr(this, Start, Length*)
-        }
-        
-        Append(Str) {
-            return (this . Str)
-        }
-        
-        MsgBox() {
-            MsgBox(this)
-        }
-    }
+  class String {
+    SubStr(Idx, Len?) => SubStr(this, Idx, Len*)
+    Append(Str)       => (this . Str)
+    MsgBox()          => MsgBox(this)
+  }
 }
 ```
 
@@ -45,6 +37,23 @@ What you see is an *extension class* that contains custom methods `.SubStr()`,
 `.Append()` and `.MsgBox()` for the type `String`. As soon as the script loads,
 the extension class "pastes" its contents into the specified target, in this
 case `String`.
+
+## Quick Start
+
+Download the repository, ideally inside one of the
+[lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib):
+
+```batch
+git clone https://www.github.com/0w0Demonic/AquaHotkey "%USERPROFILE%\Documents\TestFolder\lib\AquaHotkey"
+```
+
+Now, you can import the library:
+
+```ahk
+  #Requires AutoHotkey v2
+  #Include <AquaHotkey>
+; #Include <AquaHotkeyX> (extra features --- see below)
+```
 
 ## Documentation
 
@@ -67,11 +76,11 @@ Also see:
 ## Core Idea
 
 Coming from other programming languages, there might be a set of methods that
-the equivalent in AutoHotkey might not have. A good example might be the wide
-set of methods like `.map()`, `.includes()` and `.forEach()` provided to
-arrays in JavaScript.
+the equivalent class in AutoHotkey might not have. A good example might be
+the wide set of methods like `.map()`, `.includes()` and `.forEach()` provided
+to arrays in JavaScript.
 
-Because AutoHotkey uses prototype-based objects just like JavaScript, you can
+Because AutoHotkey uses prototype-based objects just like JavaScript, you *can*
 define these features yourself with the help of `.DefineProp(...)` and the use
 of property descriptors.
 
@@ -88,7 +97,7 @@ Array_ForEach(this, Action, Args*) {
 ```
 
 This works just fine, if you need only a few simple utility functions, but
-doing this manually is *tedious*, and requires quite a bit of knowledge about
+doing this manually is tedious, and requires quite a bit of knowledge about
 objects in AHK.
 
 In AquaHotkey, all of this is done declaratively using "extension classes"
@@ -117,22 +126,24 @@ Arr.Contains(2)        ; true
 ### Customizability
 
 One of the main things that AquaHotkey is concerned with is *making things
-fun through customization*. It lets you shape AutoHotkey into something that
-matches your own mental model by expressing things in a new and expressive
-way. It's also great for making interaction with other libraries a lot more
+fun through customization*. It's something that I think is very opinionated,
+but pays off very quickly. With this extra expressive layer of expressing
+things in code, you can shape AutoHotkey into something that matches your
+own mental model. Kind of like your favorite code editor.
+
+It's also great for making interaction with other libraries a lot more
 seamless:
 
 ```ahk
+#Requires AutoHotkey v2
 #Include <SomeJsonLibrary>
 
 class JsonUtils extends AquaHotkey {
     class Object {
-        ; object to JSON string
-        ToJson() => Json.Stringify(this)
+        ToJson() => Json.Stringify(this) ; object to JSON string
     }
     class String {
-        ; JSON string to object
-        ToJson() => Json.Dump(this)
+        ToJson() => Json.Dump(this) ; JSON string to object
     }
 }
 ```
@@ -145,6 +156,8 @@ fundamental to the language, something that'd otherwise be almost impossible.
 As a test, let me show you how to add a universal `.ToString()` method.
 
 ```ahk
+#Requires AutoHotkey v2
+
 class ToString extends AquaHotkey {
     class Number {
         ToString() => String(this)
@@ -264,7 +277,7 @@ of AquaHotkey.
 - Designed for maximal elegance and conciseness
 
 ```ahk
-#Requires AutoHotkey >=v2.0.5
+#Requires AutoHotkey v2
 #Include <AquaHotkeyX>
 
 ; Map { 4: ["kiwi", "lime"], 5: ["apple"], 6: ["banana"] }
