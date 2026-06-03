@@ -267,22 +267,30 @@ class IMap {
     ;@region Default Methods
 
     /**
-     * If absent, adds a new map element.
+     * If absent, adds a new map element. This method returns the current
+     * value of the item if already present, or the new value if absent.
      * 
      * @param   {Any}  Key    map key
      * @param   {Any}  Value  associated value
+     * @returns {Any}
      * @example
      * M := Map()
-     * M.PutIfAbsent("foo", "bar")
+     * M.PutIfAbsent("foo", "bar") ; "bar"
+     * M.PutIfAbsent("foo", "baz") ; "bar"
      */
     PutIfAbsent(Key, Value) {
-        if (!this.Has(Key)) {
-            this.Set(Key, Value)
+        if (this.Has(Key)) {
+            return this.Get(Key)
         }
+        this.Set(Key, Value)
+        return Value
     }
 
     /**
      * If absent, adds a new entry using the given mapping function.
+     * 
+     * This method returns the current value if an entry was already present,
+     * otherwise the value newly created by `Mapper`.
      * 
      * ```ahk
      * Mapper(Key: Any, Args: Any*) => Any
@@ -298,10 +306,13 @@ class IMap {
      * M.ComputeIfAbsent(1, Mul, 2)
      */
     ComputeIfAbsent(Key, Mapper, Args*) {
-        if (!this.Has(Key)) {
-            GetMethod(Mapper)
-            this.Set(Key, Mapper(Key, Args*))
+        if (this.Has(Key)) {
+            return this.Get(Key)
         }
+        GetMethod(Mapper)
+        Value := Mapper(Key, Args*)
+        this.Set(Key, Value)
+        return Value
     }
 
     /**
@@ -311,6 +322,9 @@ class IMap {
      * ```ahk
      * Mapper(Key: Any, Value: Any, Args: Any*) => Any
      * ```
+     * 
+     * Returns the newly change value, or otherwise the default implicit return
+     * value (which might be `""` or `unset` depending on your version of AHK).
      * 
      * @param   {Any}   Key     map key
      * @param   {Func}  Mapper  mapper function
@@ -325,7 +339,9 @@ class IMap {
     ComputeIfPresent(Key, Mapper, Args*) {
         if (this.Has(Key)) {
             GetMethod(Mapper)
-            this.Set(Key, Mapper(Key, this.Get(Key), Args*))
+            Value := Mapper(Key, this.Get(Key), Args*)
+            this.Set(Key, Value)
+            return Value
         }
     }
 
@@ -333,27 +349,34 @@ class IMap {
      * Creates a new mapping for the specified and its current mapped value,
      * or `unset` if there is no current mapping.
      * 
+     * This method returns the new item value.
+     * 
      * ```ahk
-     * Mapper(Key: Any, Value: Any?, Args: Any* r Args: Any*A => Any
+     * Mapper(Key: Any, Value: Any?, Args: Any* r Args: Any*) => Any
      * ```
      * 
      * @param   {Any}   Key     map key
      * @param   {Func}  Mapper  mapper function
+     * @param   
      * @param   {Any*}  Args    zero or more arguments
      */
     Compute(Key, Mapper, Args*) {
         GetMethod(Mapper)
+
         if (this.Has(Key)) {
-            this.Set(Key, Mapper(Key, this.Get(Key), Args*))
-        } else {
-            this.Set(Key, Mapper(Key, unset, Args*))
+            Value := this.Get(Key)
         }
+        Value := Mapper(Key, Value?, Args*)
+        this.Set(Key, Value)
+        return Value
     }
 
     /**
      * If the specified key is not already associated with a value,
      * associates it with the given value. Otherwise, replaces the value
      * with the results of a remapping function.
+     * 
+     * This method returns the new item value.
      * 
      * ```ahk
      * Combiner(OldValue: Any, NewValue: Any) => Any
@@ -363,6 +386,7 @@ class IMap {
      * @param   {Any}   Value     the new value
      * @param   {Func}  Combiner  function to merge both values with
      * @param   {Any*}  Args      zero or more arguments
+     * @returns {Any}
      * @example
      * Sum(A, B) => (A + B)
      * 
@@ -372,10 +396,10 @@ class IMap {
     Merge(Key, Value, Combiner, Args*) {
         if (this.Has(Key)) {
             GetMethod(Combiner)
-            this.Set(Key, Combiner(this.Get(Key), Value, Args*))
-        } else {
-            this.Set(Key, Value, Args*)
+            Value := Combiner(this.Get(Key), Value, Args*)
         }
+        this.Set(Key, Value)
+        return Value
     }
 
     /**
