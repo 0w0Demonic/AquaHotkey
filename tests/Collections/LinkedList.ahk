@@ -119,7 +119,7 @@ class Test_LinkedList extends TestSuite {
 
     static __Item_set_supports_unset() {
         L := LinkedList(1, 2, 3)
-        L[2] := unset
+        L.Delete(2) ; unable to use `L[2] := unset` because of <v2.0.3
         L.Has(2).Assert(Eq(false))
     }
 

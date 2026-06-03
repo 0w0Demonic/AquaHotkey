@@ -1,4 +1,4 @@
-#Requires AutoHotkey >=v2.0.5
+#Requires AutoHotkey v2
 #Include "%A_LineFile%\..\..\AquaHotkeyX.ahk"
 
 /**

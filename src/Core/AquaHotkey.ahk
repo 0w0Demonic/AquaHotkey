@@ -1,9 +1,6 @@
 #Requires AutoHotkey v2
 
-; TODO
-; - move `AquaHotkey.CreateClass()` to just `CreateClass()` ?
-; - mixins should just be classes that can't overwrite existing properties
-; - reconsider what to do with `.Mixins` property on classes
+; TODO consider removing `.Mixins` again
 
 /**
  * @file AquaHotkey.ahk
@@ -260,8 +257,7 @@ class AquaHotkey extends AquaHotkey_Ignore
         /**
          * Applies one or more mixin classes onto this class.
          * 
-         * @param   {Class}   Mixin   mixin class to apply
-         * @param   {Class*}  Mixins  more mixins
+         * @param   {Class*}  Mixins  mixin classes to apply
          * @returns {this}
          * @example
          * class Enumerable1 {
@@ -273,11 +269,18 @@ class AquaHotkey extends AquaHotkey_Ignore
          * }
          * Array.Include(Enumerable1)
          */
-        Include(Mixin, Mixins*) {
+        Include(Mixins*) {
             static Define := ({}.DefineProp)
 
-            if (!(Mixin is Class)) {
-                throw TypeError("Expected a Class",, Type(Mixin))
+            Log(Str, Args*) {
+                (AquaHotkey_Ignore.Log)(this, Str, Args*)
+            }
+            LogVerbose(Str, Args*) {
+                (AquaHotkey_Ignore.LogVerbose)(this, Str, Args*)
+            }
+
+            if (!Mixins.Length) {
+                throw ValueError("No mixin classes specified")
             }
             for M in Mixins {
                 if (!(M is Class)) {
@@ -287,18 +290,10 @@ class AquaHotkey extends AquaHotkey_Ignore
 
             Mixins := this.Mixins
 
-            if (Mixins.Count) {
-                ObjGetBase(this).Backup(Mixin, Mixins*)
-            } else {
-                BaseClass := AquaHotkey
-                        .CreateClass(ObjGetBase(this))
-                        .Backup(Mixin, Mixins*)
-                
-                ObjSetBase(this, BaseClass)
-                ObjSetBase(this.Prototype, BaseClass.Prototype)
+            for M in Mixins {
+                (AquaHotkey.Apply)(this, M, this, false)
             }
 
-            Mixins.Set(Mixin, true)
             for M in Mixins {
                 Mixins.Set(M, true)
             }
@@ -317,8 +312,7 @@ class AquaHotkey extends AquaHotkey_Ignore
          * Applies this mixin class onto one or more classes.
          * 
          * @public
-         * @param   {Class}   Cls      the class on which to apply the mixin
-         * @param   {Class*}  Classes  more classes
+         * @param   {Class*}  Classes  classes on which to apply the mixin
          * @returns {this}
          * @example
          * class Enumerable1 {
@@ -331,19 +325,18 @@ class AquaHotkey extends AquaHotkey_Ignore
          *   }
          * }
          */
-        Extend(Cls, Classes*) {
-            if (!(Cls is Class)) {
-                throw TypeError("Expected a Class",, Type(Cls))
+        Extend(Classes*) {
+            if (!Classes.Length) {
+                throw ValueError("No classes specified")
             }
-            Cls.Include(this)
-            for C in Classes {
-                if (!IsSet(C)) {
+            for Cls in Classes {
+                if (!IsSet(Cls)) {
                     throw UnsetError("Value unset")
                 }
-                if (!(C is Class)) {
-                    throw TypeError("Expected a Class",, Type(C))
+                if (!(Cls is Class)) {
+                    throw TypeError("Expected a Class",, Type(Cls))
                 }
-                C.Include(this)
+                Cls.Include(this)
             }
             return this
         }
@@ -441,20 +434,25 @@ class AquaHotkey extends AquaHotkey_Ignore
             return Class(BaseClass, Args*)
         }
 
-        Cls      := Class()
-        ClsProto := Object()
+        Cls      := {}
+        ClsProto := {}
         Define(Cls, "Prototype", { Value: ClsProto })
 
         try {
             ObjSetBase(Cls.Prototype, BaseClass.Prototype)
             ObjSetBase(Cls, BaseClass)
         } catch {
-            throw TypeError("Unable to subclass. Try using v2.1-alpha.3+.")
+            throw TypeError("Unable to subclass. Try using v2.1-alpha.3+.",,
+                Cls.Prototype.__Class . " -> " . BaseClass.Prototype.__Class)
         }
 
-        if (Cls.__New != Object.Prototype.__New) {
+        if (HasMethod(Cls, "__Init")) {
+            Cls.__Init()
+        }
+        if (HasMethod(Cls, "__New")) {
             Cls.__New(Args*)
         }
+
         if (IsSet(Name)) {
             Define(ClsProto, "__Class", { Value: Name })
         }
@@ -689,8 +687,9 @@ class AquaHotkey_Ignore
      * @private
      * @param   {Class|Func}  Supplier  contains the properties to be applied
      * @param   {Class|Func}  Receiver  receives the new properties
+     * @param   {Boolean?}    Override  whether to destroy existing props
      */
-    static Apply(Supplier, Receiver) {
+    static Apply(Supplier, Receiver, Override := true) {
         ;@region Helper Functions
         /**
          * `Object.Prototype.DefineProp()`.
@@ -698,11 +697,18 @@ class AquaHotkey_Ignore
          * @param   {Object}  Obj       object to define property on
          * @param   {String}  Name      name of property
          * @param   {Object}  PropDesc  property descriptor
+         * @param   {Boolean} Override  whether to destroy existing props
          */
-        static Define(Obj, Name, PropDesc) {
-            if (ObjOwnPropCount(PropDesc)) {
-                ({}.DefineProp)(Obj, Name, PropDesc)
+        static Define(Obj, Name, PropDesc, Override) {
+            ; empty properties are allowed inside classes, but cause an error
+            ; when trying to `.DefineProp()` with them.
+            if (!ObjOwnPropCount(PropDesc)) {
+                return
             }
+            if (ObjHasOwnProp(Obj, Name) && (!Override)) {
+                return
+            }
+            ({}.DefineProp)(Obj, Name, PropDesc)
         }
 
         /**
@@ -790,7 +796,7 @@ class AquaHotkey_Ignore
                 Value := ((Name = "Value") || !Value.IsBuiltIn)
                         ? Value
                         : DelegateMethod(Value, Val)
-                Define(Result, Name, { Value: Value })
+                Define(Result, Name, { Value: Value }, true)
             }
             return Result
         }
@@ -904,7 +910,7 @@ class AquaHotkey_Ignore
                 LogVerbose(3, "merging __Init() methods...")
                 LogVerbose(3, "1. {1}", ReceiverInitName)
                 LogVerbose(3, "2. {1}", SupplierInitName)
-                Define(ReceiverProto, "__Init", { Call: __Init })
+                Define(ReceiverProto, "__Init", { Call: __Init }, true)
                 LogVerbose(3, "done.")
             } else {
                 LogVerbose(3, "ignore. both __Init() methods equal {1}",
@@ -922,7 +928,9 @@ class AquaHotkey_Ignore
         if (Supplier is Func) {
             for Name in ObjOwnProps(Func.Prototype) {
                 LogVerbose("      > {1}", Name)
-                Define(Receiver, Name, Delegate(Func.Prototype, Name, Supplier))
+                Define(Receiver, Name,
+                       Delegate(Func.Prototype, Name, Supplier),
+                       true)
             }
         } else {
             LogVerbose(3, "ignore - not a function.")
@@ -942,7 +950,9 @@ class AquaHotkey_Ignore
                 }
             }
             LogVerbose(3, "> {1}", Name)
-            Define(ReceiverProto, Name, GetPropDesc(SupplierProto, Name))
+            Define(ReceiverProto, Name,
+                   GetPropDesc(SupplierProto, Name),
+                   Override)
         }
 
         ;@endregion
@@ -1004,7 +1014,7 @@ class AquaHotkey_Ignore
 
             if (!DoRecursion) {
                 LogVerbose(3, "> {1}", Name)
-                Define(Receiver, Name, GetPropDesc(Supplier, Name))
+                Define(Receiver, Name, GetPropDesc(Supplier, Name), Override)
                 continue
             }
 
@@ -1033,7 +1043,7 @@ class AquaHotkey_Ignore
             LogVerbose(3, "creating new class: {1}", NestedReceiverName)
             LogVerbose(3, "base class: {1}", Base.Prototype.__Class)
 
-            Define(Receiver, Name, NestedClassProperty(NestedReceiver))
+            Define(Receiver, Name, NestedClassProperty(NestedReceiver), true)
 
             LogVerbose(3, "recurse into newly created class: {1}",
                        NestedReceiverName)

@@ -24,6 +24,7 @@ class Enumerable2 {
         static Clone   := {}.Clone
         static GetProp := {}.GetOwnPropDesc
         static Define  := {}.DefineProp
+        static Delete  := {}.DeleteProp
 
         if (this != Enumerable2) {
             return
@@ -39,17 +40,23 @@ class Enumerable2 {
         Define(this, "Strict", { Get: (_) => Cls })
 
         this.Extend(IArray, IMap)
-        Cls.Extend(DoubleStream)
+
+        ; dirty hack
+        ; TODO figure out why `Extend` refuses to work
+        (AquaHotkey.Apply)(this, this, DoubleStream, false)
 
         static WithAlias(Target) {
-            M := Map()
+            Arr := Array()
             for PropName in ObjOwnProps(Target) {
-                if (PropName ~= "2$") {
-                    M.Set(SubStr(PropName, 1, -1), GetProp(Target, PropName))
+                if (SubStr(PropName, -1) != "2") {
+                    continue
                 }
+                Arr.Push(PropName)
             }
-            for PropName, PropDesc in M {
-                Define(Target, PropName, PropDesc)
+            for PropName in Arr {
+                PropDesc := GetProp(Target, PropName)
+                Delete(Target, PropName)
+                Define(Target, SubStr(PropName, 1, -1), PropDesc)
             }
         }
     }

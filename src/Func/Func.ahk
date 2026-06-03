@@ -154,6 +154,12 @@ class AquaHotkey_Func extends AquaHotkey {
             }
         }
 
+        static __New() {
+            PropDesc := ({}.GetOwnPropDesc)(this.Prototype, "_Loop")
+            ({}.DeleteProp)(this.Prototype, "_Loop")
+            ({}.DefineProp)(this.Prototype, "Loop", PropDesc)
+        }
+
         /**
          * Wraps the function so that it executes multiple times in a loop.
          * The resulting function gains access to `A_Index`.
@@ -164,7 +170,7 @@ class AquaHotkey_Func extends AquaHotkey {
          * Print() => MsgBox(A_Index)
          * Print.Loop(100).Call()
          */
-        Loop(Count) {
+        _Loop(Count) {
             return WithLoop
 
             WithLoop(Args*) {

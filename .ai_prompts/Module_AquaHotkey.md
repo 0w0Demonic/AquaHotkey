@@ -33,7 +33,7 @@ The AquaHotkey library consists of two separate parts:
   <FULL_VERSION>
 
   ```cpp
-  #Requires AutoHotkey >=v2.0.5
+  #Requires AutoHotkey v2
   #Include <AquaHotkeyX>
   ```
 
@@ -41,7 +41,7 @@ The AquaHotkey library consists of two separate parts:
   <MINIMAL_VERSION>
 
   ```cpp
-  #Requires AutoHotkey >=v2.0.5
+  #Requires AutoHotkey v2
   #Include <AquaHotkey>
   ```
 

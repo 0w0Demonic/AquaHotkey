@@ -1,3 +1,4 @@
+#Requires AutoHotkey v2
 #Include "%A_LineFile%\..\..\AquaHotkeyX.ahk"
 #Include "%A_LineFile%\..\..\src\Func\Kwargs.ahk"
 
@@ -60,4 +61,5 @@
     #Include "%A_LineFile%\..\String\String.ahk"
 ;@endregion
 ;-------------------------------------------------------------------------------
+
 TestSuite.Close()
