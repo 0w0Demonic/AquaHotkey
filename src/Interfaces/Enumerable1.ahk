@@ -454,7 +454,7 @@ class Enumerable1 {
             if ((A_Index == 1) && !IsSet(Initial)) {
                 Initial := (Value?)
             } else {
-                Initial := (Combiner(Initial?, Value?)?)
+                Initial := Combiner(Initial?, Value?)
             }
         }
         return Initial
@@ -560,7 +560,7 @@ class Enumerable1 {
                 Result := (Value?)
             }
         }
-        return (Result?)
+        return Result
     }
 
     /**
@@ -578,7 +578,7 @@ class Enumerable1 {
                 Result := (Value?)
             }
         }
-        return (Result?)
+        return Result
     }
 
     ;@endregion

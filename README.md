@@ -264,7 +264,7 @@ of AquaHotkey.
 - Designed for maximal elegance and conciseness
 
 ```ahk
-#Requires AutoHotkey >=v2.0.5
+#Requires AutoHotkey v2
 #Include <AquaHotkeyX>
 
 ; Map { 4: ["kiwi", "lime"], 5: ["apple"], 6: ["banana"] }

@@ -101,6 +101,15 @@ class TryOp {
     ;---------------------------------------------------------------------------
     ;@region Side Effects
 
+    static __New() {
+        if (this != TryOp) {
+            return
+        }
+        PropDesc := ({}.GetOwnPropDesc)(this.Prototype, "_Finally")
+        ({}.DeleteProp)(this.Prototype, "_Finally")
+        ({}.DefineProp)(this.Prototype, "Finally", PropDesc)
+    }
+
     /**
      * Performs the given action no matter what the result of the operation is.
      * 
@@ -118,7 +127,7 @@ class TryOp {
      *     .OnSuccess(MsgBox)
      *     .Finally(FileDelete, FileName)
      */
-    Finally(FinalFunction, Args*) {
+    _Finally(FinalFunction, Args*) {
         FinalFunction(Args*)
         return this
     }

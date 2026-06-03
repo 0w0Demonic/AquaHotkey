@@ -788,7 +788,11 @@ class IArray {
         }
 
         for Value in Quicksort(this*) {
-            this[A_Index] := (Value?)
+            if (IsSet(Value)) {
+                this[A_Index] := Value
+            } else {
+                this.Delete(A_Index)
+            }
         }
         return this
 
@@ -852,7 +856,7 @@ class IArray {
 
         Drain(&Out) {
             if (!this.IsEmpty) {
-                Out := (this.Pop()?)
+                Out := this.Pop()
                 return true
             }
             return false
@@ -882,7 +886,7 @@ class IArray {
 
         Slurp(&Out) {
             if (!this.IsEmpty) {
-                Out := (this.Poll()?)
+                Out := this.Poll()
                 return true
             }
             return false

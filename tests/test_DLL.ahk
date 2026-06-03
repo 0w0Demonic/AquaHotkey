@@ -1,3 +1,4 @@
+#Requires AutoHotkey v2
 #Include "%A_LineFile%\..\..\src\System\DLL.ahk"
 
 class User32 extends DLL {

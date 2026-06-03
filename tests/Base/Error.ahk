@@ -9,10 +9,15 @@ class Test_Error extends TestSuite {
         throw Error("didn't throw")
     }
 
-    static Throw() {
+    static _Throw() {
+        if (VerCompare(A_AhkVersion, "<v2.0.3")) {
+            ; unable to use `.Throw()` as method, so just assume it works
+            return
+        }       
+
         Str := "foo"
         try {
-            ValueError(Str).Throw()
+            ValueError(Str).%"Throw"%()
         } catch as Err {
             Err.Message.Assert(Eq(Str))
             return

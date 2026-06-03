@@ -9,10 +9,6 @@
  */
 class AquaHotkey_Substrings extends AquaHotkey {
     class String {
-        static __New() {
-            ({}.DefineProp)(this.Prototype, "Sub", { Call: SubStr })
-        }
-
         ;@region General
 
         /**
@@ -117,6 +113,14 @@ class AquaHotkey_Substrings extends AquaHotkey {
             return this
         }
 
+        static __New() {
+            ({}.DefineProp)(this.Prototype, "Sub", { Call: SubStr })
+            
+            PropDesc := ({}.GetOwnPropDesc)(this.Prototype, "_Until")
+            ({}.DeleteProp)(this.Prototype, "_Until")
+            ({}.DefineProp)(this.Prototype, "Until", PropDesc)
+        }
+
         /**
          * Returns a substring from the beginning to the end of a specified
          * occurrence of `Pattern`.
@@ -129,7 +133,7 @@ class AquaHotkey_Substrings extends AquaHotkey {
          * @example
          * "Hello, world!".Until(", ") ; "Hello, "
          */
-        Until(Pattern, CaseSense := false, Pos := 1, Occurrence := 1) {
+        _Until(Pattern, CaseSense := false, Pos := 1, Occurrence := 1) {
             FoundPos := InStr(this, Pattern, CaseSense, Pos, Occurrence)
             if (FoundPos) {
                 return SubStr(this, 1, FoundPos - 1 + StrLen(Pattern))

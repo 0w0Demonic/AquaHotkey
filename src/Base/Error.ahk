@@ -11,6 +11,17 @@ class AquaHotkey_Error extends AquaHotkey {
     class Error {
         ;@region Throwing
 
+        static __New() {
+            static Rename(Obj, From, To) {
+                PropDesc := ({}.GetOwnPropDesc)(Obj, From)
+                ({}.DeleteProp)(Obj, From)
+                ({}.DefineProp)(Obj, To, PropDesc)
+            }
+
+            Rename(this,           "_Throw", "Throw")
+            Rename(this.Prototype, "_Throw", "Throw")
+        }
+
         /**
          * Throws an error of the given error type.
          * 
@@ -20,7 +31,7 @@ class AquaHotkey_Error extends AquaHotkey {
          * @example
          * TargetError.Throw("unable to find window", -1, "ahk_exe notepad.exe")
          */
-        static Throw(Msg?, What?, Extra?) {
+        static _Throw(Msg?, What?, Extra?) {
             throw this(Msg?, What?, Extra?)
         }
 
@@ -29,7 +40,7 @@ class AquaHotkey_Error extends AquaHotkey {
          * 
          * @throws {Error} this error object
          */
-        Throw() {
+        _Throw() {
             throw this
         }
 

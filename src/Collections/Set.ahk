@@ -139,8 +139,10 @@ class Set extends ISet {
         M := this.M
         Count := 0
         for Value in Values {
-            Count += !!M.Has(Value)
-            M.Delete(Value)
+            if (M.Has(Value)) {
+                Count++
+                M.Delete(Value)
+            }
         }
         return Count
     }
