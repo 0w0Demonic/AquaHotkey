@@ -158,12 +158,7 @@ class Property extends Any {
      */
     static Reactive(Callback, Value?) {
         GetMethod(Callback)
-        return { Get: Getter, Set: Setter }
-
-        Getter(this) {
-            Callback(Value?)
-            return Value
-        }
+        return { Get: (this) => Value, Set: Setter }
 
         Setter(this, NewValue?) {
             Callback(NewValue?)
