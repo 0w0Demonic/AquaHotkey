@@ -175,15 +175,16 @@ class TryOp {
      * Action(ErrorObj, Args*) => Void
      * ```
      * 
-     * @param   {Func}  Action  the function to be called
-     * @param   {Any*}  Args    zero or more additional arguments
+     * @param   {Class?|Func?}  ErrorType  error type or predicate
+     * @param   {Func}          Action     the function to be called
+     * @param   {Any*}          Args       zero or more additional arguments
      * @returns {TryOp}
      * @example
-     * TryOp(() => (12 / 0)).OnFailure(ZeroDivisionError, (Err) {
+     * TryOp(() => (12 / 0)).OnFailure(Any, (Err) {
      *     MsgBox("something went wrong...")
      * })
      */
-    OnFailure(ClassOrAction, Action?, Args*) {
+    OnFailure(ErrorType := Any, Action?, Args*) {
         throw MethodError("not implemented")
     }
 
@@ -667,23 +668,14 @@ class TryOp {
         OnFailure(ErrorType, Action, Args*) {
             GetMethod(Action)
             Err := this.Value
-            if (!(ErrorType is Class))
-            {
-                GetMethod(ErrorType)
-                if (!ErrorType(Err)) {
-                    return this
-                }
-            }
-            else if ((ErrorType != Error) && !HasBase(ErrorType, Error))
-            {
-                throw TypeError("This class is not an Error class",,
-                                ErrorType.Prototype.__Class)
-            }
-            else if (!(Err is ErrorType))
-            {
+            if (Err is ErrorType) {
+                Action(Err, Args*)
                 return this
             }
-            Action(Err, Args*)
+            GetMethod(ErrorType)
+            if (ErrorType(Err)) {
+                Action(Err, Args*)
+            }
             return this
         }
 
