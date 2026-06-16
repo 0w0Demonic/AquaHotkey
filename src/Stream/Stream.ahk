@@ -252,6 +252,16 @@ class Stream extends BaseStream
         }   
     }
 
+    /**
+     * Returns a new stream that filters out any `unset` value.
+     * 
+     * @returns {Stream}
+     * @example
+     * ; <1, 2, 3>
+     * Stream.Of(unset, unset, 1, unset, 2, 3).NonNull()
+     */
+    NonNull() => this.RetainIf((Value?) => IsSet(Value))
+
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Transformation
