@@ -776,6 +776,7 @@ class IArray {
      * @param   {Boolean?}  Reversed  sort in reverse order
      * @returns {this}
      * @see {@link Comparator}
+     * @see {@link Stream#Sort()}
      * @example
      * Array(5, 1, 2, 7).Sort() ; [1, 2, 5, 7]
      */

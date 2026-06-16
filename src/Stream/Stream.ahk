@@ -628,6 +628,41 @@ class Stream extends BaseStream
     }
 
     ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region .Sort()
+
+    /**
+     * Sorts the stream by an object's {@link AquaHotkey_Comparable ordering}
+     * if defined, or by using the specified {@link Comparator} function.
+     * 
+     * This operation is *eager*. When an element is requested for the first
+     * time, the stream needs to aggregate all elements before sorting.
+     * Don't use this method on infinitely large streams.
+     * 
+     * @param   {Func?}    Comp      function comparing two elements by order
+     * @param   {Boolean}  Reversed  whether to sort in reverse
+     * @returns {Stream}
+     * @see {@link IArray#Sort()}
+     * @example
+     * Array(5, 3, 4, 1, 2).Stream().Sort().Join(", ") ; "1, 2, 3, 4, 5"
+     */
+    Sort(Comp?, Reversed := false) {
+        if (IsSet(Comp)) {
+            GetMethod(Comp)
+        }
+        Upstream := false
+        return Sort
+
+        Sort(&Out) {
+            if (!Upstream) {
+                ; delay evaluation until we call stream for the first time
+                Upstream := Array(this*).Sort(Comp?, !!Reversed).Stream()
+            }
+            return Upstream(&Out)
+        }
+    }
+
+    ;@endregion
 }
 
 ;@endregion
