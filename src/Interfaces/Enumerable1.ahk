@@ -417,6 +417,97 @@ class Enumerable1 {
     ;@region Reduction
 
     /**
+     * Returns the first element, or throws if empty.
+     * 
+     * @returns {Any}
+     */
+    First() {
+        for Value in this {
+            return Value
+        }
+        throw UnsetError("No items found")
+    }
+
+    /**
+     * Returns the first element, or a default value if empty.
+     * 
+     * @returns {Any}
+     */
+    FirstOrDefault(Default) {
+        for Value in this {
+            return Value
+        }
+        return Default
+    }
+
+    /**
+     * Returns the last element, or throws if empty.
+     * 
+     * You should prefer directly accessing the element by index (e.g.
+     * `ArrayObject[-1]`), if you can.
+     * 
+     * @returns {Any}
+     */
+    Last() {
+        for Value in this {
+            Result := Value
+        } else {
+            throw UnsetError("No items found")
+        }
+        return Result
+    }
+
+    /**
+     * Returns the last element, or a default value if empty.
+     * 
+     * You should prefer directly accessing the element by index (e.g.
+     * `ArrayObject[-1]`), if you can.
+     * 
+     * @returns {Any}
+     */
+    LastOrDefault(Default) {
+        for Value in this {
+            Result := Value
+        }
+        return (Result ?? Default)
+    }
+
+    /**
+     * Returns the only element, or throws if not exactly one item is present.
+     * 
+     * @returns {Any}
+     */
+    Single() {
+        for Value in this {
+            if (A_Index == 1) {
+                Result := Value
+            } else {
+                throw ValueError("More than one item")
+            }
+        } else {
+            throw UnsetError("No items found")
+        }
+        return Result
+    }
+
+    /**
+     * Returns the only element, or a default value if empty. Throws, if more
+     * than one item is present.
+     * 
+     * @returns {Any}
+     */
+    SingleOrDefault(Default) {
+        for Value in this {
+            if (A_Index == 1) {
+                Result := Value
+            } else {
+                throw ValueError("More than one item")
+            }
+        }
+        return (Result ?? Default)
+    }
+
+    /**
      * Returns the amount of elements by traversing this enumerator.
      * 
      * @returns {Integer}

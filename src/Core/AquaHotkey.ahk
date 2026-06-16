@@ -446,16 +446,14 @@ class AquaHotkey extends AquaHotkey_Ignore
                 Cls.Prototype.__Class . " -> " . BaseClass.Prototype.__Class)
         }
 
-        if (HasMethod(Cls, "__Init")) {
-            Cls.__Init()
+        if (IsSet(Name)) {
+            Define(ClsProto, "__Class", { Value: Name })
         }
+
         if (HasMethod(Cls, "__New")) {
             Cls.__New(Args*)
         }
 
-        if (IsSet(Name)) {
-            Define(ClsProto, "__Class", { Value: Name })
-        }
         return Cls
     }
 

@@ -213,6 +213,8 @@ class Stream extends BaseStream
      * @param   {Any?}  Args       zero or more arguments for the condition
      * @returns {Stream}
      * @example
+     * Ge(A, B) => (A >= B)
+     * 
      * Array(1, 2, 3, 4).Stream().RetainIf(Ge, 2) ; <3, 4>
      */
     RetainIf(Condition, Args*) {
@@ -237,6 +239,8 @@ class Stream extends BaseStream
      * @param   {Any*}  Args       zero or more arguments for condition
      * @param   {Stream}
      * @example
+     * Ge(A, B) => (A >= B)
+     * 
      * Array(1, 2, 3, 4).Stream().RemoveIf(Ge, 2) ; <1, 2>
      */
     RemoveIf(Condition, Args*) {
@@ -252,6 +256,16 @@ class Stream extends BaseStream
         }   
     }
 
+    /**
+     * Returns a new stream that filters out any `unset` value.
+     * 
+     * @returns {Stream}
+     * @example
+     * ; <1, 2, 3>
+     * Stream.Of(unset, unset, 1, unset, 2, 3).NonNull()
+     */
+    NonNull() => this.RetainIf((Value?) => IsSet(Value))
+
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Transformation
@@ -264,7 +278,16 @@ class Stream extends BaseStream
      * @param   {Any*}  Args    zero or more argument for mapper
      * @param   {Stream}
      * @example
+     * ; using inline functions
      * Array(1, 2, 3, 4).Stream().Map((x) => (x * 2)).ToArray() ; <2, 4, 6, 8>
+     * 
+     * ; `A` is a stream element, `B` is `2`.
+     * Mult(A, B) => (A * B)
+     * Stream.Of(1, 2, 3).Map(Mult, 2) ; <2, 4, 6>
+     * 
+     * ; advanced: using higher-order functions
+     * MakeMult(A) => (B) => (A * B)
+     * Stream.Of(1, 2, 3).Map(MakeMult(2)) ; <2, 4, 6>
      */
     Map(Mapper, Args*) {
         GetMethod(Mapper)
@@ -557,16 +580,17 @@ class Stream extends BaseStream
      * @see {@link ISet.Create()}
      * @example
      * ; <"foo">
-     * Array("foo", "Foo", "FOO").Distinct(StrLower)
+     * Array("foo", "Foo", "FOO").Stream().Distinct(StrLower)
      * 
      * ; <{ x: 23 }, { x: 35 }>
-     * Array({ x: 23 }, { x: 35 }, { x: 23 }).Distinct(obj => obj.x)
+     * Array({ x: 23 }, { x: 35 }, { x: 23 }).Stream().Distinct(obj => obj.x)
      * 
      * ; (use a HashMap for storing values. This automatically performs
-     * ; equivalence checks using `.Eq()`).
+     * ; equivalence checks using `.Hash()` and `.Eq()`).
      * ; 
      * ; -> <{ x: 12 }, ["2"]>
-     * Array({ x: 12 }, { x: 12 }, ["2"], ["2"] ).Distinct(unset, HashSet)
+     * Array({ x: 12 }, { x: 12 }, ["2"], ["2"] )
+     *      .Stream().Distinct(unset, HashSet)
      */
     Distinct(KeyExtractor?, SetParam := Set()) {
         Cache := ISet.Create(SetParam)
@@ -608,11 +632,14 @@ class Stream extends BaseStream
      * @param   {Any*}  Args    zero or more arguments for the action
      * @returns {Stream}
      * @example
-     * Foo(x) => MsgBox("Foo(" . x . ")")
-     * Bar(x) => MsgBox("Bar(" . x . ")")
-     * 
      * ; "Foo(1)", "Bar(1)"; "Foo(2)", "Bar(2)"; ...
-     * Array(1, 2, 3, 4).Stream().Peek(Foo).ForEach(Bar)
+     * Stream.Of(1, 2, 3, 4)
+     *       .Peek((x) {
+     *           MsgBox("Foo(" . x . ")")
+     *       })
+     *       .ForEach((x) {
+     *           MsgBox("Bar(" . x . ")")
+     *       })
      */
     Peek(Action, Args*) {
         GetMethod(Action)
@@ -624,6 +651,41 @@ class Stream extends BaseStream
                 return true
             }
             return false
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region .Sort()
+
+    /**
+     * Sorts the stream by an object's {@link AquaHotkey_Comparable ordering}
+     * if defined, or by using the specified {@link Comparator} function.
+     * 
+     * This operation is *eager*. When an element is requested for the first
+     * time, the stream needs to aggregate all elements before sorting.
+     * Don't use this method on infinitely large streams.
+     * 
+     * @param   {Func?}    Comp      function comparing two elements by order
+     * @param   {Boolean}  Reversed  whether to sort in reverse
+     * @returns {Stream}
+     * @see {@link IArray#Sort()}
+     * @example
+     * Stream.Of(5, 3, 4, 1, 2).Sort().Join(", ") ; "1, 2, 3, 4, 5"
+     */
+    Sort(Comp?, Reversed := false) {
+        if (IsSet(Comp)) {
+            GetMethod(Comp)
+        }
+        Upstream := false
+        return Sort
+
+        Sort(&Out) {
+            if (!Upstream) {
+                ; delay evaluation until we call stream for the first time
+                Upstream := Array(this*).Sort(Comp?, !!Reversed).Stream()
+            }
+            return Upstream(&Out)
         }
     }
 

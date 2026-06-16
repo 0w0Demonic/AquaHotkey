@@ -75,8 +75,11 @@ class BaseStream extends Enumerator {
      * @param   {Any*}  Args  zero or more stream elements
      * @returns {Stream}
      * @example
-     * Stream.of("Hello", "world!") ; <"Hello", "world!">
-     * Stream.of() ; <>
+     * Stream.Of("Hello", "world!") ; <"Hello", "world!">
+     * Stream.Of() ; <>
+     * 
+     * ; <(1, "foo"), (2, "bar"), (3, "baz")>
+     * DoubleStream.Of("foo", "bar", "baz")
      */
     static Of(Args*) => this.Cast(Args.__Enum(this.Size))
 
