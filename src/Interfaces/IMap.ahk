@@ -430,11 +430,11 @@ class IMap {
     ;@region `.Try...()` Methods
 
     /**
-     * Deletes an item, if present. This method return `true` if an element was
+     * Deletes an item, if present. This method returns `true` if an element was
      * removed from the map, otherwise `false`.
      * 
      * @param   {Any}      Key       requested key
-     * @param   {VarRef?}  OutValue  (out) associated value, if present
+     * @param   {VarRef?}  OutValue  (out, opt.) associated value, if present
      * @returns {Boolean}
      * @example
      * SL := Map(1, 2, 3, 4)
@@ -442,20 +442,22 @@ class IMap {
      *     MsgBox(Value) ; 2
      * }
      */
-    TryDelete(Key, &OutValue) {
+    TryDelete(Key, &OutValue?) {
         if (this.Has(Key)) {
             OutValue := this.Delete(Key)
             return true
+        } else {
+            OutValue := unset
+            return false
         }
-        return false
     }
 
     /**
      * Returns the value associated with the given key, if present. This
      * method returns `true` if an element was found, otherwise `false`.
      * 
-     * @param   {Any}      Key       requested key
-     * @param   {VarRef?}  OutValue  (out) associated value, if present
+     * @param   {Any}     Key       requested key
+     * @param   {VarRef}  OutValue  (out) associated value, if present
      * @returns {Boolean}
      * @example
      * SL := Map(1, 2, 3, 4)
