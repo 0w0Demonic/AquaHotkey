@@ -243,6 +243,33 @@ class HashMap extends IMap {
     }
 
     /**
+     * Deletes an item, if present. This method returns `true` if an element was
+     * removed from the map, otherwise `false`.
+     * 
+     * @see {@link IMap#TryDelete()}
+     * @param   {Any}      Key       requested key
+     * @param   {VarRef?}  OutValue  (out, opt.) associated value, if present
+     * @returns {Boolean}
+     */
+    TryDelete(Key, &OutValue?) {
+        Index := (Key.HashCode() & this.Mask) + 1
+
+        Bucket := this.Buckets.Get(Index)
+        if (Bucket) {
+            for Entry in Bucket {
+                if (Key.Eq(Entry.Key)) {
+                    Bucket.RemoveAt(A_Index)
+                    --this.Size
+                    OutValue := Entry.Value
+                    return true
+                }
+            }
+        }
+        OutValue := unset
+        return false
+    }
+
+    /**
      * Returns the value associated with the given map key.
      * 
      * @param   {Any}   Key      map key
@@ -267,6 +294,31 @@ class HashMap extends IMap {
             return this.Default
         }
         throw UnsetItemError("Value not found",, String(Key))
+    }
+
+    /**
+     * Returns the value associated with the given key, if present. This
+     * method returns `true` if an element was found, otherwise `false`.
+     * 
+     * @see {@link IMap#TryGet()}
+     * @param   {Any}     Key       requested key
+     * @param   {VarRef}  OutValue  (out) associated value, if present
+     * @returns {Boolean}
+     */
+    TryGet(Key, &OutValue) {
+        Index := (Key.HashCode() & this.Mask) + 1
+
+        Bucket := this.Buckets.Get(Index)
+        if (Bucket) {
+            for Entry in Bucket {
+                if (Key.Eq(Entry.Key)) {
+                    OutValue := Entry.Value
+                    return true
+                }
+            }
+        }
+        OutValue := unset
+        return false
     }
 
     /**
