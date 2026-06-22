@@ -43,7 +43,7 @@ class Enumerable2 {
 
         ; dirty hack
         ; TODO figure out why `Extend` refuses to work
-        (AquaHotkey.Apply)(this, this, DoubleStream, false)
+        (AquaHotkey.Apply)(this, Cls, DoubleStream, false)
 
         static WithAlias(Target) {
             Arr := Array()
