@@ -307,6 +307,90 @@ class Stream {
         }
     }
 
+    /**
+     * Combines every element from this stream and the `Other`. The result is
+     * a Cartesian product, containing all possible combinations of elements
+     * from both streams. If `Other` is not specified, this stream merges with
+     * itself.
+     * 
+     * If specified, the `Mapper` function combines the two elements into a
+     * single value, resulting in a 1-parameter {@link Stream}. By default,
+     * this method returns a {@link DoubleStream} of pairs.
+     * 
+     * The `Other` stream is iterated first. Merging with the stream itself
+     * (i.e., `Strm.CrossJoin(Strm)`) is unsupported.
+     * 
+     * ```ahk
+     * Combiner(Left: Any?, Right: Any?) => Any
+     * ```
+     * 
+     * @param   {Enumerable1?}  Other   any enumerable sequence
+     * @param   {Func?}         Mapper  function combining two values
+     * @returns {BaseStream}
+     * @example
+     * ; <(1,1), (1,2), (1,3), (2,1), (2,2), (2,3), (3,1), (3,2), (3,3)>
+     * Range(1, 3).CrossJoin(Range(1, 3))
+     * Range(1, 3).CrossJoin() ; same as above
+     * 
+     * ; <2, 3, 4, 3, 4, 5, 4, 5, 6>
+     * Range(1, 3).CrossJoin(Range(1, 3), (A, B) => (A + B))
+     */
+    CrossJoin(Other := this, Combiner?) {
+        if (IsSet(Combiner)) {
+            GetMethod(Combiner)
+        }
+        Rhs         := false
+        LeftEnumer  := false
+        RightEnumer := unset
+        LV          := unset
+
+        return IsSet(Combiner)
+            ? DoubleStream.Cast(CrossJoin).Map(Combiner)
+            : DoubleStream.Cast(CrossJoin)
+        
+        CrossJoin(&OutA, &OutB) {
+            if (!Rhs) {
+                Rhs := Array(Other*)
+                if (!Rhs.Length) {
+                    return false
+                }
+                RightEnumer := Rhs.__Enum(1)
+
+                ; allow merging with the stream itself - in this case, we need
+                ; to create a copy of all elements.
+                if (this == Other) {
+                    LeftEnumer := Rhs.__Enum(1)
+                } else {
+                    LeftEnumer := this
+                }
+
+                ; we need to keep the current stream element so we can
+                ; cycle through `Rhs` more easily
+                if (!LeftEnumer(&LV)) {
+                    return false
+                }
+                RightEnumer(&OutB)
+                OutA := (LV?)
+                return true
+            }
+
+            ; implies that `LV` is current stream element
+            if (RightEnumer(&OutB)) {
+                OutA := (LV?)
+                return true
+            }
+            ; check whether upstream has more elements
+            if (!LeftEnumer(&LV)) {
+                return false
+            }
+            ; assuming `Rhs.Length > 0`
+            RightEnumer := Rhs.__Enum(1)
+            RightEnumer(&OutB)
+            OutA := (LV?)
+            return true
+        }
+    }
+
     ;@endregion
 } ; class Stream
 } ; class AquaHotkey_Stream_Joins extends AquaHotkey
