@@ -8,9 +8,9 @@
 /**
  * Experimental set addition and SQL-like join methods for {@link Stream}.
  * 
- * These methods rely on {@link HashSet}s, and therefore on
- * {@link AquaHotkey_Hash `.Hash()`} and {@link AquaHotkey_Eq `.Eq()`} to
- * determine whether two values are considered equal.
+ * Some methods rely on {@link HashSet}s to determine whether an item is unique.
+ * Because of this, an error is thrown whenever the stream encounters `unset`
+ * values.
  * 
  * @see {@link Stream}
  * @see {@link HashSet}
@@ -22,6 +22,8 @@
  */
 class AquaHotkey_Stream_Joins extends AquaHotkey {
 class Stream {
+    ;@region Set Operations
+
     /**
      * Produces the set difference of this stream and the `Other`.
      * 
@@ -111,93 +113,9 @@ class Stream {
         }
     }
 
-    /**
-     * Performs an SQL-like `INNER JOIN` between two sequences based on
-     * matching keys.
-     * 
-     * A *key selector* (used for `LHS` and `RHS`) can be either a 1-param
-     * function that returns a key, or the name of a property that should be
-     * treated as key.
-     * 
-     * ```ahk
-     * KeySelector(Obj: Any) => Any
-     * ```
-     * 
-     * The *combiner* function combines both elements into a result value. By
-     * default, the stream produces size 2 arrays as elements.
-     * 
-     * ```
-     * Combiner(Left: Any, Right: Any) => Any
-     * ```
-     * 
-     * @param   {Enumerable1}    Other     any enumerable sequence
-     * @param   {String|Func}    LHS       left-hand side key selector
-     * @param   {String?|Func?}  RHS       right-hand side key selector
-     * @param   {Func?}          Combiner  function producing result element
-     * @returns {Stream}
-     * @example
-     * ArrA := [ { Key: 1, a: "a" },
-     *           { Key: 2, b: "b" } ]
-     * 
-     * ArrB := [ { Key: 1, c: "c" },
-     *           { Key: 1, d: "d" },
-     *           { Key: 2, e: "e" } ]
-     * 
-     * ; [{ a: a, Key: 1 }, { c: c, Key: 1 }]
-     * ; [{ a: a, Key: 1 }, { d: d, Key: 1 }]
-     * ; [{ b: b, Key: 2 }, { e: e, Key: 2 }]
-     * Stream(ArrA).InnerJoin(ArrB, "Key").JoinLine().ToClipboard()
-     * 
-     * ; same as above:
-     * Stream(ArrA).InnerJoin(
-     *     ArrB
-     *     A => A.Key, B => B.Key,
-     *     (A, B) => Array(A, B)
-     * ).JoinLine().ToClipboard()
-     */
-    InnerJoin(Other, LHS, RHS := LHS, Combiner := Array) {
-        if (LHS is Primitive) {
-            LHS := ((Str) => (Obj) => Obj.%Str%)(LHS)
-        }
-        if (RHS is Primitive) {
-            RHS := ((Str) => (Obj) => Obj.%Str%)(RHS)
-        }
-
-        GetMethod(LHS)
-        GetMethod(RHS)
-        GetMethod(Combiner)
-        Lookup := false
-        Enumer := (*) => false
-        LV := unset
-        LK := unset
-        return this.Cast(InnerJoin)
-
-        InnerJoin(&Out) {
-            if (!Lookup) {
-                Lookup := HashMap()
-                for RV in Other {
-                    RK := RHS(RV)
-                    if (Lookup.TryGet(RK, &Arr)) {
-                        Arr.Push(RV)
-                    } else {
-                        Lookup.Set(RK, Array(RV))
-                    }
-                }
-            }
-
-            loop {
-                if (Enumer(&RV)) {
-                    Out := Combiner(LV, RV)
-                    return true
-                }
-                if (!this(&LV)) {
-                    return false
-                }
-                LK := LHS(LV)
-                Enumer := Lookup.Get(LK, Array()).__Enum(1)
-            }
-        }
-    }
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Joins
 
     /**
      * Correlates the elements of this stream and the `Other` based on key
@@ -211,11 +129,11 @@ class Stream {
      * KeySelector(Obj: Any) => Any
      * ```
      * 
-     * The *combiner* function combines an element on the "left" with a stream
-     * of matching elements on the "right". By default, the stream produces size
-     * 2 arrays as elements.
+     * If specified, the `Combiner` function combines the two elements into
+     * a single value, resulting in a 1-parameter {@link Stream}. By default,
+     * this method returns a {@link DoubleStream} of "matching pairs".
      * 
-     * ```
+     * ```ahk
      * Combiner(Left: Any, Right: Stream<Any>) => Any
      * ```
      * 
@@ -223,7 +141,7 @@ class Stream {
      * @param   {String|Func}    LHS       left-hand side key selector
      * @param   {String?|Func?}  RHS       right-hand side key selector
      * @param   {Func?}          Combiner  function producing result element
-     * @returns {Stream}
+     * @returns {BaseStream}
      * @example
      * People := [
      *     Magnus    := { Name: "Magnus Hedlund"  },
@@ -251,7 +169,7 @@ class Stream {
      *     }
      * ).JoinLine().ToClipboard()
      */
-    GroupJoin(Other, LHS, RHS := LHS, Mapper := Array) {
+    GroupJoin(Other, LHS, RHS := LHS, Mapper?) {
         if (LHS is Primitive) {
             LHS := ((Str) => (Obj) => Obj.%Str%)(LHS)
         }
@@ -261,11 +179,15 @@ class Stream {
 
         GetMethod(LHS)
         GetMethod(RHS)
-        GetMethod(Mapper)
+        if (IsSet(Mapper)) {
+            GetMethod(Mapper)
+        }
         Lookup := false
-        return this.Cast(GroupJoin)
 
-        GroupJoin(&Out) {
+        return IsSet(Mapper) ? DoubleStream.Cast(GroupJoin).Map(Mapper)
+                             : DoubleStream.Cast(GroupJoin)
+
+        GroupJoin(&OutA, &OutB) {
             if (!Lookup) {
                 Lookup := HashMap()
                 for RV in Other {
@@ -278,15 +200,113 @@ class Stream {
                 }
             }
 
-            while (this(&LV)) {
-                LK := LHS(LV)
+            while (this(&OutA)) {
+                LK := LHS(OutA)
                 if (Lookup.TryGet(LK, &Arr)) {
-                    Out := Mapper(LV, Arr.Stream())
+                    OutB := Arr.Stream()
                     return true
                 }
             }
             return false
         }
     }
+
+    /**
+     * Performs an SQL-like `INNER JOIN` between two sequences based on
+     * matching keys.
+     * 
+     * A *key selector* (used for `LHS` and `RHS`) can be either a 1-param
+     * function that returns a key, or the name of a property that should be
+     * treated as key.
+     * 
+     * ```ahk
+     * KeySelector(Obj: Any) => Any
+     * ```
+     * 
+     * The *combiner* function combines both elements into a result value,
+     * resulting in a 1-parameter {@link Stream}. By default, this method
+     * returns a {@link DoubleStream} of "matching pairs".
+     * 
+     * ```ahk
+     * Combiner(Left: Any, Right: Any) => Any
+     * ```
+     * 
+     * @param   {Enumerable1}    Other     any enumerable sequence
+     * @param   {String|Func}    LHS       left-hand side key selector
+     * @param   {String?|Func?}  RHS       right-hand side key selector
+     * @param   {Func?}          Combiner  function producing result element
+     * @returns {BaseStream}
+     * @example
+     * ArrA := [ { Key: 1, a: "a" },
+     *           { Key: 2, b: "b" } ]
+     * 
+     * ArrB := [ { Key: 1, c: "c" },
+     *           { Key: 1, d: "d" },
+     *           { Key: 2, e: "e" } ]
+     * 
+     * ; [{ a: a, Key: 1 }, { c: c, Key: 1 }]
+     * ; [{ a: a, Key: 1 }, { d: d, Key: 1 }]
+     * ; [{ b: b, Key: 2 }, { e: e, Key: 2 }]
+     * Stream(ArrA).InnerJoin(ArrB, "Key").JoinLine().ToClipboard()
+     * 
+     * ; same as above:
+     * Stream(ArrA).InnerJoin(
+     *     ArrB
+     *     A => A.Key, B => B.Key,
+     *     (A, B) => Array(A, B)
+     * ).JoinLine().ToClipboard()
+     */
+    InnerJoin(Other, LHS, RHS := LHS, Combiner?) {
+        if (LHS is Primitive) {
+            LHS := ((Str) => (Obj) => Obj.%Str%)(LHS)
+        }
+        if (RHS is Primitive) {
+            RHS := ((Str) => (Obj) => Obj.%Str%)(RHS)
+        }
+
+        GetMethod(LHS)
+        GetMethod(RHS)
+        if (IsSet(Combiner)) {
+            GetMethod(Combiner)
+        }
+
+        Lookup := false
+        Enumer := (*) => false
+        LV     := unset
+        LK     := unset
+
+        return IsSet(Combiner) ? DoubleStream.Cast(InnerJoin).Map(Combiner)
+                               : DoubleStream.Cast(InnerJoin)
+
+        InnerJoin(&OutA, &OutB) {
+            static EMPTY := []
+
+            if (!Lookup) {
+                Lookup := HashMap()
+                for RV in Other {
+                    RK := RHS(RV)
+                    if (Lookup.TryGet(RK, &Arr)) {
+                        Arr.Push(RV)
+                    } else {
+                        Lookup.Set(RK, Array(RV))
+                    }
+                }
+            }
+
+            loop {
+                if (Enumer(&OutB)) {
+                    OutA := LV
+                    return true
+                }
+                if (!this(&LV)) {
+                    return false
+                }
+                LK := LHS(LV)
+                Enumer := Lookup.Get(LK, EMPTY).__Enum(1)
+            }
+        }
+    }
+
+    ;@endregion
 } ; class Stream
 } ; class AquaHotkey_Stream_Joins extends AquaHotkey
