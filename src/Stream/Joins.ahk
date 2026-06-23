@@ -356,8 +356,7 @@ class Stream {
                 }
                 RightEnumer := Rhs.__Enum(1)
 
-                ; allow merging with the stream itself - in this case, we need
-                ; to create a copy of all elements.
+                ; allow stream to merge with itself
                 if (this == Other) {
                     LeftEnumer := Rhs.__Enum(1)
                 } else {
