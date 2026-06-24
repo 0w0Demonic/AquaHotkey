@@ -414,7 +414,7 @@ class Enumerable1 {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Reduction
+    ;@region Index Access
 
     /**
      * Returns the first element, or throws if empty.
@@ -506,6 +506,10 @@ class Enumerable1 {
         }
         return (Result ?? Default)
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Reduction
 
     /**
      * Returns the amount of elements by traversing this enumerator.
