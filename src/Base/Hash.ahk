@@ -145,6 +145,7 @@ class AquaHotkey_Hash extends AquaHotkey
     ;---------------------------------------------------------------------------
     ;@region IArray
 
+    ; TODO move to `Enumerable1`?
     class IArray {
         /**
          * Creates a hash from all elements in this array. Elements are
@@ -169,6 +170,7 @@ class AquaHotkey_Hash extends AquaHotkey
     ;---------------------------------------------------------------------------
     ;@region IMap
 
+    ; TODO move to `Enumerable2`?
     class IMap {
         /**
          * Creates a hash from all key-value pairs in this map.
@@ -219,6 +221,7 @@ class AquaHotkey_Hash extends AquaHotkey
     ;---------------------------------------------------------------------------
     ;@region Float
 
+    ; TODO is there a way to make this faster without anything crazy like MCode?
     class Float {
         /**
          * Creates a hash by reinterpreting the bits of this float as a
@@ -227,9 +230,9 @@ class AquaHotkey_Hash extends AquaHotkey
          * @returns {Integer}
          */
         HashCode() {
-            static Buf := Buffer(8)
+            Buf := Buffer(8)
             NumPut("Double", this, Buf)
-            return NumGet(Buf, 0, "Int64")
+            return NumGet(Buf, "Int64")
         }
     }
 
@@ -260,6 +263,9 @@ class AquaHotkey_Hash extends AquaHotkey
          * If `A.HashCode() == B.HashCode()`, then it's extremely likely - but
          * NOT guaranteed - that `A.Eq(B)`. The same applies vice-versa.
          * 
+         * This method hashes all `Value`-properties up until `Object.Prototype`
+         * (exclusive).
+         * 
          * @returns {Integer}
          */
         HashCode() {
@@ -269,7 +275,12 @@ class AquaHotkey_Hash extends AquaHotkey
 
             Obj := this
             Result := Offset
-            loop {
+
+            ; stop at `Object.Prototype` -- at this point, these are all
+            ; the same anyway. Also we don't care about any props at this
+            ; point. If `Object.Prototype` itself is stored in a hash map,
+            ; `.Eq()` will take care of the rest.
+            while (Obj != Object.Prototype) {
                 for PropertyName in ObjOwnProps(Obj) {
                     loop parse, StrLower(PropertyName) {
                         Result ^= Ord(A_LoopField)
@@ -284,7 +295,7 @@ class AquaHotkey_Hash extends AquaHotkey
                     Result *= Prime
                 }
                 Obj := ObjGetBase(Obj)
-            } until (!Obj)
+            }
             return Result
         }
     }
@@ -293,6 +304,8 @@ class AquaHotkey_Hash extends AquaHotkey
     ;---------------------------------------------------------------------------
     ;@region ByReference
 
+    ; TODO check whether any version of v2.1-alpha introduces anything new
+    ;      that should be added here
     class ByReference extends AquaHotkey_MultiApply {
         static __New() => super.__New(
             Buffer, Class, Error, File, Func, Gui, Gui.Control,
@@ -362,7 +375,7 @@ class AquaHotkey_Hash extends AquaHotkey
          * 
          * @returns {Integer}
          */
-        HashCode() => Integer.Hash(ComObjType(this), ComObjValue(this))
+        HashCode() => ComObjType(this) ^ ComObjValue(this)
     }
 
     ;@endregion
