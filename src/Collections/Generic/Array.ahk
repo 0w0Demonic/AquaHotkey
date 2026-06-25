@@ -24,10 +24,26 @@
  * MsgBox(Type(Arr)) ; "String[]"
  * ```
  * 
- * ---
+ * ### How it Works
+ * 
+ * At its core, {@link IArray.OfType()} is responsible for creating new
+ * generic array classes at runtime. In the case of `Array.OfType(T)`, this
+ * requires you to use an AHK version of at least v2.1-alpha.3. `T[]` is
+ * syntax sugar for `Array.OfType(T)`.
+ * 
+ * Any subclass of {@link IArray} can be used, which includes e.g.
+ * {@link LinkedList}.
+ * 
+ * ### Type Wrappers
  * 
  * Elements can be further constrained by passing a *type wrapper* like
- * {@link Nullable} between the square brackets.
+ * {@link Nullable} between the square brackets. Type wrappers are currently
+ * defined as class objects whose instances "wrap" existing types with
+ * additional logic. A new wrapped type is constructed by calling the class
+ * with an existing type.
+ * 
+ * In other words, `T[C]` is equivalent to `Array.OfType(C(T))`, while
+ * asserting that `C` is a class.
  * 
  * ```ahk
  * Arr_String := String[]
