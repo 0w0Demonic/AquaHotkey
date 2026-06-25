@@ -1,4 +1,5 @@
 #Include "%A_LineFile%\..\..\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\Comparable.ahk"
 
 /**
  * @duck
@@ -35,4 +36,20 @@ class Boolean extends Integer {
      * Boolean(0)     ; false
      */
     static Call(Val?) => IsSet(Val) && !!Val
+
+    /**
+     * Compares two boolean values. `true` is considered greater than `false`
+     * (similar to their actual values `1` and `0`).
+     * 
+     * @param   {Boolean}  A  first boolean
+     * @param   {Boolean}  B  second boolean
+     * @returns {Integer}
+     */
+    static Compare(A, B) {
+        if (A.Is(this) && B.Is(this)) {
+            return A.Compare(B)
+        }
+        throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                        Type(A) . ", " . Type(B))
+    }
 }

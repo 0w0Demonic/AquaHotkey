@@ -93,7 +93,9 @@
  * 
  * ```ahk
  * ; duck type for numbers and numeric strings
- * class Numeric {
+ * class Numeric extends Primitive {
+ *     ; ... (omitted for brevity --- see <Base/DuckTypes>)
+ * 
  *     static IsInstance(Val?) => IsSet(Val) && IsNumber(Val)
  * 
  *     static Compare(A, B) {
@@ -134,7 +136,7 @@
  * ; result: [1.98, 23, 123, 3455]
  * Array(123, 23, 1.98, 3455).Sort()
  * 
- * ; -1
+ * ; -1 (implies "smaller", i.e. `-1 < 2`)
  * Number.Compare(-1, 2)
  * 
  * ; TypeError! Expected an String.
