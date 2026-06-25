@@ -558,7 +558,7 @@ class AquaHotkey_GenericArray extends AquaHotkey {
             return
         }
 
-        if (IsSet(AquaHotkey_Conf_DisableGenerics)) {
+        if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
             ({}.DefineProp)(this.IArray, "OfType", { Call: Disabled_OfType })
         }
         super.__New()
