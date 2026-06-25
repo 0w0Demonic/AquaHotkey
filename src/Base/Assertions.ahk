@@ -44,6 +44,18 @@ class AquaHotkey_Assertions extends AquaHotkey {
             throw TypeError("type mismatch", -2)
         }
     }
+
+    static __New() {
+        if (this == AquaHotkey_Assertions) {
+            if (IsSet(AquaHotkey_cfg_DisableTypeAssertions)) {
+                ({}.DefineProp)(this.Any.Prototype, "AssertType",
+                    { Call: Disabled_AssertType })
+            }
+        }
+        super.__New()
+
+        static Disabled_AssertType(Val, T) => Val
+    }
 }
 
 /**
