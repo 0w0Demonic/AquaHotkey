@@ -353,8 +353,11 @@ class AquaHotkey_Comparable extends AquaHotkey
          * String.Compare([1, 2], Buffer(16)) ; TypeError!
          */
         Compare(A, B) {
-            ; NOTE: using the same method name is fine, because `Class`
-            ;       is not comparable.
+            ; NOTE:
+            ; - using the same method name is fine, because `Class`
+            ;   is not comparable.
+            ; - `is this` instead of duck types, because `.CompareTo()` methods
+            ;   can vary on the type and mess up proper comparisons
             if ((A is this) && (B is this)) {
                 return A.Compare(B)
             }
