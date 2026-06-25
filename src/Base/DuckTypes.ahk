@@ -143,16 +143,44 @@
  * 
  * ### Subtypes
  * 
- * `T1.CanCastFrom(T2)` determines whether `T1 == T2`, or if `T2` is
- * considered a subtype of `T1`.
+ * Whereas `T.Is(V)` and `T.IsInstance(V?)` determine membership to a type,
+ * `T1.CanCastFrom(T2)` is a method that imposes whether `T1` "is assignable
+ * from" `T2`. You can think of this like "every instance of `T2` is
+ * automatically in instance of `T1`".
+ * 
+ * This is important for generic collections such as {@link GenericArray} which
+ * implement custom logic to determine whether -- for example -- an `Integer[]`
+ * should also be considered a `Number[]`. 
  * 
  * ```ahk
  * Number.CanCastFrom(Number)  ; --> true (because `Number == Number`)
  * Number.CanCastFrom(Integer) ; --> true (because `HasBase(Integer, Number)`)
  * 
- * ; --> true
- * ({ Value: Number }).CanCastFrom({ Value: Integer, OtherValue: Any })
+ * (42).CanCastFrom(42)      ; true -- every 42 is also 42
+ * (42).CanCastFrom(Integer) ; false -- not every integer is 42
+ * 
+ * ( [Object, Object] ).CanCastFrom( [Array, Array] ) ; true
+ * 
+ * ({ Value: Number }).CanCastFrom({ Value: Integer, OtherValue: Any }) ; true
  * ```
+ * 
+ * A duck type with custom `.IsInstance()` must also implement `.CanCastFrom()`
+ * in a similar manner -- a 1-parameter function that determines whether its
+ * argument is equivalent to, or considered a subtype. In most cases, you can
+ * do this by extending the class that should be treated as the supertype
+ * (which may in some cases involve "unusual" superclasses such as `Integer`):
+ * 
+ * ```ahk
+ * ; `Boolean` is considered a more "specific" version of `Integer` -- 1 or 0
+ * class Boolean extends Integer {
+ *     static IsInstance(Val?) => ...
+ * }
+ * 
+ * Integer.CanCastFrom(Boolean) ; true, because `HasBase(Boolean, Integer)`
+ * ```
+ * 
+ * For more help implementing `.CanCastFrom()`, refer to the code in this file
+ * and also in `<Base/DuckTypes/*>`.
  * 
  * @module  <Base/DuckTypes>
  * @author  0w0Demonic
@@ -248,19 +276,18 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * Determines whether the given value matches the type specification
          * asserted by this object.
          * 
-         * The calling object is required to be an object literal. In other
-         * words, it must be a simple object that directly inherits from
-         * `Object.Prototype`.
+         * Both the type pattern and given value must be plain objects, in
+         * other words, inherit directly from `Object.Prototype`.
          * 
-         * This object's own fields are used for pattern matching the own fields
-         * of the given object. Primitive types are matched using `.Eq()`,
-         * objects are matched using `.IsInstance()`
+         * Instance membership is determined by the set of own properties that
+         * the type pattern imposes. For each value property with name `N` and
+         * type `T`, the value must also have a value property `N`
+         * (case-insensitive) with a value that `.Is(T)`.
          * 
          * @param    {Any?}  Val  any value
          * @returns  {Boolean}
          * @example
          * Success := { status: 200, data: Any }
-         * 
          * Success.IsInstance({ status: 200, data: String }) ; true
          */
         IsInstance(Val?) {
@@ -617,6 +644,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
     ;@region Func
 
     class Func {
+        ; TODO move this method somewhere else?
         /**
          * Returns a wrapped function that checks whether its arguments
          * conform to the given type `Signature`.
@@ -653,8 +681,8 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * this function.
          * 
          * Using this method on a function is somewhat discouraged, as
-         * they do not implement `.CanCastFrom()`. Whenever possible, you
-         * should define your own duck type class, or use type wrappers on
+         * they don't implement a proper `.CanCastFrom()`. Whenever possible,
+         * you should define your own duck type class, or use type wrappers on
          * existing types.
          * 
          * @param   {Any?}  Val  any value

@@ -5,13 +5,21 @@
 /**
  * @duck
  * 
- * A `Record<K, V>` is a {@link AquaHotkey_DuckTypes duck type} with
- * properties of type `K` and values `V`.
+ * A `Record<K, V>` is a {@link AquaHotkey_DuckTypes duck type} that describes
+ * plain objects with properties of type `K` and values `V`.
+ * 
+ * This type does *not* assert that each possible key is present, but *only*
+ * where all keys and values adhere to the given contraints. It is therefore
+ * comparable to `Partial<Record<K, V>>` in TypeScript.
+ * 
+ * To constrain an object to a set of properties that it explicitly *must*
+ * have, use a regular object as type pattern.
  * 
  * @module  <Base/DuckTypes/Record>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @see {@link AquaHotkey_DuckTypes duck types}
+ * @see {@link AquaHotkey_DuckTypes.Object#IsInstance()}
  * 
  * ---
  * 
@@ -20,15 +28,20 @@
  * @property  {Class<K>}  KeyType    key type
  * @property  {Class<V>}  ValueType  value type
  * @example
- * Permissions := Type.Enum("Admin", "User", "Guest")
- * PermissionsMap := Record(Permissions, String)
+ * T := Record( Type.Enum("Admin", "User", "Guest"), String )
  * 
  * Obj := {
  *     Admin: "just do what you want lol",
  *     User: "okay, you're allowed in",
- *     Guest: "fine. but don't touch anything"
+ *   ; Guest: "fine. but don't touch anything"
  * }
- * MsgBox(Obj.Is(PermissionsMap))
+ * 
+ * MsgBox(  Obj.Is(T)  ) ; true
+ * 
+ * @example <caption>Using a Regular Object as Type Pattern</caption>
+ * T := { Admin: String, User: String, Guest: String }
+ * 
+ * MsgBox(  Obj.Is(T)  ) ; false (does not have `Guest` property)
  */
 class Record {
     ;@region Construction
