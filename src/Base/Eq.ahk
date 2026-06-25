@@ -111,7 +111,9 @@
  *         if (!IsSet(B)) {
  *             return false
  *         }
- *         if (A.Is(this) && B.Is(this)) { ; `Val.Is(T)` instead of `Val is T`
+ * 
+ *         ; `Val.Is(T)` instead of `Val is T`
+ *         if (A.Is(this) && B.Is(this)) {
  *             return (A.Ptr).Eq(B.Ptr)
  *                 && (A.Size).Eq(B.Size)
  *         }
@@ -142,349 +144,350 @@
  */
 class AquaHotkey_Eq extends AquaHotkey
 {
-;-------------------------------------------------------------------------------
-;@region Any
+    ;---------------------------------------------------------------------------
+    ;@region Any
 
-class Any {
-    /**
-     * Determines whether this value is equal to the `Other` value.
-     * 
-     * If not otherwise overridden, two values `A` and `B` are
-     * equal, if `A == B`.
-     * 
-     * In other words, regular (case-sensitive) equality checks are used,
-     * unless specified otherwise.
-     * 
-     * @param   {Any}  Other  any value
-     * @returns {Boolean}
-     * @example
-     * (1).Eq("1") ; true
-     * 
-     * Obj := {}
-     * Obj.Eq(Obj) ; true
-     */
-    Eq(Other?) => (IsSet(Other) && (this == Other))
+    class Any {
+        /**
+         * Determines whether this value is equal to the `Other` value.
+         * 
+         * If not otherwise overridden, two values `A` and `B` are
+         * equal, if `A == B`.
+         * 
+         * In other words, regular (case-sensitive) equality checks are used,
+         * unless specified otherwise.
+         * 
+         * @param   {Any}  Other  any value
+         * @returns {Boolean}
+         * @example
+         * (1).Eq("1") ; true
+         * 
+         * Obj := {}
+         * Obj.Eq(Obj) ; true
+         */
+        Eq(Other?) => (IsSet(Other) && (this == Other))
 
-    /**
-     * Determines whether this value is not equal to the `Other` value.
-     * 
-     * @param   {Any?}  Other  any value
-     * @returns {Boolean}
-     * @example
-     * "foo".Ne("bar") ; true
-     */
-    Ne(Other?) => !this.Eq(Other?)
-}
-
-;@endregion
-;-------------------------------------------------------------------------------
-;@region Class
-
-class Class {
-    /**
-     * Returns a type-checked 2-parameter equality function that supports
-     * `unset` values.
-     * 
-     * @returns {Func}
-     * @example
-     * Eq := Map.Equals
-     * 
-     * Eq(Map(1, 2), Map(1, 2)) ; true
-     * Eq(unset, unset)         ; true
-     * Eq("foo", "bar")         ; TypeError! Expected a Map.
-     */
-    Equals => ObjBindMethod(this, "Equals")
-
-    /**
-     * Determines whether two given values are equal.
-     * 
-     * Both inputs are asserted to be *instances* of the calling class.
-     * For example, `Array.Equals(A, B)` will assert that both `A` and `B`
-     * are arrays.
-     * 
-     * This method supports `unset` values.
-     * 
-     * @param   {Any?}  A  value 1
-     * @param   {Any?}  B  value 2
-     * @returns {Boolean}
-     * @example
-     * String.Equals("foo", "bar") ; false
-     * String.Equals(unset, unset) ; true
-     * String.Equals([1, 2], "")   ; TypeError! Expected a String.
-     */
-    Equals(A?, B?) {
-        if (!IsSet(A)) {
-            return (!IsSet(B))
-        }
-        if (!IsSet(B)) {
-            return false
-        }
-        if ((A is this) && (B is this)) {
-            return (A == B) || A.Eq(B)
-        }
-        throw TypeError("Expected a(n) " . this.Prototype.__Class,,
-                        Type(A) . ", " . Type(B))
+        /**
+         * Determines whether this value is not equal to the `Other` value.
+         * 
+         * @param   {Any?}  Other  any value
+         * @returns {Boolean}
+         * @example
+         * "foo".Ne("bar") ; true
+         */
+        Ne(Other?) => !this.Eq(Other?)
     }
-}
 
-;@endregion
-;-------------------------------------------------------------------------------
-;@region IArray
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Class
 
-class IArray {
-    /**
-     * Determines whether this array is equal to the `Other` value.
-     * 
-     * This happens when `this == Other`, or...
-     * - `Other` is an array with the same `.Length`;
-     * - all elements are equivalent (`Any.Equals` for each index)
-     * 
-     * @param   {Any?}  Other  any value
-     * @returns {Boolean}
-     * @example
-     * ([1, 2, 3]).Eq([1, 2, 3]) ; true
-     * 
-     * ([1]).Eq([1, 2]) ; false
-     * 
-     * ([1]).Eq("example") ; false
-     */
-    Eq(Other?) {
-        if (!IsSet(Other)) {
-            return false
-        }
-        if (this == Other) {
-            return true
-        }
-        if (!Other.Is(IArray)) {
-            return false
-        }
+    class Class {
+        /**
+         * Returns a type-checked 2-parameter equality function that supports
+         * `unset` values.
+         * 
+         * @returns {Func}
+         * @example
+         * Eq := Map.Equals
+         * 
+         * Eq(Map(1, 2), Map(1, 2)) ; true
+         * Eq(unset, unset)         ; true
+         * Eq("foo", "bar")         ; TypeError! Expected a Map.
+         */
+        Equals => ObjBindMethod(this, "Equals")
 
-        if (this.Length != Other.Length) {
-            return false
-        }
-        Enumer1 := this.__Enum(1)
-        Enumer2 := Other.__Enum(1)
-
-        while (Enumer1(&A) && Enumer2(&B)) {
+        /**
+         * Determines whether two given values are equal.
+         * 
+         * Both inputs are asserted to be *instances* of the calling class.
+         * For example, `Array.Equals(A, B)` will assert that both `A` and `B`
+         * are arrays.
+         * 
+         * This method supports `unset` values.
+         * 
+         * @param   {Any?}  A  value 1
+         * @param   {Any?}  B  value 2
+         * @returns {Boolean}
+         * @example
+         * String.Equals("foo", "bar") ; false
+         * String.Equals(unset, unset) ; true
+         * String.Equals([1, 2], "")   ; TypeError! Expected a String.
+         */
+        Equals(A?, B?) {
             if (!IsSet(A)) {
-                if (IsSet(B)) {
-                    return false
-                }
-                continue
+                return (!IsSet(B))
             }
             if (!IsSet(B)) {
                 return false
             }
-            if (!A.Eq(B)) {
-                return false
+            if ((A is this) && (B is this)) {
+                return (A == B) || A.Eq(B)
             }
+            throw TypeError("Expected a(n) " . this.Prototype.__Class,,
+                            Type(A) . ", " . Type(B))
         }
-        return true
     }
-}
 
-;@endregion
-;-------------------------------------------------------------------------------
-;@region Object
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region IArray
 
-class Object {
-    /**
-     * Determines whether this object is equal to the `Other` object.
-     * 
-     * This happens when `this == Other`, or...
-     * 
-     * - `ObjGetBase(this) == ObjGetBase(Other)`
-     * - `this` and `Other` share the same set of properties (case-insensitive)
-     * - the values of each field (properties with `Value` descriptor) are
-     *   equal, as determined by `Any.Equals()`
-     * 
-     * @param   {Any?}  Other  any value
-     * @returns {Boolean}
-     * @example
-     * ; --> true (because of case-insensitive properties)
-     * ({ foo: "bar" }).Eq({ FOO: "BAR" })
-     */
-    Eq(Other?) {
-        static GetProp := ({}.GetOwnPropDesc)
-
-        if (!IsSet(Other)) {
-            return false
-        }
-        if (this == Other) {
-            return true
-        }
-        if (!IsObject(Other)) {
-            return false
-        }
-        if (ObjGetBase(this) != ObjGetBase(Other)) {
-            return false
-        }
-        
-        if (ObjOwnPropCount(this) != ObjOwnPropCount(Other)) {
-            return false
-        }
-
-        ThisEnumer := ObjOwnProps(this)
-        OtherEnumer := ObjOwnProps(Other)
-
-        while (ThisEnumer(&ThisProp) && OtherEnumer(&OtherProp)) {
-            if (ThisProp != OtherProp) {
+    class IArray {
+        /**
+         * Determines whether this array is equal to the `Other` value.
+         * 
+         * This happens when `this == Other`, or...
+         * - `Other` is an array with the same `.Length`;
+         * - all elements are equivalent (`Any.Equals` for each index)
+         * 
+         * @param   {Any?}  Other  any value
+         * @returns {Boolean}
+         * @example
+         * ([1, 2, 3]).Eq([1, 2, 3]) ; true
+         * 
+         * ([1]).Eq([1, 2]) ; false
+         * 
+         * ([1]).Eq("example") ; false
+         */
+        Eq(Other?) {
+            if (!IsSet(Other)) {
                 return false
             }
-            ; value of this object prop
-            PropDesc := GetProp(this, ThisProp)
-            ThisValue := (ObjHasOwnProp(PropDesc, "Value"))
-                    ? PropDesc.Value
-                    : unset
-            
-            ; value of other object prop
-            PropDesc := GetProp(Other, OtherProp)
-            OtherValue := (ObjHasOwnProp(PropDesc, "Value"))
-                    ? PropDesc.Value
-                    : unset
+            if (this == Other) {
+                return true
+            }
+            if (!Other.Is(IArray)) {
+                return false
+            }
 
-            if (!IsSet(ThisValue)) {
-                if (IsSet(OtherValue)) {
+            if (this.Length != Other.Length) {
+                return false
+            }
+            Enumer1 := this.__Enum(1)
+            Enumer2 := Other.__Enum(1)
+
+            while (Enumer1(&A) && Enumer2(&B)) {
+                if (!IsSet(A)) {
+                    if (IsSet(B)) {
+                        return false
+                    }
+                    continue
+                }
+                if (!IsSet(B)) {
                     return false
                 }
-                ; both are `unset`
-                continue
+                if (!A.Eq(B)) {
+                    return false
+                }
             }
-            if (!IsSet(OtherValue) || !ThisValue.Eq(OtherValue)) {
+            return true
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Object
+
+    class Object {
+        /**
+         * Determines whether this object is equal to the `Other` object.
+         * 
+         * This happens when `this == Other`, or...
+         * 
+         * - `ObjGetBase(this) == ObjGetBase(Other)`
+         * - `this` and `Other` share the same set of properties (property
+         *   names are case-insensitive)
+         * - the values of each field (properties with `Value` descriptor) are
+         *   equal, as determined by `Any.Equals()`
+         * 
+         * @param   {Any?}  Other  any value
+         * @returns {Boolean}
+         * @example
+         * ; --> true (because of case-insensitive properties)
+         * ({ foo: "bar" }).Eq({ FOO: "BAR" })
+         */
+        Eq(Other?) {
+            static GetProp := ({}.GetOwnPropDesc)
+
+            if (!IsSet(Other)) {
                 return false
             }
-        }
-        return true
-    }
-}
-
-;@endregion
-;-------------------------------------------------------------------------------
-;@region Reference Equality
-
-class ByReference extends AquaHotkey_MultiApply {
-    static __New() => super.__New(
-        Buffer, Class, Error, File, Func, Gui, Gui.Control,
-        InputHook, Menu, MenuBar, RegExMatchInfo, ComObjArray)
-
-    /**
-     * Determines whether this value is equal to the `Other` value according
-     * to object reference.
-     * 
-     * This happens if both values share the same reference.
-     * 
-     * @param   {Any?}  Other  any value
-     * @returns {Boolean}
-     */
-    Eq(Other?) => (IsSet(Other) && (this == Other))
-}
-
-;@endregion
-;-------------------------------------------------------------------------------
-;@region IMap
-
-class IMap {
-    /**
-     * Determines whether this `Map` is equal to the `Other` value.
-     * 
-     * This happens when `Other` is a map that shares the same set of key-value
-     * pairs.
-     * 
-     * Key-value pairs are not allowed to contain `unset`.
-     * 
-     * @param   {Any*}  Other  any value
-     * @returns {Boolean}
-     * @example
-     * Map(1, 2, 3, 4).Eq(Map(1, 2, 3, 4)) ; true
-     */
-    Eq(Other?) {
-        if (!IsSet(Other)) {
-            return false
-        }
-        if (this == Other) {
-            return true
-        }
-        if (!(Other is Map)) {
-            return false
-        }
-        if (this.Count != Other.Count) {
-            return false
-        }
-
-        for Key, Value in this {
-            if (!Other.Has(Key) || !Other.Get(Key).Eq(Value)) {
+            if (this == Other) {
+                return true
+            }
+            if (!IsObject(Other)) {
                 return false
             }
-        }
-        return true
-    }
-}
+            if (ObjGetBase(this) != ObjGetBase(Other)) {
+                return false
+            }
+            
+            if (ObjOwnPropCount(this) != ObjOwnPropCount(Other)) {
+                return false
+            }
 
-;@endregion
-;-------------------------------------------------------------------------------
-;@region VarRef
+            ThisEnumer := ObjOwnProps(this)
+            OtherEnumer := ObjOwnProps(Other)
 
-class VarRef {
-    /**
-     * Determines whether this `VarRef` equals to the `Other` value.
-     * 
-     * This happens when `this == Other`, or when `Other` is also a `VarRef`
-     * and the underlying values are equal.
-     * 
-     * @param   {Any?}  Other  any value
-     * @returns {Boolean}
-     * @example
-     * A := &(StrA := "foo")
-     * B := &(StrB := "foo")
-     * 
-     * MsgBox(A.Eq(B)) ; true
-     */
-    Eq(Other?) {
-        if (!IsSet(Other)) {
-            return false
-        }
-        if (this == Other) {
+            while (ThisEnumer(&ThisProp) && OtherEnumer(&OtherProp)) {
+                if (ThisProp != OtherProp) {
+                    return false
+                }
+                ; value of this object prop
+                PropDesc := GetProp(this, ThisProp)
+                ThisValue := (ObjHasOwnProp(PropDesc, "Value"))
+                        ? PropDesc.Value
+                        : unset
+                
+                ; value of other object prop
+                PropDesc := GetProp(Other, OtherProp)
+                OtherValue := (ObjHasOwnProp(PropDesc, "Value"))
+                        ? PropDesc.Value
+                        : unset
+
+                if (!IsSet(ThisValue)) {
+                    if (IsSet(OtherValue)) {
+                        return false
+                    }
+                    ; both are `unset`
+                    continue
+                }
+                if (!IsSet(OtherValue) || !ThisValue.Eq(OtherValue)) {
+                    return false
+                }
+            }
             return true
         }
-        if (!(Other is VarRef)) {
-            return false
-        }
-        if (IsSetRef(this)) {
-            return IsSetRef(Other) && (%this%.Eq(%Other%))
-        }
-        return !IsSetRef(Other)
     }
-}
 
-;@endregion
-;-------------------------------------------------------------------------------
-;@region ComValue
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Reference Equality
 
-class ComValue {
-    /**
-     * Determines whether this `ComValue` is equal to the `Other` value.
-     * 
-     * This happens when the underlying value and `VARIANT` type are equal.
-     * 
-     * @param   {Any?}  Other  any value
-     * @returns {Boolean}
-     * @example
-     * ( ComValue(0x08, true) ).Eq( ComValue(0x08, true) ) ; true
-     */
-    Eq(Other?) {
-        if (!IsSet(Other)) {
-            return false
-        }
-        if (this == Other) {
+    class ByReference extends AquaHotkey_MultiApply {
+        static __New() => super.__New(
+            Buffer, Class, Error, File, Func, Gui, Gui.Control,
+            InputHook, Menu, MenuBar, RegExMatchInfo, ComObjArray)
+
+        /**
+         * Determines whether this value is equal to the `Other` value according
+         * to object reference.
+         * 
+         * This happens if both values share the same reference.
+         * 
+         * @param   {Any?}  Other  any value
+         * @returns {Boolean}
+         */
+        Eq(Other?) => (IsSet(Other) && (this == Other))
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region IMap
+
+    class IMap {
+        /**
+         * Determines whether this `Map` is equal to the `Other` value.
+         * 
+         * This happens when `Other` is a map that shares the same set of
+         * key-value pairs.
+         * 
+         * Key-value pairs are not allowed to contain `unset`.
+         * 
+         * @param   {Any*}  Other  any value
+         * @returns {Boolean}
+         * @example
+         * Map(1, 2, 3, 4).Eq(Map(1, 2, 3, 4)) ; true
+         */
+        Eq(Other?) {
+            if (!IsSet(Other)) {
+                return false
+            }
+            if (this == Other) {
+                return true
+            }
+            if (!(Other is Map)) {
+                return false
+            }
+            if (this.Count != Other.Count) {
+                return false
+            }
+
+            for Key, Value in this {
+                if (!Other.Has(Key) || !Other.Get(Key).Eq(Value)) {
+                    return false
+                }
+            }
             return true
         }
-        if (!(Other is ComValue)) {
-            return false
-        }
-        return (ComObjValue(this) == ComObjValue(Other))
-            && (ComObjType(this) == ComObjType(Other))
     }
-}
 
-;@endregion
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region VarRef
+
+    class VarRef {
+        /**
+         * Determines whether this `VarRef` equals to the `Other` value.
+         * 
+         * This happens when `this == Other`, or when `Other` is also a `VarRef`
+         * and the underlying values are equal.
+         * 
+         * @param   {Any?}  Other  any value
+         * @returns {Boolean}
+         * @example
+         * A := &(StrA := "foo")
+         * B := &(StrB := "foo")
+         * 
+         * MsgBox(A.Eq(B)) ; true
+         */
+        Eq(Other?) {
+            if (!IsSet(Other)) {
+                return false
+            }
+            if (this == Other) {
+                return true
+            }
+            if (!(Other is VarRef)) {
+                return false
+            }
+            if (IsSetRef(this)) {
+                return IsSetRef(Other) && (%this%.Eq(%Other%))
+            }
+            return !IsSetRef(Other)
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region ComValue
+
+    class ComValue {
+        /**
+         * Determines whether this `ComValue` is equal to the `Other` value.
+         * 
+         * This happens when the underlying value and `VARIANT` type are equal.
+         * 
+         * @param   {Any?}  Other  any value
+         * @returns {Boolean}
+         * @example
+         * ( ComValue(0x08, true) ).Eq( ComValue(0x08, true) ) ; true
+         */
+        Eq(Other?) {
+            if (!IsSet(Other)) {
+                return false
+            }
+            if (this == Other) {
+                return true
+            }
+            if (!(Other is ComValue)) {
+                return false
+            }
+            return (ComObjValue(this) == ComObjValue(Other))
+                && (ComObjType(this) == ComObjType(Other))
+        }
+    }
+
+    ;@endregion
 } ; class AquaHotkey_Eq extends AquaHotkey

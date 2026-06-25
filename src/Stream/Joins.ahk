@@ -307,6 +307,7 @@ class Stream {
         }
     }
 
+    ; TODO make right-hand side lazy-eval on the first iteration?
     /**
      * Combines every element from this stream and the `Other`. The result is
      * a Cartesian product, containing all possible combinations of elements

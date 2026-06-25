@@ -17,39 +17,40 @@ class AquaHotkey_Buffer extends AquaHotkey
          * @property {Map<String, Integer>} NumTypes
          */
         static NumTypes {
-          get {
-            static NumTypes := Init()
-            return NumTypes.Clone()
+            get {
+                static NumTypes := Init()
+                return NumTypes.Clone()
 
-            static Init() {
-                M := Map()
-                M.CaseSense := false
+                static Init() {
+                    M := Map()
+                    M.CaseSense := false
 
-                Int("Char",   1)
-                Int("Short",  2)
-                Int("Int",    4)
-                Int("Int64",  8)
-                Flt("Float",  4)
-                Flt("Double", 8)
-                Int("Ptr", A_PtrSize)
+                    Int("Char", 1)
+                    Int("Short", 2)
+                    Int("Int", 4)
+                    Int("Int64", 8)
+                    Flt("Float", 4)
+                    Flt("Double", 8)
+                    Int("Ptr", A_PtrSize)
 
-                Int(Name, Size) {
-                    Fill(Name, Size)
-                    Fill("U" . Name, Size)
+                    Int(Name, Size) {
+                        Fill(Name, Size)
+                        Fill("U" . Name, Size)
+                    }
+                    Flt(Name, Size) => Fill(Name, Size)
+
+                    Fill(Num, Size) => M.Set(
+                        Num, Size,
+                        Num . "P", A_PtrSize,
+                        Num . "*", A_PtrSize)
+
+                    return M
                 }
-                Flt(Name, Size) => Fill(Name, Size)
-
-                Fill(Num, Size) => M.Set(
-                    Num,       Size,
-                    Num . "P", A_PtrSize,
-                    Num . "*", A_PtrSize)
-
-                return M
             }
-          }
         }
 
         ;@region AHK Number Types
+
         /**
          * Returns the size of the AHK number type in bytes.
          * 
