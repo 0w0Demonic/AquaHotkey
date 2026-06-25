@@ -236,6 +236,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * (42).CanCastFrom(42) ; true
          */
         CanCastFrom(T) => this.Eq(T)
+        ; note: `.Eq()` by definition should cover `==`.
     }
 
     ;@endregion
@@ -312,7 +313,19 @@ class AquaHotkey_DuckTypes extends AquaHotkey
         CanCastFrom(T) {
             static GetProp := {}.GetOwnPropDesc
 
+            ; note: whatever satisfies the contraints imposed by this object
+            ;       will *also* satisfy the constraints of ... well, this
+            ; object -- we already checked. And because this works similarly
+            ; enough to `.Eq()`, we only check using `==` -- and pray that
+            ; everything works as intended.
+            if (this == T) {
+                return true
+            }
+
             ; this is only meant to work on object literals
+            if (ObjGetBase(this) != Object.Prototype) {
+                return false
+            }
             if (ObjGetBase(T) != Object.Prototype) {
                 return false
             }
@@ -365,7 +378,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
                 return false
             }
 
-            loop this.Length {
+            loop (this.Length) {
                 if (this.Has(A_Index)) {
                     Pattern := this.Get(A_Index)
                     Elem := Val.Has(A_Index)
@@ -406,6 +419,9 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * ; --> true
          */
         CanCastFrom(Other) {
+            if (this == Other) { ; note: (see Object#CanCastFrom)
+                return true
+            }
             if (!(Other is Array) || (this.Length != Other.Length)) {
                 return false
             }
