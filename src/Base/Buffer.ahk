@@ -18,6 +18,7 @@ class AquaHotkey_Buffer extends AquaHotkey
          */
         static NumTypes {
             get {
+                ; TODO use a form of readonly `Map` instead?
                 static NumTypes := Init()
                 return NumTypes.Clone()
 

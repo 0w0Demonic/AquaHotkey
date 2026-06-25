@@ -6,6 +6,8 @@
 #Include "%A_LineFile%\..\..\..\IO\Serial.ahk"
 #Include "%A_LineFile%\..\..\..\Interfaces\IArray.ahk"
 
+; TODO make this switch to `LinkedList` or something similar, if <v2.1-alpha.3?
+
 ;@region GenericArray
 
 /**
@@ -65,8 +67,10 @@
  * @template A the array class
  * @template T type contained in the array
  */
-class GenericArray extends IArray {
+class GenericArray extends IArray
+{
     ;@region Construction
+
     /**
      * Constructs a new subclass of `GenericArray` from the given array class
      * and type.
@@ -101,6 +105,7 @@ class GenericArray extends IArray {
         }
 
         if (IsSet(C)) {
+            ; TODO make this more lenient?
             if (!(C is Class)) {
                 throw TypeError("Expected a Class",, Type(C))
             }
@@ -164,9 +169,9 @@ class GenericArray extends IArray {
      * MsgBox(String(StrArr.ComponentType)) ; "class String"
      */
     ComponentType {
-      get {
-        throw PropertyError("component type not found")
-      }
+        get {
+            throw PropertyError("component type not found")
+        }
     }
 
     /**
@@ -190,9 +195,9 @@ class GenericArray extends IArray {
      * MsgBox(String(LL.ArrayType)) ; "class LinkedList"
      */
     ArrayType {
-      get {
-        throw PropertyError("array type not found")
-      }
+        get {
+            throw PropertyError("array type not found")
+        }
     }
 
     ;@endregion

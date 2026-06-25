@@ -24,6 +24,8 @@ class AquaHotkey_Primitives extends AquaHotkey {
             }
         }
 
+        ; TODO bring back goated `MsgBox` constants
+
         /**
          * Outputs the value as text inside a message box.
          * 
@@ -31,7 +33,7 @@ class AquaHotkey_Primitives extends AquaHotkey {
          * @param   {Primitive?}  Options  additional `MsgBox` options
          * @returns {this}
          * @example
-         * "Hello, world!".MsgBox("AquaHotkey", MsgBox.Icon.Info)
+         * "Hello, world!".MsgBox("AquaHotkey", 0x40)
          */
         MsgBox(Title?, Options?) {
             MsgBox(this, Title?, Options?)

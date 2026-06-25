@@ -48,14 +48,14 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
          * "foo".Hierarchy
          */
         Hierarchy {
-          get {
-            Val := this
-            Result := Array(Val)
-            while (Val := ObjGetBase(Val)) {
-                Result.Push(Val)
+            get {
+                Val := this
+                Result := Array(Val)
+                while (Val := ObjGetBase(Val)) {
+                    Result.Push(Val)
+                }
+                return Result
             }
-            return Result
-          }
         }
 
         /**
@@ -67,14 +67,14 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
          * "foo".Bases
          */
         Bases {
-          get {
-            Val := this
-            Result := Array()
-            while (Val := ObjGetBase(Val)) {
-                Result.Push(Val)
+            get {
+                Val := this
+                Result := Array()
+                while (Val := ObjGetBase(Val)) {
+                    Result.Push(Val)
+                }
+                return Result
             }
-            return Result
-          }
         }
     }
 
