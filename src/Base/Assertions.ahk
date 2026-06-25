@@ -51,10 +51,15 @@ class AquaHotkey_Assertions extends AquaHotkey {
                 ({}.DefineProp)(this.Any.Prototype, "AssertType",
                     { Call: Disabled_AssertType })
             }
+            if (IsSet(AquaHotkey_cfg_DisableAssertions)) {
+                ({}.DefineProp)(this.Any.Prototype, "Assert",
+                    { Call: Disabled_Assert })
+            }
         }
         super.__New()
 
         static Disabled_AssertType(Val, T) => Val
+        static Disabled_Assert(Val, Condition, *) => Val
     }
 }
 

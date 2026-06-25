@@ -12,8 +12,12 @@
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  * @see {@link AquaHotkey_Assertions}
  * @example
- * ({ FirstName: "John", LastName: "Doe" })
- *       .AssertType({ FirstName: String, LastName: String })
+ * #Include <AquaHotkey>
+ * #Include <AquaHotkey\src\Base\DuckTypes>
+ * #Include <AquaHotkey\src\cfg\DisableTypeAssertions>
+ * 
+ * ; immediately returns `Value` without type checking
+ * Value.AssertType(SomethingComplicated)
  */
 class AquaHotkey_cfg_DisableTypeAssertions {
 }
