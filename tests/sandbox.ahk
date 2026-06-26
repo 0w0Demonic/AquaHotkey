@@ -45,27 +45,3 @@
 ; MsgBox(RegExMatch("255", Pat)) ; "matching..." ; 1
 ; MsgBox(RegExMatch("256", Pat)) ; "matching..." ; 0
 
-Define  := {}.DefineProp
-GetProp := {}.GetOwnPropDesc
-
-WithLogging(PropDesc) => { Call: (Value) {
-    MsgBox("__Init() constructing " . Type(Value))
-    if (Value is Class) {
-        MsgBox(Value.Prototype.__Class)
-    }
-    return (PropDesc.Call)(Value)
-} }
-
-Define(Any.Prototype, "__Init", WithLogging(GetProp(Any.Prototype, "__Init")))
-
-Define(Class.Prototype, "__New", {
-    Call: (Cls) => MsgBox("static __New() on class " . Cls.Prototype.__Class)
-})
-
-Define(Gui.Control.Prototype, "__New", {
-    Call: (Obj) => MsgBox("__New() constructing " . Type(Obj))
-})
-
-G := Gui()
-G.AddButton("w50", "OK")
-G.Show()

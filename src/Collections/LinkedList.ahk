@@ -677,9 +677,9 @@ class LinkedList extends IArray {
          * @property {LinkedList}
          */
         List {
-          get {
-            throw PropertyError("List not found")
-          }
+            get {
+                throw PropertyError("List not found")
+            }
         }
 
         /**

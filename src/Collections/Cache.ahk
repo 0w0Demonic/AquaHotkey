@@ -23,7 +23,6 @@
  * ; is defined as 10 seconds.
  * Sleep(6000)
  * MsgBox(CacheObj.Count) ; 1
- * 
  */
 class Cache extends IDelegatingMap {
     /**

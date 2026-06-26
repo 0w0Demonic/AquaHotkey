@@ -191,13 +191,13 @@ class AquaHotkey_String extends AquaHotkey {
          * "foo".SizeInBytes["UTF-8"]  ; 4
          */
         SizeInBytes[Encoding := "UTF-16", IncludeNullTerminator := true] {
-          get {
-            Size := StrPut(this, Encoding)
-            if (!IncludeNullTerminator) {
-                Size -= StrPut("", Encoding)
+            get {
+                Size := StrPut(this, Encoding)
+                if (!IncludeNullTerminator) {
+                    Size -= StrPut("", Encoding)
+                }
+                return Size
             }
-            return Size
-          }
         }
 
         ;@endregion

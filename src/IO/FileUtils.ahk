@@ -88,22 +88,22 @@ class AquaHotkey_FileUtils extends AquaHotkey {
          * FileObj.Name ; "C:\...\hello.txt"
          */
         Name {
-          get {
-            static BUFSIZE := 520 ; 2 * MAX_PATH
-            static Buf := Buffer(BUFSIZE, 0)
+            get {
+                static BUFSIZE := 520 ; 2 * MAX_PATH
+                static Buf := Buffer(BUFSIZE, 0)
 
-            DllCall("GetFinalPathNameByHandle",
-                "Ptr", this.Handle,
-                "Ptr", Buf,
-                "UInt", Buf.Size,
-                "UInt", 0)
-            
-            FileName := SubStr(StrGet(Buf), 5) ; remove "\\?\"-prefix
+                DllCall("GetFinalPathNameByHandle",
+                    "Ptr", this.Handle,
+                    "Ptr", Buf,
+                    "UInt", Buf.Size,
+                    "UInt", 0)
 
-            ; memoize result, because it is immutable
-            this.DefineProp("Name", { Get: (_) => FileName })
-            return FileName
-          }
+                FileName := SubStr(StrGet(Buf), 5) ; remove "\\?\"-prefix
+
+                ; memoize result, because it is immutable
+                this.DefineProp("Name", { Get: (_) => FileName })
+                return FileName
+            }
         }
     }
     ;@endregion

@@ -2,7 +2,8 @@
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 
 ; TODO
-; - figure out how to return value of `.PutIfAbsent()`
+; - figure out whether to set `&OutValue` to `unset` on `.TryGet()` or
+;   `.TryDelete()` if no elements present
 
 /**
  * @interface
@@ -218,9 +219,9 @@ class IMap {
      * @see {@link Map#Count}
      */
     Count {
-      get {
-        throw PropertyError("not implemented")
-      }
+        get {
+            throw PropertyError("not implemented")
+        }
     }
 
     /**

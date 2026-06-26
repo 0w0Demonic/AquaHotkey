@@ -27,20 +27,20 @@ class Xml {
 class XmlElement {
     ; attributes (create a new map, if absent)
     Attributes {
-      get {
-        M := Map()
-        this.DefineProp("Attributes", { Get: (_) => M })
-        return M
-      }
+        get {
+            M := Map()
+            this.DefineProp("Attributes", { Get: (_) => M })
+            return M
+        }
     }
 
     ; elements (create a new array, if absent)
     Elements {
-      get {
-        A := Array()
-        this.DefineProp("Elements", { Get: (_) => A })
-        return A
-      }
+        get {
+            A := Array()
+            this.DefineProp("Elements", { Get: (_) => A })
+            return A
+        }
     }
 
     ; constructor that receives name, optionally

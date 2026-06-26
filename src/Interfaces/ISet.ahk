@@ -222,9 +222,9 @@ class ISet {
      * Set(1, 2, 3, 4).Size() ; 4
      */
     Size {
-      get {
-        throw PropertyError("not implemented")
-      }
+        get {
+            throw PropertyError("not implemented")
+        }
     }
 
     ;@endregion

@@ -36,43 +36,43 @@ class Uri {
      * @property {Map<String, Uri>}
      */
     static Types {
-      get {
-        static Types := Init()
-        return Types
+        get {
+            static Types := Init()
+            return Types
 
-        static Init() {
-            M := Map()
-            M.CaseSense := false
-            M.DefineProp("Set", { Call: Set })
-            M.DefineProp("__Item", { Set: __Item_set })
-            return M
+            static Init() {
+                M := Map()
+                M.CaseSense := false
+                M.DefineProp("Set", { Call: Set })
+                M.DefineProp("__Item", { Set: __Item_set })
+                return M
 
-            Set(MapObj, Values*) {
-                if (Values.Length & 1) {
-                    throw ValueError("invalid param count",, Values.Length)
+                Set(MapObj, Values*) {
+                    if (Values.Length & 1) {
+                        throw ValueError("invalid param count", , Values.Length)
+                    }
+                    Enumer := Values.__Enum(1)
+                    while (Enumer(&Key) && Enumer(&Value)) {
+                        if (!(Key is String)) {
+                            throw TypeError("Expected a String", , Type(Key))
+                        }
+                        if (!(Key ~= "i)^[a-z][a-z0-9+.-]*$")) {
+                            throw ValueError("invalid scheme", , Key)
+                        }
+                        if (!(Value is Class)) {
+                            throw TypeError("Expected a Class", , Type(Value))
+                        }
+                        if (!HasBase(Value, Uri)) {
+                            throw TypeError("Expected a subclass of Uri", ,
+                                Value.Prototype.__Class)
+                        }
+                    }
+                    (Map.Prototype.Set)(M, Values*)
                 }
-                Enumer := Values.__Enum(1)
-                while (Enumer(&Key) && Enumer(&Value)) {
-                    if (!(Key is String)) {
-                        throw TypeError("Expected a String",, Type(Key))
-                    }
-                    if (!(Key ~= "i)^[a-z][a-z0-9+.-]*$")) {
-                        throw ValueError("invalid scheme",, Key)
-                    }
-                    if (!(Value is Class)) {
-                        throw TypeError("Expected a Class",, Type(Value))
-                    }
-                    if (!HasBase(Value, Uri)) {
-                        throw TypeError("Expected a subclass of Uri",,
-                                        Value.Prototype.__Class)
-                    }
-                }
-                (Map.Prototype.Set)(M, Values*)
+
+                __Item_set(MapObj, Value, Key) => Set(MapObj, Key, Value)
             }
-
-            __Item_set(MapObj, Value, Key) => Set(MapObj, Key, Value)
         }
-      }
     }
 
     /**
@@ -321,11 +321,11 @@ class Uri {
      * @property {String}
      */
     Scheme {
-      get {
-        Str := UrlDecode(this.RawScheme)
-        this.DefineProp("Scheme", { Get: (_) => Str })
-        return Str
-      }
+        get {
+            Str := UrlDecode(this.RawScheme)
+            this.DefineProp("Scheme", { Get: (_) => Str })
+            return Str
+        }
     }
 
     /**
@@ -335,11 +335,11 @@ class Uri {
      * @property {String}
      */
     SchemeSpecific {
-      get {
-        Str := UrlDecode(this.RawSchemeSpecific)
-        this.DefineProp("SchemeSpecific", { Get: (_) => Str })
-        return Str
-      }
+        get {
+            Str := UrlDecode(this.RawSchemeSpecific)
+            this.DefineProp("SchemeSpecific", { Get: (_) => Str })
+            return Str
+        }
     }
 
     /**
@@ -349,11 +349,11 @@ class Uri {
      * @property {String}
      */
     Authority {
-      get {
-        Str := UrlDecode(this.RawAuthority)
-        this.DefineProp("Authority", { Get: (_) => Str })
-        return Str
-      }
+        get {
+            Str := UrlDecode(this.RawAuthority)
+            this.DefineProp("Authority", { Get: (_) => Str })
+            return Str
+        }
     }
 
     /**
@@ -363,11 +363,11 @@ class Uri {
      * @property {String}
      */
     Path {
-      get {
-        Str := UrlDecode(this.RawPath)
-        this.DefineProp("Path", { Get: (_) => Str })
-        return Str
-      }
+        get {
+            Str := UrlDecode(this.RawPath)
+            this.DefineProp("Path", { Get: (_) => Str })
+            return Str
+        }
     }
 
     /**
@@ -377,11 +377,11 @@ class Uri {
      * @property {String}
      */
     Query {
-      get {
-        Str := UrlDecode(this.RawQuery)
-        this.DefineProp("Query", { Get: (_) => Str })
-        return Str
-      }
+        get {
+            Str := UrlDecode(this.RawQuery)
+            this.DefineProp("Query", { Get: (_) => Str })
+            return Str
+        }
     }
 
     /**
@@ -391,11 +391,11 @@ class Uri {
      * @property {String}
      */
     Fragment {
-      get {
-        Str := UrlDecode(this.RawFragment)
-        this.DefineProp("Fragment", { Get: (_) => Str })
-        return Str
-      }
+        get {
+            Str := UrlDecode(this.RawFragment)
+            this.DefineProp("Fragment", { Get: (_) => Str })
+            return Str
+        }
     }
 
     ;@endregion

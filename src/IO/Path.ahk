@@ -43,10 +43,10 @@ class Path {
      * @property {String}
      */
     Name {
-      get {
-        SplitPath(this.Value, &Name)
-        return Name
-      }
+        get {
+            SplitPath(this.Value, &Name)
+            return Name
+        }
     }
 
     /**
@@ -56,10 +56,10 @@ class Path {
      * @property {String}
      */
     Dir {
-      get {
-        SplitPath(this.Value,, &Dir)
-        return Dir
-      }
+        get {
+            SplitPath(this.Value, , &Dir)
+            return Dir
+        }
     }
 
     /**
@@ -69,10 +69,10 @@ class Path {
      * @property {String}
      */
     Ext {
-      get {
-        SplitPath(this.Value,,, &Ext)
-        return Ext
-      }
+        get {
+            SplitPath(this.Value, , , &Ext)
+            return Ext
+        }
     }
 
     /**
@@ -82,10 +82,10 @@ class Path {
      * @property {String}
      */
     NameNoExt {
-      get {
-        SplitPath(this.Value,,,, &NameNoExt)
-        return NameNoExt
-      }
+        get {
+            SplitPath(this.Value, , , , &NameNoExt)
+            return NameNoExt
+        }
     }
 
     /**
@@ -95,10 +95,10 @@ class Path {
      * @property {String}
      */
     Drive {
-      get {
-        SplitPath(this.Value,,,,, &Drive)
-        return Drive
-      }
+        get {
+            SplitPath(this.Value, , , , , &Drive)
+            return Drive
+        }
     }
 
     /**

@@ -68,9 +68,9 @@ class TryOp {
      * @property {Boolean}
      */
     Succeeded {
-      get {
-        throw MethodError("not implemented")
-      }
+        get {
+            throw MethodError("not implemented")
+        }
     }
 
     /**
@@ -79,9 +79,9 @@ class TryOp {
      * @property {Boolean}
      */
     Failed {
-      get {
-        throw MethodError("not implemented")
-      }
+        get {
+            throw MethodError("not implemented")
+        }
     }
 
     /**
