@@ -31,6 +31,66 @@ class IArray {
         this.Backup(Enumerable1, Enumerable2)
     }
 
+    ;@region Support
+
+    /**
+     * Determines whether the given `Index` is valid based on the length of
+     * this array. Negative indexing is supported.
+     * 
+     * @param   {Integer}  Index  array index
+     * @returns {Boolean}
+     * @example
+     * Arr := Array(1, 2, 3, 4)
+     * Arr.IsValidIndex(3) ; true
+     * Arr.IsValidIndex(-2) ; true (equiv. to index 3)
+     * 
+     * Arr.IsValidIndex(0) ; false
+     * Arr.IsValidIndex(5) ; false
+     * Arr.IsValidIndex(-5) ; false
+     */
+    IsValidIndex(Index) {
+        if (!IsInteger(Index)) {
+            throw TypeError("Expected an Integer",, Type(Index))
+        }
+        return (Index != 0) && (Abs(Index) <= this.Length)
+    }
+
+    /**
+     * Validates an array index and resolves negative indices to their
+     * corresponding positive index.
+     * 
+     * @param   {Integer}  Index  array index
+     * @returns {Integer}
+     * @throws  {TypeError} if not an integer
+     * @throws  {IndexError} if out of bounds of current array
+     * @see {@link IArray#IsValidIndex()}
+     * @example
+     * Arr := Array(1, 2, 3)
+     * 
+     * Arr.CheckIndex("giraffe") ; TypeError!
+     * Arr.CheckIndex(3)  ; 3
+     * Arr.CheckIndex(-3) ; 1
+     * Arr.CheckIndex(0) ; IndexError!
+     * Arr.CheckIndex(5) ; IndexError!
+     * Arr.CheckIndex(-23) ; IndexError!
+     */
+    CheckIndex(Index) {
+        if (!IsInteger(Index)) {
+            throw TypeError("Expected an Integer",, Type(Index))
+        }
+        if (Index == 0) {
+            throw IndexError("Index == 0")
+        }
+        Length := this.Length
+        if (Abs(Index) > Length) {
+            throw IndexError("Out of bounds for an array of length " . Length,,
+                    Index)
+        }
+        return (Index > 0) ? Index : (Index + Length + 1)
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Construction
 
     /**
