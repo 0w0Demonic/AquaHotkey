@@ -168,9 +168,9 @@ class GenericMap extends IDelegatingMap {
      * M.MapType ; SkipListMap
      */
     MapType {
-      get {
-        throw PropertyError("abstract property")
-      }
+        get {
+            throw PropertyError("abstract property")
+        }
     }
 
     /**
@@ -192,9 +192,9 @@ class GenericMap extends IDelegatingMap {
      * M.KeyType ; class String
      */
     KeyType {
-      get {
-        throw PropertyError("abstract property")
-      }
+        get {
+            throw PropertyError("abstract property")
+        }
     }
 
     /**
@@ -216,9 +216,9 @@ class GenericMap extends IDelegatingMap {
      * M.ValueType ; class Integer
      */
     ValueType {
-      get {
-        throw PropertyError("abstract property")
-      }
+        get {
+            throw PropertyError("abstract property")
+        }
     }
 
     ;@endregion

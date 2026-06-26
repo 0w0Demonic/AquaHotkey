@@ -98,9 +98,9 @@ class GenericSet extends ISet {
      * S.ComponentType().ToString().MsgBox() ; "class String"
      */
     ComponentType {
-      get {
-        throw PropertyError("component type not found")
-      }
+        get {
+            throw PropertyError("component type not found")
+        }
     }
 
     /**
@@ -122,9 +122,9 @@ class GenericSet extends ISet {
      * Set.OfType(String).SetType.ToString().MsgBox() ; "class Set"
      */
     SetType {
-      get {
-        throw PropertyError("set type not found")
-      }
+        get {
+            throw PropertyError("set type not found")
+        }
     }
 
     ;@endregion
