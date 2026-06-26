@@ -5,7 +5,6 @@
 
 ; TODO refactor this to support different AHK number types / other structs
 ; TODO allow resizing the array with just `.Push()`, etc.
-; TODO support negative indexing?
 
 ;@region ByteArray
 
@@ -102,26 +101,37 @@ class ByteArray extends IArray
     /**
      * Retrieves a byte from the buffer. The index is 1-based.
      * 
-     * Negative indexing is not supported.
-     * 
      * Because a byte array always has a value if the index is valid,
      * param #2 (`Default`) is ignored.
      * 
      * @param   {Integer}  Index  positive 1-based array index
      * @returns {Integer}
      */
-    Get(Index, *) => NumGet(this, Index - 1, "UChar")
+    Get(Index, _?) => NumGet(this, this.CheckIndex(Index) - 1, "UChar")
+
+    /**
+     * Sets one or more items.
+     * 
+     * @param   {Any*}  Values  any number of key-value pairs
+     */
+    Set(Values*) {
+        if (Values.Length & 1) {
+            throw ValueError("Odd number of parameter",, Values.Length)
+        }
+        Enumer := Values.__Enum(1)
+        while (Enumer(&Index) && Enumer(&Value)) {
+            NumPut("UChar", Value, this, this.CheckIndex(Index) - 1)
+        }
+    }
 
     /**
      * Determines whether the given array index is valid. The index is
      * 1-based.
      * 
-     * Negative indexing is not supported.
-     * 
      * @param   {Integer}  Index  positive 1-based array index
      * @returns {Integer}
      */
-    Has(Index) => (Index > 0) && (Index < this.Size)
+    Has(Index) => this.IsValidIndex(Index)
 
     /**
      * Length of the array.
@@ -150,8 +160,8 @@ class ByteArray extends IArray
      * @property {Integer}
      */
     __Item[Index] {
-        get => NumGet(this, Index - 1, "UChar")
-        set => NumPut("UChar", value, this, Index - 1)
+        get => NumGet(this, this.CheckIndex(Index) - 1, "UChar")
+        set => NumPut("UChar", value, this, this.CheckIndex(Index) - 1)
     }
 
     /**
@@ -273,3 +283,4 @@ class AquaHotkey_ByteArray extends AquaHotkey {
         }
     }
 }
+
