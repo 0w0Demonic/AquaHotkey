@@ -351,6 +351,39 @@ class Optional {
         }
         return Type(this) . " { " . String(this.Value) . " }"
     }
+
+    /**
+     * Serializes this optional into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        if (ObjHasOwnProp(this, "Value")) {
+            Output.WriteUChar(true)
+            Output.WriteObject(this.Value, Refs)
+        } else {
+            Output.WriteUChar(false)
+        }
+    }
+
+    /**
+     * Reconstructs this optional from binary.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        if (Input.ReadUChar()) {
+            Input.ReadObject(&Value, Refs)
+            this.DefineProp("Value", { Get: (_) => Value })
+        }
+    }
+
+    ;@endregion
 }
 
 ;@endregion
@@ -363,7 +396,7 @@ class AquaHotkey_Optional extends AquaHotkey {
      */
     class Any {
         static __New() {
-            ({}.DefineProp)(this.Prototype, "Optional", { Call: Optional })
+            ({}.DefineProp)(this.Prototype, "ToOptional", { Call: Optional })
         }
 
         /**
