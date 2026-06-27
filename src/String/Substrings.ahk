@@ -88,6 +88,60 @@ class AquaHotkey_Substrings extends AquaHotkey {
          */
         AfterIndex(Index) => SubStr(this, Index + 1)
 
+        /**
+         * Returns a slice of a given window size, centered around a given
+         * index inside the string, truncating on the left and right side
+         * using `...` when appropriate. Negative indexing is supported.
+         * 
+         * `NewIndex` receives the index of the new location at which `Index`
+         * is positioned in the resulting string.
+         * 
+         * @param   {Integer}   Index       string index to center around
+         * @param   {Integer?}  WindowSize  size of slice to return
+         * @param   {VarRef?}   NewIndex    (out) new index of center
+         * @returns {String}
+         * @example
+         * ; "...ijk..."
+         * "abcdefghijklmnopqrstuvwxyz".ViewAround(10, 3, &NewIndex)
+         * MsgBox(NewIndex) ; 5 (location of `j`, index 10 in previous string)
+         */
+        ViewAround(Index, WindowSize := 20, &NewIndex?) {
+            if (!IsInteger(WindowSize)) {
+                throw TypeError("Expected an Integer")
+            }
+            if (WindowSize <= 0) {
+                return ""
+            }
+            if (!IsInteger(Index)) {
+                throw TypeError("Expected an Integer")
+            }
+            if (Index == 0) {
+                throw ValueError("Index == 0")
+            }
+            Len := StrLen(this)
+            if (Index < 0) {
+                Index += Len + 1
+            }
+            Half := WindowSize // 2
+
+            ; Start: first index to include
+            ; End: first index *not* to include
+            Start := Max(1, Index - Half)
+            End   := Min(Len + 1, Start + WindowSize)
+            Start := Max(1, End - WindowSize)
+
+            if (Start > 1) {
+                NewIndex := 4 + Half
+            } else {
+                NewIndex := Index
+            }
+            return (
+                ((Start > 1) ? "..." : "")
+              . SubStr(this, Start, End - Start)
+              . ((End <= Len) ? "..." : "")
+            )
+        }
+
         ;@endregion
         ;-----------------------------------------------------------------------
         ;@region String Cut
