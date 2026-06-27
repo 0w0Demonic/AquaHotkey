@@ -53,19 +53,25 @@ class BaseStream extends Enumerator {
             throw UnsetError("value is not enumerable",, Type(Source))
         }
 
-        ; Do some assertions on the enumerator being used. If `Source` is an
-        ; object, get the actual `Call` function.
-        f := (Source is Func) ? Source : GetMethod(Source, "Call")
+        ; do some assertions on the parameter length of the stream source.
+        ; at this point, `Source` might still be a method call instead of a
+        ; `Func`, so we need to account for the extra `this` parameter and
+        ; also "bind" with the source object.
+        if (Source is Func) {
+            ThisParam := 0
+            f := Source
+        } else {
+            ThisParam := 1
+            f := GetMethod(Source, "Call")
+            Source := ObjBindMethod(Source)
+        }
         if (f.IsVariadic) {
-            throw ValueError("varargs parameter",, f.Name)
+            throw ValueError("varargs parameter",, Source.Name)
         }
-
-        ; `BoundFunc`s are broken in terms of `MinParams`/`MaxParams`,
-        ; but this doesn't affect this simple assertion.
-        if (f.MinParams > this.Size) {
-            throw ValueError("invalid number of parameters",, f.MinParams)
+        if (f.MinParams - ThisParam > this.Size) {
+            throw ValueError("invalid number of parameters",,
+                f.MinParams - ThisParam)
         }
-
         return this.Cast(Source)
     }
 
