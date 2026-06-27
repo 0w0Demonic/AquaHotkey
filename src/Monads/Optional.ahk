@@ -366,7 +366,6 @@ class AquaHotkey_Optional extends AquaHotkey {
             ({}.DefineProp)(this.Prototype, "Optional", { Call: Optional })
         }
 
-        ; TODO rename to `.ToOptional()`?
         /**
          * Returns a new optional that wraps arount the element.
          * 
@@ -375,7 +374,7 @@ class AquaHotkey_Optional extends AquaHotkey {
          * 
          * @returns {Optional}
          */
-        Optional() => Optional(this)
+        ToOptional() => Optional(this)
     }
 }
 
