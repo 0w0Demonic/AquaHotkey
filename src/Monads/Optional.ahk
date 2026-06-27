@@ -390,10 +390,10 @@ class Optional {
 ;-------------------------------------------------------------------------------
 ;@region Extensions
 
+/**
+ * Provides a universal `.Optional()` method.
+ */
 class AquaHotkey_Optional extends AquaHotkey {
-    /**
-     * Provides a universal `.Optional()` method.
-     */
     class Any {
         static __New() {
             ({}.DefineProp)(this.Prototype, "ToOptional", { Call: Optional })

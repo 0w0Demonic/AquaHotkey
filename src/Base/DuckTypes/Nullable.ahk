@@ -20,7 +20,10 @@
  * MaybeStr.IsInstance("Str") ; true
  * MaybeStr.IsInstance(342.1) ; false
  */
-class Nullable {
+class Nullable
+{
+    ;@region Construction
+
     /**
      * Creates a new nullable type with the given inner type.
      * 
@@ -37,6 +40,10 @@ class Nullable {
         ObjSetBase(Obj, this.Prototype)
         return Obj
     }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Commons
 
     /**
      * Determines whether this nullable is equal to the other nullable.
@@ -60,6 +67,45 @@ class Nullable {
      * @returns {Integer}
      */
     HashCode() => Any.Hash(this.T)
+
+    /**
+     * Returns a string representation of this nullable type.
+     * 
+     * @returns {String}
+     */
+    ToString() => "Nullable<" . String(this.T) . ">"
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Serialization
+
+    /**
+     * Serializes this nullable type into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        Output.WriteObject(this.T, Refs)
+    }
+
+    /**
+     * Reconstructs this nullable type from binary.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        Input.ReadObject(&T, Refs)
+        this.DefineProp("T", { Get: (_) => T })
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Duck Types
 
     /**
      * Determines whether the value is considered instance of this nullable
@@ -87,33 +133,60 @@ class Nullable {
     }
 
     /**
-     * Returns a string representation of this nullable type.
+     * Returns a type-checked 2-parameter equality function for this class.
      * 
-     * @returns {String}
+     * The function supports `unset` values.
+     * 
+     * @returns {Func}
+     * @example
+     * Eq := Optional(Map).Equals
+     * 
+     * Eq(Map(1, 2), Map(1, 2)) ; true
+     * Eq("foo", "bar")         ; TypeError! Expected a Map.
+     * 
+     * ; ==> true
+     * ; (`Map.Equals()` would've thrown)
+     * Eq(unset, unset)
      */
-    ToString() => "Nullable<" . String(this.T) . ">"
+    Equals => ObjBindMethod(this, "Equals")
 
     /**
-     * Serializes this nullable type into binary.
+     * Determines whether two given values are equal.
      * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
+     * Both inputs are asserted to be *instances* of the calling class.
+     * For example, `Array.Equals(A, B)` will assert that `A is Array` and
+     * `B is Array`.
+     * 
+     * This method supports `unset` values. `unset == unset` is evaluated to
+     * `true`.
+     * 
+     * @param   {Any?}  A  value 1
+     * @param   {Any?}  B  value 2
+     * @returns {Boolean}
+     * @see {@link AquaHotkey_Eq}
+     * @example
+     * Optional(String).Equals("foo", "bar") ; false
+     * Optional(String).Equals([1, 2], "")   ; TypeError! Expected a String.
+     * 
+     * ; ==> true
+     * ; (`String.Equals()` would've thrown.)
+     * Optional(String).Equals(unset, unset)
      */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteObject(this.T, Refs)
+    Equals(A?, B?) {
+        if (!IsSet(A)) {
+            return (!IsSet(B))
+        }
+        if (!IsSet(B)) {
+            return false
+        }
+        if (!(this.T).IsInstance(A)) {
+            throw TypeError("Unexpected argument type: param #1")
+        }
+        if (!(this.T).IsInstance(B)) {
+            throw TypeError("Unexpected argument type: param #2")
+        }
+        return (A == B) || A.Eq(B)
     }
 
-    /**
-     * Reconstructs this nullable type from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        Input.ReadObject(&T, Refs)
-        this.DefineProp("T", { Get: (_) => T })
-    }
+    ;@endregion
 }

@@ -184,15 +184,13 @@ class AquaHotkey_Eq extends AquaHotkey
 
     class Class {
         /**
-         * Returns a type-checked 2-parameter equality function that supports
-         * `unset` values.
+         * Returns a type-checked 2-parameter equality function for this class.
          * 
          * @returns {Func}
          * @example
          * Eq := Map.Equals
          * 
          * Eq(Map(1, 2), Map(1, 2)) ; true
-         * Eq(unset, unset)         ; true
          * Eq("foo", "bar")         ; TypeError! Expected a Map.
          */
         Equals => ObjBindMethod(this, "Equals")
@@ -201,26 +199,20 @@ class AquaHotkey_Eq extends AquaHotkey
          * Determines whether two given values are equal.
          * 
          * Both inputs are asserted to be *instances* of the calling class.
-         * For example, `Array.Equals(A, B)` will assert that both `A` and `B`
-         * are arrays.
+         * For example, `Array.Equals(A, B)` will assert that both `A is Array`
+         * and `B is Array`.
          * 
-         * This method supports `unset` values.
+         * This method does *not* support `unset` values. Use {@link Optional}
+         * to allow `unset`.
          * 
-         * @param   {Any?}  A  value 1
-         * @param   {Any?}  B  value 2
+         * @param   {Any}  A  value 1
+         * @param   {Any}  B  value 2
          * @returns {Boolean}
          * @example
          * String.Equals("foo", "bar") ; false
-         * String.Equals(unset, unset) ; true
          * String.Equals([1, 2], "")   ; TypeError! Expected a String.
          */
-        Equals(A?, B?) {
-            if (!IsSet(A)) {
-                return (!IsSet(B))
-            }
-            if (!IsSet(B)) {
-                return false
-            }
+        Equals(A, B) {
             if ((A is this) && (B is this)) {
                 return (A == B) || A.Eq(B)
             }

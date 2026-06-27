@@ -1,9 +1,5 @@
 
 class Test_Eq extends TestSuite {
-    static UnsetEqualsUnset() {
-        Any.Equals(unset, unset).Assert(Eq(true))
-    }
-
     static Any() {
         Num := 42
         Num.Eq(Num).Assert(Eq(true))
@@ -74,8 +70,8 @@ class Test_Eq extends TestSuite {
         String.Equals("", "")
     }
 
-    static Class_eq_a_b_supports_unset() {
-        String.Equals(unset, unset).Assert(Eq(true))
+    static Class_eq_a_b_supports_unset_through_nullable() {
+        Nullable(String).Equals(unset, unset).Assert(Eq(true))
     }
 
     static Class_eq_a_b_type_checking() {

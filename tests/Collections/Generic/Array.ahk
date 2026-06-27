@@ -393,10 +393,10 @@ class Test_GenericArray extends TestSuite {
     static cancastfrom_between_different_constraints() {
         ; Constraint affects subtyping rules
         Required := String[]
-        Optional := String[Nullable]
+        Opt := String[Nullable]
         
-        Optional.CanCastFrom(Required).Assert(Eq(true))   ; Optional accepts Required
-        Required.CanCastFrom(Optional).Assert(Eq(false))  ; Required doesn't accept Optional
+        Opt.CanCastFrom(Required).Assert(Eq(true))   ; Optional accepts Required
+        Required.CanCastFrom(Opt).Assert(Eq(false))  ; Required doesn't accept Optional
     }
 
     static union_type_in_generic_array() {
