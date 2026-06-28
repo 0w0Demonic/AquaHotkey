@@ -4,6 +4,7 @@
 
 ;@region Optional
 
+; TODO use flyweight for the empty optional?
 /**
  * Represents an optional value: either a value is present, or it is absent.
  * 
@@ -28,6 +29,7 @@
 class Optional {
     ;@region Construction
 
+    ; TODO use `=> this()`?
     /**
      * Returns an optional with no value present.
      * 
@@ -39,6 +41,7 @@ class Optional {
      */
     static Empty() => Optional()
 
+    ; TODO use `=> this(Value)`?
     /**
      * Returns an optional with the given nonnull value.
      * 
@@ -216,6 +219,8 @@ class Optional {
             return this
         }
         O := Mapper(this.Value, Args*)
+
+        ; TODO use `HasBase(O, ObjGetBase(this))`?
         if (!(O is Optional)) {
             throw TypeError("Expected an Optional",, Type(O))
         }
@@ -381,6 +386,62 @@ class Optional {
             Input.ReadObject(&Value, Refs)
             this.DefineProp("Value", { Get: (_) => Value })
         }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Duck Types
+
+    /**
+     * Determines whether the value is considered instance of this optional
+     * type. The value must be an instance of `Optional`, and either be empty
+     * if this optional is empty, or contain a value which is instance of this
+     * optional's inner value.
+     * 
+     * This method is not to be confused with {@link Nullable#IsInstance()},
+     * which is for representing nullable types.
+     * 
+     * @param   {Any}  Val  any value
+     * @returns {Boolean}
+     * @example
+     * Optional("foo").Is(Optional(String)) ; true
+     * 
+     * Optional(unset).Is(Optional(unset))  ; true
+     * Optional(unset).Is(Optional(String)) ; false
+     * Optional("foo").Is(Optional(unset))  ; false
+     */
+    IsInstance(Val) {
+        if (!HasBase(Val, ObjGetBase(this))) {
+            return false
+        }
+        if (ObjHasOwnProp(this, "Value")) {
+            return ObjHasOwnProp(Val, "Value")
+                && (this.Value).IsInstance(Val.Value)
+        }
+        return (!ObjHasOwnProp(Val, "Value"))
+    }
+
+    /**
+     * Determines whether the value is considered equivalent to, or a subtype of
+     * this optional. The value must be an instance of `Optional`, and either by
+     * empty if this optional is empty, or contain a value which this optional's
+     * value `.CanCastFrom()`.
+     * 
+     * @param   {Any}  T  any value
+     * @returns {Boolean}
+     * @example
+     * Optional(String).CanCastFrom(Optional("42")) ; true
+     * Optional(unset).CanCastFrom(Optional(unset)) ; true
+     */
+    CanCastFrom(T) {
+        if (!HasBase(T, ObjGetBase(this))) {
+            return false
+        }
+        if (ObjHasOwnProp(this, "Value")) {
+            return ObjHasOwnProp(T, "Value")
+                && (this.Value).CanCastFrom(T.Value)
+        }
+        return (!ObjHasOwnProp(T, "Value"))
     }
 
     ;@endregion
