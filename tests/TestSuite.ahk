@@ -25,6 +25,15 @@ static __New() {
 
     ; this should be the case on the first iteration
     if (this == TestSuite) {
+
+        if (IsSet(AquaHotkey_cfg_DisableAssertions)) {
+            throw Error("assertions disabled",, "<cfg/DisableAssertions>")
+        }
+        if (IsSet(AquaHotkey_cfg_DisableTypeAssertions)) {
+            throw Error("type assertions disabled",,
+                "<cfg/DisableTypeAssertions>")
+        }
+
         ToolTip("running...")
         SetTimer(() => ToolTip(), -400)
 
