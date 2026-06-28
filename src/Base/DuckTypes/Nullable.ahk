@@ -118,6 +118,7 @@ class Nullable
      * Nullable(Number).IsInstance("foo") ; false
      */
     IsInstance(Val?) => (!IsSet(Val)) || this.T.IsInstance(Val)
+            || (Val == Nothing)
 
     /**
      * Determines whether the value is compatible with this nullable type.

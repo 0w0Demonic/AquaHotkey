@@ -1,3 +1,5 @@
+#Include "%A_LineFile%\..\..\DuckTypes.ahk"
+
 /**
  * @duck
  * 
@@ -14,8 +16,12 @@
  * Nothing.IsInstance(42)    ; false
  * 
  * ; `.CanCastFrom()` type relations
- * Nothing.CanCastFrom(Any)     ; false
- * Any.CanCastFrom(Nothing)     ; false
+ * Nothing.CanCastFrom(Any) ; false
+ * Any.CanCastFrom(Nothing) ; false
+ * Nothing.IsInstance(Any)  ; false
+ * Any.IsInstance(Nothing)  ; false
+ * 
+ * ; edge case: can cast to itself
  * Nothing.CanCastFrom(Nothing) ; true
  */
 Nothing(Val?) => !IsSet(Val)

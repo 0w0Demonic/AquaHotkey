@@ -1,5 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\Eq.ahk"
+#Include "%A_LineFile%\..\DuckTypes\Nothing.ahk"
 
 ; TODO use own class (e.g. `TypeDef`) for composing intersections, unions, etc.?
 
@@ -486,7 +487,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * "123".Is(String)      ; true
          * "example".Is(Numeric) ; false
          */
-        IsInstance(Val?) => IsSet(Val) && (Val is this)
+        IsInstance(Val?) => IsSet(Val) && (Val is this) && (Val != Nothing)
 
         /**
          * Determines whether the given value is equal to this class, or
@@ -500,7 +501,8 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * ; `- Number <- (base class)
          * Number.CanCastFrom(Integer)
          */
-        CanCastFrom(T) => (this == T) || HasBase(T, this) || (T is this)
+        CanCastFrom(T) => ((this == T) || HasBase(T, this) || (T is this))
+                && (T != Nothing)
         ; note: because something like `Any.CanCastFrom({ foo: Integer })`
         ;       should return `true` (makes sense), we're also checking
         ;       `(T is this)`. Somehow, this *didn't* destroy any tests?
