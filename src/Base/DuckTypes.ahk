@@ -496,6 +496,9 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * "example".Is(Numeric) ; false
          */
         IsInstance(Val?) => IsSet(Val) && (Val is this)
+        ; dev-note: do NOT account for `Nothing`; it's just a *type* for
+        ;           `unset` -- more specifically a class -- which has actual
+        ;           meaning per se, unlike `unset`.
 
         /**
          * Determines whether the given value is equal to this class, or

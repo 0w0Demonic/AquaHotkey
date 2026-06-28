@@ -749,20 +749,32 @@ class Test_DuckTypes extends TestSuite {
     }
 
     static object_cancastfrom_understands_nothing() {
-        T1 := { Value: Nothing }
-        T2 := {}
-        T3 := { Value: Nullable(String) }
+        T1 := {}
+        T2 := { Value: Nullable(String) }
+        T3 := { Value: Nothing }
 
-
-        ; `T1` and `T3` are more specific versions of `T2`
-        T2.CanCastFrom(T1).Assert(Eq(true))
-        T2.CanCastFrom(T3).Assert(Eq(true))
+        ; `T2` and `T3` are more specific versions of `T1`
+        T1.CanCastFrom(T3).Assert(Eq(true))
+        T1.CanCastFrom(T2).Assert(Eq(true))
 
         ; because `Nullable(String).CanCastFrom(Nothing)`
-        T3.CanCastFrom(T1).Assert(Eq(true))
+        T2.CanCastFrom(T3).Assert(Eq(true))
 
-        T1.CanCastFrom(T2).Assert(Eq(false))
-        T1.CanCastFrom(T3).Assert(Eq(false))
+        T3.CanCastFrom(T1).Assert(Eq(false))
         T3.CanCastFrom(T2).Assert(Eq(false))
+        T2.CanCastFrom(T1).Assert(Eq(false))
+    }
+
+    static array_isinstance_understands_nothing() {
+        Arr := [unset, unset]
+        T := [ Nothing, Nothing ]
+        Arr.Is(T).Assert(Eq(true))
+    }
+
+    static array_cancastfrom_understands_nothing() {
+        T1 := [Nullable(String)]
+        T2 := [Nothing]
+
+        T1.CanCastFrom(T2).Assert(Eq(true))
     }
 }
