@@ -137,20 +137,23 @@ class GenericSet extends ISet {
      * 
      * This depends on the set and component type used by the class.
      * 
-     * @param   {Any}  Other  other generic set class
+     * @param   {Any?}  T  any value
      * @returns {Boolean}
      * @example
      * Set.OfType(Nullable)
      */
-    static CanCastFrom(Other) {
-        if (super.CanCastFrom(Other)) {
-            return true
-        }
-        if (!HasBase(Other, GenericSet)) {
+    static CanCastFrom(T) {
+        if (!IsSet(T)) {
             return false
         }
-        return (this.SetType).CanCastFrom(Other.SetType)
-            && (this.ComponentType).CanCastFrom(Other.ComponentType)
+        if (super.CanCastFrom(T)) {
+            return true
+        }
+        if (!HasBase(T, GenericSet)) {
+            return false
+        }
+        return (this.SetType).CanCastFrom(T.SetType)
+            && (this.ComponentType).CanCastFrom(T.ComponentType)
     }
 
     /**

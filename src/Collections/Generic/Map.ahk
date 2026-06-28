@@ -125,7 +125,7 @@ class GenericMap extends IDelegatingMap {
      * Determines whether the given value is considered a subtype of this
      * generic array class.
      * 
-     * @param   {Any}  Other  any value
+     * @param   {Any?}  T  any value
      * @returns {Boolean}
      * @example
      * T1 := IMap.OfType(Number, Number)
@@ -133,16 +133,19 @@ class GenericMap extends IDelegatingMap {
      * 
      * T1.CanCastFrom(T2) ; true
      */
-    static CanCastFrom(Other) {
-        if (super.CanCastFrom(Other)) {
-            return true
-        }
-        if (!HasBase(Other, GenericMap)) {
+    static CanCastFrom(T?) {
+        if (!IsSet(T)) {
             return false
         }
-        return (this.MapType).CanCastFrom(Other.MapType)
-            && (this.KeyType).CanCastFrom(Other.KeyType)
-            && (this.ValueType).CanCastFrom(Other.ValueType)
+        if (super.CanCastFrom(T)) {
+            return true
+        }
+        if (!HasBase(T, GenericMap)) {
+            return false
+        }
+        return (this.MapType).CanCastFrom(T.MapType)
+            && (this.KeyType).CanCastFrom(T.KeyType)
+            && (this.ValueType).CanCastFrom(T.ValueType)
     }
 
     ;@endregion

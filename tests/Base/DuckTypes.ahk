@@ -728,4 +728,41 @@ class Test_DuckTypes extends TestSuite {
     static boolean_isinstance_is_false_for_strings() {
         "1".Is(Boolean).Assert(Eq(false))
     }
+
+    static nothing_is_subtype_of_nullable_t() {
+        Nullable(String).CanCastFrom(Nothing).Assert(Eq(true))
+    }
+
+    static unset_is_nothing() {
+        Nothing.IsInstance(unset).Assert(Eq(true))
+        Nothing.IsInstance(42).Assert(Eq(false))
+    }
+
+    static object_is_understands_nothing() {
+        T := { Value: Nothing }
+
+        ; `Value` prop is NOT instance of `Nothing`
+        ({ Value: 42 }).Is(T).Assert(Eq(false))
+
+        ; `Value` prop is treated as `unset` -- o.k.
+        Object().Is(T).Assert(Eq(true))
+    }
+
+    static object_cancastfrom_understands_nothing() {
+        T1 := { Value: Nothing }
+        T2 := {}
+        T3 := { Value: Nullable(String) }
+
+
+        ; `T1` and `T3` are more specific versions of `T2`
+        T2.CanCastFrom(T1).Assert(Eq(true))
+        T2.CanCastFrom(T3).Assert(Eq(true))
+
+        ; because `Nullable(String).CanCastFrom(Nothing)`
+        T3.CanCastFrom(T1).Assert(Eq(true))
+
+        T1.CanCastFrom(T2).Assert(Eq(false))
+        T1.CanCastFrom(T3).Assert(Eq(false))
+        T3.CanCastFrom(T2).Assert(Eq(false))
+    }
 }

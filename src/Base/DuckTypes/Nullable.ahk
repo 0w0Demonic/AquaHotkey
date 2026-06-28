@@ -107,6 +107,8 @@ class Nullable
     ;---------------------------------------------------------------------------
     ;@region Duck Types
 
+    ; TODO need to add `static` versions for just `.Is(Nullable)`?
+
     /**
      * Determines whether the value is considered instance of this nullable
      * type.
@@ -118,15 +120,17 @@ class Nullable
      * Nullable(Number).IsInstance("foo") ; false
      */
     IsInstance(Val?) => (!IsSet(Val)) || this.T.IsInstance(Val)
-            || (Val == Nothing)
 
     /**
      * Determines whether the value is compatible with this nullable type.
      * 
-     * @param   {Any}  Val  any value
+     * @param   {Any?}  Val  any value
      * @returns {Boolean}
      */
-    CanCastFrom(Val) {
+    CanCastFrom(Val?) {
+        if (!IsSet(Val) || (Val == Nothing)) {
+            return true
+        }
         if (Val is Nullable) {
             return (this.T).CanCastFrom(Val.T)
         }

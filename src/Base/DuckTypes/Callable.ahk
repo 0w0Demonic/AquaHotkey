@@ -38,7 +38,7 @@ class Callable extends Object {
      * ; --> true
      * Callable.CanCastFrom(Func)
      */
-    static CanCastFrom(T) {
-        return (super.CanCastFrom(T) || Func.CanCastFrom(T))
+    static CanCastFrom(T?) {
+        return IsSet(T) && (super.CanCastFrom(T) || Func.CanCastFrom(T))
     }
 }

@@ -227,7 +227,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * by the given object `T`. This method delegates to
          * `T.IsInstance(this)`, and should not be overridden.
          * 
-         * @param   {Class}  T  expected class
+         * @param   {Any}  T  expected type
          * @returns {Boolean}
          * @example
          * class Numeric {
@@ -258,12 +258,12 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * 
          * For non-objects, this is only true if both values are equal `.Eq()`.
          * 
-         * @param   {Any}  T  any value
+         * @param   {Any?}  T  any value
          * @returns {Boolean}
          * @example
          * (42).CanCastFrom(42) ; true
          */
-        CanCastFrom(T) => this.Eq(T)
+        CanCastFrom(T?) => IsSet(T) && this.Eq(T)
         ; note: `.Eq()` by definition should cover `==`.
     }
 
@@ -332,12 +332,12 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * Determines whether the object is considered equivalent to, or
          * a subtype of this type pattern.
          * 
-         * @param   {Any}  T  any value
+         * @param   {Any?}  T  any value
          * @returns {Boolean}
          * @example
          * ({ x: Number, y: Number }).CanCastFrom({ x: Integer, y: Integer })
          */
-        CanCastFrom(T) {
+        CanCastFrom(T?) {
             static GetProp := {}.GetOwnPropDesc
 
             ; note: whatever satisfies the contraints imposed by this object
@@ -347,6 +347,9 @@ class AquaHotkey_DuckTypes extends AquaHotkey
             ; everything works as intended.
             if (this == T) {
                 return true
+            }
+            if (!IsSet(T)) {
+                return false
             }
 
             ; this is only meant to work on object literals
@@ -363,6 +366,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
                     continue
                 }
                 Pattern := PropDesc.Value
+
                 if (!ObjHasOwnProp(T, Name)) {
                     return false
                 }
@@ -371,6 +375,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
                     return false
                 }
                 PropT := PropDesc.Value
+
                 if (!Pattern.CanCastFrom(PropT)) {
                     return false
                 }
@@ -432,7 +437,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * element as argument. Both arrays must have identical length, as
          * well as matching elements at each index position.
          * 
-         * @param   {Any}  Val  any value
+         * @param   {Any?}  Val  any value
          * @returns {Boolean}
          * @example
          * ([Number, Integer]).CanCastFrom([Integer, Integer]) ; true
@@ -445,7 +450,10 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * ; --> `({ Value: Number }).CanCastFrom({ Value: Integer })`
          * ; --> true
          */
-        CanCastFrom(Other) {
+        CanCastFrom(Other?) {
+            if (!IsSet(Other)) {
+                return false
+            }
             if (this == Other) { ; note: (see Object#CanCastFrom)
                 return true
             }
@@ -487,13 +495,13 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * "123".Is(String)      ; true
          * "example".Is(Numeric) ; false
          */
-        IsInstance(Val?) => IsSet(Val) && (Val is this) && (Val != Nothing)
+        IsInstance(Val?) => IsSet(Val) && (Val is this)
 
         /**
          * Determines whether the given value is equal to this class, or
          * its subclass.
          * 
-         * @param   {Class}  T  any class
+         * @param   {Any?}  T  any value
          * @returns {Boolean}
          * @example
          * 
@@ -501,12 +509,16 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * ; `- Number <- (base class)
          * Number.CanCastFrom(Integer)
          */
-        CanCastFrom(T) => ((this == T) || HasBase(T, this) || (T is this))
-                && (T != Nothing)
-        ; note: because something like `Any.CanCastFrom({ foo: Integer })`
-        ;       should return `true` (makes sense), we're also checking
-        ;       `(T is this)`. Somehow, this *didn't* destroy any tests?
-        ;       very nice.
+        CanCastFrom(T?) {
+            if (!IsSet(T) || (T == Nothing)) {
+                return false
+            }
+            return (this == T) || HasBase(T, this) || (T is this)
+            ; note: because something like `Any.CanCastFrom({ foo: Integer })`
+            ;       should return `true` (makes sense), we're also checking
+            ;       `(T is this)`. Somehow, this *didn't* destroy any tests?
+            ;       very nice.
+        }
     }
 
     ;@endregion

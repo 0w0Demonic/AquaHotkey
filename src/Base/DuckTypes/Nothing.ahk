@@ -8,20 +8,36 @@
  * @module  <Base/DuckTypes/Nothing>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
- * @param   {Any?}  Val  any value
- * @returns {Boolean}
- * @example
- * ; `.IsInstance()` duck type checks
- * Nothing.IsInstance(unset) ; true
- * Nothing.IsInstance(42)    ; false
- * 
- * ; `.CanCastFrom()` type relations
- * Nothing.CanCastFrom(Any) ; false
- * Any.CanCastFrom(Nothing) ; false
- * Nothing.IsInstance(Any)  ; false
- * Any.IsInstance(Nothing)  ; false
- * 
- * ; edge case: can cast to itself
- * Nothing.CanCastFrom(Nothing) ; true
  */
-Nothing(Val?) => !IsSet(Val)
+class Nothing extends Any {
+    /**
+     * Determines whether the value is considered instance of `Nothing`. This
+     * is only true, if `Val == unset`.
+     * 
+     * @param   {Any?}  Val  any value
+     * @returns {Boolean}
+     * @example
+     * ; `.IsInstance()` duck type checks
+     * Nothing.IsInstance(unset) ; true
+     * Nothing.IsInstance(42)    ; false
+     * 
+     */
+    static IsInstance(Val?) => !IsSet(Val)
+
+    /**
+     * Determines whether the given type is equivalent to, or a subtype of
+     * `Nothing`. This method returns `true` if `T == Nothing`, otherwise
+     * `false`.
+     * 
+     * @example
+     * ; `.CanCastFrom()` type relations
+     * Nothing.CanCastFrom(Any) ; false
+     * Any.CanCastFrom(Nothing) ; false
+     * Nothing.IsInstance(Any)  ; false
+     * Any.IsInstance(Nothing)  ; false
+     * 
+     * ; edge case: can cast to itself
+     * Nothing.CanCastFrom(Nothing) ; true
+     */
+    static CanCastFrom(T?) => (!IsSet(T)) || (T == Nothing)
+}

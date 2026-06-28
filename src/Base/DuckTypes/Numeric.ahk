@@ -22,7 +22,7 @@ class Numeric extends Primitive {
     /**
      * Determines whether the value is numeric.
      * 
-     * @param   {Any}  Val  any value
+     * @param   {Any?}  Val  any value
      * @returns {Boolean}
      * @example
      * "example".Is(Numeric)     ; false
@@ -34,14 +34,14 @@ class Numeric extends Primitive {
      * Determines whether the given value is equal to this class,
      * or its subclass.
      * 
-     * @param   {Class}  T  any class
+     * @param   {Any}  T  any value
      * @returns {Boolean}
      * @example
      * Numeric.CanCastFrom(Numeric) ; true
      * Numeric.CanCastFrom(Integer) ; true (every integer is numeric)
      */
-    static CanCastFrom(T) {
-        return super.CanCastFrom(T) || Number.CanCastFrom(T)
+    static CanCastFrom(T?) {
+        return IsSet(T) && (super.CanCastFrom(T) || Number.CanCastFrom(T))
     }
 
     /**

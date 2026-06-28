@@ -226,7 +226,7 @@ class GenericArray extends IArray
      * 
      * This depends on the array and component type used by the class.
      * 
-     * @param   {Any}  Other  other generic array class
+     * @param   {Any?}  T  other generic array class
      * @returns {Boolean}
      * @example
      * Any[Nullable].CanCastFrom(String[])
@@ -235,16 +235,20 @@ class GenericArray extends IArray
      * ;
      * ; --> true
      */
-    static CanCastFrom(Other) {
-        ; note: super.CanCastFrom(Other) == Class#CanCastFrom(Other)
-        if (super.CanCastFrom(Other)) {
-            return true
-        }
-        if (!HasBase(Other, GenericArray)) {
+    static CanCastFrom(T?) {
+        if (!IsSet(T)) {
             return false
         }
-        return (this.ArrayType).CanCastFrom(Other.ArrayType)
-            && (this.ComponentType).CanCastFrom(Other.ComponentType)
+
+        ; note: super.CanCastFrom(Other) == Class#CanCastFrom(Other)
+        if (super.CanCastFrom(T)) {
+            return true
+        }
+        if (!HasBase(T, GenericArray)) {
+            return false
+        }
+        return (this.ArrayType).CanCastFrom(T.ArrayType)
+            && (this.ComponentType).CanCastFrom(T.ComponentType)
     }
 
     /**

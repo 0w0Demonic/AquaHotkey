@@ -401,7 +401,7 @@ class Optional {
      * This method is not to be confused with {@link Nullable#IsInstance()},
      * which is for representing nullable types.
      * 
-     * @param   {Any}  Val  any value
+     * @param   {Any?}  Val  any value
      * @returns {Boolean}
      * @example
      * Optional("foo").Is(Optional(String)) ; true
@@ -410,36 +410,37 @@ class Optional {
      * Optional(unset).Is(Optional(String)) ; false
      * Optional("foo").Is(Optional(unset))  ; false
      */
-    IsInstance(Val) {
-        if (!HasBase(Val, ObjGetBase(this))) {
+    IsInstance(Val?) {
+        if (!IsSet(Val) || !HasBase(Val, ObjGetBase(this))) {
             return false
         }
         if (ObjHasOwnProp(this, "Value")) {
-            return ObjHasOwnProp(Val, "Value")
-                && (this.Value).IsInstance(Val.Value)
+            return (ObjHasOwnProp(Val, "Value"))
+                        ? (this.Value).IsInstance(Val.Value)
+                        : (this.Value).IsInstance(unset)
         }
         return (!ObjHasOwnProp(Val, "Value"))
     }
 
     /**
      * Determines whether the value is considered equivalent to, or a subtype of
-     * this optional. The value must be an instance of `Optional`, and either by
-     * empty if this optional is empty, or contain a value which this optional's
-     * value `.CanCastFrom()`.
+     * this optional. The value must be an instance of `Optional`, and its value
+     * (`unset`, if there is none) must 
      * 
-     * @param   {Any}  T  any value
+     * @param   {Any?}  T  any value
      * @returns {Boolean}
      * @example
      * Optional(String).CanCastFrom(Optional("42")) ; true
      * Optional(unset).CanCastFrom(Optional(unset)) ; true
      */
-    CanCastFrom(T) {
-        if (!HasBase(T, ObjGetBase(this))) {
+    CanCastFrom(T?) {
+        if (!IsSet(T) || !HasBase(T, ObjGetBase(this))) {
             return false
         }
         if (ObjHasOwnProp(this, "Value")) {
             return ObjHasOwnProp(T, "Value")
-                && (this.Value).CanCastFrom(T.Value)
+                    ? (this.Value).CanCastFrom(T.Value)
+                    : (this.Value).CanCastFrom(unset)
         }
         return (!ObjHasOwnProp(T, "Value"))
     }

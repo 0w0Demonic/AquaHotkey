@@ -150,7 +150,7 @@ class Record {
      * value type of this record can be cast from the other class
      * respectively.
      * 
-     * @param   {Any}  Other  any value
+     * @param   {Any?}  Other  any value
      * @returns {Boolean}
      * @example
      * Record(String, String).CanCastFrom( Record(Group, String) )
@@ -167,8 +167,9 @@ class Record {
      *     }
      * }
      */
-    CanCastFrom(Other) {
-        return (Other is Record)
+    CanCastFrom(Other?) {
+        return IsSet(Other)
+            && (Other is Record)
             && (this.KeyType).CanCastFrom(Other.KeyType)
             && (this.ValueType).CanCastFrom(Other.ValueType)
     }
