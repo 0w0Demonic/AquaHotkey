@@ -40,11 +40,12 @@ class Comparator extends Func {
     /**
      * Returns a numeric comparator.
      * 
-     * @param   {Func?}  Mapper  function retrieving sort key
-     * @param   {Any*}   Args    zero or more arguments
+     * @param   {Func?|String?}  Mapper  prop name or function for sort key
+     * @param   {Any*}           Args    zero or more arguments
      * @returns {Comparator}
      * @example
-     * ByStrLen := Comparator.Num(StrLen)
+     * By_StrLen  := Comparator.Num(StrLen)
+     * By_Prop_Id := Comparator.Num("Id")
      */
     static Num(Mapper?, Args*) {
         NumComp := this((A, B) => (A > B) - (B > A))
@@ -62,9 +63,9 @@ class Comparator extends Func {
     /**
      * Returns an alphabetical comparator.
      * 
-     * @param   {Primitive?}  CaseSense  case sensitivity
-     * @param   {Func?}       Mapper     function retrieving sort key
-     * @param   {Any*}        Args       zero or more arguments
+     * @param   {Primitive?}     CaseSense  case sensitivity
+     * @param   {Func?|String?}  Mapper     prop name or function for sort key
+     * @param   {Any*}           Args       zero or more arguments
      */
     static Alpha(CaseSense := false, Mapper?, Args*) {
         if (!(CaseSense is Primitive)) {
@@ -79,13 +80,19 @@ class Comparator extends Func {
      * Returns a comparator that first retrieves a sort key using the given
      * `Mapper` function, then performs natural comparison (`.Compare()`).
      * 
-     * @param   {Func}  Mapper  function retrieving sort key
-     * @param   {Any*}  Args    zero or more arguments
+     * `Mapper` can also be the name of an object's property.
+     * 
+     * @param   {Func|String}  Mapper  prop name or function retrieving sort key
+     * @param   {Any*}         Args    zero or more arguments
      * @returns {Comparator}
      * @example
      * Comparator.By(StrLen).ThenAlpha()
+     * Comparator.By("Id").ThenNum()
      */
     static By(Mapper, Args*) {
+        if (Mapper is Primitive) {
+            Mapper := ((Prop) => (Obj) => Obj.%Prop%)(Mapper)
+        }
         GetMethod(Mapper)
         return this.Cast(Comp)
 
@@ -100,12 +107,18 @@ class Comparator extends Func {
      * Returns a comparator that first uses the given `Mapper` to extract a
      * sort key from both input values to be compared.
      * 
-     * @param   {Func}  Mapper  function retrieving sort key
+     * `Mapper` can also be the name of an object's property.
+     * 
+     * @param   {Func|String}  Mapper  function retrieving sort key
      * @returns {Comparator}
      * @example
      * Comp := Comparator.Num().By(StrLen)
+     * Comp := Comparator.Num().By("Id")
      */
     By(Mapper, Args*) {
+        if (Mapper is Primitive) {
+            Mapper := ((Prop) => (Obj) => Obj.%Prop%)(Mapper)
+        }
         GetMethod(Mapper)
         return this.Cast(Comp)
 
@@ -133,13 +146,18 @@ class Comparator extends Func {
      * natural comparison (`.Compare()`) by using a `Mapper` to retrieve sort
      * keys.
      * 
-     * @param   {Func}  Mapper  function retrieving sort key
-     * @param   {Any*}  Args    zero or more arguments
+     * `Mapper` can also be the name of an object's property.
+     * 
+     * @param   {Func|String}  Mapper  function retrieving sort key
+     * @param   {Any*}         Args    zero or more arguments
      * @returns {Comparator}
      * @example
-     * Comparator.By(StrLen).ThenAlpha()
+     * Comparator.By("FirstName").ThenBy("LastName")
      */
     ThenBy(Mapper, Args*) {
+        if (Mapper is Primitive) {
+            Mapper := ((Prop) => (Obj) => Obj.%Prop%)(Mapper)
+        }
         GetMethod(Mapper)
         return this.Cast(Comp)
 
@@ -148,19 +166,19 @@ class Comparator extends Func {
     }
 
     /**
-     * Shorthand for `.AndThen(Comparator.Num())`.
+     * Shorthand for `.Then(Comparator.Num())`.
      * 
-     * @param   {Func?}  Mapper  function retrieving sort key
-     * @param   {Any*}   Args    zero or more arguments
+     * @param   {Func?|String?}  Mapper  prop name or function for sort key
+     * @param   {Any*}           Args    zero or more arguments
      * @returns {Comparator}
      */
     ThenNum(Mapper?, Args*) => this.Then(Comparator.Num(Mapper?, Args*))
 
     /**
-     * Shorthand for `.AndThen(Comparator.Alpha())`.
+     * Shorthand for `.Then(Comparator.Alpha())`.
      * 
-     * @param   {Func?}  Mapper  function retrieving sort key
-     * @param   {Any*}   Args    zero or more arguments
+     * @param   {Func?|String?}  Mapper  prop name or function for sort key
+     * @param   {Any*}           Args    zero or more arguments
      * @returns {Comparator}
      */
     ThenAlpha(Mapper?, Args*) => this.Then(Comparator.Alpha(Mapper?, Args*))
