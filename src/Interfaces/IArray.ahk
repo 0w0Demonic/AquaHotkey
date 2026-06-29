@@ -439,6 +439,7 @@ class IArray {
         this.Length := 0
     }
 
+    ; TODO do this with powers of 2?
     /**
      * Repeats this array `X` times.
      * 

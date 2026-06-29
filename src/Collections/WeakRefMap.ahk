@@ -208,7 +208,7 @@ class AquaHotkey_WeakRef extends AquaHotkey {
                 if (HasProp(this, "__Delete")) {
                     Del := this.__Delete
                 }
-                this.DefineProp("__Delete", { Call: Destructor  })
+                this.DefineProp("__Delete", { Call: Destructor })
                 this.DefineProp("WeakRefs", { Get: (_) => Refs })
                 return Refs
 

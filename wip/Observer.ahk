@@ -82,6 +82,14 @@ class Observable {
     }
 }
 
+; TODO use `Enumerator.Empty()`?
+class AquaHotkey_Enumerator_Empty extends AquaHotkey {
+    class Enumerator {
+        static Empty() => (*) => false
+        static Empty   => (*) => false
+    }
+}
+
 /**
  * A function that always returns `false`, useable as an {@link Enumerator}
  * that returns zero elements. This can be useful as default value when

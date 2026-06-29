@@ -155,7 +155,7 @@ class Test_String extends TestSuite {
     }
 
     static MatchAll() {
-        MatchObjs := "Test123Abc".MatchAll("\d")
+        MatchObjs := Array("Test123Abc".MatchAll("\d")*)
         MatchObjs.Length.Assert(Eq(3))
         MatchObjs[1][0].Assert(Eq(1))
         MatchObjs[2][0].Assert(Eq(2))

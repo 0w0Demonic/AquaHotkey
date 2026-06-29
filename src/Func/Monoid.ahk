@@ -17,9 +17,8 @@
  * For example: addition is a monoid, where `0` does nothing.
  * 
  * ```ahk
- * ; automatically takes `Product.Identity` (`0`) as initial value
- * Array(1, 2, 3, 4, 5).Reduce(Product) ; 120
- * Array().Reduce(Product) ; 1 (fallback to `1`, instead of throwing)
+ * Array(1, 2, 3, 4, 5).Reduce(Sum) ; 15
+ * Array().Reduce(Sum) ; 0 (fallback to `0`, instead of throwing)
  * ```
  * 
  * ---
@@ -69,7 +68,7 @@ class Product extends Any {
 }
 
 /**
- * String concatenation
+ * String concatenation.
  */
 class Concat extends Any {
     static Call(A, B) => (A . B)
