@@ -43,7 +43,11 @@
  * 
  * MsgBox(  Obj.Is(T)  ) ; false (does not have `Guest` property)
  */
-class Record {
+class Record extends Class
+{
+    ; (see `<Base/DuckTypes/Nullable>`)
+    static Prototype.Prototype := this.Prototype
+
     ;@region Construction
 
     /**

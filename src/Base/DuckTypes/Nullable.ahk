@@ -20,8 +20,17 @@
  * MaybeStr.IsInstance("Str") ; true
  * MaybeStr.IsInstance(342.1) ; false
  */
-class Nullable
+class Nullable extends Class
 {
+    ; (evil hacks)
+    ; `extends Class` allows us to use methods such as `[]` (`Array.OfType()`).
+    ; 
+    ; Because instance of `Nullable` are now expected to be classes, they're
+    ; expected to have a `Prototype`, but right now they don't; So let's fix
+    ; that. Just reuse the existing prototype defined here.
+    static Prototype.Prototype := this.Prototype
+    ; TODO find out if this breaks anything
+
     ;@region Construction
 
     /**
