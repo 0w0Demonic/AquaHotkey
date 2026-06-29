@@ -96,26 +96,42 @@ class AquaHotkey_StringMatching extends AquaHotkey {
         }
 
         /**
-         * Returns all match objects for occurrence of a regex `Pattern` in
-         * the string. Match objects do not overlap with each other.
+         * Returns a {@link Stream} (or `Enumerator`, if absent) of regex
+         * matches of a given `Pattern`. Matches do not overlap with each other.
          * 
          * @param   {String}    Pattern  regular expression
          * @param   {Integer?}  Pos      position to start searching from
-         * @returns {Array}
-         * @example
+         * @returns {Stream|Enumerator}
+         * @example <caption>Using a simple `for`-loop</caption>
          * ; 1st iteration: "12"
          * ; 2nd iteration: "34"
          * for MatchObj in "12345".MatchAll("\d{2}+") {
          *     MsgBox(MatchObj[0])
          * }
+         * @example <caption>Using `Stream`</caption>
+         * "12345".MatchAll("\d").Map(M => M[0]).ForEach(MsgBox)
          */
         MatchAll(Pattern, Pos := 1) {
-            Result := Array()
-            while (FoundPos := RegExMatch(this, Pattern, &MatchObj, Pos)) {
-                Result.Push(MatchObj)
-                Pos := FoundPos + (MatchObj.Len[0] || 1)
+            static T := IsSet(AquaHotkey_Stream)
+                    ? Stream.Prototype
+                    : Enumerator.Prototype
+
+            if (!(Pattern is Primitive)) {
+                throw TypeError("Expected a String",, Type(Pattern))
             }
-            return Result
+            if (!IsInteger(Pos)) {
+                throw TypeError("Expected an Integer",, Type(Pos))
+            }
+            ObjSetBase(MatchAll, T)
+            return MatchAll
+
+            MatchAll(&Out) {
+                if (RegExMatch(this, Pattern, &Out, Pos)) {
+                    Pos := Out.Pos[0] + (Out.Len[0] || 1)
+                    return true
+                }
+                return false
+            }
         }
 
         /**
@@ -136,22 +152,39 @@ class AquaHotkey_StringMatching extends AquaHotkey {
         }
 
         /**
-         * Returns an array of all occurrences of regular expression `Pattern`.
+         * Returns a {@link Stream} (or `Enumerator`, if absent) of all
+         * occurrences of a regex match of a given `Pattern`.
+         * 
          * Matches do not overlap with each other.
          * 
          * @param   {String}    Pattern  regular expression
          * @param   {Integer?}  Pos      position to start searching from
-         * @returns {Array}
+         * @returns {Stream|Enumerator}
          * @example
-         * "12345".CaptureAll("\d{2}+") ; ["12", "34"]
+         * "12345".CaptureAll("\d{2}+") ; <"12", "34">
          */
         CaptureAll(Pattern, Pos := 1) {
-            Result := Array()
-            while (FoundPos := RegExMatch(this, Pattern, &MatchObj, Pos)) {
-                Result.Push(MatchObj[0])
-                Pos := FoundPos + (MatchObj.Len[0] || 1)
+            static T := IsSet(AquaHotkey_Stream)
+                    ? Stream.Prototype
+                    : Enumerator.Prototype
+
+            if (!(Pattern is Primitive)) {
+                throw TypeError("Expected a String",, Type(Pattern))
             }
-            return Result
+            if (!IsInteger(Pos)) {
+                throw TypeError("Expected an Integer",, Type(Pos))
+            }
+            ObjSetBase(CaptureAll, T)
+            return CaptureAll
+
+            CaptureAll(&Out) {
+                if (RegExMatch(this, Pattern, &Match, Pos)) {
+                    Out := Match[0]
+                    Pos := Match.Pos[0] + (Match.Len[0] || 1)
+                    return true
+                }
+                return false
+            }
         }
 
         ;@endregion
