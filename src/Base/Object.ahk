@@ -261,14 +261,30 @@ class AquaHotkey_Object extends AquaHotkey {
  * @param   {Object}  Desc  a set of properties
  * @returns {Object}
  * @example
- * Obj := ObjFromDesc({ Value: Constant(42) })
+ * ; value of `A` and `B` are treated as prop descs
+ * Obj := ObjFromDesc({
+ *     A: { get: (Obj) => Obj.B },
+ *     B: { get: (Obj) => 42 }
+ * })
  * 
- * MsgBox(Obj.Value)             ; 42
- * Obj.Value := "something else" ; Error! This property is read-only.
+ * MsgBox(Obj.A) ; 42
  */
 ObjFromDesc(Desc) {
+    static GetProp := {}.GetOwnPropDesc
+    static Define  := {}.DefineProp
+
+    if (ObjGetBase(Desc) != Object.Prototype) {
+        throw TypeError("Expected a plain object",, Type(Desc))
+    }
+
     Obj := Object()
-    Obj.DefineProp(Desc)
+    for PropertyName in ObjOwnProps(Desc) {
+        PropDesc := GetProp(Desc, PropertyName)
+        if (!ObjHasOwnProp(PropDesc, "Value")) {
+            continue
+        }
+        Define(Obj, PropertyName, PropDesc.Value)
+    }
     return Obj
 }
 
