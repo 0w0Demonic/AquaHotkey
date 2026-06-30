@@ -121,10 +121,7 @@ class GenericArray extends IArray
         }
 
         if (IsSet(C)) {
-            ; TODO make this more lenient?
-            if (!(C is Class)) {
-                throw TypeError("Expected a Class",, Type(C))
-            }
+            GetMethod(C)
             T := C(T) ; e.g.: `T := Nullable(String)`
         }
 
