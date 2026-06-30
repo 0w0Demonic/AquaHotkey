@@ -160,6 +160,18 @@ class AquaHotkey_Comparable extends AquaHotkey
         }
 
         /**
+         * Prop setter for {@link AquaHotkey_Compare#Compare() `.Compare()`}.
+         * 
+         * @param   {Comparator}  value  a comparator function
+         */
+        Compare {
+            set {
+                GetMethod(value)
+                ({}.DefineProp)(this, "Compare", { Call: value })
+            }
+        }
+
+        /**
          * Determines whether this value has a natural ordering greater than
          * the other value.
          * 
