@@ -12,8 +12,7 @@
 
 ## Standard Input/Output/Error Streams
 
-Open the standard input, output, and error streams but using `FileOpen.StdIn`,
-`FileOpen.StdOut` and `FileOpen.StdErr` respectively.
+Open the standard input, output, and error streams but using `FileOpen.StdIn`, `FileOpen.StdOut` and `FileOpen.StdErr` respectively.
 
 ```ahk
 (FileOpen.StdOut).WriteLine("Hello, world!")
@@ -21,8 +20,7 @@ Open the standard input, output, and error streams but using `FileOpen.StdIn`,
 
 ## `Path()` Function
 
-Introducing `Path()`, which works exactly like `SplitPath()`, but returns an
-object of all fields.
+Introducing `Path()`, which works exactly like `SplitPath()`, but returns an object of all fields.
 
 ```ahk
 ; {
@@ -37,8 +35,7 @@ Path("C:\My Documents\Address List.txt")
 
 ## Enumerating Lines in Files
 
-You can enumerate lines in a file simply by using the `File` object in a
-for-loop (or by using streams):
+You can enumerate lines in a file simply by using the `File` object in a for-loop (or by using streams):
 
 ```ahk
 for Line in FileOpen("litany.txt", "r") {
@@ -52,8 +49,7 @@ for LineNumber, Line in FileOpen("stuff.txt", "r") {
 FileOpen("something.txt", "r").Stream().TakeWhile(...).ForEach(...)
 ```
 
-It's generally a good idea to close the file as soon as possible, but it's
-often not necessary.
+It's generally a good idea to close the file as soon as possible, but it's often not necessary.
 
 ## Name Property of File Objects
 
@@ -65,9 +61,7 @@ FileObj.Name ; "C:\...\myFile.txt"
 
 ## File Loops
 
-`LoopFiles()` lets you create a [Continuation](../Func/Continuation.md), which
-works very similarly to [streams](../Stream/Stream.md) and lets you create
-functional pipelines to handle files and directories.
+`LoopFiles()` lets you create a [Continuation](../Func/Continuation.md), which works very similarly to [streams](../Stream/Stream.md) and lets you create functional pipelines to handle files and directories.
 
 ```ahk
 ; equivalent to:

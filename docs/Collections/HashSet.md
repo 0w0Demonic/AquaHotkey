@@ -5,8 +5,7 @@
 
 ## Overview
 
-A hash-based [ISet](../Interfaces/ISet.md) implementation. It uses a
-[HashMap](./HashMap.md) as backing map to store elements.
+A hash-based [ISet](../Interfaces/ISet.md) implementation. It uses a [HashMap](./HashMap.md) as backing map to store elements.
 
 ```ahk
 S := HashSet([1, 2], 42, [1, 2], "str")

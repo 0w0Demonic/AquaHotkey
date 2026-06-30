@@ -13,14 +13,11 @@
 
 ## Overview
 
-Abstracts the use of try-catch blocks into a container object that is
-either a `TryOp.Success` containing a value, or a `TryOp.Failure`, containing
-an error object.
+Abstracts the use of try-catch blocks into a container object that is either a `TryOp.Success` containing a value, or a `TryOp.Failure`, containing an error object.
 
 ## Construction
 
-Use `TryOp()` to wrap a [supplier function](../Func/Supplier.md) with
-try-catch logic.
+Use `TryOp()` to wrap a [supplier function](../Func/Supplier.md) with try-catch logic.
 
 ```ahk
 T := TryOp(() => FileRead("myFile.txt"))
@@ -32,8 +29,7 @@ Use `TryOp.Value()` to create a successful TryOp containing the given value.
 T := TryOp.Value(42) ; same as `TryOp(() => 42)`
 ```
 
-You can also use methods `TryOp.Success(Value)` and `TryOp.Failure(Err)`,
-but you should generally avoid using them directly.
+You can also use methods `TryOp.Success(Value)` and `TryOp.Failure(Err)`, but you should generally avoid using them directly.
 
 ```ahk
 Success := TryOp.Success(42)
@@ -42,8 +38,7 @@ Failure := TryOp.Failure(IndexError("out of bounds"))
 
 ## Success
 
-Use `.Succeeded` and `.Failed` to determine whether the TryOp is successful
-or not.
+Use `.Succeeded` and `.Failed` to determine whether the TryOp is successful or not.
 
 ```ahk
 TryOp(() => "str").Succeeded ; true
@@ -52,9 +47,7 @@ TryOp(Divide, 0, 0).Failed ; true
 
 ## Side Effects
 
-Use `.Then()` or `.OnSuccess()` to perform a side effect if the TryOp is
-successful, `.OnFailure()` or `.OrElseRun()` if the TryOp has failed,
-and `.Finally()` regardless of the state.
+Use `.Then()` or `.OnSuccess()` to perform a side effect if the TryOp is successful, `.OnFailure()` or `.OrElseRun()` if the TryOp has failed, and `.Finally()` regardless of the state.
 
 ```ahk
 Success.Then(...)         ; [x]
@@ -72,8 +65,7 @@ Failure.Then(...)         ; [ ]
 
 ## Filtering
 
-Use predicate function to test the inner value for conditions, if a value is
-present.
+Use predicate function to test the inner value for conditions, if a value is present.
 
 ```ahk
 FileContents := TryOp(FileRead, "myFile.txt")
@@ -84,8 +76,7 @@ FileContents := TryOp(FileRead, "myFile.txt")
 
 ## Transformation
 
-`.Map()` lets you transform the inner value of a successful TryOp by applying
-a mapper function.
+`.Map()` lets you transform the inner value of a successful TryOp by applying a mapper function.
 
 ```ahk
 Times2(x) => (x * 2)
@@ -101,8 +92,7 @@ Divide(A, B) => TryOp(() => (A / B))
 TryOp.Value(3).FlatMap(Divide, 0) ; TryOp.Failure<ZeroDivisionError>
 ```
 
-`.Transform()` will pass the entire `TryOp` into the mapper function,
-regardless whether it is successful or not.
+`.Transform()` will pass the entire `TryOp` into the mapper function, regardless whether it is successful or not.
 
 ```ahk
 TryOp.Value(2).Transform((T) {
@@ -116,8 +106,7 @@ TryOp.Value(2).Transform((T) {
 
 ## Returning Values
 
-You can retrieve values from a TryOp in a manner similar to
-[Optional](./Optional.md):
+You can retrieve values from a TryOp in a manner similar to [Optional](./Optional.md):
 
 ```ahk
 T.Get()                 ; inner value, else throw

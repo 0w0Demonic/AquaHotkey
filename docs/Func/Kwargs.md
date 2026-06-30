@@ -6,8 +6,7 @@
 
 ## Overview
 
-Allows calling functions or any callable object with keyword arguments
-("kwargs").
+Allows calling functions or any callable object with keyword arguments ("kwargs").
 
 ```ahk
 ControlSend.With({
@@ -17,11 +16,7 @@ ControlSend.With({
 })
 ```
 
-Each function or callable or object can define a `.Signature` property that
-maps parameter names (and their aliases) to positional indices. Once a
-signature is defined, you can call `.With(ArgObj)`, which converts the named
-arguments in a plain object (`ArgObj`) into positional arguments and invokes
-the function.
+Each function or callable or object can define a `.Signature` property that maps parameter names (and their aliases) to positional indices. Once a signature is defined, you can call `.With(ArgObj)`, which converts the named arguments in a plain object (`ArgObj`) into positional arguments and invokes the function.
 
 ```ahk
 ; 1. Text
@@ -39,6 +34,4 @@ MsgBox.With({
 
 ## Defining Own Signatures
 
-Although [KwargsConfig.ahk](../../src/Func/KwargsConfig.ahk) already provides
-signatures to most built-in AHK functions, they can be easily customized. See
-[source file](../../src/Func/Kwargs.ahk) for more information.
+Although [KwargsConfig.ahk](../../src/Func/KwargsConfig.ahk) already provides signatures to most built-in AHK functions, they can be easily customized. See [source file](../../src/Func/Kwargs.ahk) for more information.

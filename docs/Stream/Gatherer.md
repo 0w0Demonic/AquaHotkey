@@ -6,9 +6,7 @@
 
 ## Overview
 
-Gatherers are a highly customizable interface to help convert a stream of
-input elements into a stream of output elements. Use the `.Gather()` method on
-a (size-1) [Stream](./Stream.md) to apply a gatherer to it.
+Gatherers are a highly customizable interface to help convert a stream of input elements into a stream of output elements. Use the `.Gather()` method on a (size-1) [Stream](./Stream.md) to apply a gatherer to it.
 
 ```ahk
 ; --> <(1, 2), (3, 4), (5, 6), (7, 8), (9, 10)>
@@ -18,8 +16,7 @@ Range(10).Stream().Gather(WindowFixed(2))
 Array(1, 2, 3, 4, 5).Gather(Scan(Sum))
 ```
 
-At the moment, only size 1 gatherers are supported, but this might change
-very soon.
+At the moment, only size 1 gatherers are supported, but this might change very soon.
 
 ## How to Implement
 
@@ -33,9 +30,7 @@ A gatherer is a subclass of `Func`. It must have the following signature:
 Gatherer(Upstream, Downstream) => Boolean
 ```
 
-`Upstream` is a stream of input elements, and `Downstream` is a function that
-pushes output elements to the downstream. The gatherer must return `true` to
-indicate success, otherwise `false` to terminate the stream.
+`Upstream` is a stream of input elements, and `Downstream` is a function that pushes output elements to the downstream. The gatherer must return `true` to indicate success, otherwise `false` to terminate the stream.
 
 ```ahk
 GatherTimesTwo(Upstream, Downstream) {

@@ -10,9 +10,7 @@
 
 ## Overview
 
-Comparators are functions that impose a total ordering between two input values.
-This feature augments [<Base/Comparable>](../Base/Comparable.md) using
-function composition, which allows much more fine-grained sorting logic.
+Comparators are functions that impose a total ordering between two input values.  This feature augments [<Base/Comparable>](../Base/Comparable.md) using function composition, which allows much more fine-grained sorting logic.
 
 ```ahk
 ; compare by string length, then by lexicographical order.
@@ -28,8 +26,7 @@ Array("bb", "aa", "c", "dddd", unset).Sort(Comp)
 You have several simple ways to create a comparator:
 
 1. **Start with an existing one**
-   Use the comparator functions already defined in
-   [`<Base/Comparable>`](../Base/Comparable.md) by calling `Class#Compare()`.
+   Use the comparator functions already defined in [`<Base/Comparable>`](../Base/Comparable.md) by calling `Class#Compare()`.
 
    ```ahk
    C := Integer.Compare ; numbers
@@ -46,8 +43,7 @@ You have several simple ways to create a comparator:
    C3 := Comparator.Alpha("Locale") ; lexicographic, according to locale
    ```
 
-   You can also specify a mapper function to extract values to sort by, as you
-   would in method [`.By()`](#composition):
+   You can also specify a mapper function to extract values to sort by, as you would in method [`.By()`](#composition):
 
    ```ahk
    Comparator.Num(StrLen)            ; same as (Comparator.Num).By(StrLen)
@@ -79,8 +75,7 @@ You have several simple ways to create a comparator:
 
 ## Composition
 
-Once you have a base comparator, you can transform it. Composition returns
-a fresh comparator, the original remains untouched.
+Once you have a base comparator, you can transform it. Composition returns a fresh comparator, the original remains untouched.
 
 - `.By(Mapper, Args*)`: run `Mapper` on both inputs and compare the results.
 
@@ -124,19 +119,16 @@ You can flip a comparator with `.Rev()`.
 C := (Integer.Compare).Rev() ; descending numeric order
 ```
 
-Avoid calling `.Rev()` repeatedly, as each invocation wraps the function and
-performance degrades with deep nesting.
+Avoid calling `.Rev()` repeatedly, as each invocation wraps the function and performance degrades with deep nesting.
 
 ## Unset Handling
 
-By default, comparators assume both arguments are set. To make one safe for
-`unset` values, use one of the following methods:
+By default, comparators assume both arguments are set. To make one safe for `unset` values, use one of the following methods:
 
 - `.NullsFirst()`: unset values sort before everything else
 - `.NullsLast()`: unset values sort after everything else
 
-These should **always** be the last method in the chain. If you call them
-earlier, subsequent composition will remove this type of null-safety.
+These should **always** be the last method in the chain. If you call them earlier, subsequent composition will remove this type of null-safety.
 
 ```ahk
 C := Comparator.Num().NullsLast().ThenAlpha() ; wrong!
@@ -145,12 +137,10 @@ C := Comparator.Num().ThenAlpha().NullsLast() ; OK.
 
 ## General Notes
 
-- `StrCompare` is now a comparator; you can call comparator methods on it
-  directly.
+- `StrCompare` is now a comparator; you can call comparator methods on it directly.
 
   ```ahk
   Comp := StrCompare.Rev()
   ```
 
-- Whenever possible, you should reuse the same comparator object rather than
-  rebuilding it over again.
+- Whenever possible, you should reuse the same comparator object rather than rebuilding it over again.

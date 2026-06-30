@@ -28,10 +28,7 @@
 
 ## Overview
 
-Introduces a flexible and customizable runtime type system that is based on
-duck types. Instead of caring about the base object, you can use any value
-as a "type pattern" that imposes a set of characteristics to test on
-another value.
+Introduces a flexible and customizable runtime type system that is based on duck types. Instead of caring about the base object, you can use any value as a "type pattern" that imposes a set of characteristics to test on another value.
 
 ```ahk
 ; A "type pattern" that matches objects with `age` and `name` properties
@@ -51,27 +48,19 @@ Obj.Is(Pattern)
 
 ## How it Works
 
-Normally, the `is` operator checks whether an object is an instance of a
-given class based on its base objects. In AquaHotkeyX, this is done with
-*pattern matching*. Things can be used as type patterns to impose a set of
-characteristics that makes up a type. A value must fulfill these
-characteristics to be considered "instance of" that type.
+Normally, the `is` operator checks whether an object is an instance of a given class based on its base objects. In AquaHotkeyX, this is done with *pattern matching*. Things can be used as type patterns to impose a set of characteristics that makes up a type. A value must fulfill these characteristics to be considered "instance of" that type.
 
-When we call `Val.Is(T)`, we check whether `Val` is instance of the type that
-is imposed by `T`.
+When we call `Val.Is(T)`, we check whether `Val` is instance of the type that is imposed by `T`.
 
-Lots of formal talk, but it's easier than you might expect as soon as you see
-it in action. Let's start with a simple example:
+Lots of formal talk, but it's easier than you might expect as soon as you see it in action. Let's start with a simple example:
 
 ```ahk
 "foo".Is(String)
 ```
 
-For classes, this works as we might usually expect. `String` is our pattern,
-whereas `"foo"` is the value to be checked.
+For classes, this works as we might usually expect. `String` is our pattern, whereas `"foo"` is the value to be checked.
 
-The exact way how a pattern matches its value is defined by its `.IsInstance()`
-function. For classes, this is simply...
+The exact way how a pattern matches its value is defined by its `.IsInstance()` function. For classes, this is simply...
 
 ```ahk
 ("foo" is String)
@@ -84,9 +73,7 @@ classes, that's the same as `Val is T`.
 
 ### The `.IsInstance(Val?)` Method
 
-The `.IsInstance()` method of a pattern determines how a value should be
-checked for its instance membership. It makes up a system that is extremely
-flexible and customizable:
+The `.IsInstance()` method of a pattern determines how a value should be checked for its instance membership. It makes up a system that is extremely flexible and customizable:
 
 ```ahk
 class Numeric extends Primitive {
@@ -97,17 +84,13 @@ Val := 42
 Val.Is(Numeric) ; true (because `IsSet(42) && IsNumber(42)`)
 ```
 
-We've just implemented our own duck type `Numeric` that checks whether a value
-is a number, regardless whether it's a `Number`, or a numeric `String` like
-`"123"`.
+We've just implemented our own duck type `Numeric` that checks whether a value is a number, regardless whether it's a `Number`, or a numeric `String` like `"123"`.
 
 ### Subclasses and `.CanCastFrom(T)`
 
-To determine whether a type pattern is considered equivalent to, or a subtype
-of another type pattern, we can use the `.CanCastFrom(T)` method.
+To determine whether a type pattern is considered equivalent to, or a subtype of another type pattern, we can use the `.CanCastFrom(T)` method.
 
-In other words, `.CanCastFrom()` defines how types relate to each other,
-just like how classes and their subclasses do.
+In other words, `.CanCastFrom()` defines how types relate to each other, just like how classes and their subclasses do.
 
 For class objects, this is defined as follows:
 
@@ -134,9 +117,7 @@ Integer.CanCastFrom(Number) ; false
 
 Now let's apply the same concept to our own duck types.
 
-In the following example - conceptually speaking - `EmptyString` is a more
-specific version of `String`. To imply that `EmptyString` is a subtype, we
-simply set its base class to `String`.
+In the following example - conceptually speaking - `EmptyString` is a more specific version of `String`. To imply that `EmptyString` is a subtype, we simply set its base class to `String`.
 
 ```ahk
 class EmptyString extends String {
@@ -166,8 +147,7 @@ Number[].CanCastFrom(Integer[]) ; true
 
 ### Literal Values
 
-Primitive types, such as strings or numbers are used as literals which
-are checked for equality (via [`.Eq()`](./Eq.md)).
+Primitive types, such as strings or numbers are used as literals which are checked for equality (via [`.Eq()`](./Eq.md)).
 
 ```ahk
 Val := 42
@@ -179,11 +159,9 @@ MsgBox(Val.CanCastFrom(42)) ; true
 
 ### Object Literals
 
-Plain objects can be used as structural patterns that check for an object's
-key-value mappings.
+Plain objects can be used as structural patterns that check for an object's key-value mappings.
 
-For each of the pattern's fields, an object must define its *own* field with
-the same name (case-insensitive) and *also* match the given value.
+For each of the pattern's fields, an object must define its *own* field with the same name (case-insensitive) and *also* match the given value.
 
 ```ahk
 ; example #1 : object must have all fields imposed by the pattern
@@ -211,15 +189,11 @@ Obj := {
 MsgBox(Obj.Is(Order)) ; --> true
 ```
 
-Note that both the pattern and the object must both be *plain* objects. In
-other words, they should directly inherit from `Object.Prototype` instead of
-being instances of other classes.
+Note that both the pattern and the object must both be *plain* objects. In other words, they should directly inherit from `Object.Prototype` instead of being instances of other classes.
 
 ### Array Literals
 
-Regular arrays are be used to test for the "shape" of an array. A pattern like
-`[String, Integer]` asserts that an object is an array of length `2`, its
-values being instance of `String` and `Integer`, respectively.
+Regular arrays are be used to test for the "shape" of an array. A pattern like `[String, Integer]` asserts that an object is an array of length `2`, its values being instance of `String` and `Integer`, respectively.
 
 ```ahk
 Arr := ["giraffe", 42]
@@ -230,8 +204,7 @@ Arr.Is([Integer, String]) ; false (wrong order)
 
 ### Generic Arrays
 
-To instead test that an array consists only of a given type, you can use
-generic array classes instead.
+To instead test that an array consists only of a given type, you can use generic array classes instead.
 
 ```ahk
 ([1, 2, 3, 4, 5]).Is(Integer[]) ; true
@@ -243,9 +216,7 @@ The same applies to generic arrays:
 Integer[](1, 2, 3).Is(Number[]) ; true
 ```
 
-Note that when testing a generic array, its array- and component type are being
-tested for compatibility via `.CanCastFrom()`. Here's a quick rundown of how
-the example above is evaluated:
+Note that when testing a generic array, its array- and component type are being tested for compatibility via `.CanCastFrom()`. Here's a quick rundown of how the example above is evaluated:
 
 ```ahk
 Integer[](1, 2, 3).Is(Number[])
@@ -262,9 +233,7 @@ Integer[](1, 2, 3).Is(Number[])
 
 - [<Base/DuckTypes/Nullable>](./DuckTypes/Nullable.md)
 
-Generally speaking, a type is not considered nullable, and `unset` is not
-considered a member of any type. However, you can make a type nullable by
-using `Nullable(T)`:
+Generally speaking, a type is not considered nullable, and `unset` is not considered a member of any type. However, you can make a type nullable by using `Nullable(T)`:
 
 ```ahk
 MaybeInteger := Nullable(Integer)
@@ -308,9 +277,7 @@ Numeric refers to any number or numeric string:
 
 ### Enums, Intersection and Union Types
 
-Enums represent an enumeration of one or more elements. For a value to be
-treated as *member* of the enum, it must be equal to one of the elements
-(via [`.Eq()`](./Eq.md)).
+Enums represent an enumeration of one or more elements. For a value to be treated as *member* of the enum, it must be equal to one of the elements (via [`.Eq()`](./Eq.md)).
 
 ```ahk
 Permission := Type.Enum("Admin", "User", "Guest")
@@ -349,13 +316,9 @@ MsgBox(Cats.Is( Record(CatName, CatInfo) )) ; true
 
 ## Writing Your Own Duck Types
 
-To create your own duck type, simply define a class with a static
-`.IsInstance()` method that checks whether a value fulfills the characteristics
-of your type. Make sure that the input parameter of `.IsInstance()` is
-*optional*.
+To create your own duck type, simply define a class with a static `.IsInstance()` method that checks whether a value fulfills the characteristics of your type. Make sure that the input parameter of `.IsInstance()` is *optional*.
 
-You *should* also implement `.CanCastFrom()` to define how your
-type relates to other types.
+You *should* also implement `.CanCastFrom()` to define how your type relates to other types.
 
 ```ahk
 class Boolean extends Integer {
@@ -364,20 +327,13 @@ class Boolean extends Integer {
 }
 ```
 
-Often times, it's more than enough to simply extend an existing class to
-allow `.CanCastFrom()` to work as expected without the need to explicitly
-implement it.
+Often times, it's more than enough to simply extend an existing class to allow `.CanCastFrom()` to work as expected without the need to explicitly implement it.
 
-Since `true` and `false` are built-in variables for `1` and `0`, we simply
-set the base class of `Boolean` to `Integer`, and `.CanCastFrom()` will work
-as intended.
+Since `true` and `false` are built-in variables for `1` and `0`, we simply set the base class of `Boolean` to `Integer`, and `.CanCastFrom()` will work as intended.
 
 ## Using Functions as Type Patterns
 
-You can use any arbitrary function as a type pattern. In that case,
-the function is assumed to return a boolean value and do the work of
-`IsInstance()`. This might become very interesting together with the use of
-[predicates](../Func/Predicate.md).
+You can use any arbitrary function as a type pattern. In that case, the function is assumed to return a boolean value and do the work of `IsInstance()`. This might become very interesting together with the use of [predicates](../Func/Predicate.md).
 
 ```ahk
 (42).Is(  InstanceOf(Numeric).And(Gt(0))  )

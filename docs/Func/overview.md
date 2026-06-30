@@ -48,8 +48,7 @@ Func
 
 - [<Func/Cast>](./Cast.md)
 
-Utility for type casting between different `Func` classes. This module is
-meant mostly for internal use.
+Utility for type casting between different `Func` classes. This module is meant mostly for internal use.
 
 ```ahk
 class Comparator extends Func {
@@ -65,8 +64,7 @@ Comparator.Cast(Comp) ; change base object of `Comp` to `Comparator.Prototype`
 
 - [<Func/Comparator>](./Func/Comparator.md)
 
-Composable comparator functions for custom sorting logic. Enables building
-complex comparisons through method chaining.
+Composable comparator functions for custom sorting logic. Enables building complex comparisons through method chaining.
 
 ```ahk
 Comp := Comparator.By(StrLen).ThenAlpha().NullsFirst()
@@ -79,8 +77,7 @@ Array("example", "b", "a", unset).Sort(Comp)
 
 - [<Func/Continuation>](./Func/Continuation.md)
 
-Continuation-passing style support for advanced control flow and asynchronous
-patterns.
+Continuation-passing style support for advanced control flow and asynchronous patterns.
 
 ```ahk
 LoopFiles(A_Desktop . "\*").Map((*) => A_LoopFileName).JoinLine().MsgBox()
@@ -90,8 +87,7 @@ LoopFiles(A_Desktop . "\*").Map((*) => A_LoopFileName).JoinLine().MsgBox()
 
 - [<Func/Func>](./Func/Func.md)
 
-General function utilities including composition, memoization and
-error handling.
+General function utilities including composition, memoization and error handling.
 
 ```ahk
 Plus(A) => (B) => (A + B)
@@ -105,8 +101,7 @@ Times2_Plus4(2) ; 8
 
 - [<Func/Kwargs>](./Func/Kwargs.md)
 
-Named argument support for functions via the `.With()` method. Improves
-readability by allowing calls with self-documenting parameter names.
+Named argument support for functions via the `.With()` method. Improves readability by allowing calls with self-documenting parameter names.
 
 ```ahk
 ControlSend.With({
@@ -120,8 +115,7 @@ ControlSend.With({
 
 - [<Func/Lazy>](./Func/Lazy.md)
 
-Lazy evaluation wrapper deferring computation until the value is accessed.
-Useful for expensive operations, or ones that can be cached easily.
+Lazy evaluation wrapper deferring computation until the value is accessed.  Useful for expensive operations, or ones that can be cached easily.
 
 ```ahk
 L := Lazy(() => SomethingExpensive())
@@ -134,8 +128,7 @@ Value := L() ; result is cached now
 
 - [<Func/Predicate>](./Func/Predicate.md)
 
-Composable boolean predicates for filtering and conditional logic. Supports
-combining predicates with logical operators.
+Composable boolean predicates for filtering and conditional logic. Supports combining predicates with logical operators.
 
 ```ahk
 ; --> [1, "-12.23"]
@@ -151,8 +144,7 @@ Array(1, 23, "-12.23", "example").RetainIf( InstanceOf(Numeric).And(Lt(20)) )
 
 - [<Func/Pipes>](./Func/Pipes.md)
 
-Function piping for readable left-to-right data transformation chains.
-Simplifies nested function calls.
+Function piping for readable left-to-right data transformation chains.  Simplifies nested function calls.
 
 ```ahk
 MyVar.o0(DoThis).o0(DoThat, "foo").o0(MsgBox)

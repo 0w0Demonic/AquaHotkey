@@ -11,9 +11,7 @@ An immutable [ISet](../Interfaces/ISet.md) implementation.
 S := ImmutableSet(1, 2, 3, 4)
 ```
 
-Use `ImmutableSet.FromSet()` or `ISet#Freeze()` to create a read-only view
-of an existing set. To return a set view of an [IMap](../Interfaces/IMap.md),
-you can use `IMap#AsSet()` or `IMap#ToSet()`.
+Use `ImmutableSet.FromSet()` or `ISet#Freeze()` to create a read-only view of an existing set. To return a set view of an [IMap](../Interfaces/IMap.md), you can use `IMap#AsSet()` or `IMap#ToSet()`.
 
 ```ahk
 S := Set(1, 2, 3, 4)

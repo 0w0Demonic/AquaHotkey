@@ -10,23 +10,15 @@
 
 ## Overview
 
-Introduces a set of assertion methods, perfect for validating parameters and
-making assumptions in your program at runtime. Because of their conciseness,
-they're particularly useful inside unit tests.
+Introduces a set of assertion methods, perfect for validating parameters and making assumptions in your program at runtime. Because of their conciseness, they're particularly useful inside unit tests.
 
-Methods return the value itself (`return this`), meaning you can chain
-multiple assertions together fluently.
+Methods return the value itself (`return this`), meaning you can chain multiple assertions together fluently.
 
 ### Removed Methods in v2
 
-Most of the other assertion methods in v2 (such as `.AssertHasOwnProp()`) have
-been cut in favor of [predicates](../Func/Predicate.md). At the moment,
-only `.AssertType()` is left.
+Most of the other assertion methods in v2 (such as `.AssertHasOwnProp()`) have been cut in favor of [predicates](../Func/Predicate.md). At the moment, only `.AssertType()` is left.
 
-Note that some of these methods might return very soon, if they end up
-being reasonable enough to keep as shorthand. Otherwise, feel free to put
-them back with some help of [extension classes](../basics.md#getting-started).
-In fact, I encourage you to do so, if you find yourself using some of the old methods a lot. It's what this library is for!
+Note that some of these methods might return very soon, if they end up being reasonable enough to keep as shorthand. Otherwise, feel free to put them back with some help of [extension classes](../basics.md#getting-started).  In fact, I encourage you to do so, if you find yourself using some of the old methods a lot. It's what this library is for!
 
 ## Function `Assert()`
 
@@ -36,9 +28,7 @@ Use `Assert()` for simple assertions, like this:
 Assert(4 == 4)
 ```
 
-In this example `4 == 4` is an expression that should return either `true` or
-`false`. Whenever an expression evaluates to `false`, `Assert()` will throw
-an error.
+In this example `4 == 4` is an expression that should return either `true` or `false`. Whenever an expression evaluates to `false`, `Assert()` will throw an error.
 
 ## Method `.Assert(Condition, Args*)`
 

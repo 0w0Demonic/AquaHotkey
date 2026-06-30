@@ -24,10 +24,7 @@
 
 ## What Are Generic Collections?
 
-Generic collection classes are *type-safe versions* of existing collection
-classes. When you create a generic array or map, you're wrapping an existing
-collection (like `Array` or `Map`) with an extra layer that enforces type
-constraints on all elements.
+Generic collection classes are *type-safe versions* of existing collection classes. When you create a generic array or map, you're wrapping an existing collection (like `Array` or `Map`) with an extra layer that enforces type constraints on all elements.
 
 ```ahk
 ; generic array: only strings are allowed
@@ -40,19 +37,15 @@ StrArr.Push(42)  ; TypeError! Expected a String.
 
 Each generic collection class:
 
-- *wraps* an existing collection type that implements an interface (`IArray`,
-  `IMap`, etc.)
-- *enforces* that all elements conform to the specified
-  [duck types](../../Base/DuckTypes.md)
+- *wraps* an existing collection type that implements an interface (`IArray`, `IMap`, etc.)
+- *enforces* that all elements conform to the specified [duck types](../../Base/DuckTypes.md)
 - *delegates* actual storage to the underlying wrapped collection
 
-For example, `String[]` is a generic array class that wraps a regular `Array`,
-and enforces that all elements are an instance of `String`.
+For example, `String[]` is a generic array class that wraps a regular `Array`, and enforces that all elements are an instance of `String`.
 
 ### Backing Collections
 
-The underlying collection can be *any class* that implements the corresponding
-interface. For example:
+The underlying collection can be *any class* that implements the corresponding interface. For example:
 
 ```ahk
 StrArray := String[] ; shorthand for: Array.OfType(String)
@@ -95,9 +88,7 @@ Array("a", "b").Is(String[]) ; true
 Array(1, 2).Is(String[])     ; false
 ```
 
-When checking a generic collection against a generic pattern, the type of
-backing collection and element types are tested for compatibility via
-[`.CanCastFrom()`](../../Base/DuckTypes.md#subclasses-and-cancastfromt).
+When checking a generic collection against a generic pattern, the type of backing collection and element types are tested for compatibility via [`.CanCastFrom()`](../../Base/DuckTypes.md#subclasses-and-cancastfromt).
 
 ```ahk
 Integer[](1, 2, 3).Is(Any[]) ; true (because `Any.CanCastFrom(Integer)`)
@@ -116,17 +107,14 @@ Cls1.CanCastFrom(Cls2)
 
 ### Matching Non-Generic Collections
 
-A generic collection, when used as type pattern, **will match its non-generic
-counterpart**. This design choice reduces verbosity, but requires some care
-with nested patterns.
+A generic collection, when used as type pattern, **will match its non-generic counterpart**. This design choice reduces verbosity, but requires some care with nested patterns.
 
 ```ahk
 ; generic array class matches a plain array
 Array(1, 2, 3).Is(Number[])
 ```
 
-However, this can be surprising with nested structures. The following example
-shows a regular array can fulfill the constraints imposed by `Number[]`.
+However, this can be surprising with nested structures. The following example shows a regular array can fulfill the constraints imposed by `Number[]`.
 
 ```ahk
 Grid := Number[][](
@@ -136,16 +124,13 @@ Grid := Number[][](
 )
 ```
 
-Creating an instance of `Number[][]` doesn't throw, because each of the plain
-arrays can be matched by `Number[]`. However, it means that the arrays
-themselves are *not* type-safe.
+Creating an instance of `Number[][]` doesn't throw, because each of the plain arrays can be matched by `Number[]`. However, it means that the arrays themselves are *not* type-safe.
 
 ```ahk
 Grid[1][1] := "not a number" ; doesn't throw
 ```
 
-Whenever nesting, you should always take the extra step and be explicit about
-the integrity of your elements.
+Whenever nesting, you should always take the extra step and be explicit about the integrity of your elements.
 
 ```ahk
 Grid := Number[][](
@@ -159,12 +144,9 @@ Grid[1][1] := "not a number" ; TypeError! Expected a(n) Number.
 
 ### Mutability of Objects
 
-Although an element can be validated against a duck type during insertion
-or modification, this doesn't make the element itself immutable. If the element
-is an object, its properties can still be changed.
+Although an element can be validated against a duck type during insertion or modification, this doesn't make the element itself immutable. If the element is an object, its properties can still be changed.
 
-This is why you should generally try to work with immutable objects, or avoid
-making any changes to them.
+This is why you should generally try to work with immutable objects, or avoid making any changes to them.
 
 ```ahk
 UserArr := Array.OfType({ name: String, age: Integer })
@@ -175,9 +157,7 @@ Arr[1].name := unset ; doesn't throw
 
 ## Performance Considerations
 
-The overhead of generic collections is reasonable, but not free. Some
-optimization tips include reusing generic classes, or
-disabling them completely.
+The overhead of generic collections is reasonable, but not free. Some optimization tips include reusing generic classes, or disabling them completely.
 
 ```ahk
 IntArray := Integer[]
@@ -188,12 +168,9 @@ loop 1000 {
 }
 ```
 
-Generics can be used as guard rails for catching errors very early on. As soon
-as everything works correctly, you can choose to switch off type-checks to
-gain performance.
+Generics can be used as guard rails for catching errors very early on. As soon as everything works correctly, you can choose to switch off type-checks to gain performance.
 
-By including the "disable generics" configuration, you can switch off
-type-checking completely.
+By including the "disable generics" configuration, you can switch off type-checking completely.
 
 ```ahk
 #Include <AquaHotkey/cfg/DisableGenerics>

@@ -8,12 +8,9 @@
 
 ## Overview
 
-This feature allows easy type-casting between different `Func` types.
-Because AquaHotkeyX introduces many subclasses of `Func`, it can be useful to
-be able to "elevate" a `Func` to a more specific type.
+This feature allows easy type-casting between different `Func` types.  Because AquaHotkeyX introduces many subclasses of `Func`, it can be useful to be able to "elevate" a `Func` to a more specific type.
 
-You generally only need this feature if you want to implement a custom `Func`
-subclass that has additional methods beyond the base `Func` class.
+You generally only need this feature if you want to implement a custom `Func` subclass that has additional methods beyond the base `Func` class.
 
 ```ahk
 ; changes the base of `IsNumber` to `Predicate.Prototype`, which allows it to
@@ -23,11 +20,9 @@ Predicate.Cast(IsNumber)
 
 ## Static `.Call()`
 
-Calling `Func(Obj)` creates a `BoundFunc` of the given callable object,
-and then casts it into an instance of the calling class.
+Calling `Func(Obj)` creates a `BoundFunc` of the given callable object, and then casts it into an instance of the calling class.
 
-The resulting function is considered a copy of the original, but with a
-different type.
+The resulting function is considered a copy of the original, but with a different type.
 
 ```ahk
 Pred := Predicate(IsNumber)
@@ -41,8 +36,7 @@ MsgBox(Pred == IsNumber)      ; false
 
 ## Static Method `.Cast()`
 
-Calling `Func.Cast(Fn)` changes the base object of `Fn` into the prototype
-of the calling class. `Fn` must be an instance of `Func`.
+Calling `Func.Cast(Fn)` changes the base object of `Fn` into the prototype of the calling class. `Fn` must be an instance of `Func`.
 
 ```ahk
 Pred := Predicate.Cast(IsNumber)
@@ -56,8 +50,7 @@ MsgBox(Pred == IsNumber)      ; true
 
 ## Instance Method `.Cast()`
 
-Lastly, calling `.Cast(Fn)` as method will cast `Fn` into the same type of
-the calling function.
+Lastly, calling `.Cast(Fn)` as method will cast `Fn` into the same type of the calling function.
 
 Just like in `Func.Cast(Fn)`, `Fn` must also be an instance of `Func`.
 

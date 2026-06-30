@@ -7,8 +7,7 @@
 
 Simple URL encoding/decoding utility.
 
-Use functions `UrlEncode(Str)`/`UrlDecode(Str)`, or methods
-`.UrlEncode()`/`.UrlDecode()` for URL encoding and decoding.
+Use functions `UrlEncode(Str)`/`UrlDecode(Str)`, or methods `.UrlEncode()`/`.UrlDecode()` for URL encoding and decoding.
 
 **Encode**:
 

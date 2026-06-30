@@ -10,11 +10,9 @@
 
 A few methods for `Buffer` and its subclasses, especially for their creation.
 
-This file also includes `Buffer.SizeOf()`, which determines the size of the
-built-in AHK number types such as `Int` or `UChar`.
+This file also includes `Buffer.SizeOf()`, which determines the size of the built-in AHK number types such as `Int` or `UChar`.
 
-Many of the read/write operations common for buffers are implemented in
-[<Interfaces/IBuffer>](../Interfaces/IBuffer.md).
+Many of the read/write operations common for buffers are implemented in [<Interfaces/IBuffer>](../Interfaces/IBuffer.md).
 
 ## Size of AHK Numbers
 
@@ -30,8 +28,7 @@ Buffer.SizeOf("Char*") ; A_PtrSize
 
 ## Creating Buffers
 
-These cover some very common ways of filling a buffer, such as from the
-contents of a file, memory section, or from a string.
+These cover some very common ways of filling a buffer, such as from the contents of a file, memory section, or from a string.
 
 ```ahk
 ; from memory address and size
@@ -49,8 +46,7 @@ Buf := Buffer.FromFile("myFile.txt")
 
 ## Move a ClipboardAll Into Your Clipboard
 
-Use `.ToClipboard()` to move the contents of the ClipboardAll into your
-system clipboard. This is generally equivalent to `A_Clipboard := CB`
+Use `.ToClipboard()` to move the contents of the ClipboardAll into your system clipboard. This is generally equivalent to `A_Clipboard := CB`
 
 ```ahk
 ClipboardAll(Ptr, Size).ToClipboard()

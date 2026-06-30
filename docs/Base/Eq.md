@@ -20,39 +20,25 @@ A universal way to test two values for equivalence.
 ({ foo: "bar" }).Eq({ FOO: "bar" })
 ```
 
-The `.Eq()` method takes an optional input value - `Other?` - to be tested
-for equality. Collection classes, as well as many other features in AquaHotkeyX
-rely on this equality check.
+The `.Eq()` method takes an optional input value - `Other?` - to be tested for equality. Collection classes, as well as many other features in AquaHotkeyX rely on this equality check.
 
 ## How to Implement
 
 In order to property implement this method, it must be easy to reason about.
 
-For a more detailed guide, you can check out the JSDoc comments in
-[Eq.ahk](../../src/Base/Eq.ahk), or check out the following Wikipedia article:
-[Equality (mathematics)](https://en.wikipedia.org/wiki/Equality_(mathematics)#Basic_properties)
+For a more detailed guide, you can check out the JSDoc comments in [Eq.ahk](../../src/Base/Eq.ahk), or check out the following Wikipedia article: [Equality (mathematics)](https://en.wikipedia.org/wiki/Equality_(mathematics)#Basic_properties)
 
-To keep it short, you should follow this checklist when writing an `.Eq()`
-method:
+To keep it short, you should follow this checklist when writing an `.Eq()` method:
 
 ### Checklist
 
 - `unset` is *not* a value. `A.Eq(unset)` should *always* return `false`.
-- If `A == B`, then `A.Eq(B)` should always return `true`. You *should*
-  usually perform as fast path.
-- Ensure that both `A` and `B` are the same type. In this case, "type" only
-  means that the input value is something you'd expect to compare for. I
-  strongly recommend using the `is` keyword for this.
-- Start comparing the same set of fields in the same order, and use `.Eq()`
-  recursively for each field. You should generally bail out as soon as a field
-  differs, this keeps checks fast and predictable.
-- `.Eq()` should produce the same result while the compared values remain
-  unchanged.
-- Whatever you use to decide equality must also be used to compute
-  [`.HashCode()`](./Hash.md). Otherwise, [maps and sets](../Collections/overview.md)
-  will behave incorrectly.
-- Keep it simple. Prefer clear, explicit comparisons. It always makes sense to
-  document what fields define equality.
+- If `A == B`, then `A.Eq(B)` should always return `true`. You *should* usually perform as fast path.
+- Ensure that both `A` and `B` are the same type. In this case, "type" only means that the input value is something you'd expect to compare for. I strongly recommend using the `is` keyword for this.
+- Start comparing the same set of fields in the same order, and use `.Eq()` recursively for each field. You should generally bail out as soon as a field differs, this keeps checks fast and predictable.
+- `.Eq()` should produce the same result while the compared values remain unchanged.
+- Whatever you use to decide equality must also be used to compute [`.HashCode()`](./Hash.md). Otherwise, [maps and sets](../Collections/overview.md) will behave incorrectly.
+- Keep it simple. Prefer clear, explicit comparisons. It always makes sense to document what fields define equality.
 
 ### Example
 

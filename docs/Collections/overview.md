@@ -40,17 +40,11 @@
 
 ## Summary
 
-An assortment of collection types for storing groups of values. Together with
-the [Interfaces](../Interfaces/overview.md) module, they form the basis for
-data structures in AquaHotkeyX.
+An assortment of collection types for storing groups of values. Together with the [Interfaces](../Interfaces/overview.md) module, they form the basis for data structures in AquaHotkeyX.
 
-To indicate that a type should be treated as a Map - regardless of its base
-object - it must implement the [IMap](../Interfaces/IMap.md) interface. The
-same applies to arrays and sets with the [IArray](../Interfaces/IArray.md)
-and [ISet](../Interfaces/ISet.md) interfaces, respectively.
+To indicate that a type should be treated as a Map - regardless of its base object - it must implement the [IMap](../Interfaces/IMap.md) interface. The same applies to arrays and sets with the [IArray](../Interfaces/IArray.md) and [ISet](../Interfaces/ISet.md) interfaces, respectively.
 
-This allows for flexible and extensible collection types that can be used
-interchangeably in many contexts.
+This allows for flexible and extensible collection types that can be used interchangeably in many contexts.
 
 ## Class Diagram
 
@@ -83,10 +77,7 @@ Object
 - [GenericArray](./GenericArray.md)
 - [GenericMap](./GenericMap.md)
 
-Generic collection classes like `GenericArray` and `GenericMap` provide
-type-safe wrappers around native collections. They enforce element types and
-support nested generics, making it easy to work with collections of specific
-types.
+Generic collection classes like `GenericArray` and `GenericMap` provide type-safe wrappers around native collections. They enforce element types and support nested generics, making it easy to work with collections of specific types.
 
 ```ahk
 Arr := Integer[](1, 2, 3) ; Generic array of integers
@@ -107,9 +98,7 @@ ArrClass := Array.OfType({ name: String, age: Integer})
 - [HashMap](./HashMap.md)
 - [HashSet](./HashSet.md)
 
-Hash table-based collections with extremely flexible key/value semantics.
-They rely on [<Base/Hash>](../Base/Hash.md) and [<Base/Eq>](../Base/Eq.md)
-to determine value presence.
+Hash table-based collections with extremely flexible key/value semantics.  They rely on [<Base/Hash>](../Base/Hash.md) and [<Base/Eq>](../Base/Eq.md) to determine value presence.
 
 ```ahk
 Arr1 := [1, 2, 3]
@@ -131,9 +120,7 @@ MsgBox(S.Size) ; 1 (because `Arr1` and `Arr2` are equivalent)
 
 Collections which are backed by doubly-linked list to preserve insertion order.
 
-On top of the regular collection interfaces, `OrderedMap` and `OrderedSet`
-have special methods `.Push()` and `.Shove()` for adding elements at the
-"back" or the "front" of the collection, respectively.
+On top of the regular collection interfaces, `OrderedMap` and `OrderedSet` have special methods `.Push()` and `.Shove()` for adding elements at the "back" or the "front" of the collection, respectively.
 
 ```ahk
 OS := OrderedSet(1, 2, 3) ; --> 1, 2, 3
@@ -147,8 +134,7 @@ OS.Push(4)                ; --> 0, 1, 2, 3, 4
 - [ImmutableMap](./ImmutableMap.md)
 - [ImmutableSet](./ImmutableSet.md)
 
-Immutable collections wrap around existing collections like arrays, maps and
-sets to prevent modification after creation.
+Immutable collections wrap around existing collections like arrays, maps and sets to prevent modification after creation.
 
 **Create Immutable Collections Directly**:
 
@@ -199,8 +185,7 @@ SkipListSet(23, 12, 44, 2).Join(", ").MsgBox() ; "2, 12, 23, 44"
 - [<Collections/BitSet>](./BitSet.md)
 - [<Collections/ByteArray>](./ByteArray.md)
 
-Abstractions to buffers or memory segments, treated as a set of bits in a bit
-vector or an array of bytes, respectively.
+Abstractions to buffers or memory segments, treated as a set of bits in a bit vector or an array of bytes, respectively.
 
 ```ahk
 B := BitSet(0, 1, 2, 3, 5, 6) ; uses a `Buffer(1)` as backing storage
@@ -214,8 +199,7 @@ ByteArray(10).Fill(65).AsBuffer().HexDump()
 - [<Collections/WeakRefMap>](./WeakRefMap.md)
 - [<Collections/WeakRefSet>](./WeakRefSet.md)
 
-Collections that hold weak references to their keys (in the case of maps) or
-values (in the case of sets). This means that the presence of an object in these collections won't prevent it from being disposed if there are no other strong references to it. When an object is disposed, it's automatically removed from the collection.
+Collections that hold weak references to their keys (in the case of maps) or values (in the case of sets). This means that the presence of an object in these collections won't prevent it from being disposed if there are no other strong references to it. When an object is disposed, it's automatically removed from the collection.
 
 ```ahk
 O := Object()
@@ -257,8 +241,7 @@ MsgBox(L.Length) ; 0 (we "drained" the list from the back)
 
 **Set**:
 
-Basic [ISet](../Interfaces/ISet.md) view of an [IMap](../Interfaces/IMap.md)
-for storing unique values and performing set operations.
+Basic [ISet](../Interfaces/ISet.md) view of an [IMap](../Interfaces/IMap.md) for storing unique values and performing set operations.
 
 ```ahk
 M := HashMap(1, 2, 3, 4)

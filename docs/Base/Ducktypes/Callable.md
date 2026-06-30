@@ -1,4 +1,4 @@
-# <[Base](../overview.md)/[DuckTypes](../DuckTypes.md)/[Callable](./Callable.md)>
+# <[Base](../overview.md)/[DuckTypes](../DuckTypes.md)/[Callable](../../../src/Base/DuckTypes/Callable.ahk)>
 
 - [\<Base/DuckTypes/Callable\>](#baseducktypescallable)
   - [Overview](#overview)
@@ -15,5 +15,6 @@ MsgBox.Is(Callable) ; true
 Obj := { Call: (_) => MsgBox("calling method...") }
 Obj.Is(Callable) ; true
 
+; every `Func` is callable by definition
 Callable.CanCastFrom(Func) ; --> true
 ```

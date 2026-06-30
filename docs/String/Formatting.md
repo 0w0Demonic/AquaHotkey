@@ -25,8 +25,7 @@ Use `.Formatted(Args*)` to use the string as `Format()`-string.
 
 ## String Replacements
 
-`StrReplace()` and `RegExReplace()` come in the form of methods `.Replace()`
-and `.RegExReplace()`.
+`StrReplace()` and `RegExReplace()` come in the form of methods `.Replace()` and `.RegExReplace()`.
 
 ```ahk
 ; --> "banana"
@@ -38,8 +37,7 @@ and `.RegExReplace()`.
 
 ## Insert, Overwrite, Delete
 
-Use `.Insert()`, `.Overwrite()` and `.Delete()` to mutate sections in the
-string.
+Use `.Insert()`, `.Overwrite()` and `.Delete()` to mutate sections in the string.
 
 ```ahk
 "banaa".Insert("n", -1)    ; "banana"
@@ -49,8 +47,7 @@ string.
 
 ## Word Wrapping
 
-Use `.WordWrap()` to format the string into lines with word wrapping to a
-given maximum length.
+Use `.WordWrap()` to format the string into lines with word wrapping to a given maximum length.
 
 ```ahk
 Str.WordWrap(40) ; word-wrap to 40 characters per line
@@ -58,8 +55,7 @@ Str.WordWrap(40) ; word-wrap to 40 characters per line
 
 ## Trimming
 
-Use `.Trim()`, `.LTrim()` and `.RTrim()` to trim string off of whitespace or
-other characters.
+Use `.Trim()`, `.LTrim()` and `.RTrim()` to trim string off of whitespace or other characters.
 
 ```ahk
 " foo ".Trim() ; "foo"

@@ -11,9 +11,7 @@
 
 ## Overview
 
-IBuffer is the base class for any buffer-like object with `Ptr` and `Size`
-property. It introduces a variety of methods related to buffers, most
-noteably read/write methods, and defining parts of the buffer as properties.
+IBuffer is the base class for any buffer-like object with `Ptr` and `Size` property. It introduces a variety of methods related to buffers, most noteably read/write methods, and defining parts of the buffer as properties.
 
 ```ahk
 Any
@@ -24,9 +22,7 @@ Any
 
 ## Duck Type
 
-Any object with `Ptr` and `Size` matches the [duck type](../Base/DuckTypes.md)
-imposed by the `IBuffer` class. It makes more sense, though, to make objects
-inherit from `IBuffer` to gain access to its methods.
+Any object with `Ptr` and `Size` matches the [duck type](../Base/DuckTypes.md) imposed by the `IBuffer` class. It makes more sense, though, to make objects inherit from `IBuffer` to gain access to its methods.
 
 ```ahk
 ({ Ptr: 0, Size: 0 }).Is(IBuffer) ; true
@@ -34,8 +30,7 @@ inherit from `IBuffer` to gain access to its methods.
 
 ## Read/Write Methods
 
-IBuffer introduces `.Get<NumType>()` and `.Put<NumType>()` for every AHK
-number type.
+IBuffer introduces `.Get<NumType>()` and `.Put<NumType>()` for every AHK number type.
 
 **Read**:
 
@@ -77,16 +72,13 @@ Buffer.OfString("foo", "UTF-8").HexDump()
 
 ## Defining Properties
 
-Use `.Define()` to define positions in the buffer as properties. This can
-be very useful for creating structs.
+Use `.Define()` to define positions in the buffer as properties. This can be very useful for creating structs.
 
 ```ahk
 Buf := Buffer(8).Define("x", "Int", 0).Define("y", "Int", 4)
 ```
 
-This method is chainable. Generally, you should prefer `static Define()` to
-define the property for the prototype of the class instead of for the
-object instance.
+This method is chainable. Generally, you should prefer `static Define()` to define the property for the prototype of the class instead of for the object instance.
 
 ```ahk
 class RECT extends Buffer {
@@ -104,8 +96,7 @@ class RECT extends Buffer {
 
 ## Slicing
 
-Lastly, `.Slice()` lets you return a buffer view of a portion of the buffer.
-While resizing the buffer is okay, you should avoid it when possible.
+Lastly, `.Slice()` lets you return a buffer view of a portion of the buffer.  While resizing the buffer is okay, you should avoid it when possible.
 
 ```ahk
 Buf := Buffer(4, 0)           ; [ 0   0   0   0 ]

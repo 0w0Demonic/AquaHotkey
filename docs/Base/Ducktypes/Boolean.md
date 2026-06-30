@@ -6,11 +6,9 @@
 
 ## Overview
 
-A [duck type](../DuckTypes.md) that represents the boolean values `true`/`1`
-and `false`/`0`.
+A [duck type](../DuckTypes.md) that represents the boolean values `true`/`1` and `false`/`0`.
 
-Only integer values `1` and `0` are treated as booleans, not floats or numeric
-strings.
+Only integer values `1` and `0` are treated as booleans, not floats or numeric strings.
 
 `Boolean` is considered a subtype of `Integer`.
 
@@ -26,8 +24,7 @@ Integer[].CanCastFrom(Boolean[]) ; because `Integer.CanCastFrom(Boolean)`
 
 ## Value Conversion
 
-Call `Boolean(Value)` to convert any value into a boolean. This is equivalent
-to `!!Value`. `unset` is converted to `false`.
+Call `Boolean(Value)` to convert any value into a boolean. This is equivalent to `!!Value`. `unset` is converted to `false`.
 
 ```ah
 Boolean(false)     ; !!(false) --> false

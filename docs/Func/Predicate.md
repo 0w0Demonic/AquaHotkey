@@ -12,11 +12,7 @@
 
 ## Overview
 
-A predicate is a function that takes in one input and returns a boolean value
-(either `true` or `false`) based on a condition. They are useful for
-filtering elements in [collections](../Collections/overview.md) or
-[streams](../Stream/Stream.md), and for making concise
-[assertions](../Base/Assertions.md) as validation or for testing.
+A predicate is a function that takes in one input and returns a boolean value (either `true` or `false`) based on a condition. They are useful for filtering elements in [collections](../Collections/overview.md) or [streams](../Stream/Stream.md), and for making concise [assertions](../Base/Assertions.md) as validation or for testing.
 
 ```ahk
 class Predicate extends Func {}
@@ -34,8 +30,7 @@ For more info, see [function casting](./Cast.md).
 
 ## Composition
 
-Predicate functions can be composed together to form complex boolean
-expressions:
+Predicate functions can be composed together to form complex boolean expressions:
 
 ```ahk
 P := IsNumber.Or(IsSpace).Or(IsTime)
@@ -46,8 +41,7 @@ P := Predicate.Any(IsNumber, IsSpace, IsTime)
 
 ## Negation
 
-You can negate a predicate by calling either `Predicate.Not(Fn)` or
-by calling the `.Negate()` method on an existing predicate.
+You can negate a predicate by calling either `Predicate.Not(Fn)` or by calling the `.Negate()` method on an existing predicate.
 
 ```ahk
 Predicate.Not(Fn)
@@ -56,8 +50,7 @@ Predicate(Fn).Negate()
 
 ## Built-In Functions
 
-All compatible built-in functions are now defined as predicates, which means
-you can call predicate methods on them.
+All compatible built-in functions are now defined as predicates, which means you can call predicate methods on them.
 
 This includes...
 
@@ -73,8 +66,7 @@ FileContainsStr := FileExist.And( FileRead.AndThen(Contains("foo")) )
 
 ## Type Info
 
-Use `InstanceOf(T)` to create a predicate that determines whether the input
-is instance of the given type (based on [duck types](../Base/DuckTypes.md)).
+Use `InstanceOf(T)` to create a predicate that determines whether the input is instance of the given type (based on [duck types](../Base/DuckTypes.md)).
 
 ```ahk
 Array("foo", "bar", 0, 12).RetainIf(InstanceOf(String)) ; --> ["foo", "bar"]
@@ -108,8 +100,7 @@ Array(Version(2,0,5), Version(2,1,1), ...).Find(Gt(Version(2,0,10)))
 
 ## Equality
 
-Use `Eq()` and `Ne()` to create equality predicates (based on AquaHotkey's
-[equality methods](../Base/Eq.md)).
+Use `Eq()` and `Ne()` to create equality predicates (based on AquaHotkey's [equality methods](../Base/Eq.md)).
 
 ```ahk
 0.Assert(Eq(0))

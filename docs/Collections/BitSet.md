@@ -5,9 +5,7 @@
 
 ## Overview
 
-An implementation of [ISet](../Interfaces/ISet.md) which views a buffer or
-buffer-like object as a set of 1-bits in a bit vector, where each component
-of the bit set has a boolean value.
+An implementation of [ISet](../Interfaces/ISet.md) which views a buffer or buffer-like object as a set of 1-bits in a bit vector, where each component of the bit set has a boolean value.
 
 The bits of the bit set are indexed by nonnegative integers, starting with `0`.
 

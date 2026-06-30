@@ -6,10 +6,7 @@
 
 ## Overview
 
-A type-checked wrapper for [IMap](../../Interfaces/IMap.md) classes.
-Generic maps wrap around any map class that implements `IMap`, and enforces
-that their key-value mappings conform to specified
-[duck types](../../Base/DuckTypes.md).
+A type-checked wrapper for [IMap](../../Interfaces/IMap.md) classes.  Generic maps wrap around any map class that implements `IMap`, and enforces that their key-value mappings conform to specified [duck types](../../Base/DuckTypes.md).
 
 ```ahk
 MapCls := Map.OfType(String, String)
@@ -30,12 +27,9 @@ Cls := HashMap.OfType(Tuple(String, String), String)
 
 ## Use as Type Pattern
 
-If the tested value is another generic map, its types are checked for
-compatibility via
-[`.CanCastFrom()`](../../Base/DuckTypes.md#subclasses-and-cancastfromt).
+If the tested value is another generic map, its types are checked for compatibility via [`.CanCastFrom()`](../../Base/DuckTypes.md#subclasses-and-cancastfromt).
 
-Otherwise, the tested value must be instance of the class's map type, and all
-key-value pairs must match the type pattern imposed by the generic map class.
+Otherwise, the tested value must be instance of the class's map type, and all key-value pairs must match the type pattern imposed by the generic map class.
 
 ```ahk
 class Email extends String {

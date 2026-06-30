@@ -27,8 +27,7 @@ Features related to files and directories.
 
 - [`<IO/FileUtils>`](./FileUtils.md)
 
-Simple file utilities including extensions for `File` and `FileOpen`, and
-file streams.
+Simple file utilities including extensions for `File` and `FileOpen`, and file streams.
 
 ## Path
 
@@ -40,18 +39,13 @@ Class that represents file paths or URLs.
 
 - [`<IO/Serial>`](./Serial.md)
 
-Extensible serialization logic for the [AquaHotkey serializer](#serializer).
-This describes the different types of `.Serialize()` and `.Deserialize()`
-methods that are used for converting objects from and into their binary
-representation.
+Extensible serialization logic for the [AquaHotkey serializer](#serializer).  This describes the different types of `.Serialize()` and `.Deserialize()` methods that are used for converting objects from and into their binary representation.
 
 ## Serializer
 
 - [`<IO/Serializer>`](./Serializer.md)
 
-Implements binary serialization for many built-in AHK types and AquaHotkey
-collections. Values can be written into buffers or permanently stored in files,
-and then completely reconstructed, while keeping identity and object structure.
+Implements binary serialization for many built-in AHK types and AquaHotkey collections. Values can be written into buffers or permanently stored in files, and then completely reconstructed, while keeping identity and object structure.
 
 ```ahk
 FileOpen("result.txt", "w").WriteObject({ foo: "bar" })

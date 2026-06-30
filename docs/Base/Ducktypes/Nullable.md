@@ -27,3 +27,4 @@ MaybeStrs := String[Nullable] ; array of nullable string
 
 - [generic arrays](../../Collections/GenericArray.md)
 - [duck types](../DuckTypes.md)
+- [`Nothing`](./Nothing.md)

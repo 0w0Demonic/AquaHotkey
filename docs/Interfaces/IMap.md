@@ -17,23 +17,17 @@ The base class of map classes. Implementing classes include Map,
 [HashMap](../Collections/HashMap.md), and
 [SkipListMap](../Collections/SkipListMap.md).
 
-Extending `IMap` gives you a skeletal implementation with many useful
-default methods.
+Extending `IMap` gives you a skeletal implementation with many useful default methods.
 
 ## Construction
 
-Use `IMap#BasedFrom(M)` to create a copy of an existing `IMap` without copying
-its elements. This is useful for stream-like operations where you want to
-keep the same base object as previously.
+Use `IMap#BasedFrom(M)` to create a copy of an existing `IMap` without copying its elements. This is useful for stream-like operations where you want to keep the same base object as previously.
 
 ## Map Param
 
-Some methods like `.Frequency()` defined in [`Enumerable1`](./Enumerable1.md)
-accept a *map param*, which represents the `IMap` that should be used
-internally.
+Some methods like `.Frequency()` defined in [`Enumerable1`](./Enumerable1.md) accept a *map param*, which represents the `IMap` that should be used internally.
 
-This is done by `IMap.Create()`, which constructs instances of `IMap` based on
-a parameter, which may be one of the following:
+This is done by `IMap.Create()`, which constructs instances of `IMap` based on a parameter, which may be one of the following:
 
 - an existing map returned as-is;
 - a callable object that produces a map;
@@ -45,8 +39,7 @@ IMap.Create(SkipListMap)    ; --> SkipListMap()
 IMap.Create(false)          ; --> (M := Map(), M.CaseSense := false, M)
 ```
 
-`IMap.Create()` guaranteed that the returned map is
-[instance of](../Base/DuckTypes.md) the calling class.
+`IMap.Create()` guaranteed that the returned map is [instance of](../Base/DuckTypes.md) the calling class.
 
 ```ahk
 M := Map()
@@ -90,15 +83,11 @@ M := Map()
 M.PutIfAbsent("foo", "bar")
 ```
 
-As opposed to Java's implementation, there are no return values specified for
-these methods because `unset` cannot be used as return value. This
-might change in the future, using an [Optional](../Monads/Optional.md) or
-something similar.
+As opposed to Java's implementation, there are no return values specified for these methods because `unset` cannot be used as return value. This might change in the future, using an [Optional](../Monads/Optional.md) or something similar.
 
 ## Methods `.TryGet()` and `.TryDelete()`
 
-Variations of `.Get()` and `.Delete()` that return a boolean indicating success
-instead of throwing an error. The value is returned via an output parameter.
+Variations of `.Get()` and `.Delete()` that return a boolean indicating success instead of throwing an error. The value is returned via an output parameter.
 
 ```ahk
 if (M.TryGet("foo", &Value)) {

@@ -9,8 +9,7 @@
 
 ## Overview
 
-Properties for retrieving type information, such as the type and class of a
-value, or the name of a class.
+Properties for retrieving type information, such as the type and class of a value, or the name of a class.
 
 ```ahk
 ([1, 2]).Type ; "Array"
@@ -30,8 +29,7 @@ Class.ForName("Gui.ActiveX")
 
 ## Properties `.Type` and `.Class`
 
-These properties return the type of the value, either as string (which is
-equivalent to `Type(Value)`), or the implementing class object.
+These properties return the type of the value, either as string (which is equivalent to `Type(Value)`), or the implementing class object.
 
 ```ahk
 ; same as: Type([1, 2])

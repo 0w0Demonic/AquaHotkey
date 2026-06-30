@@ -31,8 +31,7 @@ You can also use them in a [Stream](../Stream/Stream.md):
 
 ## Splitting
 
-To split a string into an array of substrings, use `.Split()`.
-`.Lines()` splits a string into an array of separate lines.
+To split a string into an array of substrings, use `.Split()`.  `.Lines()` splits a string into an array of separate lines.
 
 ```ahk
 "
@@ -44,12 +43,7 @@ line 2
 "1, 2, 3".Split(", ") ; --> ["1", "2", "3"]
 ```
 
-Alternatively, you can use `LoopParse()` to create a push-based
-[Continuation](../Func/Continuation.md) pipeline.
-
-```ahk
-
-```
+Alternatively, you can use `LoopParse()` to create a push-based [Continuation](../Func/Continuation.md) pipeline.
 
 ## Concatenation
 
@@ -64,8 +58,7 @@ Use `.Prepend()`, `.Append()` and `.Surround()` to make string concatenations.
 
 ## Miscellaneous
 
-Use `.Repeat()` to repeat the string the given amount of times. `.Reversed()`
-returns a reversed version of the string.
+Use `.Repeat()` to repeat the string the given amount of times. `.Reversed()` returns a reversed version of the string.
 
 ```ahk
 "a".Repeat(10) ; "aaaaaaaaaa"
@@ -74,8 +67,7 @@ returns a reversed version of the string.
 
 ## Properties
 
-`.Length` returns the length of the string in characters, whereas
-`.SizeInBytes[Encoding?]` retrieves the size in bytes.
+`.Length` returns the length of the string in characters, whereas `.SizeInBytes[Encoding?]` retrieves the size in bytes.
 
 ```ahk
 "foo".Length ; --> StrLen("foo") --> 3

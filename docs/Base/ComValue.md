@@ -13,9 +13,7 @@
 
 ## Overview
 
-The built-in AutoHotkey class `ComValue` and its subtypes `ComValueRef` and
-`ComObjArray` receive additional extensions to make it easier working with
-COM objects by abstracting away the direct usage of VARIANT type constants.
+The built-in AutoHotkey class `ComValue` and its subtypes `ComValueRef` and `ComObjArray` receive additional extensions to make it easier working with COM objects by abstracting away the direct usage of VARIANT type constants.
 
 ```ahk
 ; Buf := Buffer(24, 0)
@@ -38,8 +36,7 @@ These properties serve two purposes:
 
 ### As Constants
 
-Accessing the property directly returns the associated
-VARIANT type
+Accessing the property directly returns the associated VARIANT type
 
 ```ahk
 MsgBox(ComValue.BSTR) ; 8
@@ -47,8 +44,7 @@ MsgBox(ComValue.BSTR) ; 8
 
 ### As Constructors
 
-Calling the property constructs a new instance of
-`ComValue` without requiring the VARIANT type as the first parameter.
+Calling the property constructs a new instance of `ComValue` without requiring the VARIANT type as the first parameter.
 
 ```ahk
 Str := ComValue.BSTR("in value")
@@ -56,10 +52,7 @@ Str := ComValue.BSTR("in value")
 
 ## Automatic Inclusion of `VT_ARRAY` and `VT_BYREF` Flags
 
-Users no longer have to manually specify the `VT_ARRAY` and `VT_BYREF`
-flags when creating new instances. Instead, the built-in classes
-`ComObjArray` and `ComValueRef` automatically include these flags when
-their constructors are called.
+Users no longer have to manually specify the `VT_ARRAY` and `VT_BYREF` flags when creating new instances. Instead, the built-in classes `ComObjArray` and `ComValueRef` automatically include these flags when their constructors are called.
 
 - `ComObjArray`
   - Automatically adds the `VT_ARRAY` flag
@@ -79,8 +72,7 @@ their constructors are called.
 
 ### Constructor Method
 
-The `ComValueRef` class now supports passing buffer-like objects with a `Ptr` property
-when creating `BYREF` values, instead of requiring raw pointer values.
+The `ComValueRef` class now supports passing buffer-like objects with a `Ptr` property when creating `BYREF` values, instead of requiring raw pointer values.
 
 ```ahk
 ComValueRef.VARIANT(Buffer(24, 0))

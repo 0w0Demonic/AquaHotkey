@@ -8,9 +8,7 @@
 
 ## Overview
 
-Methods related to matching strings for specified characteristics, or regular
-expressions. This includes methods that check if a string contains a substring,
-or if it matches a regular expression.
+Methods related to matching strings for specified characteristics, or regular expressions. This includes methods that check if a string contains a substring, or if it matches a regular expression.
 
 ## Is-Functions
 
@@ -23,8 +21,7 @@ The built-in "is-functions" such as `IsAlpha` and `IsDigit`, but as properties.
 
 ## Regular Expressions
 
-Use `.RegExMatch()` and `.RegExReplace()` to match or replace occurrences of
-regular expressions in a string.
+Use `.RegExMatch()` and `.RegExReplace()` to match or replace occurrences of regular expressions in a string.
 
 ```ahk
 ; --> ; RegExReplace(Str, Pattern, Replacement)
@@ -39,8 +36,7 @@ Str.Match("\d++")  ; RegExMatchInfo<"234">
 Str.MatchAll("\d") ; [ RegExMatchInfo<"2">, ... ]
 ```
 
-Use `.Capture()` or `.Capture()` to return the overall match instead of a
-regex match object.
+Use `.Capture()` or `.Capture()` to return the overall match instead of a regex match object.
 
 ```ahk
 "Test123Hello".Capture("\d++") ; "123"

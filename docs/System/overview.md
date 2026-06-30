@@ -18,8 +18,7 @@
 
 - [<System/COM>](./COM.md)
 
-A small framework for creating class-based interfaces to interact with COM
-objects.
+A small framework for creating class-based interfaces to interact with COM objects.
 
 ```ahk
 class InternetExplorer extends COM {

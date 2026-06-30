@@ -7,8 +7,7 @@
 
 An [ISet](../Interfaces/ISet.md) that maintains insertion order.
 
-On top of the regular ISet interface, you can add elements in the back of the
-set by using `.Push()`, and in the front of the set by using `.Shove()`.
+On top of the regular ISet interface, you can add elements in the back of the set by using `.Push()`, and in the front of the set by using `.Shove()`.
 
 Use `ISet#Ordered()` to turn any regular set into its ordered version.
 

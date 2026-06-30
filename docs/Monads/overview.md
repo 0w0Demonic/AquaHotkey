@@ -12,11 +12,7 @@
 
 ## Overview
 
-At its simplest form, a monad is something that wraps a value and provides a
-way to apply functions to it. Take `Optional` for example: it wraps a value
-that may or may not be present, where operations like `.Map()` transform
-the into a new `Optional` with the function applied to the inner value, if it
-exists.
+At its simplest form, a monad is something that wraps a value and provides a way to apply functions to it. Take `Optional` for example: it wraps a value that may or may not be present, where operations like `.Map()` transform the into a new `Optional` with the function applied to the inner value, if it exists.
 
 ## List of Features
 
@@ -27,9 +23,7 @@ exists.
 
 - [Optional](./Optional.md)
 
-Represents a value that may or may not be present. This is different than
-AutoHotkey's `unset`, because you can still access properties from an empty
-`Optional`.
+Represents a value that may or may not be present. This is different than AutoHotkey's `unset`, because you can still access properties from an empty `Optional`.
 
 ```ahk
 ; Displays the first matching element, if present. Otherwise, an error
@@ -37,8 +31,7 @@ AutoHotkey's `unset`, because you can still access properties from an empty
 Range(20).Find( Ge(10) ).IfPresent(MsgBox).ElseThrow()
 ```
 
-While `Optional` revolves around the presence or absence of a value, `Nullable`
-is used to wrap a duck type that can be `unset`.
+While `Optional` revolves around the presence or absence of a value, `Nullable` is used to wrap a duck type that can be `unset`.
 
 **See Also**:
 
@@ -50,8 +43,7 @@ is used to wrap a duck type that can be `unset`.
 
 - [TryOp](./TryOp.md)
 
-An operation that may succeed or fail. It wraps the result of a function that
-may return a value or throw an error.
+An operation that may succeed or fail. It wraps the result of a function that may return a value or throw an error.
 
 ```ahk
 Divide(A) => (B) => (A / B)

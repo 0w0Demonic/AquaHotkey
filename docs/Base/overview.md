@@ -42,17 +42,13 @@
 
 ## Overview
 
-This module contains a variety of core utilities and foundational features that
-are used throughout the library. It includes the basic building blocks for
-essential operations that form the basis for more complex features in other
-modules.
+This module contains a variety of core utilities and foundational features that are used throughout the library. It includes the basic building blocks for essential operations that form the basis for more complex features in other modules.
 
 ## Assertions
 
 - [<Base/Assertions>](./Assertions.md)
 
-Simple assertion utilities for validating values during development. Integrates
-with predicates for fluent, composable validation chains.
+Simple assertion utilities for validating values during development. Integrates with predicates for fluent, composable validation chains.
 
 ```ahk
 Assert(2 == 2)
@@ -70,9 +66,7 @@ Num.AssertType(Number).Assert(Gt(2))
 
 - [<Base/DuckTypes>](./DuckTypes.md)
 
-A runtime type system enabling duck typing and structural pattern matching.
-Extends the `is` operator to support custom type checks, object/array patterns,
-and generic type validation.
+A runtime type system enabling duck typing and structural pattern matching.  Extends the `is` operator to support custom type checks, object/array patterns, and generic type validation.
 
 ```ahk
 User := { age: Integer, name: String }
@@ -92,11 +86,9 @@ Obj.Is(Pattern) ; true
 
 - [<Base/Buffer>](./Buffer.md)
 
-Provides utility for working with buffers, especially for creating new buffers
-through methods like `Buffer.FromFile()` or `Buffer.FromString()`.
+Provides utility for working with buffers, especially for creating new buffers through methods like `Buffer.FromFile()` or `Buffer.FromString()`.
 
-Operations that apply to *any* buffer-like object are implemented in
-[IBuffer](../Interfaces/IBuffer.md).
+Operations that apply to *any* buffer-like object are implemented in [IBuffer](../Interfaces/IBuffer.md).
 
 This module also includes information about the size of AHK number types.
 
@@ -116,8 +108,7 @@ Size := Buffer.SizeOf("Int64") ; 8
 
 - [<Base/ComValue>](./ComValue.md)
 
-A variety of shorthand methods and properties for the `ComValue` types.
-This includes the `VT_` constants, as well as their constructors.
+A variety of shorthand methods and properties for the `ComValue` types.  This includes the `VT_` constants, as well as their constructors.
 
 **VARIANT Types as Constants**:
 
@@ -146,10 +137,7 @@ MsgBox(Ref.Get())
 
 - [<Base/Eq>](./Eq.md)
 
-Universal equality protocol via the `.Eq()` method. Defines how values should
-compare for semantic equality, distinct from identity checks. It's the backbone
-of many different collections like `HashSet` and `HashMap` to reliably check
-for value presence.
+Universal equality protocol via the `.Eq()` method. Defines how values should compare for semantic equality, distinct from identity checks. It's the backbone of many different collections like `HashSet` and `HashMap` to reliably check for value presence.
 
 ```ahk
 ([1, 2, 3]).Eq([1, 2, 3]) ; true
@@ -190,8 +178,7 @@ class Something {
 
 - [<Base/Hash>](./Hash.md)
 
-Consistent hash code generation for all value types. Enables values to be used
-reliably in hash-based collections like `HashMap` and `HashSet`
+Consistent hash code generation for all value types. Enables values to be used reliably in hash-based collections like `HashMap` and `HashSet`
 
 ```ahk
 "foo".HashCode()
@@ -265,8 +252,7 @@ class Version {
 
 - [<Base/ToString>](./ToString.md)
 
-Custom string conversion via the `.ToString()` method for all types.
-Provides human-readable representations for debugging and logging.
+Custom string conversion via the `.ToString()` method for all types.  Provides human-readable representations for debugging and logging.
 
 ```ahk
 String(Array(1, 2, 3)) ; "[1, 2, 3]"
@@ -282,8 +268,7 @@ String(Buffer) ; "Class Buffer"
 
 - [<Base/TypeInfo>](./TypeInfo.md)
 
-Detailed information about types, including inheritance chains, properties,
-and implementing class of an object.
+Detailed information about types, including inheritance chains, properties, and implementing class of an object.
 
 ```ahk
 42.Class ; Integer (class)
@@ -342,10 +327,8 @@ Array(1, 2, 3).Join(", ").MsgBox() ; displays "1, 2, 3"
 
 A small set of file-related utilities, such as
 
-- opening the standard input/output/error streams using `FileOpen.StdIn`,
-  `FileOpen.StdOut` and `FileOpen.StdErr` respectively.
-- the ability to enumerate lines of a `File` object (which makes it possible to
-  be used in [Streams](../Stream/overview.md)).
+- opening the standard input/output/error streams using `FileOpen.StdIn`, `FileOpen.StdOut` and `FileOpen.StdErr` respectively.
+- the ability to enumerate lines of a `File` object (which makes it possible to be used in [Streams](../Stream/overview.md)).
 - a `Name` property to determine the name of the `File` object.
 - `loop files`, but as lazy-evaluated stream.
 

@@ -12,8 +12,7 @@ Utility for cutting strings into smaller substrings.
 
 ## By Index
 
-Use `.Sub(Start, Length?)` and `.__Item[Start, Length := 1]` to cut a string
-into a substring based on index and length.
+Use `.Sub(Start, Length?)` and `.__Item[Start, Length := 1]` to cut a string into a substring based on index and length.
 
 ```ahk
 "123abc789".Sub(4, 3) ; --> SubStr("123abc789", 4, 3) --> "abc"
@@ -21,8 +20,7 @@ into a substring based on index and length.
 ("abc")[1] ; --> SubStr("abc", 3, a) --> "a"
 ```
 
-Note that when "indexing" the string, you might need to surround it between
-parentheses, or store it as variable because of syntax issues.
+Note that when "indexing" the string, you might need to surround it between parentheses, or store it as variable because of syntax issues.
 
 ```ahk
 "abc"[1]   ; Error!
@@ -34,8 +32,7 @@ Str[1] ; Ok.
 
 ## String Matching
 
-Use `.Before()`, `.Until()`, `.From()` and `.After()` to cut a string into a
-substring based on the occurrence of a substring.
+Use `.Before()`, `.Until()`, `.From()` and `.After()` to cut a string into a substring based on the occurrence of a substring.
 
 ```ahk
 "Hello, world!".Before(",") ; "Hello"

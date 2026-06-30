@@ -12,15 +12,11 @@
 
 ## Overview
 
-`Optional` represents a value that might or might not exist. It helps you avoid
-messy null checks and in certain contexts - for example `.Find()` in
-[`Enumerable1`](../Interfaces/Enumerable1.md) - forces you to deal with absence
-in a clean, declarative way.
+`Optional` represents a value that might or might not exist. It helps you avoid messy null checks and in certain contexts - for example `.Find()` in [`Enumerable1`](../Interfaces/Enumerable1.md) - forces you to deal with absence in a clean, declarative way.
 
 ## Create
 
-Use `Optional(Value?)` or `Optional.Of(Value)` to create a new optional.
-`Optional.Empty()` produces an empty optional.
+Use `Optional(Value?)` or `Optional.Of(Value)` to create a new optional.  `Optional.Empty()` produces an empty optional.
 
 ```ahk
 O := Optional()       ; Optional<unset>
@@ -32,8 +28,7 @@ O := Optional.Of(42) ; Optional<42>
 
 ## Value Presence
 
-Properties `.IsPresent` and `.IsAbsent` determine whether the value is
-present or absent, respectively.
+Properties `.IsPresent` and `.IsAbsent` determine whether the value is present or absent, respectively.
 
 ```ahk
 Optional("foo").IsPresent ; true
@@ -42,8 +37,7 @@ Optional().IsAbsent       ; true
 
 ## Side Effects
 
-Use `.IfPresent()` and `.IfAbsent()` to perform side-effects based on whether
-the optional contains a value. These methods are chainable.
+Use `.IfPresent()` and `.IfAbsent()` to perform side-effects based on whether the optional contains a value. These methods are chainable.
 
 ```ahk
 O := Optional().IfPresent((Value) => MsgBox("value present"))
@@ -52,8 +46,7 @@ O := Optional().IfPresent((Value) => MsgBox("value present"))
 
 ## Filtering
 
-Use `.RetainIf()` and `.RemoveIf()` to return new optionals filtered by
-predicates.
+Use `.RetainIf()` and `.RemoveIf()` to return new optionals filtered by predicates.
 
 ```ahk
 O := Optional(42)

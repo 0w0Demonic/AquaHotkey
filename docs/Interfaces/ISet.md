@@ -16,15 +16,11 @@
 
 ## Overview
 
-ISet represents the base class for sets, which are collections of unique
-elements.
+ISet represents the base class for sets, which are collections of unique elements.
 
 ## Set Param
 
-Methods such as `.Distinct()` defined in [`Enumerable1`](./Enumerable1.md)
-accept an optional *set param* to specify the set that should be used
-internally. This is done by calling `ISet.Create()`, which constructs
-instances of `ISet` based on a parameter, which may be one of the following:
+Methods such as `.Distinct()` defined in [`Enumerable1`](./Enumerable1.md) accept an optional *set param* to specify the set that should be used internally. This is done by calling `ISet.Create()`, which constructs instances of `ISet` based on a parameter, which may be one of the following:
 
 - an existing set returned as-is;
 - a callable object that produces a set;
@@ -36,8 +32,7 @@ ISet.Create(HashSet)    ; HashSet()
 ISet.Create(false)      ; (S := Set(), S.CaseSense := false, S)
 ```
 
-`ISet.Create()` guarantees that the return value is
-[instance of](../Base/DuckTypes.md) the calling class.
+`ISet.Create()` guarantees that the return value is [instance of](../Base/DuckTypes.md) the calling class.
 
 ```ahk
 HashSet.Create(Set()) ; TypeError! Expected a(n) HashMap.
@@ -45,9 +40,7 @@ HashSet.Create(Set()) ; TypeError! Expected a(n) HashMap.
 
 ## Map to Set
 
-To convert an [IMap](./IMap.md) into an ISet, use `.AsSet()` or `.ToSet()`.
-`.AsSet()` returns a mutable view of the map, whereas `.ToSet()` creates a
-set of the map's entries at the current moment.
+To convert an [IMap](./IMap.md) into an ISet, use `.AsSet()` or `.ToSet()`.  `.AsSet()` returns a mutable view of the map, whereas `.ToSet()` creates a set of the map's entries at the current moment.
 
 ```ahk
 M := Map(1, true, 2, true)
@@ -102,8 +95,7 @@ Clones the set (shallow copy).
 
 ### `Delete(Values: Any*) => Integer`
 
-Deletes values from the set. This method returns the amount of elements that
-were removed from the set.
+Deletes values from the set. This method returns the amount of elements that were removed from the set.
 
 ```ahk
 S := Set(1, 2, 3)
@@ -125,8 +117,7 @@ S.Contains(42) ; false
 
 ### `__Enum() => Enumerator`
 
-Returns an enumerator for the set, allowing the use of for-loops. Only
-1-parameter is supported.
+Returns an enumerator for the set, allowing the use of for-loops. Only 1-parameter is supported.
 
 ```ahk
 for Value in Set(1, 1, 1, 2, 2, 3) {
@@ -144,8 +135,7 @@ Set(1, 2, 3).Size ; 3
 
 ## Default Methods
 
-Use `.ContainsAll()`, `.ContainsAny()` or `.ContainsNone()` to check whether
-the set contains all, any, or none of the given values, respectively.
+Use `.ContainsAll()`, `.ContainsAny()` or `.ContainsNone()` to check whether the set contains all, any, or none of the given values, respectively.
 
 ```ahk
 S := Set(1, 2, 3)

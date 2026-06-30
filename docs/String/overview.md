@@ -22,8 +22,7 @@
 
 - [<String/String>](./String.md)
 
-A few basic string utilities that include support in for-loops, concatenation,
-formatting and splitting.
+A few basic string utilities that include support in for-loops, concatenation, formatting and splitting.
 
 ```ahk
 "example".Surround("[", "]") ; "[example]"
@@ -51,8 +50,7 @@ A wide range of string formatting methods.
 
 - [<String/Matching>](./Matching.md)
 
-Methods of matching strings for specified characteristics or regular
-expressions.
+Methods of matching strings for specified characteristics or regular expressions.
 
 ```ahk
 "".IsEmpty ; true
@@ -67,8 +65,7 @@ Match := "test123".Match("\d+")
 
 - [<String/Substrings>](./Substrings.md)
 
-Introduces a way to split strings based on the occurrences of substrings or
-regular expression matches inside a string.
+Introduces a way to split strings based on the occurrences of substrings or regular expression matches inside a string.
 
 ```ahk
 "Hello, world!".After(" ") ; "world!"

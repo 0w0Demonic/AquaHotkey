@@ -20,8 +20,7 @@ TimesTwoPlus5 := Plus5.Compose(TimesTwo)
 
 ## Memoization
 
-Calling `.Memoized()` returns a memoized version of a function that
-caches previous results in an [IMap](../Interfaces/IMap.md).
+Calling `.Memoized()` returns a memoized version of a function that caches previous results in an [IMap](../Interfaces/IMap.md).
 
 ```ahk
 Fibonacci(x) {
@@ -34,8 +33,7 @@ Fibonacci(x) {
 Fibonacci(80) ; 23416728348467685
 ```
 
-Note: if the function calls itself recursively, it must use its
-memoized version for caching.
+Note: if the function calls itself recursively, it must use its memoized version for caching.
 
 ## Try-Catch-Finally
 
@@ -51,8 +49,7 @@ SafeDivide := Divide.WithCatch(
 
 ## Wrap in Loop Behavior
 
-You can wrap a function to be called multiple times in a loop by calling
-`.Loop()`. The resulting function is able to access the `A_Index` variable.
+You can wrap a function to be called multiple times in a loop by calling `.Loop()`. The resulting function is able to access the `A_Index` variable.
 
 ```ahk
 Print := () => MsgBox(A_Index)
@@ -62,8 +59,7 @@ L() ; 1, 2, 3, ..., 100
 
 ## `Self()` Function
 
-The `Self()` function is a fundamental concept in functional programming that
-represents the *identity function* which always returns its input value.
+The `Self()` function is a fundamental concept in functional programming that represents the *identity function* which always returns its input value.
 
 ```ahk
 MsgBox(Self(42)) ; 42

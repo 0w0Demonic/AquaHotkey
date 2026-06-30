@@ -29,10 +29,7 @@
 
 ## Overview
 
-Streams are a powerful abstraction for working with sequences of data.
-It consists of different "stages" (such as `.Map()`, `.RetainIf()` and
-`.ForEach()`) that each "grabs" their elements from the previous stage, and
-transform elements using function application.
+Streams are a powerful abstraction for working with sequences of data.  It consists of different "stages" (such as `.Map()`, `.RetainIf()` and `.ForEach()`) that each "grabs" their elements from the previous stage, and transform elements using function application.
 
 ```ahk
 Times(A) => (B) => (A * B)
@@ -62,12 +59,9 @@ Enumerator
 
 - [<Stream/BaseStream>](./BaseStream.md)
 
-The base class of all streams. Implementing an own stream type requires you to
-specify a `Size` property which determines how many parameters are used
-simultaneously.
+The base class of all streams. Implementing an own stream type requires you to specify a `Size` property which determines how many parameters are used simultaneously.
 
-This class should not be used directly, but rather through its base classes
-like [Stream](./Stream.md) and [DoubleStream](./DoubleStream.md).
+This class should not be used directly, but rather through its base classes like [Stream](./Stream.md) and [DoubleStream](./DoubleStream.md).
 
 ## Count
 
@@ -109,8 +103,7 @@ DoubleStream does *not* implement `Enumerable1`.
 
 - [<Stream/Gatherer>](./Gatherer.md)
 
-Gatherers are a special type of intermediate operations that are used to
-"gather" elements from a stream into another stream.
+Gatherers are a special type of intermediate operations that are used to "gather" elements from a stream into another stream.
 
 ```ahk
 ; <[1, 2, 3], [2, 3, 4], [3, 4, 5]>
@@ -138,8 +131,7 @@ for Value in Range(1, 10, 2) {
 }
 ```
 
-Even though ranges can be used basically anywhere, the `Range()` function
-returns a [Stream](./Stream.md) of numbers.
+Even though ranges can be used basically anywhere, the `Range()` function returns a [Stream](./Stream.md) of numbers.
 
 ```ahk
 ; Map { true: [2, 4, ..., 100], false, [1, 3, ..., 99]}
@@ -160,8 +152,7 @@ Arr.Stream()       ; <1, 2, 3, 4, 5, 6>
    .Reduce(Sum)    ; 12
 ```
 
-They work on anything that is enumerable. In AquaHotkeyX, that's also files
-and strings.
+They work on anything that is enumerable. In AquaHotkeyX, that's also files and strings.
 
 ```ahk
 ; <"line 1", "line 2", "...">
@@ -189,16 +180,14 @@ Stream.Iterate(0, Increment) ; <1, 2, 3, 4, ...> (infinite stream of numbers)
 
 This introduces the two functions `Zip()` and `ZipWith()`.
 
-`Zip()` lets you "zip" two enumerable values into a
-[DoubleStream](./DoubleStream.md).
+`Zip()` lets you "zip" two enumerable values into a [DoubleStream](./DoubleStream.md).
 
 ```ahk
 ; DoubleStream <(1, 4), (2, 5), (3, 6)>
 Zip([1, 2, 3], [4, 5, 6])
 ```
 
-`.ZipWith()` does the same, but it returns a regular [Stream](./Stream.md),
-where elements on both sides are merged by using the given mapper function.
+`.ZipWith()` does the same, but it returns a regular [Stream](./Stream.md), where elements on both sides are merged by using the given mapper function.
 
 ```ahk
 Sum(A, B) => (A + B)

@@ -5,8 +5,7 @@
 
 ## Overview
 
-A [duck type](../DuckTypes.md) that represents any numeric value, including
-numeric strings.
+A [duck type](../DuckTypes.md) that represents any numeric value, including numeric strings.
 
 ```ahk
 "-123.2".Is(Numeric) ; true

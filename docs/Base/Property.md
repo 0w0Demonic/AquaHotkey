@@ -18,9 +18,7 @@ class Point {
 }
 ```
 
-AutoHotkey's object protocol is based on property descriptors, which are plain
-objects that define the behaviour of a property. This makes the language
-incredibly flexible, but it can be a bit verbose at times.
+AutoHotkey's object protocol is based on property descriptors, which are plain objects that define the behaviour of a property. This makes the language incredibly flexible, but it can be a bit verbose at times.
 
 ## Type-Checked Fields
 

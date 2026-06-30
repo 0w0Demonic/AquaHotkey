@@ -7,11 +7,7 @@
 
 ## Overview
 
-A [duck type](../DuckTypes.md) that represents objects with specified key and
-value type.
-
-Only plain objects are matched - ones that inherit directly from
-`Object.Prototype` and no other class.
+A [duck type](../DuckTypes.md) that represents objects with specified key and value type. Only plain objects are matched - ones that inherit directly from `Object.Prototype` and no other class.
 
 ```ahk
 Obj := {
@@ -26,9 +22,7 @@ Obj.Is(Rec) ; true
 
 ## Pattern Matching
 
-To match a record, the value must be a plain object (inherit directly from
-`Object.Prototype` and no other class), and each of its own fields must
-match by the key and value that was specified in the record.
+To match a record, the value must be a plain object (inherit directly from `Object.Prototype` and no other class), and each of its own fields must match by the key and value that was specified in the record.
 
 ```ahk
 Arr := Array()
@@ -40,8 +34,7 @@ Arr.Is(Rec) ; false (because `Arr` is an array and not a plain object)
 
 ## Subtypes
 
-Whether a record is considered a subclass of another record depends on its
-key and value type.
+Whether a record is considered a subclass of another record depends on its key and value type.
 
 ```ahk
 ( Record(String, Any) ).CanCastFrom( Record(String, Integer) )

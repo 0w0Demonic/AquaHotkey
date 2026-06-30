@@ -12,11 +12,9 @@
 
 ## Overview
 
-`COM` is a user-friendly framework to wrap COM objects into class-based
-interfaces.
+`COM` is a user-friendly framework to wrap COM objects into class-based interfaces.
 
-The main idea behind `COM` is to *extend the class* and to define a few options
-in the form of static members.
+The main idea behind `COM` is to *extend the class* and to define a few options in the form of static members.
 
 ### `(required) static CLSID => String`
 
@@ -34,20 +32,15 @@ An object that contains type signatures for `ComCall()`-methods.
 
 A nested class that handles events thrown by the COM object.
 
-Alternatively, a static property `static EventSink => Class` can point to an
-event sink class somewhere else in the script.
+Alternatively, a static property `static EventSink => Class` can point to an event sink class somewhere else in the script.
 
-Instead of the event sink, the `this`-keyword used in methods of the event sink
-refer to the instance of `COM` that raised the event.
+Instead of the event sink, the `this`-keyword used in methods of the event sink refer to the instance of `COM` that raised the event.
 
-Due to this change, methods of the event sink no longer accept the original COM
-object as last parameter.
+Due to this change, methods of the event sink no longer accept the original COM object as last parameter.
 
 ### `(optional) static ReturnTypes => Object`
 
-An object that maps method or property names to their corresponding COM wrapper
-class. This can be used to automaticaly wrap returned COM objects to the given
-type.
+An object that maps method or property names to their corresponding COM wrapper class. This can be used to automaticaly wrap returned COM objects to the given type.
 
 ## Example
 
@@ -90,12 +83,9 @@ ie(6, "Ptr", 0, "Ptr")                               ; undefined `ComCall()`
 
 ## AbstractCom Class
 
-`AbstractCom` is used as a marker class to mark classes that should wrap around
-COM objects, but have no CLSID and are generally returned by other COM objects
-(for example Word.Documents, which is returned by Word.Application).
+`AbstractCom` is used as a marker class to mark classes that should wrap around COM objects, but have no CLSID and are generally returned by other COM objects (for example Word.Documents, which is returned by Word.Application).
 
-Use `static ReturnTypes` to specify the return types of properties owned by the
-COM object.
+Use `static ReturnTypes` to specify the return types of properties owned by the COM object.
 
 ```ahk
 class Word extends Com {

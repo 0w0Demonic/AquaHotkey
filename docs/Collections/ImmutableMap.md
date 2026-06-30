@@ -7,8 +7,7 @@
 
 An immutable [IMap](../Interfaces/IMap.md) implementation.
 
-Use `ImmutableMap.FromMap()` or `IMap#Freeze()` to create a read-only view
-of an existing map.
+Use `ImmutableMap.FromMap()` or `IMap#Freeze()` to create a read-only view of an existing map.
 
 ```ahk
 IM := ImmutableMap(1, 2, 3, 4)

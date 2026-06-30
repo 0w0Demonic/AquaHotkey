@@ -11,24 +11,17 @@
 
 ## Overview
 
-The base class for any array-like class. This includes `Array`,
-[`LinkedList`](../Collections/LinkedList.md) and
-[`ImmutableArray`](../Collections/ImmutableArray.md).
+The base class for any array-like class. This includes `Array`, [`LinkedList`](../Collections/LinkedList.md) and [`ImmutableArray`](../Collections/ImmutableArray.md).
 
-Extending `IArray` gives you a skeletal implementation with many useful
-default methods.
+Extending `IArray` gives you a skeletal implementation with many useful default methods.
 
 ## Duck Typing
 
-`IArray` can be used as a [duck type](../Base/DuckTypes.md). Any object
-that implements all of the array properties (except `.__New()` and
-`.Default`) will be considered instance of `IArray`.
+`IArray` can be used as a [duck type](../Base/DuckTypes.md). Any object that implements all of the array properties (except `.__New()` and `.Default`) will be considered instance of `IArray`.
 
 ## Construction
 
-To create a copy of an existing `IArray` object without copying elements, use
-`IArray.BasedFrom(Arr)`. Useful for stream-like operations where you want to
-keep the same base object as previously, but don't clone any elements.
+To create a copy of an existing `IArray` object without copying elements, use `IArray.BasedFrom(Arr)`. Useful for stream-like operations where you want to keep the same base object as previously, but don't clone any elements.
 
 ## Default Operations
 
@@ -116,8 +109,7 @@ keep the same base object as previously, but don't clone any elements.
 
 - **`.Slurp()` and `.Drain()`**:
 
-  Creates a stream of elements being repeatedly `.Pop()`-ed and `.Poll()`-ed
-  from the array, respectively.
+  Creates a stream of elements being repeatedly `.Pop()`-ed and `.Poll()`-ed from the array, respectively.
 
   ```ahk
   A := Array(1, 2, 3)
@@ -127,8 +119,7 @@ keep the same base object as previously, but don't clone any elements.
 
 ### Filtering & Mapping
 
-IArray offers you a variety of stream-like methods. For more information, see
-[<Stream/Stream>](../Stream/Stream.md).
+IArray offers you a variety of stream-like methods. For more information, see [<Stream/Stream>](../Stream/Stream.md).
 
 ```ahk
 Even(x) => !(x & 1)

@@ -10,8 +10,7 @@
 
 ## Overview
 
-Object utilities, mostly for the creation of new object, or interacting with
-properties.
+Object utilities, mostly for the creation of new object, or interacting with properties.
 
 ```ahk
 class Point {
@@ -44,8 +43,7 @@ Arr.Push(1, 2, 3)
 
 ## Method `.DefineProps()`
 
-`.DefineProps()` lets you define several properties at once. It accepts one
-plain object that contains zero or more fields with their associated prop desc.
+`.DefineProps()` lets you define several properties at once. It accepts one plain object that contains zero or more fields with their associated prop desc.
 
 ```ahk
 class Point {
@@ -56,8 +54,7 @@ class Point {
 
 ## Function `ObjFromDesc()`
 
-Also, you can use `ObjFromDesc(Desc)` to create an object only based from
-a set of property descriptors.
+Also, you can use `ObjFromDesc(Desc)` to create an object only based from a set of property descriptors.
 
 ```ahk
 ; equivalent to:
@@ -69,8 +66,7 @@ Obj := ObjFromDesc({ X: Constant(24), Y: Constant(15) })
 
 ## Method `.GetPropDesc()`
 
-By using `.GetPropDesc()` instead of `.GetOwnPropDesc()`, you can retrieve a
-property descriptor by name, regardless of *where* the property is defined.
+By using `.GetPropDesc()` instead of `.GetOwnPropDesc()`, you can retrieve a property descriptor by name, regardless of *where* the property is defined.
 
 ```ahk
 BaseObj := { Value: 42 }

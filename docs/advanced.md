@@ -14,8 +14,7 @@ This file covers some slightly more advanced, but still common use cases.
 
 ## Extending Nested Classes
 
-Extending with nested classes works as you'd expect, just nest one layer deeper,
-and the rest remains exactly the same.
+Extending with nested classes works as you'd expect, just nest one layer deeper, and the rest remains exactly the same.
 
 ```ahk
 class GuiButton extends AquaHotkey
@@ -43,16 +42,13 @@ class MsgBoxUtil extends AquaHotkey
 MsgBox.Info("(insert very informative text here)", "Absolute Cinema")
 ```
 
-Note that you should prefer `static` when extending functions, because
-conceptually speaking, they're not classes and you don't create any instances
-of them.
+Note that you should prefer `static` when extending functions, because conceptually speaking, they're not classes and you don't create any instances of them.
 
 ## Field Declarations
 
 You can control how objects are initialized by specifying field declarations.
 
-It's really useful if you want to set default values for `Map#CaseSense`
-or `Array#Default`, like this:
+It's really useful if you want to set default values for `Map#CaseSense` or `Array#Default`, like this:
 
 ```ahk
 class DefaultEmptyString extends AquaHotkey {
@@ -65,8 +61,7 @@ class DefaultEmptyString extends AquaHotkey {
 }
 ```
 
-These field declarations are accumulated, i.e. each of them is executed one
-after another without removing anything.
+These field declarations are accumulated, i.e. each of them is executed one after another without removing anything.
 
 ```ahk
 class ArrayDefaultEmptyString extends AquaHotkey {
@@ -86,9 +81,7 @@ MsgBox(Arr.Default)   ; ""
 MsgBox(Arr.CaseSense) ; "Off"
 ```
 
-Don't overuse this, though. I recommend making only very simple changes
-(like e.g. `Array.Default`). You should prefer making changes to `.__New()`
-instead. (see `AquaHotkey_Backup` below.)
+Don't overuse this, though. I recommend making only very simple changes (like e.g. `Array.Default`). You should prefer making changes to `.__New()` instead. (see `AquaHotkey_Backup` below.)
 
 > [!CAUTION]
 >For `Object` and `Any`, you have to use `.__Init()` as a *function* -
@@ -106,18 +99,13 @@ instead. (see `AquaHotkey_Backup` below.)
 >}
 >```
 
-Also, for obvious reasons this doesn't apply to primitive classes such as
-`Number`, since they're not objects you can assign properties to.
+Also, for obvious reasons this doesn't apply to primitive classes such as `Number`, since they're not objects you can assign properties to.
 
 ## Some More Technical Insight
 
-In AquaHotkey, classes are used as "property containers" whose contents can be
-moved around freely. Understanding this concept is very helpful for the later
-sections, because there's a lot of "pushing and pulling" going on between
-classes and their properties.
+In AquaHotkey, classes are used as "property containers" whose contents can be moved around freely. Understanding this concept is very helpful for the later sections, because there's a lot of "pushing and pulling" going on between classes and their properties.
 
-Let's say we have two classes, the built-in `Array` class and a custom
-`ArrayUtils` class which we use to define custom properties for `Array`:
+Let's say we have two classes, the built-in `Array` class and a custom `ArrayUtils` class which we use to define custom properties for `Array`:
 
 ```ahk
 class ArrayUtils (custom)
@@ -139,8 +127,7 @@ class Array (built-in)
    `- etc.
 ```
 
-Here, `ArrayUtils` takes the role of an *extension class*. In order to use
-its properties, they need to be "pasted" into the built-in `Array` class.
+Here, `ArrayUtils` takes the role of an *extension class*. In order to use its properties, they need to be "pasted" into the built-in `Array` class.
 
 ```ahk
 class Array (built-in)
@@ -157,12 +144,9 @@ class Array (built-in)
 
 ## Backup Classes
 
-Changing an existing property of an object is *destructive*. To retain access
-to the original property, it must be saved first. This is where *backup
-classes* are used.
+Changing an existing property of an object is *destructive*. To retain access to the original property, it must be saved first. This is where *backup classes* are used.
 
-Because classes are treated as container objects, you can "fill" them with
-the contents of another class in order to make a "snapshot" of that class.
+Because classes are treated as container objects, you can "fill" them with the contents of another class in order to make a "snapshot" of that class.
 
 ```ahk
 class Gui_Backup {
@@ -170,14 +154,11 @@ class Gui_Backup {
 }
 ```
 
-In this example, calling `.Backup(Gui)` will save all properties contained
-in `Gui`, also including the current state of `Gui.Control` and all of the
-other nested classes.
+In this example, calling `.Backup(Gui)` will save all properties contained in `Gui`, also including the current state of `Gui.Control` and all of the other nested classes.
 
 ### Overriding Existing Properties
 
-Let's say we want to extend the constructor of `Gui`. It should be able to
-create GUIs like usual, but also perform additional actions.
+Let's say we want to extend the constructor of `Gui`. It should be able to create GUIs like usual, but also perform additional actions.
 
 ```ahk
 class GuiExtensions extends AquaHotkey {
@@ -190,15 +171,11 @@ class GuiExtensions extends AquaHotkey {
 }
 ```
 
-We've now successfully extended `Gui.Prototype.__New`. First, our new
-constructor calls the previous contructor which we've previously
-saved (`Gui_Backup.Prototype.__New`), then continues with our own code.
+We've now successfully extended `Gui.Prototype.__New`. First, our new constructor calls the previous contructor which we've previously saved (`Gui_Backup.Prototype.__New`), then continues with our own code.
 
-When working with backup classes, the *order of execution* in which classes
-load becomes an issue.
+When working with backup classes, the *order of execution* in which classes load becomes an issue.
 
-Conceptually speaking, you want to create a backup *before* new extensions are
-being applied. This is how we do it:
+Conceptually speaking, you want to create a backup *before* new extensions are being applied. This is how we do it:
 
 ```ahk
 class GuiExtensions extends AquaHotkey {
@@ -211,13 +188,11 @@ class GuiExtensions extends AquaHotkey {
 }
 ```
 
-You can force classes to initialize by referencing them (i.e.,
-`(MyClass1 [  , MyClass2, ...  ])`) and then finally calling `super.__New()`.
+You can force classes to initialize by referencing them (i.e., `(MyClass1 [  , MyClass2, ...  ])`) and then finally calling `super.__New()`.
 
 ## Shared Extensions with `AquaHotkey_MultiApply`
 
-There might be occasions where you want to extend multiple unrelated classes
-to share behavior without writing things twice.
+There might be occasions where you want to extend multiple unrelated classes to share behavior without writing things twice.
 
 ```ahk
 class Enumerable1 {
@@ -232,9 +207,7 @@ class Enumerable1 {
     }
 }
 
-The class represents any type that supports for-loops with 1 argument.
-Using `.ApplyOnto()`, we specify each of the built-in classes that fulfill
-this condition.
+The class represents any type that supports for-loops with 1 argument.  Using `.ApplyOnto()`, we specify each of the built-in classes that fulfill this condition.
 
 ```ahk
 Even(x) => !(x & 1)

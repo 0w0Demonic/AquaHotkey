@@ -21,8 +21,7 @@ try {
 
 ## Throwing Errors
 
-A static `Throw()` method which is particularly useful inside the middle of
-statements, or for making one-liners in class properties.
+A static `Throw()` method which is particularly useful inside the middle of statements, or for making one-liners in class properties.
 
 ```ahk
 class Thing {
@@ -35,12 +34,9 @@ IndexError().Throw()
 
 ## Error Causes
 
-This feature lets you attach another error as cause. Error objects now own
-a property `Cause`, which contains either `false`, or another error object
-deemed as being the error reason.
+This feature lets you attach another error as cause. Error objects now own a property `Cause`, which contains either `false`, or another error object deemed as being the error reason.
 
-By using the `.CausedBy()` method, you attach another error object as `Cause`,
-and fill up the `Stack` with more detailed information.
+By using the `.CausedBy()` method, you attach another error object as `Cause`, and fill up the `Stack` with more detailed information.
 
 The error cause should remain unchanged, once assigned.
 
