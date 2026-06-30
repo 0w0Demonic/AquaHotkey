@@ -21,7 +21,6 @@
   - [Type Information](#type-information)
   - [VarRef](#varref)
   - [Primitives](#primitives)
-  - [File Utils](#file-utils)
 
 ## List of Features
 
@@ -321,23 +320,4 @@ MsgBox(Number.E) ; 2.71...
 Array(1, 2, 3).Join(", ").MsgBox() ; displays "1, 2, 3"
 
 "Hello, world!".ToolTip()
-```
-
-## File Utils
-
-A small set of file-related utilities, such as
-
-- opening the standard input/output/error streams using `FileOpen.StdIn`, `FileOpen.StdOut` and `FileOpen.StdErr` respectively.
-- the ability to enumerate lines of a `File` object (which makes it possible to be used in [Streams](../Stream/overview.md)).
-- a `Name` property to determine the name of the `File` object.
-- `loop files`, but as lazy-evaluated stream.
-
-```ahk
-Stdin := FileOpen.StdIn
-
-; prints all non-empty lines of a file
-FileOpen("myFile.txt", "r").Stream().RemoveIf(IsSpace).ForEach(MsgBox)
-
-; SplitPath(), but it returns an object
-A_Desktop.SplitPath() ; { Dir: "C:\Users\...\Desktop", Name: "Desktop", ... }
 ```

@@ -44,8 +44,7 @@ implementing class.
 
 ## Properties `.Hierarchy` and `.Bases`
 
-Returns the chain of base objects of a value. While `.Hierarchy` includes the
-value itself, `.Bases` doesn't.
+Returns the chain of base objects of a value. While `.Hierarchy` includes the value itself, `.Bases` doesn't.
 
 ```ahk
 ; --> [123, Integer.Prototype, Number.Prototype,
