@@ -11,6 +11,7 @@
     - [Array Literals](#array-literals)
     - [Generic Arrays](#generic-arrays)
     - [Nullable](#nullable)
+    - [Nothing](#nothing)
     - [Callable and Numeric](#callable-and-numeric)
     - [Enums, Intersection and Union Types](#enums-intersection-and-union-types)
     - [Record](#record)
@@ -22,6 +23,7 @@
 
 - [Boolean](./DuckTypes/Boolean.md)
 - [Callable](./DuckTypes/Callable.md)
+- [Nothing](./DuckTypes/Nothing.md)
 - [Nullable](./DuckTypes/Nullable.md)
 - [Numeric](./DuckTypes/Numeric.md)
 - [Record](./DuckTypes/Record.md)
@@ -253,6 +255,22 @@ NullableIntegers := Integer[Nullable]
 ```
 
 As of now, `Nullable` is the only type wrapper already defined in AquaHotkeyX.
+
+### Nothing
+
+- [<Base/DuckTypes/Nothing>](./DuckTypes/Nothing.md)
+
+`Nothing` is a type that represents `unset`.
+
+```ahk
+Nothing.IsInstance("something") ; false
+Nothing.IsInstance(unset) ; false
+
+{ Value: "Hello, world!" }.Is({ Value: Nothing }) ; false
+
+Nullable(String).CanCastFrom(Nothing) ; true
+Nothing.CanCastFrom(Nothing) ; true
+```
 
 ### Callable and Numeric
 

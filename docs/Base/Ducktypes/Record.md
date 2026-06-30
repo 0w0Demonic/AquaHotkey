@@ -13,12 +13,14 @@ A [duck type](../DuckTypes.md) that represents objects with specified key and va
 Obj := {
     Admin: "do what you want lol",
     User: "okay, you're allowed in",
-    Guest: "fine... but don't touch anything"
+  ; Guest: "fine... but don't touch anything"
 }
 
 Rec := Record(Type.Enum("Admin", "User", "Guest"), String)
 Obj.Is(Rec) ; true
 ```
+
+Not all specified properties have to be present in the object -- for this purpose, use a plain object like `{ Admin: String, ... }`. Only that the properties match the contraints given by the record. It's therefore comparable to a `Partial<Record<K, V>>` in TypeScript.
 
 ## Pattern Matching
 

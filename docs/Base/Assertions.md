@@ -6,6 +6,7 @@
   - [Function `Assert()`](#function-assert)
   - [Method `.Assert(Condition, Args*)`](#method-assertcondition-args)
   - [Method `.AssertType(T)`](#method-asserttypet)
+  - [Disabling Assertions](#disabling-assertions)
   - [Some More Examples](#some-more-examples)
 
 ## Overview
@@ -51,19 +52,15 @@ Obj.Assert(ObjHasOwnProp, "Value")
 
 ## Method `.AssertType(T)`
 
-To assert that a value is member of a given type `T`, you can use
-`.AssertType(T)`:
+To assert that a value is member of a given type `T`, you can use `.AssertType(T)`:
 
 ```ahk
 Val.AssertType(String)
 ```
 
-This is equivalent to `.Assert(InstanceOf(String))`, and will assert that `Val`
-is an instance of `String`.
+This is equivalent to `.Assert(InstanceOf(String))`, and will assert that `Val` is an instance of `String`.
 
-Because `InstanceOf(T)` makes use of [duck types](./DuckTypes.md), you can
-pass basically anything as a type pattern. Use `DerivedFrom(T)` to explitly
-assert that something `is T`.
+Because `InstanceOf(T)` makes use of [duck types](./DuckTypes.md), you can pass basically anything as a type pattern. Use `DerivedFrom(T)` to explitly assert that something `is T`.
 
 ```ahk
 Arr := Array()
@@ -80,12 +77,24 @@ Arr.AssertType(Pattern) ; asserts that `Arr.Is(Pattern)`
 - [<Func/Predicate>](../Func/Predicate.md)
 - [<Base/DuckTypes>](./DuckTypes.md)
 
+## Disabling Assertions
+
+You can disable assertions by including `<cfg/DisableAssertions>` for `.Assert()` and `<cfg/DisableTypeAssertions>` for `.AssertType()` respectively. This lets you write code with guardrails that you can remove again after you've gained confidence that everything works properly.
+
+```ahk
+#Include <AquaHotkey/cfg/DisableAssertions>
+#Include <AquaHotkey/cfg/DisableTypeAssertions>
+
+; immediately returns `Value`. Unless `Value` is a huge string,
+; there's only minimal performance overhead.
+Value.AssertType(SomethingComplicated).Assert(SomethingExpensive)
+```
+
 ## Some More Examples
 
 Here's some more examples of how to use this in practice.
 
-Generically, I'm using `.Assert()` together with predicate functions, because
-that's arguably the most flexible way to do assertions.
+Generally, I'm using `.Assert()` together with predicate functions, because that's arguably the most flexible way to do assertions.
 
 ```ahk
 Divide(A, B) {

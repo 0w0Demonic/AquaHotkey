@@ -1,6 +1,6 @@
-# <[Base](./overview.md)/[Compare](../../src/Base/Compare.ahk)>
+# <[Base](./overview.md)/[Comparable](../../src/Base/Comparable.ahk)>
 
-- [\<Base/Compare\>](#basecompare)
+- [\<Base/Comparable\>](#basecomparable)
   - [Overview](#overview)
   - [Implementing `.Compare()`](#implementing-compare)
   - [Static `.Compare()` Method](#static-compare-method)
@@ -20,9 +20,7 @@ To determine the order between two values, the `.Compare()` method is used.
 Any type that defines `.Compare()` is considered *comparable*, which grants the following advantages:
 
 - arrays are sortable without a custom [comparator](../Func/Comparator.md);
-- instances of that type can be used as key inside an ordered
-  collection such as [SkipListMap](../Collections/SkipListMap.md) or
-  [SkipListSet](../Collections/SkipListSet.md);
+- instances of that type can be used as key inside an ordered collection such as [SkipListMap](../Collections/SkipListMap.md) or [SkipListSet](../Collections/SkipListSet.md);
 - access to ordering functions such as `.Gt()` and `.Lt()`.
 
 ## Implementing `.Compare()`
@@ -35,7 +33,7 @@ When comparing two values `A` and `B`, `A.Compare(B)` should return one of the f
 - `0`, if `A == B`
 - A positive integer, if `A > B`
 
-It is **strongly recommended** that the `.Compare()` method is consistent with the `.Eq()` method defined by the [Eq](./Eq.md) interface. This means that if two values are considered equal by `.Eq()`, then `.Compare()` should return `0` when comparing those two values.
+It is **strongly recommended** that the `.Compare()` method is consistent with the `.Eq()` method defined by the [Eq](./Eq.md) interface. This means that if two values are considered equal by `.Eq()`, then `.Compare()` should return `0` when comparing those two values. If these two methods are inconsistent with each other, this can lead to unexpected behaviour when used in sorted collections such as [`SkipListMap`](../Collections/SkipListMap.md).
 
 Here's an example of how to implement the `.Compare()` method for a simple `Version` class:
 
@@ -58,7 +56,18 @@ class Version {
 }
 ```
 
-Note that I'm using `||` to chain the comparisons together. This works, because if the first comparison is non-zero, it will be returned immediately, otherwise it'll continue with the next comparison and so on.
+Note that I'm using `||` to chain the comparisons together. This work because of short-circuit evaluation. If any of these comparisons returns non-zero, it will be returned immediately. You should generally write comparisons in this way.
+
+An alternative would be using [comparators](../Func/Comparator.md):
+
+```ahk
+class Version {
+    __New() { ... }
+
+    static Prototype.Compare :=
+            Comparator.By("Major").ThenBy("Minor").ThenBy("Patch")
+}
+```
 
 ## Static `.Compare()` Method
 

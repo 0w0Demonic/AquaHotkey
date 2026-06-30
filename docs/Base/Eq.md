@@ -73,8 +73,7 @@ class Version {
 
 ## Static `.Equals()` Method
 
-Use `T.Equals(A, B)` when you want a type-checked, two-argument equality
-function that also supports `unset`.
+Use `T.Equals(A, B)` when you want a type-checked, two-argument equality function that also supports `unset`.
 
 ```ahk
 Number.Equals(23, 23)         ; true
@@ -82,8 +81,7 @@ Number.Equals(unset, unset)   ; true
 Number.Equals([1, 2], [1, 2]) ; TypeError!
 ```
 
-Duck types usually don't inherit instance equality, so provide a
-`static Equals(A, B)` on duck types when needed.
+Duck types usually don't inherit instance equality, so provide a `static Equals(A, B)` on duck types when needed.
 
 ```ahk
 Numeric.Equals("-23.2", -23.2) ; true
@@ -107,5 +105,4 @@ static Equals(A?, B?) {
 }
 ```
 
-Note that support for `unset` might be removed in the future, in favor of
-[Nullable](./DuckTypes/Nullable.md).
+Note that support for `unset` might be removed in the future, in favor of [Nullable](./DuckTypes/Nullable.md).
