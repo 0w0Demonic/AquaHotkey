@@ -653,6 +653,20 @@ class AquaHotkey_DuckTypes extends AquaHotkey
                 return false
             }
         }
+
+        /**
+         * Returns the negation of a type.
+         * 
+         * @param   {Any}  T  any value
+         * @returns {Func}
+         * @example
+         * Type.Not(Numeric) ; something that isn't a number or numeric string
+         * 
+         * ; this also works
+         * InstanceOf(Numeric).Negate()
+         * Predicate.Not(InstanceOf(Numeric))
+         */
+        static Not(T) => (Val?) => !T.IsInstance(Val?)
     }
 
     ;@endregion
@@ -661,6 +675,9 @@ class AquaHotkey_DuckTypes extends AquaHotkey
 
     class Func {
         ; TODO move this method somewhere else?
+        ; TODO add type checks for the return type? Write something so you can
+        ;      wrap methods with removable checks?
+
         /**
          * Returns a wrapped function that checks whether its arguments
          * conform to the given type `Signature`.
