@@ -170,7 +170,7 @@ class GenericSet extends ISet {
      * Set(1, 2, 3).Is( ISet.OfType(Number) ) ; true
      */
     static IsInstance(Val?) {
-        if (!IsSet(Val) || !Val.Is(ISet)) {
+        if (!IsSet(Val) || !ISet.IsInstance(Val)) {
             return false
         }
         if (Val is GenericSet) {

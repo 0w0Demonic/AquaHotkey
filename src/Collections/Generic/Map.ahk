@@ -98,7 +98,7 @@ class GenericMap extends IDelegatingMap {
      * HashMap(1, 2, 34.5, 4,6).Is(  HashMap.OfType(Number, Number)  ) ; true
      */
     static IsInstance(Val?) {
-        if (!IsSet(Val) || !Val.Is(IMap)) {
+        if (!IsSet(Val) || !IMap.IsInstance(Val)) {
             return false
         }
 

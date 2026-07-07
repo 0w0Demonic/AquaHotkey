@@ -40,7 +40,7 @@ class ByteArray extends IArray
      * @param   {IBuffer?}  Buf  the buffer to wrap around
      */
     __New(Buf := Buffer()) {
-        if (!Buf.Is(IBuffer)) {
+        if (!IBuffer.IsInstance(Buf)) {
             throw TypeError("Expected an IBuffer",, Type(Buf))
         }
         this.DefineProp("B", {

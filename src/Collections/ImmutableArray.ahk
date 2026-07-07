@@ -44,7 +44,7 @@ class ImmutableArray extends IArray {
      * IA := ImmutableArray.FromArray(A)
      */
     static FromArray(A) {
-        if (!A.Is(IArray)) {
+        if (!IArray.IsInstance(A)) {
             throw TypeError("Expected an IArray")
         }
         Obj := Object()

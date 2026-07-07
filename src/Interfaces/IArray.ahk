@@ -343,10 +343,10 @@ class IArray {
      * Array.Mismatch([], [])               ; 0
      */
     static Mismatch(A, B) {
-        if (!A.Is(this)) {
+        if (!this.IsInstance(A)) {
             throw TypeError("Expected a(n) " . this.Prototype.__Class,, Type(A))
         }
-        if (!B.Is(this)) {
+        if (!this.IsInstance(B)) {
             throw TypeError("Expected a(n) " . this.Prototype.__Class,, Type(B))
         }
         Enumer1 := A.__Enum(1)

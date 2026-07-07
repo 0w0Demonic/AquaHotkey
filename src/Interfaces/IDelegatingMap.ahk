@@ -21,7 +21,7 @@ class IDelegatingMap extends IMap {
     static IsInstance(Val?) {
         return super.IsInstance(Val?) ; must be an `IMap`
             && HasProp(Val, "M") ; must have a property `M` ...
-            && Val.M.Is(this) ; ... whose value is also an `IMap`.
+            && IMap.IsInstance(Val.M) ; ... whose value is also an `IMap`.
     }
 
     /**

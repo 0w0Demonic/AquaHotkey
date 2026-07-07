@@ -60,7 +60,7 @@ class IMap {
      */
     static Create(Param := this()) {
         switch {
-            case (Param.Is(IMap)):
+            case (IMap.IsInstance(Param)):
                 M := Param
             case (HasMethod(Param)):
                 M := Param()
@@ -72,7 +72,7 @@ class IMap {
                 }
                 M.CaseSense := Param
         }
-        if (!M.Is(this)) {
+        if (!this.IsInstance(M)) {
             throw TypeError("Expected a " . this.Prototype.__Class,, Type(M))
         }
         return M

@@ -46,7 +46,7 @@ class Boolean extends Integer {
      * @returns {Integer}
      */
     static Compare(A, B) {
-        if (A.Is(this) && B.Is(this)) {
+        if (this.IsInstance(A) && this.IsInstance(B)) {
             return A.Compare(B)
         }
         throw TypeError("Expected a(n) " . this.Prototype.__Class,,

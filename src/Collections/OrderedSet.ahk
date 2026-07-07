@@ -34,10 +34,15 @@ class OrderedSet extends Set {
      * @override {@link Set.FromMap()}
      */
     static FromMap(M, Values*) {
-        if (!M.Is(IMap)) {
+        if (!IMap.IsInstance(M)) {
             throw TypeError("Expected an IMap",, Type(M))
         }
-        return super.FromMap((M.Is(OrderedMap)) ? M : M.Ordered(), Values*)
+        return super.FromMap(
+            OrderedMap.IsInstance(M)
+                ? M
+                : M.Ordered(),
+            Values*
+        )
     }
 
     /**

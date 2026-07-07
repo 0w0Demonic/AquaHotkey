@@ -249,7 +249,7 @@ class AquaHotkey_Eq extends AquaHotkey
             if (this == Other) {
                 return true
             }
-            if (!Other.Is(IArray)) {
+            if (!IArray.IsInstance(Other)) {
                 return false
             }
 

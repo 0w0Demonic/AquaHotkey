@@ -310,7 +310,7 @@ class AquaHotkey_Comparable extends AquaHotkey
          * ([1, 2, 3]).Compare([1, 2, 4]) ; -1
          */
         Compare(Other) {
-            if (!Other.Is(Array)) {
+            if (!Array.IsInstance(Other)) {
                 throw TypeError("Expected an Array",, Type(Other))
             }
             ThisEnumer := this.__Enum(1)

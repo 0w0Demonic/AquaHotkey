@@ -69,7 +69,7 @@ class ISet {
      */
     static Create(Param := this()) {
         switch {
-            case (Param.Is(ISet)):
+            case (ISet.IsInstance(Param)):
                 S := Param
             case (HasMethod(Param)):
                 S := Param()
@@ -82,7 +82,7 @@ class ISet {
                 }
                 S.CaseSense := Param
         }
-        if (!S.Is(this)) {
+        if (!this.IsInstance(S)) {
             throw TypeError("Expected a " . this.Prototype.__Class,, Type(S))
         }
         return S
@@ -318,7 +318,7 @@ class ISet {
         if (this == Other) {
             return true
         }
-        if (!Other.Is(ISet)) {
+        if (!ISet.IsInstance(Other)) {
             return false
         }
         if (this.Size != Other.Size) {

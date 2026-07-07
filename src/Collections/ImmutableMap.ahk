@@ -32,7 +32,7 @@ class ImmutableMap extends IMap {
      * @returns {ImmutableMap}
      */
     static FromMap(M) {
-        if (!M.Is(IMap)) {
+        if (!IMap.IsInstance(M)) {
             throw TypeError("Expected an IMap",, Type(M))
         }
         if (M is ImmutableMap) {

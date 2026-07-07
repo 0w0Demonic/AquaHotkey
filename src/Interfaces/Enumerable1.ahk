@@ -542,7 +542,7 @@ class Enumerable1 {
      */
     Reduce(Combiner, Initial?) {
         GetMethod(Combiner)
-        if (!IsSet(Initial) && Combiner.Is(Monoid)) {
+        if (!IsSet(Initial) && Monoid.IsInstance(Combiner)) {
             Initial := Combiner.Identity
         }
         for Value in this {

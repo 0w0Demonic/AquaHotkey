@@ -649,7 +649,7 @@ class LinkedList extends IArray {
          * @param   {LinkedList}  List  linked list to iterate over
          */
         __New(List, Index := 1) {
-            if (!List.Is(LinkedList)) {
+            if (!LinkedList.IsInstance(List)) {
                 throw TypeError("Expected a LinkedList",, Type(List))
             }
             if (!IsInteger(Index)) {

@@ -29,7 +29,7 @@ class ImmutableSet extends ISet {
      * @returns {ImmutableSet}
      */
     static FromSet(S) {
-        if (!S.Is(ISet)) {
+        if !(ISet.IsInstance(S)) {
             throw TypeError("Expected an ISet",, Type(S))
         }
         if (S is ImmutableSet) {
@@ -48,7 +48,7 @@ class ImmutableSet extends ISet {
      * @returns {ImmutableSet}
      */
     static FromMap(M) {
-        if (!M.Is(IMap)) {
+        if (!IMap.IsInstance(M)) {
             throw TypeError("Expected an IMap",, Type(M))
         }
         return this.FromSet(Set.FromMap(M))
