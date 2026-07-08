@@ -4,7 +4,8 @@
 /**
  * @duck
  * 
- * A boolean value that equals either `true`/`1` or `false`/`0`.
+ * A boolean value that equals either `true`/`1` or `false`/`0`. This does *not*
+ * include strings `"1"` and `"0"`.
  * 
  * @module  <Base/DuckTypes/Boolean>
  * @author  0w0Demonic
@@ -23,8 +24,9 @@ class Boolean extends Integer {
      * (0).Is(Boolean) ; true
      * (1).Is(Boolean) ; true
      */
-    static IsInstance(Val?) => Integer.IsInstance(Val?)
-            && ((Val == true) || (Val == false))
+    static IsInstance(Val?) => IsSet(Val)
+            && (Val is Integer)
+            && !(Val & 0xFFFFFFFFFFFFFFFE) ; yes, this is overkill
 
     /**
      * Creates a boolean value from an arbitrary value.
@@ -47,7 +49,7 @@ class Boolean extends Integer {
      */
     static Compare(A, B) {
         if (this.IsInstance(A) && this.IsInstance(B)) {
-            return A.Compare(B)
+            return (A > B) - (B > A)
         }
         throw TypeError("Expected a(n) " . this.Prototype.__Class,,
                         Type(A) . ", " . Type(B))
