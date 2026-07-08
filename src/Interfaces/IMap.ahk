@@ -268,6 +268,32 @@ class IMap {
     ;@region Default Methods
 
     /**
+     * "Moves" an item by changing its key, and then returns the map itself.
+     * This method may overwrite existing items, if the new map key is already
+     * associated with a value.
+     * 
+     * This method may be subject to changes in the near future, namely the
+     * method's parameter list and return type.
+     * 
+     * @param   {Any}  OldKey  old map key
+     * @param   {Any}  NewKey  new map key
+     * @returns {this}
+     * @example
+     * M := Map("foo", "bar")
+     * M.Move("foo", "baz")
+     * 
+     * ; Map { baz: bar }
+     * M.ToString().MsgBox()
+     */
+    Move(OldKey, NewKey) {
+        if (!this.TryDelete(OldKey, &Value)) {
+            throw UnsetItemError("item does not exist")
+        }
+        this.Set(NewKey, Value)
+        return this
+    }
+
+    /**
      * If absent, adds a new map element. This method returns the current
      * value of the item if already present, or the new value if absent.
      * 
