@@ -1,5 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\Stream.ahk"
+#Include "%A_LineFile%\..\DoubleStream.ahk"
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
 /**
@@ -193,6 +194,25 @@ class AquaHotkey_Gatherer extends AquaHotkey {
                     Enumer := Arr.__Enum(1)
                 }
             }
+        }
+
+        /**
+         * Gathers elements in this stream in pairs of two. This method returns
+         * either a {@link DoubleStream}, or a single-parameter {@link Stream}
+         * of value pairs combined using the `Combiner` function.
+         * 
+         * @param   {Callable?}  Combiner  functoin combining two values
+         * @returns {Stream|DoubleStream}
+         * @example
+         * Range(1, 7).Pairwise() ; <(1, 2), (3, 4), (5, 6)>
+         */
+        Pairwise(Combiner?) {
+            Strm := DoubleStream.Cast((&A, &B) => this(&A) && this(&B))
+            if (IsSet(Combiner)) {
+                GetMethod(Combiner)
+                Strm := Strm.Map(Combiner)
+            }
+            return Strm
         }
     }
 }
