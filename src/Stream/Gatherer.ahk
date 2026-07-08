@@ -2,9 +2,6 @@
 #Include "%A_LineFile%\..\Stream.ahk"
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
-; TODO
-; - implement a linked list structure for the sake of buffering stream elements?
-
 /**
  * Gatherers are functions that can transform a sequence of input
  * elements - usually an `Enumerator` or {@link Stream `Stream`} - into
@@ -57,34 +54,37 @@
 class Gatherer extends Func {
 } ; (empty marker class)
 
+; TODO define what a `Collector` is supposed to be
+
 /**
  * Creates a {@link Gatherer} that collects elements in the form of fixed
  * windows.
  * 
- * @param   {Integer}  Size  window size
+ * @param   {Integer}     Size  window size
+ * @param   {Collector?}  Coll  varargs function that combines values
  * @returns {Gatherer}
  * @example
- * ; <[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]>
- * Range(10).Gather(WindowFixed(3))
+ * Range(10).Gather(WindowFixed(3)) ; <[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]>
  */
-WindowFixed(Size) {
+WindowFixed(Size, Coll := Array) {
     if (!IsInteger(Size)) {
         throw TypeError("Expected an Integer",, Type(Size))
     }
     if (Size <= 0) {
         throw ValueError("<= 0",, Size)
     }
+    GetMethod(Coll)
     Arr := Array()
     return Gatherer.Cast(WindowFixed)
 
     WindowFixed(Upstream, Downstream) {
         if (!Upstream(&Value)) {
-            Downstream(Arr.Clone())
+            Downstream(Coll(Arr*))
             return false
         }
         Arr.Push(Value?)
         if (Arr.Length == Size) {
-            Downstream(Arr.Clone())
+            Downstream(Coll(Arr*))
             Arr.Length := 0
         }
         return true
@@ -95,13 +95,14 @@ WindowFixed(Size) {
  * Creates a {@link Gatherer} that collects elements in the form of sliding
  * windows.
  * 
- * @param   {Integer}  Size  window size
+ * @param   {Integer}     Size  window size
+ * @param   {Collector?}  Coll  varargs function that combines values
  * @returns {Gatherer}
  * @example
  * ; <[1, 2, 3], [2, 3, 4], [3, 4, 5]>
  * Range(5).Gather(WindowSliding(3))
  */
-WindowSliding(Size) {
+WindowSliding(Size, Coll := Array) {
     if (!IsInteger(Size)) {
         throw TypeError("Expected an Integer",, Type(Size))
     }
@@ -113,12 +114,12 @@ WindowSliding(Size) {
 
     WindowSliding(Upstream, Downstream) {
         if (!Upstream(&Value)) {
-            Downstream(Arr.Clone())
+            Downstream(Coll(Arr*))
             return false
         }
         Arr.Push(Value?)
         if (Arr.Length == Size) {
-            Downstream(Arr.Clone())
+            Downstream(Coll(Arr*))
             Arr.RemoveAt(1)
         }
         return true
