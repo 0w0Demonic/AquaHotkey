@@ -280,8 +280,8 @@ class IMap {
      * M.PutIfAbsent("foo", "baz") ; "bar"
      */
     PutIfAbsent(Key, Value) {
-        if (this.Has(Key)) {
-            return this.Get(Key)
+        if (this.TryGet(Key, &Current)) {
+            return Current
         }
         this.Set(Key, Value)
         return Value
@@ -307,8 +307,8 @@ class IMap {
      * M.ComputeIfAbsent(1, Mul, 2)
      */
     ComputeIfAbsent(Key, Mapper, Args*) {
-        if (this.Has(Key)) {
-            return this.Get(Key)
+        if (this.TryGet(Key, &Value)) {
+            return Value
         }
         GetMethod(Mapper)
         Value := Mapper(Key, Args*)
@@ -338,9 +338,9 @@ class IMap {
      * MsgBox(M[1]) ; "ab"
      */
     ComputeIfPresent(Key, Mapper, Args*) {
-        if (this.Has(Key)) {
+        if (this.TryGet(Key, &Value)) {
             GetMethod(Mapper)
-            Value := Mapper(Key, this.Get(Key), Args*)
+            Value := Mapper(Key, Value, Args*)
             this.Set(Key, Value)
             return Value
         }
@@ -363,10 +363,7 @@ class IMap {
      */
     Compute(Key, Mapper, Args*) {
         GetMethod(Mapper)
-
-        if (this.Has(Key)) {
-            Value := this.Get(Key)
-        }
+        this.TryGet(Key, &Value)
         Value := Mapper(Key, Value?, Args*)
         this.Set(Key, Value)
         return Value
@@ -395,9 +392,9 @@ class IMap {
      * M.Merge("foo", 1, Sum)
      */
     Merge(Key, Value, Combiner, Args*) {
-        if (this.Has(Key)) {
+        if (this.TryGet(Key, &Current)) {
             GetMethod(Combiner)
-            Value := Combiner(this.Get(Key), Value, Args*)
+            Value := Combiner(Current, Value, Args*)
         }
         this.Set(Key, Value)
         return Value
@@ -447,10 +444,8 @@ class IMap {
         if (this.Has(Key)) {
             OutValue := this.Delete(Key)
             return true
-        } else {
-            OutValue := unset
-            return false
         }
+        return false
     }
 
     /**
@@ -470,10 +465,8 @@ class IMap {
         if (this.Has(Key)) {
             OutValue := this.Get(Key)
             return true
-        } else {
-            OutValue := unset
-            return false
         }
+        return false
     }
 
     ;@endregion
