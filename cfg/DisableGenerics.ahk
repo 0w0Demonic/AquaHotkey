@@ -26,5 +26,5 @@
  * ; --> class LinkedList
  * L := LinkedList.OfType(Numeric)
  */
-class AquaHotkey_cfg_DisableGenerics {
+class AquaHotkey_cfg_DisableGenerics extends Any {
 }

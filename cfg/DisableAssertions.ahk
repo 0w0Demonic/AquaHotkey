@@ -18,5 +18,5 @@
  * ; immediately returns `Value` without performing any validation
  * Value.Assert(SomethingExpensive)
  */
-class AquaHotkey_cfg_DisableAssertions {
+class AquaHotkey_cfg_DisableAssertions extends Any {
 }

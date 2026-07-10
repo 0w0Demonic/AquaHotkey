@@ -14,5 +14,5 @@
  * ...
  * this.LogVerbose("logging something...")
  */
-class AquaHotkey_cfg_VerboseLogging {
+class AquaHotkey_cfg_VerboseLogging extends Any {
 }

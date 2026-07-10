@@ -19,5 +19,5 @@
  * ; immediately returns `Value` without type checking
  * Value.AssertType(SomethingComplicated)
  */
-class AquaHotkey_cfg_DisableTypeAssertions {
+class AquaHotkey_cfg_DisableTypeAssertions extends Any {
 }
