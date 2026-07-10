@@ -10,6 +10,13 @@
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class Nothing extends Any {
+    ; paranoia: don't let anyone mess around with this class
+    static __New() {
+        if (this != Nothing) {
+            throw ValueError("This class must not be extended")
+        }
+    }
+
     /**
      * Determines whether the value is considered instance of `Nothing`. This
      * is only true, if `Val == unset`.
@@ -20,7 +27,6 @@ class Nothing extends Any {
      * ; `.IsInstance()` duck type checks
      * Nothing.IsInstance(unset) ; true
      * Nothing.IsInstance(42)    ; false
-     * 
      */
     static IsInstance(Val?) => !IsSet(Val)
 
@@ -29,6 +35,8 @@ class Nothing extends Any {
      * `Nothing`. This method returns `true` if `T == Nothing`, otherwise
      * `false`.
      * 
+     * @param   {Any?}  T  any value
+     * @returns {Boolean}
      * @example
      * ; `.CanCastFrom()` type relations
      * Nothing.CanCastFrom(Any) ; false

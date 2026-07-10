@@ -22,15 +22,26 @@
  */
 class Nullable extends Class
 {
+    ;@region Support
+
+    ; TODO find out if this breaks anything
     ; (evil hacks)
     ; `extends Class` allows us to use methods such as `[]` (`Array.OfType()`).
     ; 
-    ; Because instance of `Nullable` are now expected to be classes, they're
-    ; expected to have a `Prototype`, but right now they don't; So let's fix
-    ; that. Just reuse the existing prototype defined here.
+    ; Because an instance of `Nullable` is now expected to be a class, it's
+    ; also expected to have a `Prototype`, but right now it doesn't; So let's
+    ; fix that. Just reuse the existing prototype defined here.
     static Prototype.Prototype := this.Prototype
-    ; TODO find out if this breaks anything
 
+    ; paranoia: don't let anyone mess around with this class
+    static __New() {
+        if (this != Nullable) {
+            throw ValueError("This class must not be extended")
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Construction
 
     /**
@@ -116,8 +127,6 @@ class Nullable extends Class
     ;---------------------------------------------------------------------------
     ;@region Duck Types
 
-    ; TODO need to add `static` versions for just `.Is(Nullable)`?
-
     /**
      * Determines whether the value is considered instance of this nullable
      * type.
@@ -145,24 +154,6 @@ class Nullable extends Class
         }
         return (this.T).CanCastFrom(Val)
     }
-
-    /**
-     * Returns a type-checked 2-parameter equality function for this class.
-     * 
-     * The function supports `unset` values.
-     * 
-     * @returns {Func}
-     * @example
-     * Eq := Optional(Map).Equals
-     * 
-     * Eq(Map(1, 2), Map(1, 2)) ; true
-     * Eq("foo", "bar")         ; TypeError! Expected a Map.
-     * 
-     * ; ==> true
-     * ; (`Map.Equals()` would've thrown)
-     * Eq(unset, unset)
-     */
-    Equals => ObjBindMethod(this, "Equals")
 
     /**
      * Determines whether two given values are equal.

@@ -4,7 +4,8 @@
  * @duck
  * 
  * A {@link AquaHotkey_DuckTypes duck type} that represents any callable
- * object `HasMethod()`.
+ * object `HasMethod()`. By convention (and any amount of self-respect),
+ * primitive values can *never* be considered callable.
  * 
  * @module  <Base/DuckTypes/Callable>
  * @author  0w0Demonic
@@ -12,8 +13,7 @@
  */
 class Callable extends Object {
     /**
-     * Determines whether the value is a callable object,
-     * excluding `.__Call()`.
+     * Determines whether the value is a callable object, excluding `.__Call()`.
      * 
      * @param   {Any}  Value  any value
      * @returns {Boolean}
@@ -22,11 +22,7 @@ class Callable extends Object {
      * Callable.IsInstance(MsgBox)                   ; true
      * ({ Call: (this) => this.Value }).Is(Callable) ; true
      */
-    static IsInstance(Val?) {
-        return IsSet(Val)
-            && IsObject(Val)
-            && HasMethod(Val)
-    }
+    static IsInstance(Val?) => IsSet(Val) && IsObject(Val) && HasMethod(Val)
 
     /**
      * Determines whether the given value is equal to this class,
