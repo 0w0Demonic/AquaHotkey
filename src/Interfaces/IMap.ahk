@@ -1,10 +1,6 @@
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 
-; TODO
-; - figure out whether to set `&OutValue` to `unset` on `.TryGet()` or
-;   `.TryDelete()` if no elements present
-
 /**
  * @interface
  * @description
@@ -253,22 +249,21 @@ class IMap {
         }
     }
 
-    /**
-     * Unsupported `.__Item[]` property.
-     * @see {@link Map#__Item}
-     */
-    __Item[Key] {
-        get {
-            throw PropertyError("not implemented")
-        }
-        set {
-            throw PropertyError("not implemented")
-        }
-    }
-    
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Default Methods
+
+    /**
+     * Default `.__Item[]` property that delegates to `.Get()` and `.Set()`.
+     * 
+     * @see {@link Map#__Item}
+     */
+    __Item[Key] {
+        get => this.Get(Key)
+        set {
+            this.Set(Key, value)
+        }
+    }
 
     /**
      * "Moves" an item by changing its key, and then returns the map itself.

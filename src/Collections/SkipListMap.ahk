@@ -533,20 +533,6 @@ class SkipListMap extends IMap {
         this.Size := 0
     }
 
-    /**
-     * Gets and sets items.
-     * 
-     * @param   {Any}  Key    any key
-     * @param   {Any}  Value  value associated with key
-     * @returns {Any}
-     */
-    __Item[Key] {
-        get => this.Get(Key)
-        set {
-            this.Set(Key, Value)
-        }
-    }
-
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region ToString()

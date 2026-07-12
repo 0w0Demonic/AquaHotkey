@@ -308,18 +308,6 @@ class OrderedMap extends IMap {
         get => (this.M).CaseSense
         set => ((this.M).CaseSense := value)
     }
-
-    /**
-     * Retrieves or sets an item in the map.
-     * 
-     * @param   {Any}  Key    item key
-     * @param   {Any}  value  item value
-     * @returns {Any}
-     */
-    __Item[Key] {
-        get => this.Get(Key)
-        set => this.Set(Key, Value)
-    }
 }
 
 /**

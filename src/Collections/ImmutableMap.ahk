@@ -108,14 +108,6 @@ class ImmutableMap extends IMap {
      */
     Default => (this.M).Default
 
-    /**
-     * Readonly `.__Item[]`.
-     * 
-     * @param   {Any}  Key  map key to be retrieved
-     * @returns {Any}
-     */
-    __Item[Key] => (this.M)[Key]
-
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Serialization

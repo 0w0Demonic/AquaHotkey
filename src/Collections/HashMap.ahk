@@ -428,19 +428,5 @@ class HashMap extends IMap {
         }
     }
 
-    /**
-     * Gets and sets items in the HashMap.
-     * 
-     * @param   {Any}  Key    map key
-     * @param   {Any}  Value  associated value
-     * @returns {Any}
-     */
-    __Item[Key] {
-        get => this.Get(Key)
-        set {
-            this.Set(Key, Value)
-        }
-    }
-
     ;@endregion
 }

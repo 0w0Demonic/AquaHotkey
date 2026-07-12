@@ -139,17 +139,6 @@ class WeakRefMap extends IMap {
     }
 
     /**
-     * Gets or sets items.
-     * 
-     * @property {Any}
-     * @param    {Any}  Key  map key
-     */
-    __Item[Key] {
-        get => this.Get(Key)
-        set => this.Set(Key, value)
-    }
-
-    /**
      * Case-sensitivity of the map.
      * 
      * @property {Integer}

@@ -7,6 +7,9 @@
 
 ;@region GenericMap
 
+; TODO find a way to switch off value checking to make interop with ISet easier
+; TODO probably remove `IDelegatingMap` again
+
 /**
  * Introduces generic maps, in which key-value pairs are enforced to
  * be instance of the given types.
