@@ -200,7 +200,7 @@ class AquaHotkey_WeakRef extends AquaHotkey {
         WeakRefs {
             get {
                 if (ObjHasOwnProp(this, "__Class")) {
-                    throw PropertyError(
+                    throw ValueError(
                             "Cannot be called directly from a prototype",,
                             this.__Class . ".Prototype")
                 }

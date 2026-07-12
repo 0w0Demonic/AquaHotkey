@@ -166,12 +166,15 @@ class IMap {
     ;---------------------------------------------------------------------------
     ;@region Unimplemented
 
+    ; dev-note: don't add `-2` because previous statement could be something
+    ;           big and ambiguous.
+
     /**
      * Unsupported `.Clear()` method.
      * @see {@link Map#Clear()}
      */
     Clear() {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -179,7 +182,7 @@ class IMap {
      * @see {@link Map#Delete()}
      */
     Delete(Key) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -187,7 +190,7 @@ class IMap {
      * @see {@link Map#Get()}
      */
     Get(Key, *) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
     
     /**
@@ -195,7 +198,7 @@ class IMap {
      * @see {@link Map#Has()}
      */
     Has(Key) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -203,7 +206,7 @@ class IMap {
      * @see {@link Map#Set()}
      */
     Set(*) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -211,7 +214,7 @@ class IMap {
      * @see {@link Map#__Enum()}
      */
     __Enum(ArgSize) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -230,10 +233,10 @@ class IMap {
      */
     Capacity {
         get {
-            throw PropertyError("not implemented")
+            throw MethodError("not implemented")
         }
         set {
-            throw PropertyError("not implemented")
+            throw MethodError("not implemented")
         }
     }
 

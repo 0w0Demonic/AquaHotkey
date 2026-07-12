@@ -213,7 +213,7 @@ class IArray {
      * @see {@link Array#__New}
      */
     __New(*) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -221,7 +221,7 @@ class IArray {
      * @see {@link Array#Clone}
      */
     Clone() {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -229,7 +229,7 @@ class IArray {
      * @see {@link Array#Delete}
      */
     Delete(Index) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -237,7 +237,7 @@ class IArray {
      * @see {@link Array#Get}
      */
     Get(Index, *) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -245,7 +245,7 @@ class IArray {
      * @see {@link Array#Has}
      */
     Has(Index) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -253,7 +253,7 @@ class IArray {
      * @see {@link Array#InsertAt}
      */
     InsertAt(Index, *) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -261,7 +261,7 @@ class IArray {
      * @see {@link Array#Pop}
      */
     Pop() {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -269,7 +269,7 @@ class IArray {
      * @see {@link Array#Push}
      */
     Push(Values*) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -277,7 +277,7 @@ class IArray {
      * @see {@link Array#RemoveAt}
      */
     RemoveAt(Index, Length?) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -285,7 +285,7 @@ class IArray {
      * @see {@link Array#_Enum}
      */
     __Enum(ArgSize) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**

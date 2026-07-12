@@ -156,7 +156,7 @@ class AquaHotkey_Comparable extends AquaHotkey
          * @returns {Integer}
          */
         Compare(Other) {
-            throw PropertyError("Not applicable for this type",, Type(this))
+            throw MethodError("Not applicable for this type",, Type(this))
         }
 
         /**

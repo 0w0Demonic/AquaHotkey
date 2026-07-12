@@ -133,7 +133,7 @@ class ISet {
      * MsgBox(S.Size) ; 2
      */
     Add(*) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -144,7 +144,7 @@ class ISet {
      * Clears the set.
      */
     Clear() {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -157,7 +157,7 @@ class ISet {
      * @returns {ISet}
      */
     Clone() {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -174,7 +174,7 @@ class ISet {
      * @returns {Integer}
      */
     Delete(Value, Values*) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -190,7 +190,7 @@ class ISet {
      * Set(1, 2, 3).Contains(3) ; true
      */
     Contains(Value) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
@@ -206,7 +206,7 @@ class ISet {
      * for Value in Set(1, 2, 3) { ... }
      */
     __Enum(ArgSize) {
-        throw PropertyError("not implemented")
+        throw MethodError("not implemented")
     }
 
     /**
