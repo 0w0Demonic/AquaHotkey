@@ -543,6 +543,7 @@ class Parser extends Func {
      * @returns  {Parser<R>}
      */
     ZeroOrMore(Combiner := Array, DefaultValue := []) {
+        ; TODO add monoid identity?
         return this.AtLeastOnce(Combiner).OrElse(DefaultValue)
     }
 
