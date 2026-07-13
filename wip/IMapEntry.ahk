@@ -9,19 +9,17 @@
 
 ; TODO move this class into e.g. `IMap`?
 ; TODO how to implement `.Clone()`?
+; TODO add immutable and dependant map entry?
 
 /**
- * Represents a key-value pair. Map entries may represent an item inside
- * an {@link IMap}, or be *independant* data.
+ * Represents a map entry consisting of a key and value. Map entries may either
+ * be part of an existing {@link IMap} or be independant data.
  * 
  * @module  <Interfaces/IMapEntry>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class IMapEntry {
-    ; TODO find out how to make construction easier
-    ; TODO should entries be mutable? How to specify different types of entries?
-
     ;@region Construction
 
     /**
@@ -96,7 +94,16 @@ class IMapEntry {
      * 
      * @returns {Boolean}
      */
-    Exists => (this is MapEntry) && (this.M).Has(this.Key)
+    Exists => false
+
+    /**
+     * Deletes this map entry from the backing map.
+     * 
+     * @returns {Any}
+     */
+    Delete() {
+        throw MethodError("not implemented")
+    }
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -110,6 +117,8 @@ class IMapEntry {
      */
     ToString() => Type(this)
         . " { " . String(this.Key) . ": " . String(this.Value) . " }"
+
+    ; TODO how to implement `Eq()` based on backing map
 
     /**
      * Determines whether this map entry is equal to the `Other`.
@@ -168,7 +177,6 @@ class IMapEntry {
     ;@endregion
 }
 
-
 ; TODO is serialization even possible on "dependant" entries?
 
 /**
@@ -209,6 +217,14 @@ class MapEntry extends IMapEntry {
             (this.M).Set(this.Key, value)
         }
     }
+
+    /**
+     * Determines whether this map entry is part of an existing item of
+     * an {@link IMap}.
+     * 
+     * @returns {Boolean}
+     */
+    Exists => (this.M).Has(this.Key)
 }
 
 ; TODO flyweight? use `.DefineProp()` to "inline" some props?
@@ -239,14 +255,6 @@ class MapEntrySet extends ISet {
     }
 
     ; TODO clone -- how?
-    /**
-     * Clones the entry set.
-     * 
-     * @returns {MapEntrySet}
-     */
-    Clone() {
-        throw PropertyError("not implemented yet")
-    }
 
     Delete(Entries*) {
         Count := 0
@@ -270,11 +278,20 @@ class MapEntrySet extends ISet {
             && (Entry.Key).Eq(Candidate)
     }
 
-    ; TODO allow `ArgSize == 2`?
+    /**
+     * Returns an {@link Enumerator} for this map entry set. Calling this method
+     * with two parameters returns the enumerator of the backing map.
+     * 
+     * @param  {Integer}  ArgSize  param count
+     * @returns {Enumerator}
+     * @example
+     * for Entry in EntrySet { ... }
+     * for Key, Value in EntrySet { ... }
+     */
     __Enum(ArgSize) {
         M := (this.M)
-        Enumer := M.__Enum(1)
-        return MapToEntries
+        Enumer := M.__Enum(2)
+        return (ArgSize > 1) ? MapToEntries : Enumer
 
         MapToEntries(&Out) {
             if (Enumer(&Key, &Value)) {
@@ -285,6 +302,11 @@ class MapEntrySet extends ISet {
         }
     }
 
+    /**
+     * The size of the map entry set.
+     * 
+     * @returns {Integer}
+     */
     Size => (this.M).Count
 }
 
@@ -295,6 +317,8 @@ class AquaHotkey_IMapEntry extends AquaHotkey {
     class IMap {
         static __New() {
             this.DefineProp("AsEntrySet", { Call: MapEntrySet })
+            this.DefineProp("Entry", { Get: MapEntry })
+            this.DefineProp("GetEntry", { Call: MapEntry })
         }
 
         ; TODO "inline" this
@@ -315,5 +339,23 @@ class AquaHotkey_IMapEntry extends AquaHotkey {
          * @returns {MapEntrySet}
          */
         ToEntrySet() => MapEntrySet(this.Clone())
+
+        ; TODO how to implement this?
+
+        /**
+         * Returns the map entry associated with this map and the given key.
+         * 
+         * @param   {Any}  Key  map entry key
+         * @returns {MapEntry}
+         */
+        Entry[Key] => MapEntry(this, Key)
+
+        /**
+         * Returns the map entry associated with this map and the given key.
+         * 
+         * @param   {Any}  Key  map entry key
+         * @returns {MapEntry}
+         */
+        GetEntry(Key) => MapEntry(this, Key)
     }
 }
