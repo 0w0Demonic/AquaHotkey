@@ -312,7 +312,9 @@ class AquaHotkey_Serializer {
           default:
             throw ValueError("invalid tag",, Tag . " (" . Ord(Tag) . ")")
         }
-        if (!ByRef) {
+
+        ; TODO find out how to deal with `return unset`
+        if ((!ByRef) && IsSet(Result)) {
             return Result
         }
     }
