@@ -5,6 +5,7 @@
 
 ; TODO
 ; - find a way to make URIs comparable
+; - add logic for creating and extracting URL query parameters
 
 ;@region Uri
 

@@ -13,6 +13,6 @@ Calling `.o0()` on any value accepts a function to pipe to, following by zero or
 "  Hello, world!  ".o0(Trim).o0(StrUpper).o0(MsgBox)
 ```
 
-<sub>(Note: `.o0()` kind of looks like water bubbles, hence the name)</sub>
+<sub>(Fun fact: the name of this method is kind of "AquaHotkey-themed" in the sense that it kind of looks like water bubbles.)</sub>
 
-Note: avoid using this feature when dealing with large strings.
+Note: avoid using this feature when dealing with large strings, you'll suffer from major performance overhead.

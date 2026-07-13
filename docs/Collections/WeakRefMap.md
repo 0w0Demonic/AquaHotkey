@@ -5,7 +5,7 @@
 
 ## Overview
 
-An [IMap](../Interfaces/IMap.md) with *weak* keys. As opposed to other collections, the presence of a key in this map won't prevent it from being disposed if via `.__Delete()`, in which case the associated value is automatically freed from the map.
+An [IMap](../Interfaces/IMap.md) with *weak* keys. As opposed to other collections, the presence of a key in this map won't prevent it from being disposed of via `.__Delete()`, in which case the associated value is automatically freed from the map.
 
 ```ahk
 M := WeakRefMap()

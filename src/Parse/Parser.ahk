@@ -5,6 +5,9 @@
 #Include "%A_LineFile%\..\..\Stream\DoubleStream.ahk"
 
 ;@region Parser
+
+; TODO allow `unset` as return value?
+
 /**
  * A simple parser combinator intended to parse grammers such as regex,
  * csv format string patterns etc.

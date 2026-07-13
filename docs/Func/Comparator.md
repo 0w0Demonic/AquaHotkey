@@ -46,17 +46,14 @@ You have several simple ways to create a comparator:
    You can also specify a mapper function to extract values to sort by, as you would in method [`.By()`](#composition):
 
    ```ahk
-   Comparator.Num(StrLen)            ; same as (Comparator.Num).By(StrLen)
-   Comparator.Alpha(Obj => Obj.Name) ; same as (Comparator.Num).By(Obj => Obj.Name)
+   Comparator.Num(StrLen)            ; (Comparator.Num).By(StrLen)
+   Comparator.Alpha(Obj => Obj.Name) ; (Comparator.Alpha).By(Obj => Obj.Name)
    ```
 
 3. **Compare by a mapped key**
-   Natural ordering, but through a mapper that extract the value to sort by.
 
    ```ahk
-   Prop(Name) => (Obj) => Obj.%Name%
-
-   ByName := Comparator.By(Prop("Name"))
+   ByName := Comparator.By("Name")
    ```
 
 4. **Roll your own two-parameter function**
@@ -99,8 +96,7 @@ Once you have a base comparator, you can transform it. Composition returns a fre
            ...
        }
    }
-   Prop(Name) => (Obj) => Obj.%Name%
-   C := Comparator.By(Prop("Major")).ThenBy(Prop("Minor")).ThenBy(Prop("Patch"))
+   C := Comparator.By("Major").ThenBy("Minor").ThenBy("Patch")
    ```
 
 - `.ThenNum(Args*)` and `.ThenAlpha(Args*)`: quick forms of
@@ -118,8 +114,6 @@ You can flip a comparator with `.Rev()`.
 ```ahk
 C := (Integer.Compare).Rev() ; descending numeric order
 ```
-
-Avoid calling `.Rev()` repeatedly, as each invocation wraps the function and performance degrades with deep nesting.
 
 ## Unset Handling
 
