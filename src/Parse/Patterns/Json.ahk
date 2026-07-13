@@ -12,12 +12,69 @@
 
 #Include "%A_LineFile%\..\..\Parser.ahk"
 
+; TODO use flag to allow comments inside the JSON file
+
 ;@region Json
 
 /**
  * @duck
  * 
  * Class used to represent JSON values and perform JSON parsing.
+ * 
+ * This class supports {@link AquaHotkey_DuckTypes duck types} and is a
+ * type wrapper. To determine whether a string is a valid JSON, you
+ * can use `Json.IsInstance(Str)` or `Str.Is(Json)`. To determine
+ * whether the string is a valid JSON with specific contents, you can use
+ * instances of `Json(T)`, where `T` is the inner type that the JSON
+ * represents.
+ * 
+ * ```ahk
+ * Object().Is(Json) ; false (not a JSON string)
+ * 
+ * "[1, 2, 3]".Is(Json) ; ==> true
+ * "[1, 2, 3]".Is(Json([Integer, Integer, Integer])) ; ==> true
+ * ```
+ * 
+ * Also understands how different types are related to each other:
+ * 
+ * ```ahk
+ * Json(Any).CanCastFrom(Json({ Key: String })) ; ==> true
+ * ```
+ * 
+ * To convert a JSON string into an AHK value, use `Str.ParseToJson()`
+ * or `Str.Parse(Json.Parser)`. Use AHK's continuation section to your
+ * advantage.
+ * 
+ * ```ahk
+ * "
+ * (
+ * {
+ *   "Value": 42
+ * }
+ * )".ParseToJson() ; { Value: 42 }
+ * ```
+ * 
+ * Values `Json.True`, `Json.False` and `Json.Null` are used to represent JSON
+ * `true`/`false`/`null`. You should use `.Is(Json.Null)` to assert that
+ * something is not null in the context of JSON. `Json.Boolean` is a type that
+ * represents either `Json.True` or `Json.False`.
+ *
+ * You can convert `Json.True` and `Json.False` into booleans by using
+ * `.AsBoolean()`.
+ * 
+ * ```ahk
+ * N := "null".ParseToJson()
+ * T := "true".ParseToJson()
+ * F := "false".ParseToJson()
+ * 
+ * N.Is(Json.Null) ; true
+ * 
+ * T.Is(Json.True)    ; true
+ * F.Is(Json.Boolean) ; true
+ * 
+ * ; `Json.True`/`Json.False` are subtypes of `Json.Boolean`
+ * (Json.Boolean).CanCastFrom(Json.True)
+ * ```
  * 
  * @module  <Parse/Patterns/Json>
  * @author  0w0Demonic
@@ -32,8 +89,27 @@ class Json extends Class
 
     ; (sets up the JSON parser as `Json.Parser { get; }`)
     static __New() {
-        static Define := {}.DefineProp
+        static Define := ({}.DefineProp)
+        static DefineGetter(Obj, Name, Getter) {
+            Define(Obj, Name, { Get: Getter })
+        }
+        static DefineConstGetter(Obj, Name, Value) {
+            DefineGetter(Obj, Name, Constantly(Value))
+        }
+        static DefineMethod(Obj, Name, Method) {
+            Define(Obj, Name, { Call: Method })
+        }
+        static DefineConstMethod(Obj, Name, Value) {
+            DefineMethod(Obj, Name, Constantly(Value))
+        }
+        static Constantly(Value) => (_) => (Value)
 
+        /**
+         * String concat.
+         * 
+         * @param   {String*}  Strs  strings
+         * @returns {String}
+         */
         static Concat(Strs*) {
             Result := ""
             for S in Strs {
@@ -42,8 +118,20 @@ class Json extends Class
             return Result
         }
 
+        /**
+         * 4 hex chars code point (Unicode escape) to corresponding character.
+         * 
+         * @param   {String}  Hex  4 hex digits
+         * @returns {String}
+         */
         static HexToChar(Hex) => Chr(Integer("0x" . Hex))
 
+        /**
+         * Properties (key-value pairs) to a single plain object.
+         * 
+         * @param   {Object*}  Props  object properties
+         * @returns {Object}
+         */
         static PropsToObj(Props*) {
             Result := {}
             for Prop in Props {
@@ -72,50 +160,74 @@ class Json extends Class
         UnicodeEscape := Parser.Regex("\\u\K[0-9a-fA-F]{4}").Map(HexToChar)
         Char := Parser.Regex("[\x{20}-\x{21}\x{23}-\x{5B}\x{5D}-\x{10FFFF}]")
 
-        Str := Parser.AnyOf(Char, NamedEscape, UnicodeEscape)
-                     .ZeroOrMore(Concat, "")
-                     .Between('"')
+        JsonStr := Parser.AnyOf(Char, NamedEscape, UnicodeEscape)
+            .ZeroOrMore(Concat, "")
+            .Between('"')
 
-        Exponent := Parser.Regex("(?:e|E)\K(?:\+|-)?(?:0|[0-9][1-9]*)")
-                          .Optional()
+        Exponent := Parser
+            .Regex("(?:e|E)\K(?:\+|-)?(?:0|[0-9][1-9]*)")
+            .Optional()
         
-        Num := Parser.Sequence(
+        JsonNum := Parser.Sequence(
             (Num, Exponent) => Number(Num) * (10 ** Exponent.OrElse(0)),
             Parser.Regex("-?(?:0|[1-9][0-9]*)(?:\.[0-9])?"),
             Exponent)
 
-        Value := Parser.Rule(&_Value)
+        JsonValue := Parser.Rule(&_JsonValue)
 
-        Prop := Parser.Sequence(
+        JsonProp := Parser.Sequence(
             (Key, Value) => { Key: Key, Value: Value },
-            Str.FollowedBy(Parser.String(":").Between(Ws)),
-            Value
+            JsonStr.FollowedBy(Parser.String(":").Between(Ws)),
+            JsonValue
         ).Between(Ws)
 
-        Obj := Prop.ZeroOrMoreDelimitedBy(CommaDelim, PropsToObj)
-                   .Between("{", "}")
+        JsonObj := JsonProp
+            .ZeroOrMoreDelimitedBy(CommaDelim, PropsToObj)
+            .Between("{", "}")
 
-        Arr := (Value.Between(Ws))
+        JsonArr := (JsonValue.Between(Ws))
             .ZeroOrMoreDelimitedBy(CommaDelim)
             .Between("[", "]")
 
-        T    := {}
-        F    := {}
-        Null := {}
-        Define(Null, "ToJson", { Call: (_) => "null"  })
-        Define(T,    "ToJson", { Call: (_) => "true"  })
-        Define(F,    "ToJson", { Call: (_) => "false" })
+        JsonTrue  := {}
+        JsonFalse := {}
+        JsonNull  := {}
+        JsonBool  := {}
+        JsonBool_IsInstance(_, Val?) {
+            return IsSet(Val)
+                && ((Val == JsonTrue)
+                 || (Val == JsonFalse))
+        }
+        JsonBool_CanCastFrom(_, Val?) {
+            return IsSet(Val)
+                && ((Val == JsonBool)
+                 || (Val == JsonTrue)
+                 || (Val == JsonFalse))
+        }
+        DefineMethod(JsonBool, "IsInstance", JsonBool_IsInstance)
+        DefineMethod(JsonBool, "CanCastFrom", JsonBool_CanCastFrom)
 
-        _Value := Parser.AnyOf(
-            Parser.String("true").Map((*) => T),
-            Parser.String("false").Map((*) => F),
-            Parser.String("null").Map((*) => Null),
-            Num, Str, Arr, Obj)
+        DefineConstMethod(JsonTrue, "AsBoolean", true)
+        DefineConstMethod(JsonFalse, "AsBoolean", false)
 
-        Define(this, "Parser", { Get: (_) => Value })
-        Define(this, "True", { Get: (_) => T })
-        Define(this, "False", { Get: (_) => F })
-        Define(this, "Null", { Get: (_) => Null })
+        DefineConstMethod(JsonNull,  "ToJson", "null")
+        DefineConstMethod(JsonTrue,  "ToJson", "true")
+        DefineConstMethod(JsonFalse, "ToJson", "false")
+
+        _JsonValue := Parser.AnyOf(
+            Parser.String("true").Map((*) => JsonTrue),
+            Parser.String("false").Map((*) => JsonFalse),
+            Parser.String("null").Map((*) => JsonNull),
+            JsonNum, JsonStr, JsonArr, JsonObj
+        ).Between(Ws)
+
+        JsonParser := JsonValue.Between(Ws)
+
+        DefineConstGetter(this, "Parser", JsonParser)
+        DefineConstGetter(this, "True", JsonTrue)
+        DefineConstGetter(this, "False", JsonFalse)
+        DefineConstGetter(this, "Null", JsonNull)
+        DefineConstGetter(this, "Boolean", JsonBool)
     }
 
     ;@endregion
@@ -139,6 +251,29 @@ class Json extends Class
 
     ;@endregion
     ;---------------------------------------------------------------------------
+    ;@region Conversion
+
+    /**
+     * Converts an AHK value into JSON.
+     * 
+     * @param   {Any}  Value  any value
+     * @returns {String}
+     */
+    static Stringify(Value) => Value.ToJson()
+
+    /**
+     * Converts a JSON string into an AHK value.
+     * 
+     * @param   {String}  Str  JSON string
+     * @returns {Any}
+     */
+    static Load(Str) {
+        static Psr := (Json.Parser)
+        return Psr.Parse(&Str)
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Duck Types
 
     /**
@@ -151,8 +286,10 @@ class Json extends Class
      * "giraffe".Is(Json) ; false
      */
     static IsInstance(Val?) {
-        return IsSet(Val) && (Val is Primitive)
-            && (this.Parser).Matches(&Val)
+        static Psr := (Json.Parser)
+        return IsSet(Val)
+            && (Val is Primitive)
+            && Psr.Matches(&Val)
     }
 
     /**
@@ -167,10 +304,11 @@ class Json extends Class
      * "foo".Is(Json(Number)) ; ==> false (not a JSON)
      */
     IsInstance(Val?) {
+        static Psr := (Json.Parser)
         if (!IsSet(Val) || !(Val is Primitive)) {
             return false
         }
-        Result := (Json.Parser)(&Val)
+        Result := Psr(&Val)
         return Result.Ok && (this.T).IsInstance(Result.Value)
     }
 
@@ -262,6 +400,21 @@ class Json extends Class
  * Extensions related to {@link Json}.
  */
 class AquaHotkey_ToJson extends AquaHotkey {
+    ;@region Any
+
+    class Any {
+        /**
+         * Unsupported `.ToJson()` method.
+         * 
+         * @returns {String}
+         */
+        ToJson() {
+            throw MethodError("not applicable")
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Primitive
 
     class Primitive {
@@ -272,7 +425,10 @@ class AquaHotkey_ToJson extends AquaHotkey {
          * @example
          * "[1, 2, 3, 4]".ToJson() ; ==> [1, 2, 3, 4] (AHK array)
          */
-        ParseToJson() => this.Parse(Json.Parser)
+        ParseToJson() {
+            static Psr := (Json.Parser)
+            return Psr.Parse(&this)
+        }
 
         /**
          * Converts this JSON string into an AHK value, applies the given
@@ -282,13 +438,8 @@ class AquaHotkey_ToJson extends AquaHotkey {
          * @returns {Json(Primitive)}
          */
         JsonTransform(Mapper) {
-            GetMethod(Mapper)
-
-            Result := (Json.Parser)(&this)
-            if (!Result.Ok) {
-                throw ValueError(Result.Err)
-            }
-            return Mapper(Result.Value).ToJson()
+            static Psr := (Json.Parser)
+            return Mapper(Psr.Parse(&this)).ToJson()
         }
     }
 
