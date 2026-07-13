@@ -281,7 +281,7 @@ class Parser extends Func {
      * @returns {Parser<R>}
      */
     static Regex(Pattern, Mapper?) => this.FirstRegex(
-        RegExReplace(Pattern, "^(?:[\w``]++\))?", "$0(*COMMIT)"),
+        RegExReplace(Pattern, "^(?:[\w``]++\))?", "$0(*COMMIT)(?:") . ")",
         Mapper?
     )
 
