@@ -41,7 +41,7 @@
  * Json(Any).CanCastFrom(Json({ Key: String })) ; ==> true
  * ```
  * 
- * To convert a JSON string into an AHK value, use `Str.ParseToJson()`
+ * To convert a JSON string into an AHK value, use `Str.ParseJson()`
  * or `Str.Parse(Json.Parser)`. Use AHK's continuation section to your
  * advantage.
  * 
@@ -51,7 +51,7 @@
  * {
  *   "Value": 42
  * }
- * )".ParseToJson() ; { Value: 42 }
+ * )".ParseJson() ; { Value: 42 }
  * ```
  * 
  * Values `Json.True`, `Json.False` and `Json.Null` are used to represent JSON
@@ -460,7 +460,7 @@ class AquaHotkey_ToJson extends AquaHotkey {
          * @example
          * "[1, 2, 3, 4]".ToJson() ; ==> [1, 2, 3, 4] (AHK array)
          */
-        ParseToJson() {
+        ParseJson() {
             static Psr := (Json.Parser)
             return Psr.Parse(&this)
         }
