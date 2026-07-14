@@ -488,7 +488,9 @@ class SkipListMap extends IMap {
             throw TypeError("Expected an Integer",, Type(ArgSize))
         }
         Curr := this.Head
-        return (ArgSize < 2) ? Enumer1 : Enumer2
+        Result := (ArgSize < 2) ? Enumer1 : Enumer2
+        ObjSetBase(Result, Enumerator.Prototype)
+        return Result
 
         Enumer1(&OutKey) {
             Node := Curr.Forward.Get(1)

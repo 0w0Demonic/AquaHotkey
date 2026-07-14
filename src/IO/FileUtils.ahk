@@ -55,9 +55,11 @@ class AquaHotkey_FileUtils extends AquaHotkey {
          */
         __Enum(n) {
             if (n > 1) {
+                ObjSetBase(Enumer2, Enumerator.Prototype)
                 return Enumer2
             }
             LineNumber := 0
+            ObjSetBase(Enumer1, Enumerator.Prototype)
             return Enumer1
 
             Enumer1(&Line) {

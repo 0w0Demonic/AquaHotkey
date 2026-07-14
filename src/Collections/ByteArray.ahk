@@ -177,7 +177,9 @@ class ByteArray extends IArray
      */
     __Enum(ArgSize) {
         Offset := 0
-        return (ArgSize <= 1) ? Enumer1 : Enumer2
+        Result := (ArgSize <= 1) ? Enumer1 : Enumer2
+        ObjSetBase(Result, Enumerator.Prototype)
+        return Result
         
         Enumer1(&Value) {
             if (Offset < this.Size) {

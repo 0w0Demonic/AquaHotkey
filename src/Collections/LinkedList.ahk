@@ -277,7 +277,9 @@ class LinkedList extends IArray {
         }
         Node := this.Head
         Idx  := 0
-        return (ArgSize < 2) ? Enumer1 : Enumer2
+        Result := (ArgSize < 2) ? Enumer1 : Enumer2
+        ObjSetBase(Result, Enumerator.Prototype)
+        return Result
 
         Enumer1(&Value) {
             if (!Node) {

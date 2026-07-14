@@ -291,7 +291,9 @@ class MapEntrySet extends ISet {
     __Enum(ArgSize) {
         M := (this.M)
         Enumer := M.__Enum(2)
-        return (ArgSize > 1) ? MapToEntries : Enumer
+        Result := (ArgSize > 1) ? MapToEntries : Enumer
+        ObjSetBase(Result, Enumerator.Prototype)
+        return Result
 
         MapToEntries(&Out) {
             if (Enumer(&Key, &Value)) {

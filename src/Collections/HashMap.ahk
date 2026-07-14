@@ -390,6 +390,7 @@ class HashMap extends IMap {
     __Enum(ArgSize) {
         Buckets := this.Buckets.__Enum(1)
         Entries := (*) => false
+        ObjSetBase(Enumer, Enumerator.Prototype)
         return Enumer
 
         Enumer(&Key, &Value?) {
@@ -404,7 +405,7 @@ class HashMap extends IMap {
                         return false
                     }
                 } until (Bucket)
-                Entries := Bucket.__Enum()
+                Entries := Bucket.__Enum(1)
             }
         }
     }

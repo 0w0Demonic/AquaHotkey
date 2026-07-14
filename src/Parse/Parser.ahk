@@ -95,12 +95,12 @@ class Parser extends Func {
         static IsWord(s) => IsAlpha(s) || IsDigit(s) || (s == "_")
 
         switch {
-          case (!IsSet(Str)):
-            return this.OneOrMore(IsWord, "word")
-          case (!(Str is Primitive)):
-            throw TypeError("Expected a String",, Type(Str))
-          default:
-            return this.String(Str, CaseSense?).NotFollowedBy(IsWord, "\w")
+            case (!IsSet(Str)):
+                return this.OneOrMore(IsWord, "word")
+            case (!(Str is Primitive)):
+                throw TypeError("Expected a String", , Type(Str))
+            default:
+                return this.String(Str, CaseSense?).NotFollowedBy(IsWord, "\w")
         }
     }
 
@@ -863,12 +863,12 @@ class Parser extends Func {
         SuchThat(&Input, Pos := 1) {
             Result := this(&Input, Pos)
             switch {
-              case (!Result.Ok):
-                return Result
-              case (!Condition(Result.Value)):
-                return MatchResult.Failure(Name, Pos)
-              default:
-                return Result
+                case (!Result.Ok):
+                    return Result
+                case (!Condition(Result.Value)):
+                    return MatchResult.Failure(Name, Pos)
+                default:
+                    return Result
             }
         }
     }

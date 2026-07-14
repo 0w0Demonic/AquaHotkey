@@ -235,37 +235,37 @@ class AquaHotkey_Serializer {
      */
     WriteObject(Val?, Refs := Map()) {
         switch {
-          ; <<<< primitive types + unset >>>>
-          case (!IsSet(Val)):
-            this.Write("u")
+            ; <<<< primitive types + unset >>>>
+            case (!IsSet(Val)):
+                this.Write("u")
 
-          case (ObjGetBase(Val) == String.Prototype):
-            this.Write('"')
-            this.WriteUInt(StrLen(Val))
-            this.Write(Val)
+            case (ObjGetBase(Val) == String.Prototype):
+                this.Write('"')
+                this.WriteUInt(StrLen(Val))
+                this.Write(Val)
 
-          case (IsInteger(Val)):
-            this.Write("i")
-            this.WriteInt64(Val)
+            case (IsInteger(Val)):
+                this.Write("i")
+                this.WriteInt64(Val)
 
-          case (IsFloat(Val)):
-            this.Write("f")
-            this.WriteDouble(Val)
+            case (IsFloat(Val)):
+                this.Write("f")
+                this.WriteDouble(Val)
 
-          ; <<<< objects >>>>
-          default:
-            if (!IsObject(Val)) {
-                throw TypeError("Expected an Object or primitive type",,
+            ; <<<< objects >>>>
+            default:
+                if (!IsObject(Val)) {
+                    throw TypeError("Expected an Object or primitive type",,
                         Type(Val))
-            }
-            Ref := Refs.Get(Val, 0)
-            if (Ref) {
-                this.Write("#")
-                this.WriteUInt(Ref)
-                return
-            }
-            Refs.Set(Val, Refs.Count + 1)
-            Val.Serialize(this, Refs)
+                }
+                Ref := Refs.Get(Val, 0)
+                if (Ref) {
+                    this.Write("#")
+                    this.WriteUInt(Ref)
+                    return
+                }
+                Refs.Set(Val, Refs.Count + 1)
+                Val.Serialize(this, Refs)
         }
     }
 

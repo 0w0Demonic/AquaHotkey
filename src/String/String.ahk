@@ -40,7 +40,9 @@ class AquaHotkey_String extends AquaHotkey {
         __Enum(n) {
             Pos := 0
             Len := StrLen(this)
-            return (n > 1) ? Enumer2 : Enumer1
+            Result := (n > 1) ? Enumer2 : Enumer1
+            ObjSetBase(Result, Enumerator.Prototype)
+            return Result
             
             ; for Character in ...
             Enumer1(&Out) {

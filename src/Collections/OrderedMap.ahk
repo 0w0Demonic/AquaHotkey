@@ -269,6 +269,7 @@ class OrderedMap extends IMap {
      */
     __Enum(ArgSize) {
         Node := this.Head
+        ObjSetBase(Enumer, Enumerator.Prototype)
         return Enumer
 
         Enumer(&Key, &Value?) {

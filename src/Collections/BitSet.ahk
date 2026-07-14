@@ -142,6 +142,7 @@ class BitSet extends ISet
      */
     __Enum(ArgSize) {
         i := 0
+        ObjSetBase(Enumer, Enumerator.Prototype)
         return Enumer
 
         Enumer(&Value) {

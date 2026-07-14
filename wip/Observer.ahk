@@ -52,19 +52,19 @@ class Observable {
         }
 
         switch {
-          case (AddRemove == 0): ; remove
-            OM.Delete(Callback)
-            if (!OM.Count) {
-                M.Delete(OM)
-            }
-          case (AddRemove > 0): ; call after
-            OM.Push(Callback, true)
-          case (AddRemove < 0): ; call before
-            OM.Shove(Callback, true)
-          default:
-            throw ValueError(
-                "invalid action",,
-                (AddRemove is Primitive) ? AddRemove : Type(AddRemove))
+            case (AddRemove == 0): ; remove
+                OM.Delete(Callback)
+                if (!OM.Count) {
+                    M.Delete(OM)
+                }
+            case (AddRemove > 0): ; call after
+                OM.Push(Callback, true)
+            case (AddRemove < 0): ; call before
+                OM.Shove(Callback, true)
+            default:
+                throw ValueError(
+                    "invalid action", ,
+                    (AddRemove is Primitive) ? AddRemove : Type(AddRemove))
         }
         return Callback
     }

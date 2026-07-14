@@ -145,6 +145,7 @@ class OverlayMap extends IMap
         Seen := IMap.BasedFrom(this.Additions).AsSet()
         Sources := Array(this.Additions, this.Parent).__Enum(1)
         Enumer := (*) => false
+        ObjSetBase(__Enum, Enumerator.Prototype)
         return __Enum
 
         __Enum(&Key, &Value?) {
