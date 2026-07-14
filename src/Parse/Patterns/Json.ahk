@@ -12,7 +12,7 @@
 
 #Include "%A_LineFile%\..\..\Parser.ahk"
 
-; TODO use flag to allow comments inside the JSON file
+; TODO add marker class to allow comments inside the JSON file
 
 ;@region Json
 
@@ -63,9 +63,9 @@
  * `.AsBoolean()`.
  * 
  * ```ahk
- * N := "null".ParseToJson()
- * T := "true".ParseToJson()
- * F := "false".ParseToJson()
+ * N := "null".ParseJson()
+ * T := "true".ParseJson()
+ * F := "false".ParseJson()
  * 
  * N.Is(Json.Null) ; true
  * 
@@ -74,6 +74,20 @@
  * 
  * ; `Json.True`/`Json.False` are subtypes of `Json.Boolean`
  * (Json.Boolean).CanCastFrom(Json.True)
+ * ```
+ * 
+ * This class supports JSONC, regular JSON but with C/C++-style comments, a
+ * feature that can be activated and deactivated by calling
+ * `Json.EnableComments()` and `Json.DisableComments()`. `Json.AllowsComments`
+ * holds the current option, and is readonly.
+ * 
+ * ```ahk
+ * Json.EnableComments()
+ * "
+ * (
+ * // this is a comment
+ * { "Key": /* this is fine too */ "Value" }
+ * )".ParseJson() ; { Key: Value }
  * ```
  * 
  * @module  <Parse/Patterns/Json>
@@ -144,10 +158,29 @@ class Json extends Class
             throw ValueError("this class must not be subclassed")
         }
 
-        Ws := Parser.Whitespace()
-        CommaDelim := Parser.String(",").Between(Ws)
+        static Ws := Parser.Rule(&_Ws)
 
-        Escapes := Map(
+        static WsWithoutComments := Parser.Regex("[\t\r\n ]*")
+        static WsWithComments := Parser.Regex("s)(?:[\t\r\n ]|//\V*+|/\*.*?\*/)*")
+
+        static _Ws := (IsSet(AquaHotkey_cfg_Json_AllowComments))
+            ? WsWithComments
+            : WsWithoutComments
+        
+        static Json_EnableComments(_) {
+            _Ws := WsWithComments
+        }
+        static Json_DisableComments(_) {
+            _Ws := WsWithoutComments
+        }
+
+        Define(this, "AllowsComments", { Get: (_) => (_Ws == WsWithComments )})
+        DefineMethod(this, "EnableComments", Json_EnableComments)
+        DefineMethod(this, "DisableComments", Json_DisableComments)
+
+        static CommaDelim := Parser.String(",").Between(Ws)
+
+        static Escapes := Map(
             "\\", "\",
             '\"', '"',
             "\b", "`b",
@@ -396,6 +429,8 @@ class Json extends Class
 ;-------------------------------------------------------------------------------
 ;@region Extensions
 
+; TODO construction of more complex objects through `.FromJson()`
+
 /**
  * Extensions related to {@link Json}.
  */
@@ -434,8 +469,8 @@ class AquaHotkey_ToJson extends AquaHotkey {
          * Converts this JSON string into an AHK value, applies the given
          * `Mapper` function, and then converts the result back into JSON.
          * 
-         * @param   {Callable}  Mapper  mapper function
-         * @returns {Json(Primitive)}
+         * @param   {(Any) => Any}  Mapper  mapper function
+         * @returns {String}
          */
         JsonTransform(Mapper) {
             static Psr := (Json.Parser)
