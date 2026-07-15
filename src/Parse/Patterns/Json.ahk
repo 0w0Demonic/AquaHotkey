@@ -5,7 +5,6 @@
 
 #Include "%A_LineFile%\..\..\..\Interfaces\IArray.ahk"
 #Include "%A_LineFile%\..\..\..\Interfaces\IMap.ahk"
-#Include "%A_LineFile%\..\..\..\Interfaces\ISet.ahk"
 
 #Include "%A_LineFile%\..\..\..\IO\Serial.ahk"
 #Include "%A_LineFile%\..\..\..\IO\Serializer.ahk"
@@ -17,16 +16,98 @@
 /**
  * @duck
  * 
- * Class used to represent JSON values and perform JSON parsing.
+ * Comprehensive JSON bindings, validation and type matching.
+ * 
+ * ---
+ * 
+ * ### Deserialization
+ * 
+ * Read a JSON string and convert it into an equivalent AHK value with
+ * `Str.ParseJson()` or `Json.Load(Str)`. When appropriate, use AHK's
+ * continuation section to your advantage. It's more feasible to use
+ * single-quote strings to avoid having to escape strings inside the JSON data.
+ * 
+ * ```ahk
+ * Json.Load('{ "Key": "Value" }')
+ * 
+ * "
+ * (
+ * {
+ *   "Value": 42
+ * }
+ * )".ParseJson() ; { Value: 42 }
+ * ```
+ * 
+ * By specifying a type in the `.ParseJson()` method (or as second parameter in
+ * `Json.Load()`), you can "cast" the resulting value into a more complex
+ * object. To implement your own deserialization, provide a method
+ * `.CastFromJson(Val)` for the type (usually a class, so that means a method
+ * `static CastFromJson(Val)`).
+ * 
+ * ```ahk
+ * '{ "FirstName": "John", "LastName": "Doe" }'.ParseJson(Person)
+ * ; ==> Person { FirstName = "John", LastName = "Doe" }
+ * 
+ * class Person {
+ *     __New(FirstName, LastName) {
+ *         this.FirstName := FirstName
+ *         this.LastName := LastName
+ *     }
+ * 
+ *     static CastFromJson(Val) {
+ *         ; (optional: ensure data is correct)
+ *         Val.AssertType({ FirstName: String, LastName: String })
+ *         return this(Val.FirstName, Val.LastName)
+ *     }
+ * }
+ * 
+ * ; alternatively:
+ * ; - `Json(Person).Load(' ... ')`
+ * ; - `Json.Load(' ... ', Person)`
+ * ```
+ * 
+ * ---
+ * 
+ * ### Serialization
+ * 
+ * Calling the `.ToJson()` method on any AHK value returns the equivalent
+ * as JSON string.
+ * 
+ * Provide your own `.ToJson()` if you want custom serialization. Make sure to
+ * use the existing methods to your advantage instead of creating a string
+ * manually.
+ * 
+ * ```ahk
+ * class Person {
+ *     ; ...
+ *     ToJson() => { FirstName: this.FirstName,
+ *                   LastName:  this.LastName,  }.ToJson()
+ *     ; ...
+ * }
+ * ```
+ * 
+ * There's a helper method `AquaHotkey_Json(&Value)` to help convert `unset`
+ * into `Json.Null`. Only custom `.ToJson()` methods should use this.
+ * 
+ * ```ahk
+ * Val := unset
+ * AquaHotkey_Json(&Val) ; (Val becomes `Json.Null`)
+ * ```
+ * 
+ * ---
+ * 
+ * ### Duck Types
  * 
  * This class offers great support for {@link AquaHotkey_DuckTypes duck types}
  * and can be used to validate JSON, optionally checking the values contained
- * inside the JSON.
+ * inside.
  * 
  * Use `Json.IsInstance(Str)` or `Str.Is(Json)` to determine whether `Str`
  * is a valid JSON document. The JSON class can be used as type wrapper: you
  * can use e.g. `Str.Is(Json({ Value: String }))` to determine that `Str`
  * string is a valid JSON containing an object `{ Value: String }`.
+ * 
+ * Beware of JSON values `true`, `false` and `null` (see sections below).
  * 
  * ```ahk
  * Object().Is(Json) ; false (not a JSON string)
@@ -41,44 +122,62 @@
  * Json(Any).CanCastFrom(Json({ Key: String })) ; ==> true
  * ```
  * 
- * To convert a JSON string into an AHK value, use `Str.ParseJson()`
- * or `Str.Parse(Json.Parser)`. Alternatively, you can use `Json.Load(Str)`.
+ * ---
  * 
- * When deserializing string literals, you should use AHK's continuation
- * section to your advantage.
+ * ### Booleans
  * 
- * ```ahk
- * "
- * (
- * {
- *   "Value": 42
- * }
- * )".ParseJson() ; { Value: 42 }
- * ```
- * 
- * Values `Json.True`, `Json.False` and `Json.Null` are used to represent JSON
- * `true`/`false`/`null`. You should use `.Is(Json.Null)` to assert that
- * something is not null in the context of JSON. `Json.Boolean` is a type that
- * represents either `Json.True` or `Json.False`.
- *
- * You can convert `Json.True` and `Json.False` into booleans by using
- * `.AsBoolean()`.
+ * Values `Json.True` and `Json.False` are special placeholders for JSON values
+ * `true` and `false`. They're not the same as AHK's booleans (which are just
+ * `1` and `0`).
  * 
  * ```ahk
- * N := "null".ParseJson()
- * T := "true".ParseJson()
- * F := "false".ParseJson()
- * 
- * N.Is(Json.Null) ; true
- * 
- * T.Is(Json.True)    ; true
- * F.Is(Json.Boolean) ; true
- * 
- * ; `Json.True`/`Json.False` are subtypes of `Json.Boolean`
- * (Json.Boolean).CanCastFrom(Json.True)
+ * (Json.True).ToJson() ; "true"
+ * (Json.False).ToJson() ; "false"
  * ```
  * 
- * This class supports JSONC, regular JSON but with C/C++-style comments, a
+ * `Json.Boolean` is a {@link AquaHotkey_DuckTypes duck type} with which you
+ * can determine whether a value is a JSON boolean. Otherwise, regular `is`
+ * works too.
+ * 
+ * ```ahk
+ * (Json.True).Is(Json.Boolean) ; true
+ * MsgBox(Json.True is Json.Boolean) ; true (`is` works, but prefer `.Is()`)
+ * ```
+ * 
+ * ---
+ * 
+ * ### Null
+ * 
+ * `Json.Null` is a placeholder that represents JSON `null`. You can use either
+ * `Value.Is(Json.Null)` or `Json.IsSet(Value)` to determine whether a value
+ * is null or not.
+ * 
+ * ```
+ * (Json.Null).Is(Json.Null) ; true
+ * 
+ * Json.IsSet([1, 2, 3]) ; true
+ * Json.IsSet(Json.Null) ; false
+ * ```
+ * 
+ * It's important to note that `unset` is NOT instance of `Json.Null`, because
+ * it should only be seen as placeholder value, and therefore conceptually
+ * speaking it's not the same as `unset` in AHK. This type gets no special
+ * treatment from {@link Nullable} or {@link Nothing}.
+ * 
+ * ```
+ * Json.IsSet(unset) ; UnsetError!
+ * 
+ * (Json.Null).IsInstance(unset) ; false
+ * (Json.Null).CanCastFrom(unset) ; false
+ * 
+ * (Json.Null).Is(Nothing) ; false
+ * ```
+ * 
+ * ---
+ * 
+ * ### JSONC
+ * 
+ * This class supports JSONC (regular JSON but with C/C++-style comments), a
  * feature that can be activated and deactivated by calling
  * `Json.EnableComments()` and `Json.DisableComments()`. `Json.AllowsComments`
  * holds the current option (as a boolean), and is readonly.
@@ -91,9 +190,9 @@
  * 
  * "
  * (
- * // this is a comment
- * { "Key": /* this is fine too */ "Value" }
- * )".ParseJson() ; { Key: Value }
+ * // single-line comment
+ * { "Key": /* multi-line comment */ "Value" }
+ * )".ParseJson() ; { Key: "Value" }
  * ```
  * 
  * @module  <Parse/Patterns/Json>
@@ -128,13 +227,37 @@ class Json extends Class
          * @returns {Boolean}
          */
         CanCastFrom(Val?) => IsSet(Val) && ((this == Val) || HasBase(Val, this))
+
+        ; TODO be more lenient?
+        /**
+         * Converts the given value into a JSON boolean. The value must either
+         * already be a JSON boolean (either `Json.True` or `Json.False`), or
+         * explicitly an AHK boolean (`true`/`1` or `false`/`0`).
+         * 
+         * @param   {Json.Boolean|Boolean}  Val  boolean value
+         * @returns {Json.Boolean}
+         */
+        static Call(Val) {
+            if (Val is this) {
+                return Val
+            }
+            if (!(Val is Integer)) {
+                throw TypeError("Expected a Json.Boolean or Boolean",, Type(Val))
+            }
+            if (Val & 0xFFFFFFFFFFFFFFFE) {
+                throw ValueError("Invalid boolean (must be 1 or 0)",, Val)
+            }
+            return (Val) ? Json.True : Json.False
+        }
     }
 
     /**
-     * JSON boolean `true`. During initialization, this class is renamed to
-     * `Json.True`.
+     * @singleton
+     * 
+     * JSON boolean `true`. 
      */
     class __True extends Json.Boolean {
+        ; note: During initialization, this class is renamed to `Json.True`.
         /**
          * Determines whether the given value equals `Json.True`.
          * 
@@ -168,10 +291,12 @@ class Json extends Class
     }
 
     /**
-     * JSON boolean `false`. During initialization, this class is renamed to
-     * `Json.False`.
+     * @singleton
+     * 
+     * JSON boolean `false`.
      */
     class __False extends Json.Boolean {
+        ; note: During initialization, this class is renamed to `Json.False`.
         /**
          * Determines whether the given value is equal to `Json.False`.
          * 
@@ -214,17 +339,17 @@ class Json extends Class
     class Null extends Any {
         /**
          * Determines whether the given value is equal to `Json.Null`.
-         * @param   {Any}  Val  any value
+         * @param   {Any?}  Val  any value
          * @returns {Boolean}
          */
-        IsInstance(Val?) => !IsSet(Val) || (this == Val)
+        IsInstance(Val?) => IsSet(Val) && (this == Val)
 
         /**
          * Determines whether the given value is equal to `Json.Null`.
-         * @param   {Any}  Val  any value
+         * @param   {Any?}  Val  any value
          * @returns {Boolean}
          */
-        CanCastFrom(Val?) => !IsSet(Val) || (this == Val)
+        CanCastFrom(Val?) => IsSet(Val) && (this == Val)
 
         /**
          * Converts this null value into JSON (`null`).
@@ -240,6 +365,14 @@ class Json extends Class
          */
         ToString() => "Json.Null"
     }
+    
+    /**
+     * Determines whether the given value is equal to `Json.Null`.
+     * 
+     * @param   {Any?}  Val  any value
+     * @returns {Boolean}
+     */
+    static IsSet(Val) => (Val != Json.Null)
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -327,7 +460,7 @@ class Json extends Class
         static Comments := Parser.Regex("s)(?:[\t\r\n ]|//\V*+|/\*.*?\*/)*")
 
         static _Ws := (IsSet(AquaHotkey_cfg_Json_AllowComments))
-            ? WsWithComments
+            ? Comments
             : NoComments
         
         static Json_EnableComments(_) {
@@ -338,7 +471,7 @@ class Json extends Class
         }
 
         ; TODO make this mutable?
-        static Json_AllowsComments(_) => (_Ws == WsWithComments)
+        static Json_AllowsComments(_) => (_Ws == Comments)
 
         DefineGetter(this, "AllowsComments", Json_AllowsComments)
         DefineMethod(this, "EnableComments", Json_EnableComments)
@@ -434,12 +567,30 @@ class Json extends Class
     /**
      * Converts a JSON string into an AHK value.
      * 
-     * @param   {String}  Str  JSON string
+     * @param   {String|VarRef<String>}  Str  JSON string
+     * @param   {Any?}                   T    the type to be constructed
      * @returns {Any}
      */
-    static Load(Str) {
-        static Psr := (Json.Parser)
-        return Psr.Parse(&Str)
+    static Load(Str, T?) {
+        if (Str is VarRef) {
+            Str := %Str%
+        }
+        Result := (Json.Parser).Parse(&Str)
+        return IsSet(T) ? T.CastFromJson(Result) : Result
+    }
+
+    /**
+     * Converts the JSON string into an AHK value, casted into the inner type
+     * described by this instance.
+     * 
+     * @param   {String|VarRef<String>}  Str  JSON string
+     * @returns {Any}
+     */
+    Load(Str) {
+        if (Str is VarRef) {
+            Str := %Str%
+        }
+        return (this.T).CastFromJson((Json.Parser).Parse(&Str))
     }
 
     ;@endregion
@@ -456,10 +607,7 @@ class Json extends Class
      * "giraffe".Is(Json) ; false
      */
     static IsInstance(Val?) {
-        static Psr := (Json.Parser)
-        return IsSet(Val)
-            && (Val is Primitive)
-            && Psr.Matches(&Val)
+        return IsSet(Val) && (Val is Primitive) && (Json.Parser).Matches(&Val)
     }
 
     /**
@@ -474,11 +622,10 @@ class Json extends Class
      * "foo".Is(Json(Number)) ; ==> false (not a JSON)
      */
     IsInstance(Val?) {
-        static Psr := (Json.Parser)
         if (!IsSet(Val) || !(Val is Primitive)) {
             return false
         }
-        Result := Psr(&Val)
+        Result := (Json.Parser)(&Val)
         return Result.Ok && (this.T).IsInstance(Result.Value)
     }
 
@@ -765,11 +912,8 @@ class AquaHotkey_Json extends AquaHotkey {
          * "[1, 2, 3, 4]".ToJson() ; ==> [1, 2, 3, 4] (AHK array)
          */
         ParseJson(T?) {
-            static Psr := (Json.Parser)
-            Result := Psr.Parse(&this)
-
-            return (IsSet(T)) ? T.CastFromJson(Result)
-                              : Result
+            Result := (Json.Parser).Parse(&this)
+            return (IsSet(T)) ? T.CastFromJson(Result) : Result
         }
 
         /**
@@ -779,10 +923,7 @@ class AquaHotkey_Json extends AquaHotkey {
          * @param   {(Any) => Any}  Mapper  mapper function
          * @returns {String}
          */
-        JsonTransform(Mapper) {
-            static Psr := (Json.Parser)
-            return Mapper(Psr.Parse(&this)).ToJson()
-        }
+        JsonTransform(Mapper) => Mapper((Json.Parser).Parse(&this)).ToJson()
     }
 
     ;@endregion
@@ -866,6 +1007,8 @@ class AquaHotkey_Json extends AquaHotkey {
     ;@region Object
 
     class Object {
+        ; TODO allow non-plain objects to serialize?
+
         /**
          * Converts this object into a JSON string.
          * 
@@ -952,7 +1095,7 @@ class AquaHotkey_Json extends AquaHotkey {
      * Helper function that converts a value into a JSON string, with
      * additional `unset` support.
      * 
-     * Only custom `.ToJson()` method should call this method.
+     * Only custom `.ToJson()` methods should call this.
      * 
      * @param   {VarRef<Any?>}  Val  (in, out) any value
      */
@@ -964,14 +1107,3 @@ class AquaHotkey_Json extends AquaHotkey {
 }
 
 ;@endregion
-
-#Include <AquaHotkeyX>
-
-Json.EnableComments()
-
-"
-(
-// this is fine
-{ "foo": "bar" }
-)".ParseJson(SkipListMap).ToString().MsgBox()
-
