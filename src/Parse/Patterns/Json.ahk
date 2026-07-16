@@ -480,19 +480,30 @@ class Json extends Class
         static CommaDelim := Parser.String(",").Between(Ws)
 
         static Escapes := Map(
-            "\\", "\",
-            '\"', '"',
-            "\b", "`b",
-            "\f", "`f",
-            "\n", "`n",
-            "\r", "`r",
-            "\t", "`t"
+            "\", "\",
+            '"', '"',
+            "b", "`b",
+            "f", "`f",
+            "n", "`n",
+            "r", "`r",
+            "t", "`t"
         )
-        NamedEscape := Parser.Regex("\\[`"\\bfnrt]").Map(S => Escapes[S])
-        UnicodeEscape := Parser.Regex("\\u\K[0-9a-fA-F]{4}").Map(HexToChar)
-        Char := Parser.Regex("[\x{20}-\x{21}\x{23}-\x{5B}\x{5D}-\x{10FFFF}]")
 
-        JsonStr := Parser.AnyOf(Char, NamedEscape, UnicodeEscape)
+        MakeDebug(Name) {
+            Debug(Value) {
+                MsgBox(Name . ": " . Value)
+                return Value
+            }
+            return Debug
+        }
+
+        NamedEscape := Parser.Regex('["\\bfnrt]').Map(S => Escapes[S])
+        UnicodeEscape := Parser.Regex('[0-9a-fA-F]{4}').Map(HexToChar)
+        Escape := Parser.String("\").Then(Parser.AnyOf(NamedEscape, UnicodeEscape))
+
+        Char := Parser.Regex('(?!")[\x{20}-\x{21}\x{23}-\x{5B}\x{5D}-\x{10FFFF}]')
+
+        JsonStr := Parser.AnyOf(Escape, Char)
             .ZeroOrMore(Concat, "")
             .Between('"')
 
