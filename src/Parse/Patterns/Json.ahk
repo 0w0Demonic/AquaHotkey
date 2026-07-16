@@ -514,11 +514,13 @@ class Json extends Class
         ).Between(Ws)
 
         JsonObj := JsonProp
-            .ZeroOrMoreDelimitedBy(CommaDelim, PropsToObj)
+            .AtLeastOnceDelimitedBy(CommaDelim, PropsToObj)
+            .OrElseGet(Object)
             .Between("{", "}")
 
         JsonArr := (JsonValue.Between(Ws))
-            .ZeroOrMoreDelimitedBy(CommaDelim)
+            .AtLeastOnceDelimitedBy(CommaDelim, Array)
+            .OrElseGet(Array)
             .Between("[", "]")
 
         _JsonValue := Parser.AnyOf(
