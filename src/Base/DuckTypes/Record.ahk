@@ -69,11 +69,14 @@ class Record extends Class
      * 
      * MsgBox(Cats.Is( Record(CatName, CatInfo) )) ; true
      */
-    __New(KeyType, ValueType) {
+    static Call(KeyType, ValueType) {
         ; note: no validation, because any value implements `IsInstance()`,
         ;       which is a valid type pattern.
-        this.DefineProp("KeyType",   { Get: (_) => KeyType   })
-        this.DefineProp("ValueType", { Get: (_) => ValueType })
+        Cls := {}
+        ({}.DefineProp)(Cls, "KeyType", { Get: (_) => KeyType })
+        ({}.DefineProp)(Cls, "ValueType", { Get: (_) => ValueType })
+        ObjSetBase(Cls, this.Prototype)
+        return Cls
     }
 
     ;@endregion
@@ -201,7 +204,7 @@ class Record extends Class
     Deserialize(Input, Refs) {
         Input.ReadObject(&KeyType, Refs)
         Input.ReadObject(&ValueType, Refs)
-        this.__Init()
-        this.__New(KeyType, ValueType)
+        ({}.DefineProp)(this, "KeyType", { Get: (_) => KeyType })
+        ({}.DefineProp)(this, "ValueType", { Get: (_) => ValueType })
     }
 }
