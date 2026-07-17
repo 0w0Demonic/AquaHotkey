@@ -16,6 +16,29 @@
  * This class is a simplified rewrite of `java.net.URI`, and follows the same
  * logic. Parsing authorities into smaller parts is not supported.
  * 
+ * You can extend this class's functionality by creating a subclass of `Uri`
+ * and providing an enumerable (such as an array) as property `static Schemes`:
+ * 
+ * ```ahk
+ * class HttpUri extends Uri {
+ *     static Schemes => ["http", "https"]
+ * }
+ * 
+ * HttpUri("https://www.github.com") ; o.k. (returns a `HttpUri`)
+ * Uri("https://www.github.com") ; o.k. (also returns a `HttpUri`)
+ * 
+ * HttpUri("mailto:user@example.com") ; TypeError!
+ * ```
+ * 
+ * Supports {@link AquaHotkey_DuckTypes duck types}, if present.
+ * 
+ * ```
+ * "mailto:user@example.com".Is(Uri)     ; true
+ * "mailto:user@example.com".Is(HttpUri) ; false
+ * 
+ * String.CanCastFrom(Uri) ; true (`Uri` is a subclass of `String`)
+ * ```
+ * 
  * @module  <Net/HashSet>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
@@ -25,6 +48,16 @@ class Uri {
     ;@region Uri Handlers
 
     static __New() {
+        ; evil hack:
+        ; - we need `Uri` instances to be objects, which means they need to
+        ;   inherit from `Object.Prototype`
+        ; - we want `Uri` to be considered a subtype of `String`
+        ; 
+        ; solution: change base object of the class, but not the prototype.
+        if (this == Uri) {
+            ObjSetBase(this, String)
+        }
+
         for Scheme in this.Schemes {
             (Uri.Types).Set(Scheme, this)
         }
@@ -103,9 +136,6 @@ class Uri {
      * percent escapes (such as `%fa` into `%FA`), but no URL encoding/decoding
      * is done.
      * 
-     * Parameter #2 is internal and meant for serialization support; avoid
-     * using it.
-     * 
      * @constructor
      * @param   {String}   Str  string that represents a URI
      * @param   {Object?}  r    plain object that should be constructed
@@ -133,6 +163,9 @@ class Uri {
      * either an instance of {@link Uri} or an {@link Error} into `&Out`.
      * Returns `true` on success, otherwise `false`.
      * 
+     * When called by a subclass, asserts that the scheme is correct
+     * (see {@link Uri.Schemes}).
+     * 
      * @param   {String}             Str  string that represents a URI
      * @param   {VarRef<Uri|Error>}  Out  (out) output Uri or Error
      * @returns {Boolean}
@@ -151,10 +184,6 @@ class Uri {
         (?&badChar) | (?&badEscape)
         )"
 
-        if (this != Uri) {
-            Out := MethodError("Method must be called directly by Uri class")
-            return false
-        }
         if (!(Str is String)) {
             Out := TypeError("Expected a String",, Type(Str))
             return false
@@ -230,6 +259,11 @@ class Uri {
             b.DefineProp("RawFragment", { Get: (_) => Frag })
         }
         Out := r
+        if (!(Out is this)) {
+            Out := TypeError(
+                    "Expected a(n) " . this.Prototype.__Class,,
+                    Type(Out))
+        }
         return true
 
         ; [//authority]<path>[?<query>]
@@ -922,6 +956,51 @@ class AquaHotkey_Uri extends AquaHotkey {
          * @returns {Uri}
          */
         ToUri() => Uri(this)
+    }
+
+    static __New() {
+        this.Requires(AquaHotkey_DuckTypes?, "Uri")
+        super.__New()
+    }
+
+    class Uri {
+        /**
+         * Determines whether the given value is a valid instance {@link Uri}.
+         * 
+         * This is the case, if `is Uri`, or if the value is a string
+         * containing a valid URI.
+         * 
+         * Supports the use of subclasses (for example `HttpUri`) which - in
+         * this case - determine that the URI has a `http` or `https` schema.
+         * 
+         * For more information, see {@link Uri.Schemes}.
+         * 
+         * @param   {Any?}  Val  any value
+         * @returns {Boolean}
+         * @example
+         * Uri("https://www.github.com").Is(Uri) ; true
+         * "https://www.github.com".Is(Uri) ; also true
+         * 
+         * class HttpUri extends Uri {
+         *     static Schemes => ["http", "https"]
+         * }
+         * 
+         * "mailto:user@example.com".Is(Uri)     ; true
+         * "mailto:user@example.com".Is(HttpUri) ; false
+         */
+        static IsInstance(Val?) {
+            if (!IsSet(Val)) {
+                return false
+            }
+            if (Val is Primitive) {
+                this.TryParse(Val, &Val)
+            }
+            return (Val is this)
+        }
+
+        ; note: we forced `static CanCastFrom(Val?)` to work by setting
+        ;       the base class of `Uri` (the class object, not the prototype)
+        ;       to `class String`.
     }
 }
 
