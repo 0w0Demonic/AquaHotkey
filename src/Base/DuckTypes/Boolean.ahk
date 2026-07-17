@@ -75,7 +75,7 @@ class AquaHotkey_Boolean extends AquaHotkey {
                 Val := TypeError("Expected a Json.Boolean",, Type(Val))
                 return false
             }
-            Val := (Val && (Json ?? {}).True)
+            Val := (Val && Json.True)
             return true
         }
     }

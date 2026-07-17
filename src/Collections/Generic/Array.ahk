@@ -630,9 +630,7 @@ class AquaHotkey_GenericArray extends AquaHotkey {
                 Val := TypeError("Expected a plain array",, Type(Val))
                 return false
             }
-            A := this.ArrayType
             C := this.ComponentType
-
             Result := Array()
             for Value in Val {
                 if (!C.CastFromJson(&Value)) {
@@ -641,7 +639,6 @@ class AquaHotkey_GenericArray extends AquaHotkey {
                 }
                 Result.Push(Value?)
             }
-            A.CastFromJson(&Result)
             Val := this(Result*)
             return true
         }
