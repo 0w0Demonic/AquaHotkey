@@ -1,4 +1,4 @@
-#Include "%A_LineFile%\..\..\..\wip\BufferEditor.ahk"
+; #Include "%A_LineFile%\..\..\..\wip\BufferEditor.ahk"
 #Include "%A_LineFile%\..\..\Base\TypeInfo.ahk"
 #Include "%A_LineFile%\..\Serial.ahk"
 
@@ -201,6 +201,7 @@
  *     this.Y := Y
  *   }
  *   Serialize(Output, Refs) {
+ *     (Object.Prototype.Serialize)(this, Output, Refs)
  *     Output.WriteDouble(this.X)
  *     Output.WriteDouble(this.Y)
  *   }
@@ -216,7 +217,7 @@
  * @see     https://www.github.com/0w0Demonic
  */
 class AquaHotkey_Serializer {
-    static __New() => this.ApplyOnto(File, BufferEditor)
+    static __New() => this.ApplyOnto(File, BufferEditor?)
 
     ;@region .WriteObject()
 
