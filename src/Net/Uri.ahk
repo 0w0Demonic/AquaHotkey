@@ -997,6 +997,13 @@ class AquaHotkey_Uri extends AquaHotkey {
             }
             return (Val is this)
         }
+        
+        /**
+         * Returns the string representation of this URI.
+         * 
+         * @returns {String}
+         */
+        ToJson() => String(this)
 
         ; note: we forced `static CanCastFrom(Val?)` to work by setting
         ;       the base class of `Uri` (the class object, not the prototype)

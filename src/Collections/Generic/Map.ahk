@@ -9,6 +9,7 @@
 
 ; TODO find a way to switch off value checking to make interop with ISet easier
 ; TODO probably remove `IDelegatingMap` again
+; TODO `.ToString()` names itself "map" twice -- change that?
 
 /**
  * Introduces generic maps, in which key-value pairs are enforced to
@@ -385,6 +386,7 @@ class AquaHotkey_GenericMap extends AquaHotkey {
             return
         }
 
+        this.Requires(AquaHotkey_Json?, "GenericMap")
         if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
             ({}.DefineProp)(this.IMap, "OfType", { Call: Disabled_OfType })
         }
@@ -404,6 +406,46 @@ class AquaHotkey_GenericMap extends AquaHotkey {
         static OfType(K, V) => AquaHotkey.CreateClass(GenericMap,
                 unset,
                 this, K, V)
+    }
+
+    class GenericMap {
+        /**
+         * Casts a JSON value into a generic map.
+         * 
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
+         */
+        static CastFromJson(&Val) {
+            static GetProp := {}.GetOwnPropDesc
+
+            if (ObjGetBase(Val) != Object.Prototype) {
+                Val := TypeError("Expected a plain object",, Type(Val))
+                return false
+            }
+            K := this.KeyType
+            V := this.ValueType
+
+            Result := Array()
+            for PropName in ObjOwnProps(Val) {
+                PropDesc := GetProp(Val, PropName)
+                if (!ObjHasOwnProp(PropDesc, "Value")) {
+                    Val := PropertyError("Not a value property",, PropDesc)
+                    return false
+                }
+                Value := PropDesc.Value
+                if (!K.CastFromJson(&PropName)) {
+                    Val := PropName
+                    return false
+                }
+                if (!V.CastFromJson(&Value)) {
+                    Val := Value
+                    return false
+                }
+                Result.Push(PropName, Value)
+            }
+            Val := this(Result*)
+            return true
+        }
     }
 }
 

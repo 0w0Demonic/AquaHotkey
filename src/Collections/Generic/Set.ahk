@@ -369,6 +369,7 @@ class AquaHotkey_GenericSet extends AquaHotkey {
             return
         }
 
+        this.Requires(AquaHotkey_Json?, "GenericSet")
         if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
             ({}.DefineProp)(this.ISet, "OfType", { Call: Disabled_OfType })
         }

@@ -195,3 +195,27 @@ class Nullable extends Class
 
     ;@endregion
 }
+
+/**
+ * Support for {@link Json} deserialization.
+ */
+class AquaHotkey_Nullable extends AquaHotkey {
+    static __New() => (IsSet(Json) && IsSet(AquaHotkey_Json)) && super.__New()
+
+    class Nullable {
+        /**
+         * Casts the JSON value into this nullable type.
+         * 
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
+         */
+        CastFromJson(&Val) {
+            IsSet(Json)
+            if (Val == Json.Null) {
+                Val := unset
+                return true
+            }
+            return (this.T).CastFromJson(&Val)
+        }
+    }
+}

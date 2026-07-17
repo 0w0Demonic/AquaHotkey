@@ -6,7 +6,7 @@
 #Include "%A_LineFile%\..\..\..\IO\Serial.ahk"
 #Include "%A_LineFile%\..\..\..\Interfaces\IArray.ahk"
 
-; TODO make this switch to `LinkedList` or something similar, if <v2.1-alpha.3?
+; TODO allow any amount of constraints? Would be cool.
 
 ;@region GenericArray
 
@@ -102,12 +102,12 @@ class GenericArray extends IArray
      * Arr_MaybeString := GenericArray(Array, String, Nullable)
      */
     static __New(A?, T?, C?) {
+        static Define := {}.DefineProp
+        static Delete := {}.DeleteProp
+
         if (this == GenericArray) {
             return
         }
-
-        static Define := {}.DefineProp
-        static Delete := {}.DeleteProp
 
         if (!IsSet(A)) {
             throw UnsetError("unset; Expected an IArray class")
@@ -580,6 +580,7 @@ class AquaHotkey_GenericArray extends AquaHotkey {
             return
         }
 
+        this.Requires(AquaHotkey_Json?, "GenericArray")
         if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
             ({}.DefineProp)(this.IArray, "OfType", { Call: Disabled_OfType })
         }
@@ -614,6 +615,35 @@ class AquaHotkey_GenericArray extends AquaHotkey {
             return AquaHotkey.CreateClass(GenericArray,
                     unset, ; class name is created by `static __New()`
                     this, T, Constraint?)
+        }
+    }
+
+    class GenericArray {
+        /**
+         * Casts a JSON value into a generic array.
+         * 
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
+         */
+        static CastFromJson(&Val) {
+            if (ObjGetBase(Val) != Array.Prototype) {
+                Val := TypeError("Expected a plain array",, Type(Val))
+                return false
+            }
+            A := this.ArrayType
+            C := this.ComponentType
+
+            Result := Array()
+            for Value in Val {
+                if (!C.CastFromJson(&Value)) {
+                    Val := Value
+                    return false
+                }
+                Result.Push(Value?)
+            }
+            A.CastFromJson(&Result)
+            Val := this(Result*)
+            return true
         }
     }
 }

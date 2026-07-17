@@ -1,3 +1,4 @@
+#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\DuckTypes.ahk"
 
 /**
@@ -48,4 +49,29 @@ class Nothing extends Any {
      * Nothing.CanCastFrom(Nothing) ; true
      */
     static CanCastFrom(T?) => (!IsSet(T)) || (T == Nothing)
+}
+
+/**
+ * {@link Json.Null} to {@link Nothing} conversion.
+ */
+class AquaHotkey_Nothing extends AquaHotkey {
+    static __New() => (IsSet(Json) && IsSet(AquaHotkey_Json)) && super.__New()
+    
+    class Nothing {
+        /**
+         * Converts {@link Json.Null} into `unset`.
+         * 
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
+         */
+        static CastFromJson(&Val) {
+            IsSet(Json)
+            if (Val != Json.Null) {
+                Val := TypeError("Expected Json.Null",, Type(Val))
+                return false
+            }
+            Val := unset
+            return true
+        }
+    }
 }

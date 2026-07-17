@@ -1,6 +1,8 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\Serializer.ahk"
 
+; TODO Error serialization?
+
 /**
  * Implements value-level serialization and deserialization for objects
  * supported by the {@link AquaHotkey_Serializer AquaHotkey binary serializer}.

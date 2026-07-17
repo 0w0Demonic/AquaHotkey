@@ -585,11 +585,11 @@ class Json extends Class
      * @returns {Any}
      */
     static Load(Str, T?) {
-        if (Str is VarRef) {
-            Str := %Str%
+        Result := (Json.Parser).Parse((Str is VarRef) ? Str : &Str)
+        if (IsSet(T) && !T.CastFromJson(&Result)) {
+            throw Result
         }
-        Result := (Json.Parser).Parse(&Str)
-        return IsSet(T) ? T.CastFromJson(Result) : Result
+        return Result
     }
 
     /**
@@ -600,10 +600,11 @@ class Json extends Class
      * @returns {Any}
      */
     Load(Str) {
-        if (Str is VarRef) {
-            Str := %Str%
+        Result := (Json.Parser).Parse((Str is VarRef) ? Str : &Str)
+        if (!(this.T).CastFromJson(&Result)) {
+            throw Result
         }
-        return (this.T).CastFromJson((Json.Parser).Parse(&Str))
+        return Result
     }
 
     ;@endregion
@@ -747,11 +748,12 @@ class AquaHotkey_Json extends AquaHotkey {
         /**
          * Unsupported `.CastFromJson()` method.
          * 
-         * @param   {Any}  Val  any value
-         * @returns {Any}
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
          */
-        CastFromJson(Val) {
-            throw MethodError("not applicable")
+        CastFromJson(&Val) {
+            Val := MethodError("not applicable")
+            return false
         }
     }
 
@@ -764,15 +766,16 @@ class AquaHotkey_Json extends AquaHotkey {
          * Asserts that the given JSON value is instance of this class,
          * returning the value itself.
          * 
-         * @param   {Any}  Val  any value
-         * @returns {Any}
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
          */
-        CastFromJson(Val) {
-            if (!(Val is this)) {
-                throw TypeError("Expected type " . this.Prototype.__Class,,
-                        Type(Val))
+        CastFromJson(&Val) {
+            if (Val is this) {
+                return true
             }
-            return Val
+            Val := TypeError("Expected type " . this.Prototype.__Class,,
+                    Type(Val))
+            return false
         }
 
         ; TODO add `.ToJson()`?
@@ -787,14 +790,15 @@ class AquaHotkey_Json extends AquaHotkey {
          * Reconstructs a map from the given JSON value. The value must be a
          * plain object.
          * 
-         * @param   {Any}  Val  any value
-         * @returns {Any}
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
          */
-        static CastFromJson(Val) {
+        static CastFromJson(&Val) {
             static GetProp := {}.GetOwnPropDesc
 
             if (ObjGetBase(Val) != Object.Prototype) {
-                throw TypeError("Expected a plain object",, Type(Val))
+                Val := TypeError("Expected a plain object",, Type(Val))
+                return false
             }
 
             Arr := Array()
@@ -805,7 +809,8 @@ class AquaHotkey_Json extends AquaHotkey {
                 }
                 Arr.Push(PropName, PropDesc.Value)
             }
-            return this(Arr*)
+            Val := this(Arr*)
+            return true
         }
 
         /**
@@ -841,37 +846,46 @@ class AquaHotkey_Json extends AquaHotkey {
         /**
          * Reconstructs an array from the given JSON value.
          * 
-         * @param   {Any}  Val  any value
-         * @returns {Any}
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
          */
-        static CastFromJson(Val) {
-            if (ObjGetBase(Val) != Array.Prototype) {
-                throw TypeError("Expected a plain Array",, Type(Val))
+        static CastFromJson(&Val) {
+            if (ObjGetBase(Val) == Array.Prototype) {
+                Val := this(Val*)
+                return true
             }
-            return this(Val*)
+            Val := TypeError("Expected a plain Array",, Type(Val))
+            return false
         }
 
         /**
          * Constructs an array from a JSON value, based on the contents of
          * this array. The JSON value must be a plain array of the same length.
          * 
-         * @param   {Any}  Val  any value
-         * @returns {Any}
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
          */
-        CastFromJson(Val) {
+        CastFromJson(&Val) {
             if (ObjGetBase(Val) != Array.Prototype) {
-                throw TypeError("Expected a plain array",, Type(Val))
+                Val := TypeError("Expected a plain array",, Type(Val))
+                return false
             }
             if (Val.Length != this.Length) {
-                throw ValueError("invalid size (TODO error message)")
+                Val := ValueError(
+                    "invalid size (expected " . this.Length . ")",,
+                    Val.Length)
+                return false
             }
-
-            ; TODO figure out what to do with `unset`
             Result := IArray.BasedFrom(this)
             loop (this.Length) {
-                Result.Push(this[A_Index].CastFromJson(Val[A_Index]))
+                Val := Val.Has(A_Index) ? Val[A_Index] : unset
+                if (!this[A_Index].CastFromJson(&Val)) {
+                    return false
+                }
+                Result.Push(Val?)
             }
-            return Result
+            Val := Result
+            return true
         }
 
         /**
@@ -904,10 +918,10 @@ class AquaHotkey_Json extends AquaHotkey {
          * Converts an AHK value by applying this function and returning
          * the result.
          * 
-         * @param   {Any}  Val  any value
-         * @returns {Any}
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
          */
-        static CastFromJson(Val) => this(Val)
+        static CastFromJson(&Val) => this(&Val)
     }
 
     ;@endregion
@@ -926,7 +940,10 @@ class AquaHotkey_Json extends AquaHotkey {
          */
         ParseJson(T?) {
             Result := (Json.Parser).Parse(&this)
-            return (IsSet(T)) ? T.CastFromJson(Result) : Result
+            if (IsSet(T) && !T.CastFromJson(&Result)) {
+                throw Result
+            }
+            return Result
         }
 
         /**
@@ -955,10 +972,17 @@ class AquaHotkey_Json extends AquaHotkey {
          * Converts the given JSON value into a number. Throws, if unable
          * to convert.
          * 
-         * @param   {Any}  Val  any value
-         * @returns {Any}
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
          */
-        CastFromJson(Val) => this(Val)
+        CastFromJson(&Val) {
+            if (!IsNumber(Val)) {
+                Val := TypeError("Expected a Number",, Type(Val))
+                return false
+            }
+            Val := this(Val)
+            return true
+        }
     }
 
     ;@endregion
@@ -1004,14 +1028,16 @@ class AquaHotkey_Json extends AquaHotkey {
          * Casts a JSON value into a string. Only casts from numbers to
          * strings are supported.
          * 
-         * @param   {Any}  Val  any value
-         * @returns {Any}
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
          */
-        static CastFromJson(Val) {
+        static CastFromJson(&Val) {
             if (!(Val is Primitive)) {
-                throw TypeError("Expected a String",, Type(Val))
+                Val := TypeError("Expected a String",, Type(Val))
+                return false
             }
-            return String(Val)
+            Val := String(Val)
+            return true
         }
     }
 
@@ -1064,18 +1090,20 @@ class AquaHotkey_Json extends AquaHotkey {
          * object. For each property defined in this object there must exist an
          * equivalent in the JSON value.
          * 
-         * @param   {Any}  Any  any value
-         * @returns {Any}
+         * @param   {VarRef<Any|Error>}  Any  any value
+         * @returns {Boolean}
          */
-        CastFromJson(Val) {
+        CastFromJson(&Val) {
             static GetProp := {}.GetOwnPropDesc
             static Define  := {}.DefineProp
 
             if (ObjGetBase(this) != Object.Prototype) {
-                throw TypeError("Expected a plain object",, Type(this))
+                Val := TypeError("Expected a plain object",, Type(this))
+                return false
             }
             if (ObjGetBase(Val) != Object.Prototype) {
-                throw TypeError("Expected a plain object",, Type(Val))
+                Val := TypeError("Expected a plain object",, Type(Val))
+                return false
             }
 
             Result := Object()
@@ -1087,16 +1115,27 @@ class AquaHotkey_Json extends AquaHotkey {
                 T := PropDesc.Value
 
                 if (!ObjHasOwnProp(Val, PropName)) {
-                    throw PropertyError("property not found",, PropName)
+                    Val := PropertyError("property not found",, PropName)
+                    return false
                 }
                 PropDesc := GetProp(Val, PropName)
                 if (!ObjHasOwnProp(PropDesc, "Value")) {
-                    throw PropertyError("not a value property")
+                    ; TODO draw info from descriptors?
+                    Val := PropertyError("not a value property",, PropName)
+                    return false
                 }
-                Value := T.CastFromJson(PropDesc.Value)
-                Define(Result, PropName, { Value: Value })
+                Value := PropDesc.Value
+                if (!T.CastFromJson(&Value)) {
+                    Val := Value
+                    return false
+                }
+
+                if (IsSet(Value)) {
+                    Define(Result, PropName, { Value: Value })
+                }
             }
-            return Result
+            Val := Result
+            return true
         }
     }
 

@@ -357,6 +357,10 @@ class Optional {
         return Type(this) . " { " . String(this.Value) . " }"
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Serialization
+
     /**
      * Serializes this optional into binary.
      * 
@@ -456,6 +460,11 @@ class Optional {
  * Provides a universal `.Optional()` method.
  */
 class AquaHotkey_Optional extends AquaHotkey {
+    static __New() {
+        this.Requires(AquaHotkey_Json?, "Optional")
+        super.__New()
+    }
+
     class Any {
         static __New() {
             ({}.DefineProp)(this.Prototype, "ToOptional", { Call: Optional })
@@ -470,6 +479,54 @@ class AquaHotkey_Optional extends AquaHotkey {
          * @returns {Optional}
          */
         ToOptional() => Optional(this)
+    }
+
+    class Optional {
+        /**
+         * Converts a JSON value into an optional.
+         * 
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
+         */
+        static CastFromJson(&Val) {
+            IsSet(Json)
+            Val := (Val == Json.Null) ? Optional() : Optional(Val)
+            return true
+        }
+
+        /**
+         * Converts a JSON value into an optional with specific value.
+         * 
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
+         */
+        CastFromJson(&Val) {
+            IsSet(Json)
+            if (Val == Json.Null) {
+                Val := Optional()
+                return true
+            }
+
+            ; '"something"'.ParseJson(Optional.Empty())
+            if (!ObjHasOwnProp(this, "Value")) {
+                Val := TypeError("cannot cast to empty optional",, Type(Val))
+                return false
+            }
+            if (!(this.Value).CastFromJson(&Val)) {
+                return false
+            }
+            Val := Optional(Val)
+            return true
+        }
+
+        /**
+         * Converts this {@link Optional} into a JSON value.
+         * 
+         * @returns {String}
+         */
+        ToJson() => ObjHasOwnProp(this, "Value")
+                ? (this.Value).ToJson()
+                : "null"
     }
 }
 

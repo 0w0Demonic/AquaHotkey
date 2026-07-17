@@ -1,5 +1,7 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
+; TODO Error JSON (de)serialization?
+
 /**
  * Error utility.
  * 

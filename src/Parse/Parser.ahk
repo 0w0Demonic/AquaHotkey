@@ -30,6 +30,9 @@
  * @template T type of output value on successful parsing
  */
 class Parser extends Func {
+    ; `AquaHotkey_FuncCasting` explicitly needs to load first
+    static __New() => (AquaHotkey_FuncCasting)
+
     ;@region Patterns
 
     /**

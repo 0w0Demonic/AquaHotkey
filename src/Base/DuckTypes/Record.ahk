@@ -208,3 +208,5 @@ class Record extends Class
         ({}.DefineProp)(this, "ValueType", { Get: (_) => ValueType })
     }
 }
+
+; TODO implement JSON deser. Note that JSON is case-sensitive.

@@ -55,3 +55,28 @@ class Boolean extends Integer {
                         Type(A) . ", " . Type(B))
     }
 }
+
+/**
+ * {@link Json.Boolean} to {@link Boolean} conversion.
+ */
+class AquaHotkey_Boolean extends AquaHotkey {
+    static __New() => (IsSet(AquaHotkey_Json) && IsSet(Json)) && super.__New()
+
+    class Boolean {
+        /**
+         * Casts a {@link Json.Boolean} into a regular AHK boolean.
+         * 
+         * @param   {VarRef<Any|Error>}  Val  any value
+         * @returns {Boolean}
+         */
+        static CastFromJson(&Val) {
+            IsSet(Json)
+            if (!(Val is Json.Boolean)) {
+                Val := TypeError("Expected a Json.Boolean",, Type(Val))
+                return false
+            }
+            Val := (Val && (Json ?? {}).True)
+            return true
+        }
+    }
+}

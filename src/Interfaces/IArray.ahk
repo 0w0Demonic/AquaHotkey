@@ -15,6 +15,14 @@
  * Implementing this interface also requires either a constructor of either
  * `static Call(Values*)` or `__New(Values*)`.
  * 
+ * Ensuring maximum compatibility with IArray requires fulfilling the following
+ * contracts:
+ * 
+ * - The array must be constructible by calling `.__Init()`, followed by
+ *   `.__New()` with no arguments.
+ * - `.__Enum()` MUST support a 1-parameter for-loop.
+ * - Array indices MUST be 1-based.
+ * 
  * @module  <Interfaces/IArray>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
