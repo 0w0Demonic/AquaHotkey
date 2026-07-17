@@ -184,7 +184,7 @@ class Uri {
         (?&badChar) | (?&badEscape)
         )"
 
-        if (!(Str is String)) {
+        if (!(Str is Primitive)) {
             Out := TypeError("Expected a String",, Type(Str))
             return false
         }
@@ -944,9 +944,13 @@ class Uri {
 ;-------------------------------------------------------------------------------
 ;@region Extensions
 
+/**
+ * Extensions related to {@link Uri}.
+ */
 class AquaHotkey_Uri extends AquaHotkey {
     class String {
         static __New() {
+            ; "inline" this
             ({}.DefineProp)(this.Prototype, "ToUri", { Call: Uri })
         }
 
@@ -959,7 +963,9 @@ class AquaHotkey_Uri extends AquaHotkey {
     }
 
     static __New() {
-        this.Requires(AquaHotkey_DuckTypes?, "Uri")
+        this.Requires(AquaHotkey_DuckTypes?, "Uri.IsInstance")
+        this.Requires(AquaHotkey_Json?, "Uri.Prototype.ToJson",
+                                        "Uri.CastFromJson")
         super.__New()
     }
 
@@ -1005,6 +1011,15 @@ class AquaHotkey_Uri extends AquaHotkey {
          */
         ToJson() => String(this)
 
+        /**
+         * Casts a JSON value (a string) into a URI.
+         * 
+         * @param   {VarRef<Any>}  Val  any value
+         */
+        static CastFromJson(&Val) {
+            Val := this(Val)
+        }
+
         ; note: we forced `static CanCastFrom(Val?)` to work by setting
         ;       the base class of `Uri` (the class object, not the prototype)
         ;       to `class String`.
@@ -1012,3 +1027,4 @@ class AquaHotkey_Uri extends AquaHotkey {
 }
 
 ;@endregion
+
