@@ -17,16 +17,17 @@ class AquaHotkey_FuncCasting extends AquaHotkey {
          * Returns an instance of this class from the specified `Func` or `Call`
          * method of an object.
          * 
-         * @param   {Object}  Fn  function or callable object
+         * @param   {Object}   Fn          function or callable object
+         * @param   {String?}  MethodName  method name
          * @returns {Func}
          * @example
          * Pred := Predicate(IsNumber)
          * Pred.Is(Predicate) ; true
          * IsNumber.Is(Predicate) ; false
          */
-        static Call(Fn) {
+        static Call(Fn, MethodName?) {
             GetMethod(Fn)
-            return this.Cast(ObjBindMethod(Fn))
+            return this.Cast(ObjBindMethod(Fn, MethodName?))
         }
 
         /**
