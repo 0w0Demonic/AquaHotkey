@@ -7,6 +7,8 @@
  * Implements value-level serialization and deserialization for objects
  * supported by the {@link AquaHotkey_Serializer AquaHotkey binary serializer}.
  * 
+ * ---
+ * 
  * ### Overview
  *
  * This class provides the concrete serialization logic for runtime values,
@@ -52,11 +54,11 @@
  * be 100% explicit.
  *
  * This writes the required object prefix and registers the object within
- * the reference system. Afterward, only the object-specific data needs
+ * the reference system. After that, only the object-specific data needs
  * to be written.
  *
- * The structure of the serialized body is implementation-defined, but it
- * should describe the characteristics that uniquely reconstruct the object,
+ * The structure of the serialized body is implementation-defined. It should
+ * describe the characteristics that uniquely reconstruct the object,
  * similar in spirit to {@link AquaHotkey_Eq equality}- or
  * {@link AquaHotkey_Hash hash}-relevant state.
  *
@@ -96,7 +98,7 @@
  * ```ahk
  * class GenericArray extends IArray {
  *   Serialize(Output, Refs) {
- *     super.Serialize(Output, Refs)
+ *     (Object.Prototype.Serialize)(this, Output, Refs)
  *     Output.WriteObject(this.ArrayType, Refs)
  *     Output.WriteObject(this.ComponentType, Refs)
  *     Output.WriteUInt(this.Length)
