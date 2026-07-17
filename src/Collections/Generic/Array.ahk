@@ -622,25 +622,19 @@ class AquaHotkey_GenericArray extends AquaHotkey {
         /**
          * Casts a JSON value into a generic array.
          * 
-         * @param   {VarRef<Any|Error>}  Val  any value
-         * @returns {Boolean}
+         * @param   {VarRef<Any>}  Val  any value
          */
         static CastFromJson(&Val) {
             if (ObjGetBase(Val) != Array.Prototype) {
-                Val := TypeError("Expected a plain array",, Type(Val))
-                return false
+                throw TypeError("Expected a plain array",, Type(Val))
             }
             C := this.ComponentType
             Result := Array()
             for Value in Val {
-                if (!C.CastFromJson(&Value)) {
-                    Val := Value
-                    return false
-                }
+                C.CastFromJson(&Value)
                 Result.Push(Value?)
             }
             Val := this(Result*)
-            return true
         }
     }
 }

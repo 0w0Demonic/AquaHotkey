@@ -206,16 +206,15 @@ class AquaHotkey_Nullable extends AquaHotkey {
         /**
          * Casts the JSON value into this nullable type.
          * 
-         * @param   {VarRef<Any|Error>}  Val  any value
-         * @returns {Boolean}
+         * @param   {VarRef<Any>}  Val  any value
          */
         CastFromJson(&Val) {
             IsSet(Json)
             if (Val == Json.Null) {
                 Val := unset
-                return true
+            } else {
+                (this.T).CastFromJson(&Val)
             }
-            return (this.T).CastFromJson(&Val)
         }
     }
 }

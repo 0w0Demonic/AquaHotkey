@@ -66,17 +66,14 @@ class AquaHotkey_Boolean extends AquaHotkey {
         /**
          * Casts a {@link Json.Boolean} into a regular AHK boolean.
          * 
-         * @param   {VarRef<Any|Error>}  Val  any value
-         * @returns {Boolean}
+         * @param   {VarRef<Any>}  Val  any value
          */
         static CastFromJson(&Val) {
             IsSet(Json)
             if (!(Val is Json.Boolean)) {
-                Val := TypeError("Expected a Json.Boolean",, Type(Val))
-                return false
+                throw TypeError("Expected a Json.Boolean",, Type(Val))
             }
             Val := (Val && Json.True)
-            return true
         }
     }
 }

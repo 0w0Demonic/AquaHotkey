@@ -210,3 +210,4 @@ class Record extends Class
 }
 
 ; TODO implement JSON deser. Note that JSON is case-sensitive.
+

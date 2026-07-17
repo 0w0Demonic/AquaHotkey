@@ -412,15 +412,13 @@ class AquaHotkey_GenericMap extends AquaHotkey {
         /**
          * Casts a JSON value into a generic map.
          * 
-         * @param   {VarRef<Any|Error>}  Val  any value
-         * @returns {Boolean}
+         * @param   {VarRef<Any>}  Val  any value
          */
         static CastFromJson(&Val) {
             static GetProp := {}.GetOwnPropDesc
 
             if (ObjGetBase(Val) != Object.Prototype) {
-                Val := TypeError("Expected a plain object",, Type(Val))
-                return false
+                throw TypeError("Expected a plain object",, Type(Val))
             }
             K := this.KeyType
             V := this.ValueType
@@ -429,22 +427,16 @@ class AquaHotkey_GenericMap extends AquaHotkey {
             for PropName in ObjOwnProps(Val) {
                 PropDesc := GetProp(Val, PropName)
                 if (!ObjHasOwnProp(PropDesc, "Value")) {
-                    Val := PropertyError("Not a value property",, PropDesc)
-                    return false
+                    throw PropertyError("Not a value property",, PropDesc)
                 }
                 Value := PropDesc.Value
-                if (!K.CastFromJson(&PropName)) {
-                    Val := PropName
-                    return false
-                }
-                if (!V.CastFromJson(&Value)) {
-                    Val := Value
-                    return false
-                }
+
+                K.CastFromJson(&PropName)
+                V.CastFromJson(&Value)
+
                 Result.Push(PropName, Value)
             }
             Val := this(Result*)
-            return true
         }
     }
 }

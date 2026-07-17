@@ -485,38 +485,31 @@ class AquaHotkey_Optional extends AquaHotkey {
         /**
          * Converts a JSON value into an optional.
          * 
-         * @param   {VarRef<Any|Error>}  Val  any value
-         * @returns {Boolean}
+         * @param   {VarRef<Any>}  Val  any value
          */
         static CastFromJson(&Val) {
             IsSet(Json)
             Val := (Val == Json.Null) ? Optional() : Optional(Val)
-            return true
         }
 
         /**
          * Converts a JSON value into an optional with specific value.
          * 
-         * @param   {VarRef<Any|Error>}  Val  any value
-         * @returns {Boolean}
+         * @param   {VarRef<Any>}  Val  any value
          */
         CastFromJson(&Val) {
             IsSet(Json)
             if (Val == Json.Null) {
                 Val := Optional()
-                return true
+                return
             }
 
             ; '"something"'.ParseJson(Optional.Empty())
             if (!ObjHasOwnProp(this, "Value")) {
-                Val := TypeError("cannot cast to empty optional",, Type(Val))
-                return false
+                throw TypeError("cannot cast to empty optional",, Type(Val))
             }
-            if (!(this.Value).CastFromJson(&Val)) {
-                return false
-            }
-            Val := Optional(Val)
-            return true
+            (this.Value).CastFromJson(&Val)
+            Val := Optional(Val?)
         }
 
         /**
@@ -531,3 +524,4 @@ class AquaHotkey_Optional extends AquaHotkey {
 }
 
 ;@endregion
+

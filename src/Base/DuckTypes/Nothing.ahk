@@ -61,17 +61,14 @@ class AquaHotkey_Nothing extends AquaHotkey {
         /**
          * Converts {@link Json.Null} into `unset`.
          * 
-         * @param   {VarRef<Any|Error>}  Val  any value
-         * @returns {Boolean}
+         * @param   {VarRef<Any>}  Val  any value
          */
         static CastFromJson(&Val) {
             IsSet(Json)
             if (Val != Json.Null) {
-                Val := TypeError("Expected Json.Null",, Type(Val))
-                return false
+                throw TypeError("Expected Json.Null",, Type(Val))
             }
             Val := unset
-            return true
         }
     }
 }
