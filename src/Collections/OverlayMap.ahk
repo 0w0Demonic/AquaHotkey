@@ -1,11 +1,11 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 #Include "%A_LineFile%\..\..\Base\DuckTypes.ahk"
-#Include "%A_LineFile%\..\..\IO\Serial.ahk"
-#Include "%A_LineFile%\..\..\IO\Serializer.ahk"
 #Include "%A_LineFile%\..\Set.ahk"
 
-; TODO combine additions and deletions through "DELETED" as magic object?
+; TODO
+; - combine additions and deletions through "DELETED" as magic object?
+; - need to copy more than just changes, getting from original map is still O(n)
 
 /**
  * An immutable view of an existing {@link IMap} that has a set of added or
@@ -274,51 +274,6 @@ class OverlayMap extends IMap
     }
 
     ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes this map into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    previously seen objects
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-
-        Output.WriteUInt(this.Depth)
-        Output.WriteUChar(this.IsFlattened)
-        Output.WriteObject(this.Parent)
-        Output.WriteObject(this.Additions)
-        Output.WriteObject(this.Deletions)
-    }
-
-    /**
-     * Reconstructs this map from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   previously seen objects
-     */
-    Deserialize(Input, Refs) {
-        static Define := {}.DefineProp
-
-        Depth := Input.ReadUInt()
-        IsFlat := Input.ReadUChar()
-
-        Input.ReadObject(&Parent, Refs)
-        Input.ReadObject(&Additions, Refs)
-        Input.ReadObject(&Deletions, Refs)
-
-        if (IsFlat) {
-            Define(this, "IsFlattened", { Get: (_) => true })
-        }
-        Define(this, "Depth",     { Get: (_) => Depth     })
-        Define(this, "Parent",    { Get: (_) => Parent    })
-        Define(this, "Additions", { Get: (_) => Additions })
-        Define(this, "Deletions", { Get: (_) => Deletions })
-    }
-
-    ;@endregion
 }
 
 /**
@@ -356,3 +311,55 @@ class AquaHotkey_OverlayMap extends AquaHotkey {
         }
     }
 }
+
+/**
+ * {@link AquaHotkey_Serializer binary serialization} support for
+ * {@link OverlayMap}.
+ */
+class AquaHotkey_OverlayMap_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class OverlayMap {
+        /**
+         * Serializes this map into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    previously seen objects
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+
+            Output.WriteUInt(this.Depth)
+            Output.WriteUChar(this.IsFlattened)
+            Output.WriteObject(this.Parent)
+            Output.WriteObject(this.Additions)
+            Output.WriteObject(this.Deletions)
+        }
+
+        /**
+         * Reconstructs this map from binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   previously seen objects
+         */
+        Deserialize(Input, Refs) {
+            static Define := {}.DefineProp
+
+            Depth := Input.ReadUInt()
+            IsFlat := Input.ReadUChar()
+
+            Input.ReadObject(&Parent, Refs)
+            Input.ReadObject(&Additions, Refs)
+            Input.ReadObject(&Deletions, Refs)
+
+            if (IsFlat) {
+                Define(this, "IsFlattened", { Get: (_) => true })
+            }
+            Define(this, "Depth",     { Get: (_) => Depth     })
+            Define(this, "Parent",    { Get: (_) => Parent    })
+            Define(this, "Additions", { Get: (_) => Additions })
+            Define(this, "Deletions", { Get: (_) => Deletions })
+        }
+    }
+}
+

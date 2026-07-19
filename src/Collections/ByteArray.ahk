@@ -1,7 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IBuffer.ahk"
-#Include "%A_LineFile%\..\..\IO\Serializer.ahk"
 
 ; TODO refactor this to support different AHK number types / other structs
 ; TODO allow resizing the array with just `.Push()`, etc.
@@ -218,34 +217,6 @@ class ByteArray extends IArray
     ToBuffer() => (this.B).Clone()
 
     ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes this byte array into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteObject(this.B, Refs)
-    }
-
-    /**
-     * Constructs this byte array from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        Input.ReadObject(&B, Refs)
-        this.__New(B)
-    }
-
-    ;@endregion
 }
 
 ;@endregion
@@ -286,3 +257,36 @@ class AquaHotkey_ByteArray extends AquaHotkey {
     }
 }
 
+/**
+ * {@link AquaHotkey_Serializer binary serialization} support for
+ * {@link ByteArray}.
+ */
+class AquaHotkey_ByteArray_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class ByteArray {
+        /**
+         * Serializes this byte array into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Output.WriteObject(this.B, Refs)
+        }
+
+        /**
+         * Constructs this byte array from binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            Input.ReadObject(&B, Refs)
+            this.__New(B)
+        }
+    }
+}

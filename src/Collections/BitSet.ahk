@@ -183,34 +183,6 @@ class BitSet extends ISet
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes this bit set into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteObject(this.B)
-    }
-
-    /**
-     * Reconstructs the bit set from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        Input.ReadObject(&B, Refs)
-        Input.DefineProp("B", { Get: (_) => B })
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
     ;@region Conversion
 
     /**
@@ -254,3 +226,38 @@ class AquaHotkey_BitSet extends AquaHotkey {
         ToBitSet() => BitSet.FromBuffer(this.Clone())
     }
 }
+
+/**
+ * {@link AquaHotkey_Serializer binary serialization} support for
+ * {@link BitSet}.
+ */
+class AquaHotkey_BitSet_Serialization extends AquaHotkey {
+    class BitSet {
+        /**
+         * Serializes this bit set into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Output.WriteObject(this.B)
+        }
+
+        /**
+         * Reconstructs the bit set from binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            Input.ReadObject(&B, Refs)
+            Input.DefineProp("B", { Get: (_) => B })
+        }
+    }
+}
+
+;@endregion
+

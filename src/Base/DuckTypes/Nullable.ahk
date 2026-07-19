@@ -1,6 +1,9 @@
+#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\DuckTypes.ahk"
 #Include "%A_LineFile%\..\..\Eq.ahk"
 #Include "%A_LineFile%\..\..\Hash.ahk"
+
+;@region Nullable
 
 /**
  * @duck
@@ -82,6 +85,44 @@ class Nullable extends Class
     }
 
     /**
+     * Determines whether two given values are equal.
+     * 
+     * Both inputs are asserted to be *instances* of the calling class.
+     * For example, `Array.Equals(A, B)` will assert that `A is Array` and
+     * `B is Array`.
+     * 
+     * This method supports `unset` values. `unset == unset` is evaluated to
+     * `true`.
+     * 
+     * @param   {Any?}  A  value 1
+     * @param   {Any?}  B  value 2
+     * @returns {Boolean}
+     * @see {@link AquaHotkey_Eq}
+     * @example
+     * Nullable(String).Equals("foo", "bar") ; false
+     * Nullable(String).Equals([1, 2], "")   ; TypeError! Expected a String.
+     * 
+     * ; ==> true
+     * ; (`String.Equals()` would've thrown.)
+     * Nullable(String).Equals(unset, unset)
+     */
+    Equals(A?, B?) {
+        if (!IsSet(A)) {
+            return (!IsSet(B))
+        }
+        if (!IsSet(B)) {
+            return false
+        }
+        if (!(this.T).IsInstance(A)) {
+            throw TypeError("Unexpected argument type: param #1")
+        }
+        if (!(this.T).IsInstance(B)) {
+            throw TypeError("Unexpected argument type: param #2")
+        }
+        return (A == B) || A.Eq(B)
+    }
+
+    /**
      * Returns a hash code for this nullable type.
      * 
      * @returns {Integer}
@@ -94,34 +135,6 @@ class Nullable extends Class
      * @returns {String}
      */
     ToString() => "Nullable<" . String(this.T) . ">"
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes this nullable type into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteObject(this.T, Refs)
-    }
-
-    /**
-     * Reconstructs this nullable type from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        Input.ReadObject(&T, Refs)
-        this.DefineProp("T", { Get: (_) => T })
-    }
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -155,52 +168,18 @@ class Nullable extends Class
         return (this.T).CanCastFrom(Val)
     }
 
-    /**
-     * Determines whether two given values are equal.
-     * 
-     * Both inputs are asserted to be *instances* of the calling class.
-     * For example, `Array.Equals(A, B)` will assert that `A is Array` and
-     * `B is Array`.
-     * 
-     * This method supports `unset` values. `unset == unset` is evaluated to
-     * `true`.
-     * 
-     * @param   {Any?}  A  value 1
-     * @param   {Any?}  B  value 2
-     * @returns {Boolean}
-     * @see {@link AquaHotkey_Eq}
-     * @example
-     * Optional(String).Equals("foo", "bar") ; false
-     * Optional(String).Equals([1, 2], "")   ; TypeError! Expected a String.
-     * 
-     * ; ==> true
-     * ; (`String.Equals()` would've thrown.)
-     * Optional(String).Equals(unset, unset)
-     */
-    Equals(A?, B?) {
-        if (!IsSet(A)) {
-            return (!IsSet(B))
-        }
-        if (!IsSet(B)) {
-            return false
-        }
-        if (!(this.T).IsInstance(A)) {
-            throw TypeError("Unexpected argument type: param #1")
-        }
-        if (!(this.T).IsInstance(B)) {
-            throw TypeError("Unexpected argument type: param #2")
-        }
-        return (A == B) || A.Eq(B)
-    }
-
     ;@endregion
 }
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Extensions
 
 /**
  * Support for {@link Json} deserialization.
  */
-class AquaHotkey_Nullable extends AquaHotkey {
-    static __New() => (IsSet(Json) && IsSet(AquaHotkey_Json)) && super.__New()
+class AquaHotkey_Nullable_Json extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Json) && super.__New()
 
     class Nullable {
         /**
@@ -218,3 +197,37 @@ class AquaHotkey_Nullable extends AquaHotkey {
         }
     }
 }
+
+/**
+ * Binary serialization support for {@link Nullable}.
+ */
+class AquaHotkey_Nullable_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class Nullable {
+        /**
+         * Serializes this nullable type into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Output.WriteObject(this.T, Refs)
+        }
+
+        /**
+         * Reconstructs this nullable type from binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            Input.ReadObject(&T, Refs)
+            this.DefineProp("T", { Get: (_) => T })
+        }
+    }
+}
+

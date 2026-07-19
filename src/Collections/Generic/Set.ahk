@@ -247,53 +247,6 @@ class GenericSet extends ISet {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes the generic set into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteObject(this.SetType, Refs)
-        Output.WriteObject(this.ComponentType, Refs)
-        Output.WriteUInt(this.Size)
-        for Value in this {
-            Output.WriteObject(Value?, Refs)
-        }
-    }
-
-    /**
-     * Reconstructs the generic set from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        Input.ReadObject(&SetType, Refs)
-        Input.ReadObject(&ComponentType, Refs)
-        if (!IsSet(AquaHotkey_cfg_DisableGenerics)) {
-            ComponentType := Any
-        }
-        Cls := AquaHotkey.CreateClass(GenericSet,, SetType, ComponentType)
-        ObjSetBase(this, Cls.Prototype)
-
-        this.__Init()
-        this.__New()
-
-        Size := Input.ReadUInt()
-        loop Size {
-            Input.ReadObject(&Value, Refs)
-            this.Push(Value?)
-        }
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
     ;@region Implementation
 
     /**
@@ -403,4 +356,58 @@ class AquaHotkey_GenericSet extends AquaHotkey {
     }
 }
 
+/**
+ * {@link AquaHotkey_Serialization binary serialization} support for
+ * {@link GenericSet}.
+ */
+class AquaHotkey_GenericSet_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class GenericSet {
+        /**
+         * Serializes the generic set into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Output.WriteObject(this.SetType, Refs)
+            Output.WriteObject(this.ComponentType, Refs)
+            Output.WriteUInt(this.Size)
+            for Value in this {
+                Output.WriteObject(Value?, Refs)
+            }
+        }
+
+        /**
+         * Reconstructs the generic set from binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            Input.ReadObject(&SetType, Refs)
+            Input.ReadObject(&ComponentType, Refs)
+            if (!IsSet(AquaHotkey_cfg_DisableGenerics)) {
+                ComponentType := Any
+            }
+            Cls := AquaHotkey.CreateClass(GenericSet,, SetType, ComponentType)
+            ObjSetBase(this, Cls.Prototype)
+
+            this.__Init()
+            this.__New()
+
+            Size := Input.ReadUInt()
+            loop Size {
+                Input.ReadObject(&Value, Refs)
+                this.Push(Value?)
+            }
+        }
+    }
+}
+
 ;@endregion
+

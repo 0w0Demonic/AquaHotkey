@@ -359,41 +359,6 @@ class Optional {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes this optional into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        if (ObjHasOwnProp(this, "Value")) {
-            Output.WriteUChar(true)
-            Output.WriteObject(this.Value, Refs)
-        } else {
-            Output.WriteUChar(false)
-        }
-    }
-
-    /**
-     * Reconstructs this optional from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        if (Input.ReadUChar()) {
-            Input.ReadObject(&Value, Refs)
-            this.DefineProp("Value", { Get: (_) => Value })
-        }
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
     ;@region Duck Types
 
     /**
@@ -460,11 +425,6 @@ class Optional {
  * Provides a universal `.Optional()` method.
  */
 class AquaHotkey_Optional extends AquaHotkey {
-    static __New() {
-        this.Requires(AquaHotkey_Json?, "Optional")
-        super.__New()
-    }
-
     class Any {
         static __New() {
             ({}.DefineProp)(this.Prototype, "ToOptional", { Call: Optional })
@@ -480,6 +440,13 @@ class AquaHotkey_Optional extends AquaHotkey {
          */
         ToOptional() => Optional(this)
     }
+}
+
+/**
+ * {@link AquaHotkey_Json JSON bindings} for {@link Optional}.
+ */
+class AquaHotkey_Optional_Json extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Json) && super.__New()
 
     class Optional {
         /**
@@ -520,6 +487,47 @@ class AquaHotkey_Optional extends AquaHotkey {
         ToJson() => ObjHasOwnProp(this, "Value")
                 ? (this.Value).ToJson()
                 : "null"
+    }
+}
+
+/**
+ * {@link AquaHotkey_Serializer binary serialization support} for
+ * {@link Optional}.
+ */
+class AquaHotkey_Optional_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class Optional {
+        /**
+         * Serializes this optional into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            if (ObjHasOwnProp(this, "Value")) {
+                Output.WriteUChar(true)
+                Output.WriteObject(this.Value, Refs)
+            } else {
+                Output.WriteUChar(false)
+            }
+        }
+
+        /**
+         * Reconstructs this optional from binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            if (Input.ReadUChar()) {
+                Input.ReadObject(&Value, Refs)
+                this.DefineProp("Value", { Get: (_) => Value })
+            }
+        }
     }
 }
 

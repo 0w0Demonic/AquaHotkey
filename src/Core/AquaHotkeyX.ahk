@@ -72,7 +72,6 @@
     #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
     #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
     #Include "%A_LineFile%\..\..\Interfaces\IBuffer.ahk"
-    #Include "%A_LineFile%\..\..\Interfaces\IDelegatingMap.ahk"
     #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
     #Include "%A_LineFile%\..\..\Interfaces\ISet.ahk"
 ;@endregion

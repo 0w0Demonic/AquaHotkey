@@ -2,6 +2,8 @@
 #Include "%A_LineFile%\..\..\Hash.ahk"
 #Include "%A_LineFile%\..\..\DuckTypes.ahk"
 
+;@region Record
+
 /**
  * @duck
  * 
@@ -181,33 +183,49 @@ class Record extends Class
             && (this.ValueType).CanCastFrom(Other.ValueType)
     }
 
-    /**
-     * Serializes this record into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteObject(this.KeyType, Refs)
-        Output.WriteObject(this.ValueType, Refs)
-    }
-
-    /**
-     * Reconstructs this record from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        Input.ReadObject(&KeyType, Refs)
-        Input.ReadObject(&ValueType, Refs)
-        ({}.DefineProp)(this, "KeyType", { Get: (_) => KeyType })
-        ({}.DefineProp)(this, "ValueType", { Get: (_) => ValueType })
-    }
+    ;@endregion
 }
 
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Extensions
+
 ; TODO implement JSON deser. Note that JSON is case-sensitive.
+
+/**
+ * {@link AquaHotkey_Serializer binary serialization support} for
+ * {@link Record}.
+ */
+class AquaHotkey_Record_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class Record {
+        /**
+         * Serializes this record into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Output.WriteObject(this.KeyType, Refs)
+            Output.WriteObject(this.ValueType, Refs)
+        }
+
+        /**
+         * Reconstructs this record from binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            Input.ReadObject(&KeyType, Refs)
+            Input.ReadObject(&ValueType, Refs)
+            ({}.DefineProp)(this, "KeyType", { Get: (_) => KeyType })
+            ({}.DefineProp)(this, "ValueType", { Get: (_) => ValueType })
+        }
+    }
+}
 

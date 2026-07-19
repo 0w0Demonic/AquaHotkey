@@ -6,9 +6,6 @@
 #Include "%A_LineFile%\..\..\..\Interfaces\IArray.ahk"
 #Include "%A_LineFile%\..\..\..\Interfaces\IMap.ahk"
 
-#Include "%A_LineFile%\..\..\..\IO\Serial.ahk"
-#Include "%A_LineFile%\..\..\..\IO\Serializer.ahk"
-
 #Include "%A_LineFile%\..\..\Parser.ahk"
 
 ;@region Json
@@ -689,32 +686,6 @@ class Json extends Class
     ToString() => Type(this) . " { " . String(this.T) . " }"
 
     ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes this instance of `Json` into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    previously seen objects
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteObject(this.T, Refs)
-    }
-
-    /**
-     * Reconstructs this instance of `Json` from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   previously seen objects
-     */
-    Deserialize(Input, Refs) {
-        Input.ReadObject(&T, Refs)
-        ({}.DefineProp)(this, "T", { Get: (_) => T })
-    }
-
-    ;@endregion
 }
 
 ;@endregion
@@ -1105,4 +1076,37 @@ class AquaHotkey_Json extends AquaHotkey {
     ;@endregion
 }
 
+/**
+ * {@link AquaHotkey_Serializer binary serialization} support for
+ * {@link Json}.
+ */
+class AquaHotkey_Json_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class Json {
+        /**
+         * Serializes this instance of `Json` into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    previously seen objects
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Output.WriteObject(this.T, Refs)
+        }
+
+        /**
+         * Reconstructs this instance of `Json` from binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   previously seen objects
+         */
+        Deserialize(Input, Refs) {
+            Input.ReadObject(&T, Refs)
+            ({}.DefineProp)(this, "T", { Get: (_) => T })
+        }
+    }
+}
+
 ;@endregion
+

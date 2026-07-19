@@ -355,48 +355,6 @@ class ISet {
         Result .= " }"
         return Result
     }
-    ;@endregion 
-    ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes this set into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteUInt(this.Size)
-        for Value in this {
-            Output.WriteObject(Value, Refs)
-        }
-    }
-
-    /**
-     * Reconstructs the set from binary. This method assumes that calling the
-     * constructor with no arguments will properly construct an empty,
-     * mutable set. An additional check is done to ensure that the size of
-     * the set equals the amount of elements in binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        this.__Init()
-        this.__New()
-        Size := Input.ReadUInt()
-        loop Size {
-            Input.ReadObject(&Value, Refs)
-            this.Add(Value)
-        }
-        if (Size != this.Size) {
-            throw ValueError("integrity error. expected size: " . Size,,
-                             this.Size)
-        }
-    }
 
     ;@endregion
 }
@@ -436,4 +394,54 @@ class AquaHotkey_ISet extends AquaHotkey {
     }
 }
 
+/**
+ * {@link AquaHotkey_Serializer binary serialization} support for
+ * {@link ISet}.
+ */
+class AquaHotkey_ISet_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class ISet {
+        /**
+         * Serializes this set into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Output.WriteUInt(this.Size)
+            for Value in this {
+                Output.WriteObject(Value, Refs)
+            }
+        }
+
+        /**
+         * Reconstructs the set from binary. This method assumes that calling
+         * the constructor with no arguments will properly construct an empty,
+         * mutable set. An additional check is done to ensure that the size of
+         * the set equals the amount of elements in binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            this.__Init()
+            this.__New()
+            Size := Input.ReadUInt()
+            loop Size {
+                Input.ReadObject(&Value, Refs)
+                this.Add(Value)
+            }
+            if (Size != this.Size) {
+                throw ValueError("integrity error. expected size: " . Size,,
+                                 this.Size)
+            }
+        }
+    }
+}
+
 ;@endregion
+

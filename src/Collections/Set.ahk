@@ -48,43 +48,6 @@ class Set extends ISet {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes this set into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteUInt(this.Size)
-        for Value in this {
-            Output.WriteObject(Value, Refs)
-        }
-    }
-
-    /**
-     * Reconstructs this set object from binary. This method assumes the set
-     * can be properly constructed by calling `.__New()` with no parameters.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        this.__Init()
-        this.__New()
-        Size := Input.ReadUInt()
-        loop Size {
-            Input.ReadObject(&Value, Refs)
-            this.Add(Value)
-        }
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
     ;@region Implementation
 
     /**
@@ -257,3 +220,47 @@ class AquaHotkey_Set extends AquaHotkey {
         }
     }
 }
+
+/**
+ * {@link AquaHotkey_Serializer binary serialization} support for
+ * {@link Set}.
+ */
+class AquaHotkey_Set_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class Set {
+        /**
+         * Serializes this set into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Output.WriteUInt(this.Size)
+            for Value in this {
+                Output.WriteObject(Value, Refs)
+            }
+        }
+
+        /**
+         * Reconstructs this set object from binary. This method assumes the set
+         * can be properly constructed by calling `.__New()` with no parameters.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            this.__Init()
+            this.__New()
+            Size := Input.ReadUInt()
+            loop Size {
+                Input.ReadObject(&Value, Refs)
+                this.Add(Value)
+            }
+        }
+    }
+}
+

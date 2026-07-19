@@ -56,11 +56,12 @@ class Boolean extends Integer {
     }
 }
 
+; TODO figure out how to convert AHK boolean -> JSON boolean
 /**
  * {@link Json.Boolean} to {@link Boolean} conversion.
  */
 class AquaHotkey_Boolean extends AquaHotkey {
-    static __New() => (IsSet(AquaHotkey_Json) && IsSet(Json)) && super.__New()
+    static __New() => IsSet(AquaHotkey_Json) && super.__New()
 
     class Boolean {
         /**
@@ -77,3 +78,4 @@ class AquaHotkey_Boolean extends AquaHotkey {
         }
     }
 }
+

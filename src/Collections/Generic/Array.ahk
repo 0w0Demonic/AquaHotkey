@@ -2,8 +2,6 @@
 #Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Hash.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Eq.ahk"
-#Include "%A_LineFile%\..\..\..\IO\Serializer.ahk"
-#Include "%A_LineFile%\..\..\..\IO\Serial.ahk"
 #Include "%A_LineFile%\..\..\..\Interfaces\IArray.ahk"
 
 ; TODO allow any amount of constraints? Would be cool.
@@ -353,56 +351,6 @@ class GenericArray extends IArray
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes the generic array into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteObject(this.ArrayType, Refs)
-        Output.WriteObject(this.ComponentType, Refs)
-        Output.WriteUInt(this.Length)
-        for Value in this {
-            Output.WriteObject(Value?, Refs)
-        }
-    }
-
-    /**
-     * Reconstructs the generic array from binary.
-     * 
-     * @param   {InputStream}  Output  input stream
-     * @param   {Map}          Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        ; reconstruct generic array class from array + component type
-        Input.ReadObject(&ArrayType, Refs)
-        Input.ReadObject(&ComponentType, Refs)
-        if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
-            ComponentType := Any
-        }
-        Cls := AquaHotkey.CreateClass(GenericArray,, ArrayType, ComponentType)
-        ObjSetBase(this, Cls.Prototype)
-
-        ; `.__New()` to create the backing array, `.__Init()` for moral support
-        this.__Init()
-        this.__New()
-
-        ; read length of array, followed by the elements themselves
-        Length := Input.ReadUInt()
-        loop Length {
-            Input.ReadObject(&Value, Refs)
-            this.Push(Value?)
-        }
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
     ;@region Type Checking
 
     /**
@@ -586,7 +534,6 @@ class AquaHotkey_GenericArray extends AquaHotkey {
             return
         }
 
-        this.Requires(AquaHotkey_Json?, "GenericArray")
         if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
             ({}.DefineProp)(this.IArray, "OfType", { Call: Disabled_OfType })
         }
@@ -623,7 +570,71 @@ class AquaHotkey_GenericArray extends AquaHotkey {
                     this, T, Constraint?)
         }
     }
+}
 
+/**
+ * {@link AquaHotkey_Serializer binary serialization} support for
+ * {@link GenericArray}.
+ */
+class AquaHotkey_GenericArray_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class GenericArray {
+        /**
+         * Serializes the generic array into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Output.WriteObject(this.ArrayType, Refs)
+            Output.WriteObject(this.ComponentType, Refs)
+            Output.WriteUInt(this.Length)
+            for Value in this {
+                Output.WriteObject(Value?, Refs)
+            }
+        }
+
+        /**
+         * Reconstructs the generic array from binary.
+         * 
+         * @param   {InputStream}  Output  input stream
+         * @param   {Map}          Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            ; reconstruct generic array class from array + component type
+            Input.ReadObject(&TArray, Refs)
+            Input.ReadObject(&TComponent, Refs)
+            if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
+                TComponent := Any
+            }
+            Cls := AquaHotkey.CreateClass(GenericArray,, TArray, TComponent)
+            ObjSetBase(this, Cls.Prototype)
+
+            ; - `.__Init()` for moral support
+            ; - `.__New()` to create the backing array
+            this.__Init()
+            this.__New()
+
+            ; read length of array, followed by the elements themselves
+            Length := Input.ReadUInt()
+            loop Length {
+                Input.ReadObject(&Value, Refs)
+                this.Push(Value?)
+            }
+        }
+    }
+}
+
+/**
+ * {@link AquaHotkey_Json JSON bindings} for {@link GenericArray}.
+ */
+class AquaHotkey_GenericArray_Json extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Json) && super.__New()
+    
     class GenericArray {
         /**
          * Casts a JSON value into a generic array.

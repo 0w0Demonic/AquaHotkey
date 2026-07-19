@@ -2,7 +2,6 @@
 #Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Hash.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Eq.ahk"
-#Include "%A_LineFile%\..\..\..\IO\Serializer.ahk"
 
 ;@region GenericMap
 
@@ -375,59 +374,6 @@ class GenericMap extends IMap {
             (this.M)[Key] := value
         }
     }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes the generic array into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteObject(this.MapType, Refs)
-        Output.WriteObject(this.KeyType, Refs)
-        Output.WriteObject(this.ValueType, Refs)
-        Output.WriteUInt(this.Count)
-        for Key, Value in this {
-            Output.WriteObject(Key?, Refs)
-            Output.WriteObject(Value?, Refs)
-        }
-    }
-
-    /**
-     * Reconstructs the generic map from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        Input.ReadObject(&MapType, Refs)
-        Input.ReadObject(&KeyType, Refs)
-        Input.ReadObject(&ValueType, Refs)
-        if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
-            KeyType := Any
-            ValueType := Any
-        }
-
-        Cls := AquaHotkey.CreateClass(GenericMap,, MapType, KeyType, ValueType)
-        ObjSetBase(this, Cls.Prototype)
-
-        this.__Init()
-        this.__New()
-
-        Count := Input.ReadUInt()
-        loop Count {
-            Input.ReadObject(&Key, Refs)
-            Input.ReadObject(&Value, Refs)
-            this.Set(Key, Value)
-        }
-    }
 }
 
 ;@endregion
@@ -443,7 +389,6 @@ class AquaHotkey_GenericMap extends AquaHotkey {
             return
         }
 
-        this.Requires(AquaHotkey_Json?, "GenericMap")
         if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
             ({}.DefineProp)(this.IMap, "OfType", { Call: Disabled_OfType })
         }
@@ -464,6 +409,72 @@ class AquaHotkey_GenericMap extends AquaHotkey {
                 unset,
                 this, K, V)
     }
+}
+
+/**
+ * {@link AquaHotkey_Serializer binary serialization} support for
+ * {@link GenericMap}.
+ */
+class AquaHotkey_GenericMap_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class GenericMap {
+        /**
+         * Serializes the generic array into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Output.WriteObject(this.MapType, Refs)
+            Output.WriteObject(this.KeyType, Refs)
+            Output.WriteObject(this.ValueType, Refs)
+            Output.WriteUInt(this.Count)
+            for Key, Value in this {
+                Output.WriteObject(Key?, Refs)
+                Output.WriteObject(Value?, Refs)
+            }
+        }
+
+        /**
+         * Reconstructs the generic map from binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            Input.ReadObject(&MapType, Refs)
+            Input.ReadObject(&KeyType, Refs)
+            Input.ReadObject(&ValueType, Refs)
+            if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
+                KeyType := Any
+                ValueType := Any
+            }
+
+            Cls := AquaHotkey.CreateClass(GenericMap,, MapType, KeyType, ValueType)
+            ObjSetBase(this, Cls.Prototype)
+
+            this.__Init()
+            this.__New()
+
+            Count := Input.ReadUInt()
+            loop Count {
+                Input.ReadObject(&Key, Refs)
+                Input.ReadObject(&Value, Refs)
+                this.Set(Key, Value)
+            }
+        }
+    }
+}
+
+/**
+ * {@link AquaHotkey_Json JSON bindings} for {@link GenericMap}.
+ */
+class AquaHotkey_GenericMap_Json extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Json) && super.__New()
 
     class GenericMap {
         /**

@@ -54,8 +54,8 @@ class Nothing extends Any {
 /**
  * {@link Json.Null} to {@link Nothing} conversion.
  */
-class AquaHotkey_Nothing extends AquaHotkey {
-    static __New() => (IsSet(Json) && IsSet(AquaHotkey_Json)) && super.__New()
+class AquaHotkey_Nothing_Json extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Json) && super.__New()
     
     class Nothing {
         /**
@@ -72,3 +72,4 @@ class AquaHotkey_Nothing extends AquaHotkey {
         }
     }
 }
+

@@ -639,38 +639,6 @@ class Uri {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Converts this URI into binary based on its string representation.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Str := String(this)
-        Output.WriteUInt(StrLen(Str))
-        Output.Write(Str)
-    }
-
-    /**
-     * Reconstructs the URI from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        U := Uri( Input.Read( Input.ReadUInt() ) )
-        Base := ObjGetBase(U)
-        ObjSetBase(U, Object.Prototype)
-        ObjSetBase(this, Base)
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
     ;@region Normalize()
 
     /**
@@ -1023,6 +991,44 @@ class AquaHotkey_Uri extends AquaHotkey {
         ; note: we forced `static CanCastFrom(Val?)` to work by setting
         ;       the base class of `Uri` (the class object, not the prototype)
         ;       to `class String`.
+    }
+}
+
+/**
+ * {@link AquaHotkey_Serializer binary serialization} support for
+ * {@link Uri}.
+ */
+class AquaHotkey_Uri_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class Uri {
+        /**
+         * Converts this URI into binary based on its string representation.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Str := String(this)
+            Output.WriteUInt(StrLen(Str))
+            Output.Write(Str)
+        }
+
+        /**
+         * Reconstructs the URI from binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            U := Uri( Input.Read( Input.ReadUInt() ) )
+            Base := ObjGetBase(U)
+            ObjSetBase(U, Object.Prototype)
+            ObjSetBase(this, Base)
+        }
     }
 }
 

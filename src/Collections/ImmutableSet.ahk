@@ -3,6 +3,7 @@
 #Include "%A_LineFile%\..\Set.ahk"
 
 ;@region ImmutableSet
+
 /**
  * An immutable view of an {@link ISet}.
  * 
@@ -89,34 +90,6 @@ class ImmutableSet extends ISet {
     Size => (this.S).Size
 
     ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes this immutable set into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteObject(this.S, Refs)
-    }
-
-    /**
-     * Reconstructs this immutable set from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        Input.ReadObject(&BackingSet, Refs)
-        this.DefineProp("S", { Get: (_) => BackingSet })
-    }
-
-    ;@endregion
 }
 
 ;@endregion
@@ -143,3 +116,38 @@ class AquaHotkey_ImmutableSet extends AquaHotkey {
         }
     }
 }
+
+/**
+ * {@link AquaHotkey_Serializer binary serialization} support for
+ * {@link ImmutableSet}.
+ */
+class AquaHotkey_ImmutableSet_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class ImmutableSet {
+        /**
+         * Serializes this immutable set into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Output.WriteObject(this.S, Refs)
+        }
+
+        /**
+         * Reconstructs this immutable set from binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   map of previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            Input.ReadObject(&BackingSet, Refs)
+            this.DefineProp("S", { Get: (_) => BackingSet })
+        }
+    }
+}
+

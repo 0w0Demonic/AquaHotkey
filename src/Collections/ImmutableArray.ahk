@@ -1,5 +1,3 @@
-#Requires AutoHotkey v2.0
-
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 
@@ -124,34 +122,6 @@ class ImmutableArray extends IArray {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Serialization
-
-    /**
-     * Serializes this immutable array into binary.
-     * 
-     * @param   {OutputStream}  Output  output stream
-     * @param   {Map}           Refs    map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Serialize(Output, Refs) {
-        (Object.Prototype.Serialize)(this, Output, Refs)
-        Output.WriteObject(this.A, Refs)
-    }
-
-    /**
-     * Reconstructs this immutable array from binary.
-     * 
-     * @param   {InputStream}  Input  input stream
-     * @param   {Map}          Refs   map of previously seen objects
-     * @see {@link AquaHotkey_Serializer}
-     */
-    Deserialize(Input, Refs) {
-        Input.ReadObject(&BackingArray, Refs)
-        this.DefineProp("A", { Get: (_) => BackingArray })
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
     ;@region IArray overrides
 
     /**
@@ -212,5 +182,37 @@ class AquaHotkey_ImmutableArray extends AquaHotkey {
             }
             return ImmutableArray.FromArray(this)
         }
+    }
+}
+
+/**
+ * {@link AquaHotkey_Serializer binary serialization} support for
+ * {@link ImmutableArray}.
+ */
+class AquaHotkey_ImmutableArray_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    /**
+     * Serializes this immutable array into binary.
+     * 
+     * @param   {OutputStream}  Output  output stream
+     * @param   {Map}           Refs    map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Serialize(Output, Refs) {
+        (Object.Prototype.Serialize)(this, Output, Refs)
+        Output.WriteObject(this.A, Refs)
+    }
+
+    /**
+     * Reconstructs this immutable array from binary.
+     * 
+     * @param   {InputStream}  Input  input stream
+     * @param   {Map}          Refs   map of previously seen objects
+     * @see {@link AquaHotkey_Serializer}
+     */
+    Deserialize(Input, Refs) {
+        Input.ReadObject(&BackingArray, Refs)
+        this.DefineProp("A", { Get: (_) => BackingArray })
     }
 }
