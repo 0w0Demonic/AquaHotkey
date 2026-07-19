@@ -125,7 +125,7 @@ class Cache extends IDelegatingMap {
             Prev := Critical("On")
 
             Value := (this.M).Get(Key)
-            SetTimer((this.Timers)[Key], -1000)
+            SetTimer((this.Timers)[Key], -this.Ttl)
 
             Critical(Prev)
             return Value
@@ -134,20 +134,22 @@ class Cache extends IDelegatingMap {
     }
 
     /**
-     * Deletes an item from the cache, returning its value or throwing an
-     * {@link UnsetItemError} if the entry cannot be found.
+     * Determines whether an entry is present in the cache. If present, its
+     * TTL is refreshed.
      * 
      * @param   {Any}  Key  map key
-     * @returns {Any}
+     * @returns {Boolean}
      */
-    Delete(Key) {
+    Has(Key) {
         Prev := Critical("On")
 
-        Value := (this.M).Delete(Key)
-        (this.Timers).Delete(Key)
+        Result := (this.M).Has(Key)
+        if (Result) {
+            SetTimer((this.Timers)[Key], -this.Ttl)
+        }
 
         Critical(Prev)
-        return Value
+        return Result
     }
 
     /**
@@ -163,7 +165,7 @@ class Cache extends IDelegatingMap {
         while (Enumer(&Key) && Enumer(&Value)) {
             Timer := CreateTimer(this, Key)
             (this.Timers)[Key] := Timer
-            SetTimer(Timer, -1000)
+            SetTimer(Timer, -this.Ttl)
 
             (this.M).Set(Key, Value)
         }
