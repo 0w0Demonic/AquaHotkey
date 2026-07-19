@@ -1,5 +1,4 @@
 #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\..\..\Interfaces\IDelegatingMap.ahk"
 #Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Hash.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Eq.ahk"
@@ -8,7 +7,6 @@
 ;@region GenericMap
 
 ; TODO find a way to switch off value checking to make interop with ISet easier
-; TODO probably remove `IDelegatingMap` again
 ; TODO `.ToString()` names itself "map" twice -- change that?
 
 /**
@@ -27,7 +25,7 @@
  * M["foo"] := "qux" ; Error! Expected an Integer.
  * M[123]   := 23456 ; Error! Expected a String.
  */
-class GenericMap extends IDelegatingMap {
+class GenericMap extends IMap {
     ;@region Construction
 
     /**
@@ -290,6 +288,37 @@ class GenericMap extends IDelegatingMap {
     ;@region Implementation
 
     /**
+     * Clears the map.
+     */
+    Clear() {
+        (this.M).Clear()
+    }
+
+    /**
+     * Deletes an items from the map.
+     * 
+     * @param   {Any}  Key  any value
+     * @returns {Any}
+     */
+    Delete(Key) => (this.M).Delete(Key)
+
+    /**
+     * Gets an item from the map.
+     * 
+     * @param   {Any}   Key      any value
+     * @param   {Any?}  Default  default value
+     */
+    Get(Key, Default?) => (this.M).Get(Key, Default?)
+
+    /**
+     * Determines whether an item is present in the map.
+     * 
+     * @param   {Any}  Key  any value
+     * @returns {Boolean}
+     */
+    Has(Key) => (this.M).Has(Key)
+
+    /**
      * Sets zero or more items.
      * 
      * @param   {Any*}  Args  alternating key-value pairs
@@ -304,6 +333,21 @@ class GenericMap extends IDelegatingMap {
         }
         this.M.Set(Args*)
     }
+
+    /**
+     * Returns an {@link Enumerator} for this map.
+     * 
+     * @param   {Integer}  ArgSize  argument size
+     * @returns {Enumerator}
+     */
+    __Enum(ArgSize) => (this.M).__Enum(ArgSize)
+
+    /**
+     * The number of items present in the map.
+     * 
+     * @returns {Integer}
+     */
+    Count => (this.M).Count
 
     /**
      * Gets or sets an item.
@@ -442,3 +486,4 @@ class AquaHotkey_GenericMap extends AquaHotkey {
 }
 
 ;@endregion
+

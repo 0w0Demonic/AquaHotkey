@@ -1,4 +1,4 @@
-#Include "%A_LineFile%\..\..\Interfaces\IDelegatingMap.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 /**
  * A simple {@link IMap} which holds entries with a specified time-to-live
@@ -24,7 +24,7 @@
  * Sleep(6000)
  * MsgBox(CacheObj.Count) ; 1
  */
-class Cache extends IDelegatingMap {
+class Cache extends IMap {
     /**
      * Creates a subclass with the specified time-to-live (TTL)
      * in milliseconds.
@@ -113,6 +113,23 @@ class Cache extends IDelegatingMap {
     }
 
     /**
+     * Deletes an item from the cache, returning its value or throwing an
+     * {@link UnsetItemError} if the entry cannot be found.
+     * 
+     * @param   {Any}  Key  map key
+     * @returns {Any}
+     */
+    Delete(Key) {
+        Prev := Critical("On")
+
+        Value := (this.M).Delete(Key)
+        (this.Timers).Delete(Key)
+
+        Critical(Prev)
+        return Value
+    }
+
+    /**
      * Retrieves items from the cache. If present, the TTL of the entry is
      * refreshed.
      * 
@@ -180,23 +197,19 @@ class Cache extends IDelegatingMap {
     }
 
     /**
-     * Determines whether an entry is present in the cache. If present, its
-     * TTL is refreshed.
+     * Returns an {@link Enumerator} for the map.
      * 
-     * @param   {Any}  Key  map key
-     * @returns {Boolean}
+     * @param   {Integer}  ArgSize  argument size
+     * @returns {Enumerator}
      */
-    Has(Key) {
-        Prev := Critical("On")
+    __Enum(ArgSize) => (this.M).__Enum(ArgSize)
 
-        Result := (this.M).Has(Key)
-        if (Result) {
-            SetTimer((this.Timers)[Key], -1000)
-        }
-
-        Critical(Prev)
-        return Result
-    }
+    /**
+     * The number of items in the map.
+     * 
+     * @returns {Integer}
+     */
+    Count => (this.M).Count
 
     /**
      * Gets and sets items in the cache.
