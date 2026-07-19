@@ -1,4 +1,6 @@
 ; TODO cast descs to Property.Prototype, add instance methods
+; TODO remove this again
+
 /**
  * Provides a wide range of property descriptors for constructing AutoHotkey
  * objects.

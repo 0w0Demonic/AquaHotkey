@@ -255,6 +255,8 @@ class AquaHotkey_Object extends AquaHotkey {
 ;-------------------------------------------------------------------------------
 ;@region ObjFromDesc()
 
+; TODO move this into `Object.FromDesc()`?
+
 /**
  * Creates an object described only by the property descriptors in `Desc`.
  * 

@@ -1,7 +1,6 @@
 #Include "%A_LineFile%\..\..\src\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\src\Base\DuckTypes.ahk"
 #Include "%A_LineFile%\..\..\src\Base\Buffer.ahk"
-#Include "%A_LineFile%\..\..\src\Base\TypeInfo.ahk"
 #Include "%A_LineFile%\..\..\src\Interfaces\IBuffer.ahk"
 
 ;@region BufferEditor
@@ -35,10 +34,9 @@ class BufferEditor {
      * @example
      */
     __New(Buf := Buffer(16, 0)) {
-        if (!Buf.Is(IBuffer)) {
+        if (!IBuffer.IsInstance(Buf)) {
             throw TypeError("Expected an IBuffer",, Type(Buf))
         }
-
         this.DefineProp("Buffer", {
             Get: (_)        => Buf })
         this.DefineProp("Ptr", {
@@ -104,7 +102,7 @@ class BufferEditor {
         Bytes := StrPut(Result, "CP0") - 1
         this.Pos += Bytes
         if (this.Pos > this.Size) {
-            throw Error("out of bounds")
+            throw IndexError("out of bounds")
         }
         return Result
     }
@@ -239,3 +237,4 @@ class AquaHotkey_BufferEditor extends AquaHotkey {
         Editor() => BufferEditor(this)
     }
 }
+

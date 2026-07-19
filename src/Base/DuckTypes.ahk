@@ -3,6 +3,7 @@
 #Include "%A_LineFile%\..\DuckTypes\Nothing.ahk"
 
 ; TODO use own class (e.g. `TypeDef`) for composing intersections, unions, etc.?
+; TODO implement VarRef#IsInstance() ?
 
 /**
  * Provides a flexible and customizable duck typing system which extends the

@@ -41,3 +41,4 @@ class AquaHotkey_Duration extends AquaHotkey {
         Years        => Integer(this * 1000 * 60 * 60 * 24 * 30 * 12)
     }
 }
+

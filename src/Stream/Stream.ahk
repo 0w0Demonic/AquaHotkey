@@ -4,6 +4,7 @@
 #Include "%A_LineFile%\..\DoubleStream.ahk"
 
 ;@region Stream
+
 /**
  * Streams are a powerful abstraction for processing sequences of data in a
  * declarative way.

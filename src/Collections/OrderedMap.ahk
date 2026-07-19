@@ -297,7 +297,9 @@ class OrderedMap extends IMap {
      */
     Capacity {
         get => (this.M).Capacity
-        set => ((this.M).Capacity := value)
+        set {
+            ((this.M).Capacity := value)
+        }
     }
 
     /**
@@ -307,7 +309,9 @@ class OrderedMap extends IMap {
      */
     CaseSense {
         get => (this.M).CaseSense
-        set => ((this.M).CaseSense := value)
+        set {
+            ((this.M).CaseSense := value)
+        }
     }
 }
 
