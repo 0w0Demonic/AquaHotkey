@@ -37,13 +37,10 @@
  * ### Type Wrappers
  * 
  * Elements can be further constrained by passing a *type wrapper* like
- * {@link Nullable} between the square brackets. Type wrappers are currently
- * defined as class objects whose instances "wrap" existing types with
- * additional logic. A new wrapped type is constructed by calling the class
- * with an existing type.
+ * {@link Nullable} between the square brackets. Type wrappers are defined
+ * as functions that take a type as argument, and return another type.
  * 
- * In other words, `T[C]` is equivalent to `Array.OfType(C(T))`, while
- * asserting that `C` is a class.
+ * In other words, `T[C]` is equivalent to `Array.OfType(C(T))`.
  * 
  * ```ahk
  * Arr_String := String[]
@@ -115,9 +112,11 @@ class GenericArray extends IArray
         if (!IsSet(T)) {
             throw UnsetError("unset; Expected element type")
         }
-
-        if (!IArray.CanCastFrom(A)) {
-            throw TypeError("Expected an IArray class",, String(A))
+        if (!(A is Class)) {
+            throw TypeError("Expected a class",, Type(A))
+        }
+        if ((A != IArray) && !HasBase(A, IArray)) {
+            throw TypeError("Expected an IArray class",, A.Prototype.__Class)
         }
 
         if (IsSet(C)) {
@@ -127,7 +126,14 @@ class GenericArray extends IArray
 
         ; name of class represented in `static Name`. see <Base/TypeInfo>.
         OuterType := A.Prototype.__Class
-        InnerType := (T is Class) ? T.Prototype.__Class : String(T)
+
+        if (T is Class) {
+            InnerType := T.Prototype.__Class
+        } else if (IsSet(AquaHotkey_ToString)) {
+            InnerType := String(T)
+        } else {
+            InnerType := Type(T)
+        }
         ClassName := (OuterType . "<" . InnerType . ">")
 
         ; remove `.__Class` to make sure that class prototypes are
@@ -640,3 +646,4 @@ class AquaHotkey_GenericArray extends AquaHotkey {
 }
 
 ;@endregion
+

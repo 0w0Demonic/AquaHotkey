@@ -1,8 +1,8 @@
+#Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Eq.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Hash.ahk"
 #Include "%A_LineFile%\..\..\..\Interfaces\ISet.ahk"
-#Include "%A_LineFile%\..\..\..\IO\Serializer.ahk"
 
 ;@region GenericSet
 
@@ -43,12 +43,22 @@ class GenericSet extends ISet {
         if (!IsSet(T)) {
             throw UnsetError("unset; Expected element type")
         }
-        if (!ISet.CanCastFrom(S)) {
-            throw TypeError("Expected an ISet class",, String(S))
+        if (!(S is Class)) {
+            throw TypeError("Expected a class",, Type(S))
+        }
+        if ((S != ISet) && !HasBase(S, ISet)) {
+            throw TypeError("Expected an ISet class",, S.Prototype.__Class)
+        }
+        OuterType := S.Prototype.__Class
+
+        if (T is Class) {
+            InnerType := T.Prototype.__Class
+        } else if (IsSet(AquaHotkey_ToString)) {
+            InnerType := String(T)
+        } else {
+            InnerType := Type(T) ; fallback to something reasonable
         }
 
-        OuterType := S.Prototype.__Class
-        InnerType := (T is Class) ? T.Prototype.__Class : String(T)
         ClassName := (OuterType . "<" . InnerType . ">")
 
         Delete(this.Prototype, "__Class")

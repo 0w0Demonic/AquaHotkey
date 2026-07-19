@@ -50,13 +50,26 @@ class GenericMap extends IMap {
         if (!IsSet(V)) {
             throw UnsetError("unset value")
         }
-        if (!IMap.CanCastFrom(M)) {
-            throw TypeError("Expected an IMap class",, String(M))
+        if (!(M is Class)) {
+            throw TypeError("Expected a class",, Type(M))
+        }
+        if ((M != IMap) && !HasBase(M, IMap)) {
+            throw TypeError("Expected an IMap class",, M.Prototype.__Class)
         }
 
-        MapName := M.Prototype.__Class
-        KeyName   := (K is Class) ? K.Prototype.__Class : String(K)
-        ValueName := (V is Class) ? V.Prototype.__Class : String(V)
+        static GetTypeName(Obj) {
+            if (Obj is Class) {
+                return Obj.Prototype.__Class
+            } else if (IsSet(AquaHotkey_ToString)) {
+                return String(Obj)
+            } else {
+                return Type(Obj)
+            }
+        }
+
+        MapName   := M.Prototype.__Class
+        KeyName   := GetTypeName(K)
+        ValueName := GetTypeName(V)
         ClassName := MapName . "<" . KeyName . ", " . ValueName . ">"
 
         ; make sure that class prototypes are disposable.
@@ -331,7 +344,7 @@ class GenericMap extends IMap {
         while (Enumer(&Key) && Enumer(&Value)) {
             this.Check(Key, Value)
         }
-        this.M.Set(Args*)
+        (this.M).Set(Args*)
     }
 
     /**
