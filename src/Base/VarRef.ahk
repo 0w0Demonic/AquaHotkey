@@ -10,6 +10,14 @@
 class AquaHotkey_VarRef extends AquaHotkey {
     class VarRef {
         /**
+         * Creates a new VarRef.
+         * 
+         * @param   {Any?}  Value  any value
+         * @returns {VarRef}
+         */
+        static Call(Value?) => &Value
+
+        /**
          * Returns the pointer of the value behind the reference.
          * This is particularly useful for passing strings to `DllCall()`
          * by reference.
