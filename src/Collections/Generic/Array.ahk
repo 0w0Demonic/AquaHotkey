@@ -634,6 +634,8 @@ class AquaHotkey_GenericArray_Serialization extends AquaHotkey {
  */
 class AquaHotkey_GenericArray_Json extends AquaHotkey {
     static __New() => IsSet(AquaHotkey_Json) && super.__New()
+
+    ; TODO how to convert elements, but not the array itself?
     
     class GenericArray {
         /**

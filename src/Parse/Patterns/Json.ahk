@@ -32,7 +32,7 @@
  * {
  *   "Value": 42
  * }
- * )".ParseJson() ; { Value: 42 }
+ * )".ParseJson() ; Map { Value: 42 }
  * ```
  * 
  * By specifying a type in the `.ParseJson()` method (or as second parameter in
@@ -56,7 +56,7 @@
  *     }
  * 
  *     static CastFromJson(&Val) {
- *         Val := this(Val.FirstName, Val.LastName)
+ *         Val := this(Val["FirstName"], Val["LastName"])
  *     }
  * }
  * 
@@ -431,15 +431,15 @@ class Json extends Class
         static HexToChar(Hex) => Chr(Integer("0x" . Hex))
 
         /**
-         * Properties (key-value pairs) to a single plain object.
+         * Properties (key-value pairs) to a single map.
          * 
          * @param   {Object*}  Props  object properties
-         * @returns {Object}
+         * @returns {Map}
          */
-        static PropsToObj(Props*) {
-            Result := {}
+        static PropsToMap(Props*) {
+            Result := Map()
             for Prop in Props {
-                Define(Result, Prop.Key, { Value: Prop.Value })
+                Result.Set(Prop.Key, Prop.Value)
             }
             return Result
         }
@@ -518,8 +518,8 @@ class Json extends Class
         ).Between(Ws)
 
         JsonObj := JsonProp
-            .AtLeastOnceDelimitedBy(CommaDelim, PropsToObj)
-            .OrElseGet(Object)
+            .AtLeastOnceDelimitedBy(CommaDelim, PropsToMap)
+            .OrElseGet(Map)
             .Between("{", "}")
 
         JsonArr := (JsonValue.Between(Ws))
@@ -748,25 +748,20 @@ class AquaHotkey_Json extends AquaHotkey {
 
     class IMap {
         /**
-         * Reconstructs a map from the given JSON value. The value must be a
-         * plain object.
+         * Constructs a map from a JSON value.
          * 
          * @param   {VarRef<Any>}  Val  any value
          */
         static CastFromJson(&Val) {
-            static GetProp := {}.GetOwnPropDesc
-
-            if (ObjGetBase(Val) != Object.Prototype) {
-                throw TypeError("Expected a plain object",, Type(Val))
+            if (!(Val is Map)) {
+                throw TypeError("Expected a Map",, Type(Val))
             }
-
+            if (this == IMap) {
+                return
+            }
             Arr := Array()
-            for PropName in ObjOwnProps(Val) {
-                PropDesc := GetProp(Val, PropName)
-                if (!ObjHasOwnProp(PropDesc, "Value")) {
-                    continue
-                }
-                Arr.Push(PropName, PropDesc.Value)
+            for Key, Value in Val {
+                Arr.Push(Key, Value)
             }
             Val := this(Arr*)
         }
@@ -809,6 +804,9 @@ class AquaHotkey_Json extends AquaHotkey {
         static CastFromJson(&Val) {
             if (ObjGetBase(Val) != Array.Prototype) {
                 throw TypeError("Expected a plain array",, Type(Val))
+            }
+            if (this == IArray) {
+                return
             }
             Val := this(Val*)
         }
@@ -977,8 +975,6 @@ class AquaHotkey_Json extends AquaHotkey {
     ;@region Object
 
     class Object {
-        ; TODO allow non-plain objects to serialize?
-
         /**
          * Converts this object into a JSON string.
          * 
@@ -1017,6 +1013,30 @@ class AquaHotkey_Json extends AquaHotkey {
         }
 
         /**
+         * Casts the JSON object (AHK map) into a plain AHK object. Because
+         * object properties in AutoHotkey v2 are inherently case-insensitive,
+         * data might get lost during conversion.
+         * 
+         * @param   {VarRef<Any>}  Val  any value
+         */
+        static CastFromJson(&Val) {
+            static Define := {}.DefineProp
+
+            if (this != Object) {
+                throw TypeError("Not applicable for this class",,
+                        this.Prototype.__Class)
+            }
+            if (!(Val is Map)) {
+                throw TypeError("Expected a plain object",, Type(Val))
+            }
+            Result := {}
+            for Key, Value in Val {
+                Define(Result, Key, { Value: Value })
+            }
+            Val := Result
+        }
+
+        /**
          * Reconstructs an object according to the contents of this plain
          * object. For each property defined in this object there must exist an
          * equivalent in the JSON value.
@@ -1030,30 +1050,26 @@ class AquaHotkey_Json extends AquaHotkey {
             if (ObjGetBase(this) != Object.Prototype) {
                 throw TypeError("Expected a plain object",, Type(this))
             }
-            if (ObjGetBase(Val) != Object.Prototype) {
+            if (!(Val is Map)) {
                 throw TypeError("Expected a plain object",, Type(Val))
             }
 
+            Result := {}
             for PropName in ObjOwnProps(this) {
                 PropDesc := GetProp(this, PropName)
                 if (!ObjHasOwnProp(PropDesc, "Value")) {
                     continue
                 }
                 T := PropDesc.Value
-
-                if (!ObjHasOwnProp(Val, PropName)) {
+                if (!Val.TryGet(PropName, &Value)) {
                     throw PropertyError("property not found",, PropName)
                 }
-                PropDesc := GetProp(Val, PropName)
-                if (!ObjHasOwnProp(PropDesc, "Value")) {
-                    throw PropertyError("not a value property",, PropName)
-                }
-                Value := PropDesc.Value
                 T.CastFromJson(&Value)
                 if (IsSet(Value)) {
-                    Define(Val, PropName, { Value: Value })
+                    Define(Result, PropName, { Value: Value })
                 }
             }
+            Val := Result
         }
     }
 
@@ -1109,4 +1125,3 @@ class AquaHotkey_Json_Serialization extends AquaHotkey {
 }
 
 ;@endregion
-

@@ -476,6 +476,8 @@ class AquaHotkey_GenericMap_Serialization extends AquaHotkey {
 class AquaHotkey_GenericMap_Json extends AquaHotkey {
     static __New() => IsSet(AquaHotkey_Json) && super.__New()
 
+    ; TODO how to convert elements, but not the class itself?
+
     class GenericMap {
         /**
          * Casts a JSON value into a generic map.
@@ -485,24 +487,17 @@ class AquaHotkey_GenericMap_Json extends AquaHotkey {
         static CastFromJson(&Val) {
             static GetProp := {}.GetOwnPropDesc
 
-            if (ObjGetBase(Val) != Object.Prototype) {
-                throw TypeError("Expected a plain object",, Type(Val))
+            if (!(Val is Map)) {
+                throw TypeError("Expected a map",, Type(Val))
             }
             K := this.KeyType
             V := this.ValueType
 
             Result := Array()
-            for PropName in ObjOwnProps(Val) {
-                PropDesc := GetProp(Val, PropName)
-                if (!ObjHasOwnProp(PropDesc, "Value")) {
-                    throw PropertyError("Not a value property",, PropDesc)
-                }
-                Value := PropDesc.Value
-
-                K.CastFromJson(&PropName)
+            for Key, Value in Val {
+                K.CastFromJson(&Key)
                 V.CastFromJson(&Value)
-
-                Result.Push(PropName, Value)
+                Result.Push(Key, Value)
             }
             Val := this(Result*)
         }
