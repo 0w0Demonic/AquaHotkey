@@ -929,14 +929,14 @@ class AquaHotkey_Uri extends AquaHotkey {
          */
         ToUri() => Uri(this)
     }
+}
 
-    static __New() {
-        this.Requires(AquaHotkey_DuckTypes?, "Uri.IsInstance")
-        this.Requires(AquaHotkey_Json?, "Uri.Prototype.ToJson",
-                                        "Uri.CastFromJson")
-        super.__New()
-    }
-
+/**
+ * {@link AquaHotkey_DuckTypes Duck type} support for {@link Uri}.
+ */
+class AquaHotkey_Uri_DuckTypes extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_DuckTypes) && super.__New()
+    
     class Uri {
         /**
          * Determines whether the given value is a valid instance {@link Uri}.
@@ -972,6 +972,19 @@ class AquaHotkey_Uri extends AquaHotkey {
             return (Val is this)
         }
         
+        ; note: we forced `static CanCastFrom(Val?)` to work by setting
+        ;       the base class of `Uri` (the class object, not the prototype)
+        ;       to `class String`.
+    }
+}
+
+/**
+ * {@link AquaHotkey_Json JSON bindings} for {@link Uri}.
+ */
+class AquaHotkey_Uri_Json extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Json) && super.__New()
+
+    class Uri {
         /**
          * Returns the string representation of this URI.
          * 
@@ -987,10 +1000,6 @@ class AquaHotkey_Uri extends AquaHotkey {
         static CastFromJson(&Val) {
             Val := this(Val)
         }
-
-        ; note: we forced `static CanCastFrom(Val?)` to work by setting
-        ;       the base class of `Uri` (the class object, not the prototype)
-        ;       to `class String`.
     }
 }
 
@@ -1033,4 +1042,3 @@ class AquaHotkey_Uri_Serialization extends AquaHotkey {
 }
 
 ;@endregion
-
