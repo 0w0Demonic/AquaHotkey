@@ -343,8 +343,8 @@ class IMap {
      * 
      * @param   {Any}   Key     map key
      * @param   {Func}  Mapper  mapper function
-     * @param   
      * @param   {Any*}  Args    zero or more arguments
+     * @returns {Any}
      */
     Compute(Key, Mapper, Args*) {
         GetMethod(Mapper)
@@ -636,4 +636,3 @@ class AquaHotkey_IMap_Serialization extends AquaHotkey {
         }
     }
 }
-
