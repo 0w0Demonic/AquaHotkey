@@ -43,11 +43,6 @@ class MapEntry extends IMapEntry {
  */
 class AquaHotkey_MapEntry extends AquaHotkey {
     class IMap {
-        static __New() {
-            ({}.DefineProp)(this.Prototype, "Entry",    { Get:  MapEntry })
-            ({}.DefineProp)(this.Prototype, "GetEntry", { Call: MapEntry })
-        }
-
         /**
          * Returns the map entry associated with this map and the given key.
          * 
