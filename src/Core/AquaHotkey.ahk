@@ -555,7 +555,7 @@ class AquaHotkey_Ignore
                     continue
                 }
                 if (ObjHasOwnProp(PropDesc, "Get")) {
-                    try Obj := (PropDesc.Get)(Obj)
+                    Obj := (PropDesc.Get)(Obj)
                     continue
                 }
                 throw PropertyError("Unknown property", -2, Prop)
@@ -807,7 +807,6 @@ class AquaHotkey_Ignore
          * @returns {Boolean}
          */
         static GetValueOfProp(Obj, PropertyName) {
-            Out := unset
             PropDesc := GetPropDesc(Obj, PropertyName)
             switch {
                 case (ObjHasOwnProp(PropDesc, "Value")):
