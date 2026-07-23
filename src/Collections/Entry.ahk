@@ -170,9 +170,6 @@ class Entry {
  */
 class AquaHotkey_Entry extends AquaHotkey {
     class IMap {
-        ; TODO add strictly 2-arg implementation into IMap? would
-        ;      have to `#Include <Base/Eq>`
-
         /**
          * Determines whether the map contains the given map entry.
          * 
@@ -270,8 +267,6 @@ class AquaHotkey_Entry_Json extends AquaHotkey {
             if (!(Val is Map)) {
                 throw TypeError("Expected a Map",, Type(Val))
             }
-            ; TODO make property named case-insensitive?
-
             Key   := Val.Get("Key")
             Value := Val.Get("Value")
             (this.Key).CastFromJson(&Key)

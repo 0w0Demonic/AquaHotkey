@@ -59,5 +59,40 @@ class AquaHotkey_MapEntry extends AquaHotkey {
     }
 }
 
+/**
+ * {@link AquaHotkey_Serializer binary serialization} support for
+ * {@link MapEntry}.
+ */
+class AquaHotkey_MapEntry_Serialization extends AquaHotkey {
+    static __New() => IsSet(AquaHotkey_Serializer) && super.__New()
+
+    class MapEntry {
+        /**
+         * Serializes this map entry into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    previously seen objects
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            Output.WriteObject(this.M, Refs)
+            Output.WriteObject(this.Key, Refs)
+        }
+
+        /**
+         * Reconstructs a map entry from binary.
+         * 
+         * @param   {InputStream}  Input  input stream
+         * @param   {Map}          Refs   previously seen objects
+         */
+        Deserialize(Input, Refs) {
+            Input.ReadObject(&Key, Refs)
+            Input.ReadObject(&M, Refs)
+            ({}.DefineProp)(this, "M",   { Get: (_) => M   })
+            ({}.DefineProp)(this, "Key", { Get: (_) => Key })
+        }
+    }
+}
+
 ;@endregion
 
