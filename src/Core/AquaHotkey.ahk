@@ -891,15 +891,60 @@ class AquaHotkey_Ignore
 
         LogVerbose(2, "# __Init()")
         if ((Supplier is Class) && (Receiver is Class)
-                && (HasBase(Receiver, Object)))
+                && ((Receiver == Object) || HasBase(Receiver, Object)))
         {
-            ReceiverInit := ReceiverProto.__Init
-            SupplierInit := SupplierProto.__Init
+            ; because `.__Init()` is only relevant for `Object.Call`, the class
+            ;         must either be equal to `Object` or derive from it
+
+            ReceiverInit := GetInitializer(ReceiverProto)
+            SupplierInit := GetInitializer(SupplierProto)
+
+            /**
+             * Gets the `.__Init()` method of an object, assuring that
+             * `.__Init()` is a valid method. If `.__Init()` doesn't exist,
+             * `false` is returned.
+             * 
+             * @param   {Object}  Obj  any object
+             * @returns {Func|false}
+             */
+            static GetInitializer(Obj) {
+                if (!IsObject(Obj)) {
+                    throw TypeError("Expected an Object",, Type(Obj))
+                }
+                if (!HasProp(Obj, "__Init")) {
+                    return false
+                }
+                loop {
+                    if (ObjHasOwnProp(Obj, "__Init")) {
+                        PropDesc := GetPropDesc(Obj, "__Init")
+                        if (!ObjHasOwnProp(PropDesc, "Call")) {
+                            throw MethodError("invalid method")
+                        }
+                        return PropDesc.Call
+                    }
+                    Obj := ObjGetBase(Obj)
+                } until (!Obj)
+            }
 
             ReceiverInitName := ReceiverProtoName . ".__Init"
             SupplierInitName := SupplierProtoName . ".__Init"
 
-            if (SupplierInit != ReceiverInit) {
+            ; TODO treat missing `.__Init()` as error?
+            if (!SupplierInit)
+            {
+                LogVerbose(3, "ignore. supplier .__Init() does not exist")
+            }
+            else if (!ReceiverInit)
+            {
+                LogVerbose(3, "ignore. receiver .__Init() does not exist")
+            }
+            else if (SupplierInit == ReceiverInit)
+            {
+                LogVerbose(3, "ignore. both .__Init() methods equal {1}",
+                        ReceiverInitName)
+            }
+            else
+            {
                 __Init(Instance) {
                     ReceiverInit(Instance) ; previous `__Init()`
                     SupplierInit(Instance) ; our new `__Init()`
@@ -910,9 +955,6 @@ class AquaHotkey_Ignore
                 LogVerbose(3, "2. {1}", SupplierInitName)
                 Define(ReceiverProto, "__Init", { Call: __Init }, true)
                 LogVerbose(3, "done.")
-            } else {
-                LogVerbose(3, "ignore. both __Init() methods equal {1}",
-                            ReceiverInitName)
             }
         } else {
             LogVerbose(3, "incompatible.")
@@ -925,7 +967,7 @@ class AquaHotkey_Ignore
         LogVerbose(2, "# Function Delegation")
         if (Supplier is Func) {
             for Name in ObjOwnProps(Func.Prototype) {
-                LogVerbose("      > {1}", Name)
+                LogVerbose(3, "> {1}", Name)
                 Define(Receiver, Name,
                        Delegate(Func.Prototype, Name, Supplier),
                        true)
