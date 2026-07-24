@@ -123,6 +123,7 @@ if (VerCompare(A_AhkVersion, "<v2.1-alpha.3")) {
 class AquaHotkey extends AquaHotkey_Ignore
 {
     ;@region static __New()
+
     /**
      * Initializes AquaHotkey's "main" patching system.
      * 
@@ -191,11 +192,10 @@ class AquaHotkey extends AquaHotkey_Ignore
      * a function.
      * 
      * @public
-     * @example
-     * (AquaHotkey.Deref)("String")
-     * 
      * @param   {String}  this  name of global value
      * @returns {Any}
+     * @example
+     * (AquaHotkey.Deref)("String")
      */
     static Deref() => %this%
 
@@ -207,6 +207,7 @@ class AquaHotkey extends AquaHotkey_Ignore
 
     class Any {
         ;@region Implements()
+
         /**
          * Determines whether this value implements the given mixin class.
          * 
@@ -235,11 +236,13 @@ class AquaHotkey extends AquaHotkey_Ignore
             } until (!Val)
             return false
         }
+
         ;@endregion
     }
 
     class Class {
         ;@region Mixins
+
         /**
          * The mixin classes implemented by this class.
          * 
@@ -490,6 +493,8 @@ class AquaHotkey_Ignore
     ;---------------------------------------------------------------------------
     ;@region static Version()
 
+    ; TODO rename this method to `.IsVersion()`?
+
     /**
      * Determines whether the current AutoHotkey version fulfills the given
      * version requirement. A version requirement should start with a
@@ -598,13 +603,14 @@ class AquaHotkey_Ignore
     ;---------------------------------------------------------------------------
     ;@region static Requires()
 
+    ; TODO reuse as assertion if no property paths are present?
+
     /**
      * Asserts that the given symbol is present in global namespace, otherwise
      * deletes one or more properties from the class by their property path.
      * 
-     * For this method, you must use the question mark (for example,
-     * `MyClass?`) to resolve a symbol either to its value, or to `unset` (see
-     * example below).
+     * For this method, you must use the question mark (e.g. `MyClass?`) to
+     * resolve a symbol either to its value, or to `unset` (see example below).
      * 
      * @public
      * @param   {Any?}     Symbol         any global variable
@@ -675,6 +681,8 @@ class AquaHotkey_Ignore
     ;---------------------------------------------------------------------------
     ;@region static Apply()
 
+    ; TODO extend usage of `Override` into an int representing priority?
+
     /**
      * Transfers all of the properties owned by the `Supplier` and overwrites
      * them into the given `Receiver`.
@@ -689,6 +697,7 @@ class AquaHotkey_Ignore
      */
     static Apply(Supplier, Receiver, Override := true) {
         ;@region Helper Functions
+
         /**
          * `Object.Prototype.DefineProp()`.
          * 
@@ -710,24 +719,23 @@ class AquaHotkey_Ignore
         }
 
         /**
-         * `Object.Prototype.DeleteProp(`.
+         * `Object.Prototype.DeleteProp()`.
          * 
          * @param   {Object}  Obj   object to delete property from
          * @param   {String}  Name  name of property
-         * 
          */
-        static Delete(Obj, Name) => ({}.DeleteProp)(Obj, Name)
+        static Delete(Obj, Name) {
+            ({}.DeleteProp)(Obj, Name)
+        }
 
         /**
          * `Object.Prototype.GetOwnPropDesc()`.
          * 
          * @param   {Object}  Obj   object to retrieve property from
          * @param   {String}  Name  name of property
+         * @returns {Object}
          */
-        static GetPropDesc(Obj, Name) {
-            static PD := ({}.GetOwnPropDesc)
-            return PD(Obj, Name)
-        }
+        static GetPropDesc(Obj, Name) => ({}.GetOwnPropDesc)(Obj, Name)
 
         /**
          * Resolves the name and "prototype" of the given class or function.
@@ -1015,7 +1023,7 @@ class AquaHotkey_Ignore
             ; in the form of `{ get; call; }`, we don't allow simple
             ; `{ value; }` property descriptors.
             ; 
-            ; dev-note: we can't change for the `Name` property of functions,
+            ; dev-note: we can't check for the `Name` property of functions,
             ;           (which is `""` only when explicitly defined as nested
             ;           class) because there's occasions we have to create our
             ;           own property descriptors. `MaxParams` should be fine
@@ -1057,7 +1065,7 @@ class AquaHotkey_Ignore
                 continue
             }
 
-            NestedSupplier := GetValueOfProp(Supplier, Name)
+            NestedSupplier     := GetValueOfProp(Supplier, Name)
             NestedSupplierName := NestedSupplier.Prototype.__Class
             NestedReceiverName := ReceiverName . "." . Name
 
@@ -1139,14 +1147,18 @@ class AquaHotkey_Ignore
  *     ...
  * }
  */
-class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
+class AquaHotkey_MultiApply extends AquaHotkey_Ignore
+{
     ;@region static __New()
+
     /**
      * Initializes AquaHotkey's multi-apply system.
      * 
      * The contents of this class are copied into one or more specified
      * targets.
      * 
+     * @param   {Object*}  Targets  where to copy properties into
+     * @returns {this}
      * @example
      * ; deprecated
      * static __New() => super.__New(Gui.Button, Gui.ComboBox)
@@ -1154,9 +1166,6 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
      * @example
      * ; new version
      * static __New() => this.ApplyOnto(Gui.Button, Gui.ComboBox)
-     * 
-     * @param   {Object*}  Targets  where to copy properties into
-     * @returns {this}
      */
     static __New(Receivers*) {
         Log(Str, Args*) {
@@ -1186,9 +1195,11 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
     }
     ;@endregion
 }
-;@endregion
 
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region AquaHotkey_Backup
+
 /**
  * @public
  * @abstract
@@ -1217,8 +1228,10 @@ class AquaHotkey_MultiApply extends AquaHotkey_Ignore {
  * ; method 3: `AquaHotkey_Backup.Of(Targets*)`
  * Gui_Backup := AquaHotkey_Backup.Of(Gui)
  */
-class AquaHotkey_Backup extends AquaHotkey_Ignore {
+class AquaHotkey_Backup extends AquaHotkey_Ignore
+{
     ;@region static __New()
+
     /**
      * Initializes AquaHotkey's backup system.
      * 
@@ -1226,6 +1239,8 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
      * its subclasses are loaded, copying and maintaining the contents of
      * one or more specified sources.
      * 
+     * @param   {Object*}  Suppliers  where to copy properties from
+     * @returns {this}
      * @example
      * ; deprecated
      * static __New() => super.__New(Array)
@@ -1233,9 +1248,6 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
      * @example
      * ; new version
      * static __New() => this.Backup(Array)
-     * 
-     * @param   {Object*}  Suppliers  where to copy properties from
-     * @returns {this}
      */
     static __New(Suppliers*) {
         Log(Str, Args*) {
@@ -1271,11 +1283,10 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
     /**
      * Creates a complete and useable copy of the given class.
      * 
-     * @example
-     * StringClass := AquaHotkey_Backup.Of(String)
-     * 
      * @param   {Class}  Cls  the class to be copied
      * @returns {Class}
+     * @example
+     * StringClass := AquaHotkey_Backup.Of(String)
      */
     static Of(Cls) {
         if (!(Cls is Class)) {
@@ -1288,4 +1299,6 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore {
 
     ;@endregion
 }
+
 ;@endregion
+
