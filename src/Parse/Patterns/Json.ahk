@@ -324,7 +324,7 @@ class Json extends Class
          * 
          * @returns {String}
          */
-        ToString() => "Json.True"
+        ToString() => "Json.False"
     }
 
     ;@endregion
