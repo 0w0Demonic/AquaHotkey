@@ -310,7 +310,7 @@ class AquaHotkey_Serial extends AquaHotkey {
          * Serializes the buffer into binary.
          * 
          * @param   {OutputStream}  Output  output stream
-         * @param   {Refs}          Refs    previously seen objects
+         * @param   {Map}           Refs    previously seen objects
          * @see {@link AquaHotkey_Serializer}
          */
         Serialize(Output, Refs) {
@@ -370,9 +370,58 @@ class AquaHotkey_Serial extends AquaHotkey {
         ; note: `.Deserialize()` is hard-coded in `.ReadObject()`.
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Error
+
+    class Error {
+        /**
+         * Serializes the error into binary.
+         * 
+         * @param   {OutputStream}  Output  output stream
+         * @param   {Map}           Refs    previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Serialize(Output, Refs) {
+            (Object.Prototype.Serialize)(this, Output, Refs)
+            for PropertyName in ObjOwnProps(this) {
+                PropDesc := this.GetOwnPropDesc(PropertyName)
+                if (ObjHasOwnProp(PropDesc, "Value")) {
+                    Output.WriteUShort(StrLen(PropertyName))
+                    Output.Write(PropertyName)
+                    Output.WriteObject(PropDesc.Value, Refs)
+                }
+            }
+            Output.WriteUShort(0)
+        }
+
+        /**
+         * Reconstructs an error from binary.
+         * 
+         * @param   {InputStream}  Input  output stream
+         * @param   {Map}          Refs   previously seen objects
+         * @see {@link AquaHotkey_Serializer}
+         */
+        Deserialize(Input, Refs) {
+            loop {
+                Size := Input.ReadUShort()
+                if (!Size) {
+                    break
+                }
+                PropName := Input.Read(Size)
+                Input.ReadObject(&Value, Refs)
+                this.DefineProp(PropName, { Value: Value })
+            }
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Unsupported
+
     class Unsupported extends AquaHotkey_Ignore {
         static __New() => this.ApplyOnto(
-                Error, File, Func, Gui, Gui.Control,
+                File, Func, Gui, Gui.Control,
                 InputHook, Menu, MenuBar,
                 RegExMatchInfo, VarRef, ComValue)
 
@@ -397,4 +446,6 @@ class AquaHotkey_Serial extends AquaHotkey {
             throw TypeError("Unsupported type",, Type(this))
         }
     }
+
+    ;@endregion
 }
