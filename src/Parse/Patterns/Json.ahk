@@ -227,7 +227,6 @@ class Json extends Class
          */
         CanCastFrom(Val?) => IsSet(Val) && ((this == Val) || HasBase(Val, this))
 
-        ; TODO be more lenient?
         /**
          * Converts the given value into a JSON boolean. The value must either
          * already be a JSON boolean (either `Json.True` or `Json.False`), or
@@ -384,6 +383,8 @@ class Json extends Class
 
     ; (sets up the JSON parser as `Json.Parser { get; }`)
     static __New() {
+        ;@region Helpers
+
         static Define  := {}.DefineProp
         static GetProp := {}.GetOwnPropDesc
         static Delete  := {}.DeleteProp
@@ -391,62 +392,36 @@ class Json extends Class
         static DefineGetter(Obj, Name, Getter) {
             Define(Obj, Name, { Get: Getter })
         }
+
         static DefineConstGetter(Obj, Name, Value) {
             DefineGetter(Obj, Name, Constantly(Value))
         }
+
         static DefineMethod(Obj, Name, Method) {
             Define(Obj, Name, { Call: Method })
         }
+
         static DefineConstMethod(Obj, Name, Value) {
             DefineMethod(Obj, Name, Constantly(Value))
         }
-        static Constantly(Value) => (_) => (Value)
+
+        static Constantly(Value) => ((_) => (Value))
 
         static Rename(Obj, OldName, NewName) {
             PropDesc := GetProp(Obj, OldName)
             Delete(Obj, OldName)
             Define(Obj, NewName, PropDesc)
         }
-        
-        /**
-         * String concat.
-         * 
-         * @param   {String*}  Strs  strings
-         * @returns {String}
-         */
-        static Concat(Strs*) {
-            Result := ""
-            for S in Strs {
-                Result .= S
-            }
-            return Result
-        }
-
-        /**
-         * 4 hex chars code point (Unicode escape) to corresponding character.
-         * 
-         * @param   {String}  Hex  4 hex digits
-         * @returns {String}
-         */
-        static HexToChar(Hex) => Chr(Integer("0x" . Hex))
-
-        /**
-         * Properties (key-value pairs) to a single map.
-         * 
-         * @param   {Object*}  Props  object properties
-         * @returns {Map}
-         */
-        static PropsToMap(Props*) {
-            Result := Map()
-            for Prop in Props {
-                Result.Set(Prop.Key, Prop.Value)
-            }
-            return Result
-        }
 
         if (this != Json) {
             throw ValueError("this class must not be subclassed")
         }
+
+        JsonValue := Parser.Rule(&_JsonValue)
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region True/False/Null
 
         Rename(this, "__True", "True")
         Rename(this, "__False", "False")
@@ -455,30 +430,33 @@ class Json extends Class
         DefineConstGetter(this, "False", this.False.Prototype)
         DefineConstGetter(this, "Null", this.Null.Prototype)
 
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Comments
+
         static Ws := Parser.Rule(&_Ws)
 
         static NoComments := Parser.Regex("[\t\r\n ]*")
         static Comments := Parser.Regex("s)(?:[\t\r\n ]|//\V*+|/\*.*?\*/)*")
 
+        ; TODO create marker class for JSONC comments
+
         static _Ws := (IsSet(AquaHotkey_cfg_Json_AllowComments))
             ? Comments
             : NoComments
-        
-        static Json_EnableComments(_) {
-            _Ws := Comments
+
+        Define(this, "AllowsComments", {
+            Get: (_) => (_Ws == Comments),
+            Set: Json_AllowsComments_Set
+        })
+
+        static Json_AllowsComments_Set(_, OnOff) {
+            _Ws := (OnOff) ? Comments : NoComments
         }
-        static Json_DisableComments(_) {
-            _Ws := NoComments
-        }
 
-        ; TODO make this mutable?
-        static Json_AllowsComments(_) => (_Ws == Comments)
-
-        DefineGetter(this, "AllowsComments", Json_AllowsComments)
-        DefineMethod(this, "EnableComments", Json_EnableComments)
-        DefineMethod(this, "DisableComments", Json_DisableComments)
-
-        static CommaDelim := Parser.String(",").Between(Ws)
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Strings
 
         static Escapes := Map(
             "\", "\",
@@ -490,53 +468,166 @@ class Json extends Class
             "t", "`t"
         )
 
-        NamedEscape := Parser.Regex('["\\bfnrt]').Map(S => Escapes[S])
-        UnicodeEscape := Parser.Regex('[0-9a-fA-F]{4}').Map(HexToChar)
-        Escape := Parser.String("\").Then(Parser.AnyOf(NamedEscape, UnicodeEscape))
+        Escape := Parser.String("\").Then(Parser.AnyOf(
+            ; named escape -> access from map
+            Parser.Regex('["\\bfnrt]').Map(ObjBindMethod(Escapes, "Get")),
+
+            ; unicode escape -> hex codepoint to charchar
+            Parser.Regex('[0-9a-fA-F]{4}').Map(Hex => Chr(Integer("0x" . Hex)))
+        ))
 
         Char := Parser.Regex('(?!")[\x{20}-\x{21}\x{23}-\x{5B}\x{5D}-\x{10FFFF}]')
 
-        JsonStr := Parser.AnyOf(Escape, Char)
-            .ZeroOrMore(Concat, "")
-            .Between('"')
+        ; TODO might have lots of potential for optimization, maybe write
+        ;      own string parser
 
-        Exponent := Parser
-            .Regex("(?:e|E)\K(?:\+|-)?(?:0|[0-9][1-9]*)")
-            .Optional()
-        
+        JsonStr := (Escape.Or(Char)).ZeroOrMore(Concat, "").Between('"')
+
+        static Concat(Strs*) {
+            Result := ""
+            for S in Strs {
+                Result .= S
+            }
+            return Result
+        }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Numbers
+
         JsonNum := Parser.Sequence(
-            (Num, Exponent) => Number(Num) * (10 ** Exponent.OrElse(0)),
+            (Num, Exponent) => Number(Num) * (10 ** Exponent),
+
+            ; <sign>? <integer> <fraction>?
             Parser.Regex("-?(?:0|[1-9][0-9]*)(?:\.[0-9])?"),
-            Exponent)
 
-        JsonValue := Parser.Rule(&_JsonValue)
+            ; <exponent>?
+            Parser.Regex("(?:e|E)\K(?:\+|-)?(?:0|[0-9][1-9]*)").OrElse(0)
+        )
 
-        JsonProp := Parser.Sequence(
-            (Key, Value) => { Key: Key, Value: Value },
-            JsonStr.FollowedBy(Parser.String(":").Between(Ws)),
-            JsonValue
-        ).Between(Ws)
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Objects
 
-        JsonObj := JsonProp
-            .AtLeastOnceDelimitedBy(CommaDelim, PropsToMap)
-            .OrElseGet(Map)
+        /**
+         * Case sensitivity of object properties.
+         */
+        static PropertyCaseSense := "On"
+
+        Define(this, "CaseSense", {
+            Get: (Cls) => PropertyCaseSense,
+            Set: SetPropertyCaseSense
+        })
+
+        /**
+         * Sets the case sensitivity of objects.
+         * 
+         * @param   {Class}      Cls    calling class
+         * @param   {Primitive}  Value  new case sensitivity
+         */
+        static SetPropertyCaseSense(Cls, Value) {
+            if (!(Value is Primitive)) {
+                throw TypeError("Expected a Boolean or String",, Type(Value))
+            }
+            if (!(Value ~= "i)^(?:1|0|on|off|locale)$")) {
+                throw ValueError("invalid case sensitivity",, Cls)
+            }
+            PropertyCaseSense := Value
+        }
+
+        static CommaDelim := Parser.String(",").Between(Ws)
+
+        JsonObj := Parser.Sequence(
+                (Key, Value) => { Key: Key, Value: Value },
+                JsonStr.FollowedBy(Parser.String(":").Between(Ws)),
+                JsonValue
+            )
+            .Between(Ws)
+            .ZeroOrMoreDelimitedBy(CommaDelim)
             .Between("{", "}")
+            .Map(PropsToMap)
 
-        JsonArr := (JsonValue.Between(Ws))
-            .AtLeastOnceDelimitedBy(CommaDelim, Array)
-            .OrElseGet(Array)
+        static PropsToMap(Props) {
+            Result := Map()
+            Result.CaseSense := PropertyCaseSense
+            for Prop in Props {
+                Result.Set(Prop.Key, Prop.Value)
+            }
+            return Result
+        }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Arrays
+
+        JsonArr := JsonValue
+            .ZeroOrMoreDelimitedBy(CommaDelim)
             .Between("[", "]")
+        
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Parser
 
         _JsonValue := Parser.AnyOf(
-            Parser.String("true").Map((*) => Json.True),
-            Parser.String("false").Map((*) => Json.False),
-            Parser.String("null").Map((*) => Json.Null),
+            Parser.String("true").ThenReturn(Json.True),
+            Parser.String("false").ThenReturn(Json.False),
+            Parser.String("null").ThenReturn(Json.Null),
             JsonNum, JsonStr, JsonArr, JsonObj
         ).Between(Ws)
 
-        JsonParser := JsonValue.Between(Ws)
+        JsonParser := _JsonValue
 
         DefineConstGetter(this, "Parser", JsonParser)
+
+        ;@endregion
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region General
+
+    ; NOTE: this section is created during `static __New()`. It is merely
+    ;       there for the sake of readability and support for AHK LSP.
+
+    /**
+     * Whether the JSON parser supports JSONC comments.
+     * 
+     * @property {Boolean}
+     */
+    static AllowsComments {
+        get {
+            throw PropertyError("not implemented")
+        }
+        set {
+            throw PropertyError("not implemented")
+        }
+    }
+
+    /**
+     * Sets the case sensitivity for objects (accepts same values as
+     * {@link Map#CaseSense}).
+     * 
+     * @property {Primitive}
+     */
+    static CaseSense {
+        get {
+            throw PropertyError("not implemented")
+        }
+        set {
+            throw PropertyError("not implemented")
+        }
+    }
+
+    /**
+     * The JSON parser.
+     * 
+     * @readonly
+     * @property {Parser}
+     */
+    static Parser {
+        get {
+            throw PropertyError("not implemented")
+        }
     }
 
     ;@endregion
@@ -692,8 +783,6 @@ class Json extends Class
 ;-------------------------------------------------------------------------------
 ;@region Extensions
 
-; TODO construction of more complex objects through `.FromJson()`
-
 /**
  * Extensions related to {@link Json}.
  */
@@ -738,8 +827,6 @@ class AquaHotkey_Json extends AquaHotkey {
                         Type(Val))
             }
         }
-
-        ; TODO add `.ToJson()`?
     }
 
     ;@endregion
@@ -774,7 +861,6 @@ class AquaHotkey_Json extends AquaHotkey {
          * @returns {Json(Object)}
          */
         ToJson() {
-            ; TODO allow casting numbers to strings?
             Result := "{"
             for Key, Value in this {
                 if (!(Key is String)) {
