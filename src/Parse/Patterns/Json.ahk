@@ -247,6 +247,17 @@ class Json extends Class
             }
             return (Val) ? Json.True : Json.False
         }
+
+        /**
+         * Casts JSON `true`/`false` from the given JSON value.
+         * 
+         * @param   {VarRef<Any>}  Val  any value
+         */
+        CastFromJson(&Val) {
+            if (Val != this) {
+                throw TypeError("Expected " . this.ToString(),, Type(Val))
+            }
+        }
     }
 
     /**
@@ -364,6 +375,17 @@ class Json extends Class
          * @returns {String}
          */
         ToString() => "Json.Null"
+
+        /**
+         * Casts a null value from JSON.
+         * 
+         * @param   {VarRef<Any>}  Val  any value
+         */
+        CastFromJson(&Val) {
+            if (Val != this) {
+                throw TypeError("Expected Json.Null",, Type(Val))
+            }
+        }
     }
     
     /**
