@@ -10,6 +10,8 @@
 
 ;@region Json
 
+; TODO implement custom map for e.g. navigation?
+
 /**
  * @duck
  * 
@@ -176,13 +178,12 @@
  * 
  * ### JSONC
  * 
- * This class supports JSONC (regular JSON but with C/C++-style comments), a
- * feature that can be activated and deactivated by calling
- * `Json.EnableComments()` and `Json.DisableComments()`. `Json.AllowsComments`
- * holds the current option (as a boolean), and is readonly.
+ * This class supports JSONC (regular JSON but with C/C++-style comments),
+ * a feature that can be activated and deactivated by accessing
+ * {@link Json.AllowsComments}.
  * 
  * ```ahk
- * Json.EnableComments()
+ * Json.AllowsComments := true
  * if (Json.AllowsComments) {
  *     MsgBox("comments are enabled!")
  * }
@@ -192,6 +193,22 @@
  * // single-line comment
  * { "Key": /* multi-line comment */ "Value" }
  * )".ParseJson() ; { Key: "Value" }
+ * ```
+ * 
+ * ---
+ * 
+ * ### Case Sensitivity
+ * 
+ * You can retrieve and change the case sensitivity of properties by accessing
+ * {@link Json.CaseSense}. It accepts exactly the same arguments as
+ * {@link Map#CaseSense}.
+ * 
+ * ```ahk
+ * Json.CaseSense := "Off"
+ * 
+ * ; (property "a" in lowercase gets overwritten, because properties are
+ * ;  set to case-insensitive.)
+ * '{ "a": "b", "A": "b" }'.ParseJson() ; Map { A: b }
  * ```
  * 
  * @module  <Parse/Patterns/Json>
