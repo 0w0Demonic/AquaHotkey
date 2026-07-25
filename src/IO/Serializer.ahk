@@ -277,45 +277,51 @@ class AquaHotkey_Serializer {
     /**
      * Deserializes a binary string into the original value.
      * 
-     * @param   {VarRef<Any>}  Result  (out) the original value
-     * @param   {Map?}         Refs    a map of previously seen objects
+     * @param   {VarRef<Any>?}  Out   (out) the original value
+     * @param   {Map?}          Refs  a map of previously seen objects
      */
-    ReadObject(&Result?, Refs := Map()) {
-        ByRef := IsSet(Result)
-        Tag := this.Read(1)
+    ReadObject(Out?, Refs := Map()) {
+        ByRef := IsSet(Out) && (Out is VarRef)
+        Tag   := this.Read(1)
+
         switch (Tag) {
-          case "u": Result := unset
-          case '"': Result := this.Read(this.ReadUInt())
-          case "i": Result := this.ReadInt64()
-          case "f": Result := this.ReadDouble()
-          case "#":
-            Reference := this.ReadUInt()
-            Result := Refs[Reference]
-          case "{":
-            Result := Object()
-            Refs[Refs.Count + 1] := Result
-            Result.Deserialize(this, Refs)
-          case "[":
-            Result := Array()
-            Refs[Refs.Count + 1] := Result
-            Result.Deserialize(this, Refs)
-          case "(":
-            Result := Map()
-            Refs[Refs.Count + 1] := Result
-            Result.Deserialize(this, Refs)
-          case "b":
-            Result := Buffer()
-            Refs[Refs.Count + 1] := Result
-            Result.Deserialize(this, Refs)
-          case "c":
-            Result := Class.ForName(this.Read(this.ReadUShort()))
-            Refs[Refs.Count + 1] := Result
-          default:
-            throw ValueError("invalid tag",, Tag . " (" . Ord(Tag) . ")")
+            case "u":
+                Result := unset
+            case '"':
+                Result := this.Read(this.ReadUInt())
+            case "i":
+                Result := this.ReadInt64()
+            case "f":
+                Result := this.ReadDouble()
+            case "#":
+                Reference := this.ReadUInt()
+                Result := Refs[Reference]
+            case "{":
+                Result := Object()
+                Refs[Refs.Count + 1] := Result
+                Result.Deserialize(this, Refs)
+            case "[":
+                Result := Array()
+                Refs[Refs.Count + 1] := Result
+                Result.Deserialize(this, Refs)
+            case "(":
+                Result := Map()
+                Refs[Refs.Count + 1] := Result
+                Result.Deserialize(this, Refs)
+            case "b":
+                Result := Buffer()
+                Refs[Refs.Count + 1] := Result
+                Result.Deserialize(this, Refs)
+            case "c":
+                Result := Class.ForName(this.Read(this.ReadUShort()))
+                Refs[Refs.Count + 1] := Result
+            default:
+                throw ValueError("invalid tag", , Tag . " (" . Ord(Tag) . ")")
         }
 
-        ; TODO find out how to deal with `return unset`
-        if ((!ByRef) && IsSet(Result)) {
+        if (ByRef) {
+            %Out% := Result
+        } else {
             return Result
         }
     }
