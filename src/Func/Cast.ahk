@@ -27,7 +27,7 @@ class AquaHotkey_FuncCasting extends AquaHotkey {
          * IsNumber.Is(Predicate) ; false
          */
         static Call(Fn, MethodName?, Args*) {
-            GetMethod(Fn)
+            GetMethod(Fn, MethodName?)
             return this.Cast(ObjBindMethod(Fn, MethodName?, Args*))
         }
 
