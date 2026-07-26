@@ -2,6 +2,7 @@
 #Include "%A_LineFile%\..\..\Func\Comparator.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 #Include "%A_LineFile%\..\..\Base\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
 /**
  * Introduces an interface for imposing the natural order between values of
@@ -350,7 +351,7 @@ class AquaHotkey_Comparable extends AquaHotkey
          * @example
          * MyArray.Sort(String.Compare)
          */
-        Compare => Comparator(ObjBindMethod(this, "Compare"))
+        Compare => Comparator.Cast(ObjBindMethod(this, "Compare"))
         ; note: defined in <Func/Cast>
 
         /**
