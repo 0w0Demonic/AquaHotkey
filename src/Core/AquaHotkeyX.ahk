@@ -76,8 +76,9 @@
     #Include "%A_LineFile%\..\..\Interfaces\ISet.ahk"
 ;@endregion
 ;@region IO/
-    #Include "%A_LineFile%\..\..\IO\FileUtils.ahk"
-    #Include "%A_LineFile%\..\..\IO\Path.ahk"
+   ;#Include "%A_LineFile%\..\..\IO\FileUtils.ahk"
+    #Include "%A_LineFile%\..\..\IO\Json.ahk"
+   ;#Include "%A_LineFile%\..\..\IO\Path.ahk"
     #Include "%A_LineFile%\..\..\IO\Serial.ahk"
     #Include "%A_LineFile%\..\..\IO\Serializer.ahk"
 ;@endregion
