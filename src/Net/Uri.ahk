@@ -906,6 +906,31 @@ class Uri {
     }
 
     ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Misc.
+
+    /**
+     * Runs this URI.
+     * 
+     * @param   {String?}           Dir  working directory
+     * @param   {String?}           Opt  additional options
+     * @param   {VarRef<Integer?>}  PID  output PID
+     */
+    Run(Dir?, Opt?, &PID?) {
+        Run(this.ToString(), Dir?, Opt?, &PID)
+    }
+
+    /**
+     * Runs this URI and waits for exit, returning the exit code.
+     * 
+     * @param   {String?}           Dir  working directory
+     * @param   {String?}           Opt  additional options
+     * @param   {VarRef<Integer?>}  PID  output PID
+     * @returns {Integer}
+     */
+    RunWait(Args*) => RunWait(this.ToString(), Args*)
+
+    ;@endregion
 }
 
 ;@endregion
