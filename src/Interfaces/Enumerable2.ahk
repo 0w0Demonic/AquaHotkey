@@ -77,6 +77,7 @@ class Enumerable2 {
      * Map(1, 2, 3, 4).ForEach2((K, V) => MsgBox(K . " => " . V))
      */
     ForEach2(Action, Args*) {
+        GetMethod(Action)
         for Key, Value in this {
             Action(Key?, Value?, Args*)
         }
