@@ -18,7 +18,8 @@
  * ; create a new set
  * S := Set.OfType(Integer)(1, 2, 3)
  */
-class GenericSet extends ISet {
+class GenericSet extends ISet
+{
     ;@region Construction
 
     /**
@@ -63,11 +64,9 @@ class GenericSet extends ISet {
 
         Delete(this.Prototype, "__Class")
         Define(this, "Name", { Get: (_) => ClassName })
-        Define(this.Prototype, "ToString",      { Call: ToString })
+
         Define(this.Prototype, "ComponentType", { Get: (_) => T })
         Define(this.Prototype, "SetType",       { Get: (_) => S })
-
-        ToString(this) => ClassName . String(this.S)
     }
 
     /**
@@ -85,6 +84,33 @@ class GenericSet extends ISet {
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Type Info
+
+    /**
+     * The name of this generic set class.
+     * 
+     * @property {String}
+     */
+    static Name => (this.Prototype.ClassName)
+
+    /**
+     * The name of the class. Provides information about the set and component
+     * type.
+     * 
+     * @property {String}
+     */
+    ClassName {
+        get {
+            Name := (this.SetType.Prototype.__Class)
+                . "<" (this.ComponentTypeName) . ">"
+
+            Obj := this
+            while (!ObjHasOwnProp(Obj, "SetType")) {
+                Obj := ObjGetBase(Obj)
+            }
+            ({}.DefineProp)(Obj, "ClassName", { Get: (_) => Name })
+            return Name
+        }
+    }
 
     /**
      * The component type of this generic set, which describes the type of
@@ -110,6 +136,38 @@ class GenericSet extends ISet {
     ComponentType {
         get {
             throw PropertyError("component type not found")
+        }
+    }
+
+    /**
+     * Name of the component type used in this generic set class.
+     * 
+     * @property {String}
+     */
+    static ComponentTypeName => (this.Prototype).ComponentTypeName
+
+    /**
+     * Name of the component type used in this generic set.
+     * 
+     * @property {String}
+     */
+    ComponentTypeName {
+        get {
+            T := this.ComponentType
+            if (T is Class) {
+                Name := T.Prototype.__Class
+            } else if (IsSet(AquaHotkey_ToString)) {
+                Name := String(T)
+            } else {
+                Name := Type(T)
+            }
+
+            Obj := this
+            while (!ObjHasOwnProp(Obj, "ComponentType")) {
+                Obj := ObjGetBase(Obj)
+            }
+            ({}.DefineProp)(Obj, "ComponentTypeName", { Get: (_) => Name })
+            return Name
         }
     }
 
@@ -243,7 +301,7 @@ class GenericSet extends ISet {
      * 
      * @returns {String}
      */
-    ToString() => Type(this) . String(this.S)
+    ToString() => this.ClassName . String(this.S)
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -258,8 +316,8 @@ class GenericSet extends ISet {
     Add(Values*) {
         for Value in Values {
             if (!this.ComponentType.IsInstance(Value?)) {
-                throw TypeError("Expected " . String(this.ComponentType),,
-                        IsSet(Val) ? Type(Val) : "unset")
+                throw TypeError("Expected a(n) " . this.ComponentTypeName, -2,
+                        Type(Value))
             }
         }
         return (this.S).Add(Values*)
@@ -317,6 +375,8 @@ class GenericSet extends ISet {
      * @returns {Integer}
      */
     Size => (this.S).Size
+
+    ;@endregion
 }
 
 ;@endregion
@@ -410,4 +470,3 @@ class AquaHotkey_GenericSet_Serialization extends AquaHotkey {
 }
 
 ;@endregion
-

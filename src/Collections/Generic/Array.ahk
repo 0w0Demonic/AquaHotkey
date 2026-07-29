@@ -122,28 +122,12 @@ class GenericArray extends IArray
             T := C(T) ; e.g.: `T := Nullable(String)`
         }
 
-        ; name of class represented in `static Name`. see <Base/TypeInfo>.
-        OuterType := A.Prototype.__Class
-
-        if (T is Class) {
-            InnerType := T.Prototype.__Class
-        } else if (IsSet(AquaHotkey_ToString)) {
-            InnerType := String(T)
-        } else {
-            InnerType := Type(T)
-        }
-        ClassName := (OuterType . "<" . InnerType . ">")
-
         ; remove `.__Class` to make sure that class prototypes are
         ; deletable. (see AHK docs: `/Objects.htm#Custom_NewDelete`)
         Delete(this.Prototype, "__Class")
 
-        Define(this, "Name", { Get: (_) => ClassName })
-        Define(this.Prototype, "ToString",      { Call: ToString })
         Define(this.Prototype, "ComponentType", { Get: (_) => T })
         Define(this.Prototype, "ArrayType",     { Get: (_) => A })
-
-        ToString(this) => ClassName . String(this.A)
     }
 
     /**
@@ -164,6 +148,35 @@ class GenericArray extends IArray
     ;@region Type Info
 
     /**
+     * The name of the class. This property is meant to be an override for
+     * the `Class#Name` property defined in {@link AquaHotkey_TypeInfo}, as
+     * `.__Class` cannot be used to determine the name of the class.
+     * 
+     * @property {String}
+     */
+    static Name => (this.Prototype).ClassName
+
+    /**
+     * The name of the class. Provides information about the array and
+     * component type.
+     * 
+     * @property {String}
+     */
+    ClassName {
+        get {
+            ClassName := (this.ArrayType.Prototype.__Class)
+                            . "<" . this.ComponentTypeName . ">"
+
+            Obj := this
+            while (!ObjHasOwnProp(Obj, "ComponentType")) {
+                Obj := ObjGetBase(Obj)
+            }
+            ({}.DefineProp)(Obj, "ClassName", { Get: (_) => ClassName })
+            return ClassName
+        }
+    }
+
+    /**
      * Returns the component type of this generic array. In other words, the
      * type which the array holds elements of.
      * 
@@ -171,7 +184,7 @@ class GenericArray extends IArray
      * @see {@link GenericArray#ComponentType}
      */
     static ComponentType => (this.Prototype).ComponentType
-    
+
     /**
      * Returns the component type of this generic array. In other words, the
      * type which the array holds elements of.
@@ -188,6 +201,38 @@ class GenericArray extends IArray
     ComponentType {
         get {
             throw PropertyError("component type not found")
+        }
+    }
+
+    /**
+     * The generic array class's component type displayed as string.
+     * 
+     * @property {String}
+     */
+    static ComponentTypeName => (this.Prototype).ComponentTypeName
+
+    /**
+     * The generic array's component type displayed as string.
+     * 
+     * @property {String}
+     */
+    ComponentTypeName {
+        get {
+            T := this.ComponentType
+            if (T is Class) {
+                Name := T.Prototype.__Class
+            } else if (IsSet(AquaHotkey_ToString)) {
+                Name := String(T)
+            } else {
+                Name := Type(T)
+            }
+
+            Obj := this
+            while (!ObjHasOwnProp(Obj, "ComponentType")) {
+                Obj := ObjGetBase(Obj)
+            }
+            ({}.DefineProp)(Obj, "ComponentTypeName", { Get: (_) => Name })
+            return Name
         }
     }
 
@@ -347,7 +392,7 @@ class GenericArray extends IArray
      * 
      * MsgBox(String(LL)) ; "LinkedList<Integer>[1, 2, 3, 4]"
      */
-    ToString() => Type(this) . String(this.A)
+    ToString() => this.ClassName . String(this.A)
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -359,9 +404,9 @@ class GenericArray extends IArray
      * @param   {Any?}  Val  the value
      */
     Check(Val?) {
-        if (!this.ComponentType.IsInstance(Val?)) {
-            throw TypeError("Expected " . String(this.ComponentType),,
-                    IsSet(Val) ? Type(Val) : "unset")
+        if (!(this.ComponentType).IsInstance(Val?)) {
+            throw TypeError("Expected a(n) " . this.ComponentTypeName, -2,
+                        IsSet(Val) ? Type(Val) : "unset")
         }
     }
 

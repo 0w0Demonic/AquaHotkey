@@ -56,34 +56,12 @@ class GenericMap extends IMap {
             throw TypeError("Expected an IMap class",, M.Prototype.__Class)
         }
 
-        static GetTypeName(Obj) {
-            if (Obj is Class) {
-                return Obj.Prototype.__Class
-            } else if (IsSet(AquaHotkey_ToString)) {
-                return String(Obj)
-            } else {
-                return Type(Obj)
-            }
-        }
-
-        MapName   := M.Prototype.__Class
-        KeyName   := GetTypeName(K)
-        ValueName := GetTypeName(V)
-        ClassName := MapName . "<" . KeyName . ", " . ValueName . ">"
-
         ; make sure that class prototypes are disposable.
         Delete(this.Prototype, "__Class")
 
-        ; (see <Base/TypeInfo>)
-        Define(this, "Name", { Get: (_) => ClassName })
-        Define(this.Prototype, "Class",     { Get: (_) => this })
-
-        Define(this.Prototype, "ToString", { Call: ToString })
         Define(this.Prototype, "MapType",   { Get: (_) => M })
         Define(this.Prototype, "KeyType",   { Get: (_) => K })
         Define(this.Prototype, "ValueType", { Get: (_) => V })
-
-        ToString(this) => ClassName . String(this.M)
     }
 
     /**
@@ -96,6 +74,176 @@ class GenericMap extends IMap {
         M := (this.MapType)()
         ({}.DefineProp)(this, "M", { Get: (_) => M })
         M.Set(Args*)
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Type Info
+
+    /**
+     * The name of the class. This property is meant to be an override for
+     * the `Class#Name` property defined in {@link AquaHotkey_TypeInfo}, as
+     * `.__Class` cannot be used to determine the name of the class.
+     * 
+     * @property {String}
+     */
+    static Name => (this.Prototype).ClassName
+
+    /**
+     * The name of the class. Provides information about the map, key and
+     * value type.
+     * 
+     * @property {String}
+     */
+    ClassName {
+        get {
+            Name := Format(
+                "{}<{}, {}>",
+                this.MapType.Prototype.__Class, ; map class name
+                this.KeyTypeName, ; key type
+                this.ValueTypeName ; value type
+            )
+            Obj := this
+            while (!ObjHasOwnProp(Obj, "MapType")) {
+                Obj := ObjGetBase(Obj)
+            }
+            ({}.DefineProp)(Obj, "ClassName", { Get: (_) => Name })
+            return Name
+        }
+    }
+
+    /**
+     * Returns the map type this class wraps around.
+     * 
+     * @returns {Class}
+     * @example
+     * HashMap.OfType(String, Integer).MapType ; class HashMap
+     */
+    static MapType => (this.Prototype).MapType
+
+    /**
+     * Returns the map type which the generic map wraps around.
+     * 
+     * @abstract
+     * @property {Class}
+     * @example
+     * M := SkipListMap.OfType(String, { Value: Integer })
+     * M.MapType ; SkipListMap
+     */
+    MapType {
+        get {
+            throw PropertyError("abstract property")
+        }
+    }
+
+    /**
+     * Returns the key type associated with this generic map.
+     * 
+     * @returns {Class}
+     * @example
+     * Map.OfType(String, Integer).KeyType ; class String
+     */
+    static KeyType => (this.Prototype).KeyType
+
+    /**
+     * Returns the key type associated with this generic map.
+     * 
+     * @abstract
+     * @returns {Class}
+     * @example
+     * M := Map.OfType(String, Integer)("foo", 12)
+     * M.KeyType ; class String
+     */
+    KeyType {
+        get {
+            throw PropertyError("abstract property")
+        }
+    }
+
+    /**
+     * Name of the key type in this generic map class.
+     * 
+     * @property {String}
+     */
+    static KeyTypeName => (this.Prototype).KeyTypeName
+
+    /**
+     * Name of the key type in this generic map.
+     * 
+     * @property {String}
+     */
+    KeyTypeName {
+        get {
+            T := this.KeyType
+            if (T is Class) {
+                Name := T.Prototype.__Class
+            } else if (IsSet(AquaHotkey_ToString)) {
+                Name := String(T)
+            } else {
+                Name := Type(T)
+            }
+            Obj := this
+            while (!ObjHasOwnProp(Obj, "KeyType")) {
+                Obj := ObjGetBase(Obj)
+            }
+            ({}.DefineProp)(Obj, "KeyTypeName", { Get: (_) => Name })
+            return Name
+        }
+    }
+
+    /**
+     * Returns the value type associated with this generic map.
+     * 
+     * @returns {Class}
+     * @example
+     * Map.OfType(String, Integer).ValueType ; class Integer
+     */
+    static ValueType => (this.Prototype).ValueType
+
+    /**
+     * Returns the value type associated with this generic map.
+     * 
+     * @abstract
+     * @property {Class}
+     * @example
+     * M := Map.OfType(String, Integer)("foo", 12)
+     * M.ValueType ; class Integer
+     */
+    ValueType {
+        get {
+            throw PropertyError("abstract property")
+        }
+    }
+
+    /**
+     * The name of the value type in this generic map class.
+     * 
+     * @property {String}
+     */
+    static ValueTypeName => (this.Prototype).ValueTypeName
+
+    /**
+     * The name of the value type in this generic map.
+     * 
+     * @property {String}
+     */
+    ValueTypeName {
+        get {
+            T := this.ValueType
+            if (T is Class) {
+                Name := T.Prototype.__Class
+            } else if (IsSet(AquaHotkey_ToString)) {
+                Name := String(T)
+            } else {
+                Name := Type(T)
+            }
+            Obj := this
+            while (!ObjHasOwnProp(Obj, "ValueType")) {
+                Obj := ObjGetBase(Obj)
+            }
+            ({}.DefineProp)(Obj, "ValueTypeName", { Get: (_) => Name })
+            return Name
+        }
     }
 
     ;@endregion
@@ -164,83 +312,14 @@ class GenericMap extends IMap {
 
     ;@endregion
     ;---------------------------------------------------------------------------
-    ;@region Type Info
-
-    /**
-     * Returns the map type this class wraps around.
-     * 
-     * @returns {Class}
-     * @example
-     * HashMap.OfType(String, Integer).MapType ; class HashMap
-     */
-    static MapType => (this.Prototype).MapType
-
-    /**
-     * Returns the map type which the generic map wraps around.
-     * 
-     * @abstract
-     * @property {Class}
-     * @example
-     * M := SkipListMap.OfType(String, { Value: Integer })
-     * M.MapType ; SkipListMap
-     */
-    MapType {
-        get {
-            throw PropertyError("abstract property")
-        }
-    }
-
-    /**
-     * Returns the key type associated with this generic map.
-     * 
-     * @returns {Class}
-     * @example
-     * Map.OfType(String, Integer).KeyType ; class String
-     */
-    static KeyType => (this.Prototype).KeyType
-
-    /**
-     * Returns the key type associated with this generic map.
-     * 
-     * @abstract
-     * @returns {Class}
-     * @example
-     * M := Map.OfType(String, Integer)("foo", 12)
-     * M.KeyType ; class String
-     */
-    KeyType {
-        get {
-            throw PropertyError("abstract property")
-        }
-    }
-
-    /**
-     * Returns the value type associated with this generic map.
-     * 
-     * @returns {Class}
-     * @example
-     * Map.OfType(String, Integer).ValueType ; class Integer
-     */
-    static ValueType => (this.Prototype).ValueType
-
-    /**
-     * Returns the value type associated with this generic map.
-     * 
-     * @abstract
-     * @property {Class}
-     * @example
-     * M := Map.OfType(String, Integer)("foo", 12)
-     * M.ValueType ; class Integer
-     */
-    ValueType {
-        get {
-            throw PropertyError("abstract property")
-        }
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
     ;@region Commons
+
+    /**
+     * Returns this generic map represented as string.
+     * 
+     * @returns {String}
+     */
+    ToString() => this.ClassName . String(this.M)
 
     /**
      * Returns a hash code for this generic map class.
@@ -288,10 +367,12 @@ class GenericMap extends IMap {
      */
     Check(Key, Value) {
         if (!(this.KeyType).IsInstance(Key)) {
-            throw TypeError("invalid key type", -2)
+            throw TypeError("Invalid key type; Expected a(n) "
+                    . this.KeyTypeName, -2, Type(Key))
         }
         if (!(this.ValueType).IsInstance(Value)) {
-            throw TypeError("invalid value type", -2)
+            throw TypeError("Invalid value type; Expected a(n) "
+                    . this.ValueTypeName, -2, Type(Value))
         }
     }
 
@@ -454,7 +535,11 @@ class AquaHotkey_GenericMap_Serialization extends AquaHotkey {
                 ValueType := Any
             }
 
-            Cls := AquaHotkey.CreateClass(GenericMap,, MapType, KeyType, ValueType)
+            Cls := AquaHotkey.CreateClass(
+                GenericMap,
+                unset, ; `.__Class` is not used anyways
+                MapType, KeyType, ValueType)
+
             ObjSetBase(this, Cls.Prototype)
 
             this.__Init()
