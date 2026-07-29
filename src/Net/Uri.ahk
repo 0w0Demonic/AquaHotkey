@@ -535,7 +535,6 @@ class Uri {
             Str .= "#"
             Str .= this.RawFragment
         }
-        Str := UrlDecode(Str)
         this.DefineProp("ToString", { Call: (_) => Str })
         return Str
     }
