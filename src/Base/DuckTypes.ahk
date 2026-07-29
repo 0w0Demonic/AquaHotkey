@@ -672,6 +672,74 @@ class AquaHotkey_DuckTypes extends AquaHotkey
 
     ;@endregion
     ;---------------------------------------------------------------------------
+    ;@region VarRef
+
+    class VarRef {
+        /**
+         * Determines whether the given VarRef can be pattern-matched against
+         * the given value. This is the cast, if the value is also a VarRef,
+         * and if either both this and the other VarRef are empty, or the
+         * inner values can be matched with each other.
+         * 
+         * This method should be used together with `VarRef.Call` which is
+         * defined in {@link AquaHotkey_VarRef}.
+         * 
+         * @param   {Any?}  Val  any value
+         * @returns {Boolean}
+         * @example
+         * VarRef("str").Is(VarRef(String))
+         * ; ==> true (because `"str".Is(String)`)
+         */
+        IsInstance(Val?) {
+            if (!IsSet(Val)) {
+                return false
+            }
+            if (!(Val is VarRef)) {
+                return false
+            }
+            if (!IsSetRef(this)) {
+                return !IsSetRef(Val)
+            }
+            if (IsSetRef(Val)) {
+                InnerValue := %Val%
+            }
+            return %this%.IsInstance(InnerValue?)
+        }
+
+        /**
+         * Determines whether the given value is equivalent to, or a subtype
+         * of this VarRef. This is the case, if the other value is also a
+         * VarRef, and if both this and the other VarRef are empty or the
+         * inner values can be matched with each other.
+         * 
+         * This method should be used together with `VarRef.Call` which is
+         * defined in {@link AquaHotkey_VarRef}.
+         * 
+         * @param   {Any?}  Val  any value
+         * @returns {Boolean}
+         * @example
+         * VarRef(Object).CanCastFrom(Array)
+         * ; ==> true (because `Object.CanCastFrom(Array)`)
+         */
+        CanCastFrom(Val?) {
+            if (!IsSet(Val)) {
+                return false
+            }
+            if (!(Val is VarRef)) {
+                return false
+            }
+            if (!IsSetRef(this)) {
+                return !IsSetRef(Val)
+            }
+            if (IsSetRef(Val)) {
+                InnerValue := %Val%
+            }
+            return %this%.CanCastFrom(InnerValue?)
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Func
 
     class Func {
