@@ -90,3 +90,20 @@ class BoolOr extends Any {
     static Call(A, B) => (A || B)
     static Identity => false
 }
+
+/**
+ * Bitwise AND.
+ */
+class BitAnd extends Any {
+    static Call(A, B) => (A & B)
+    static Identity => 0xFFFFFFFFFFFFFFFF
+}
+
+/**
+ * Bitwise OR.
+ */
+class BitOr extends Any {
+    static Call(A, B) => (A | B)
+    static Identity => 0x0000000000000000
+}
+
