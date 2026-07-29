@@ -12,7 +12,7 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class MapEntry extends IMapEntry {
+class MapEntry extends Entry {
     /**
      * Map entry value. Changing the value also changes the map item.
      */
