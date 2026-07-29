@@ -162,6 +162,7 @@ class AquaHotkey_ComValue extends AquaHotkey
             this[] := Value
             return this
         }
-    } ; class ComValueRef
+    }
+
     ;@endregion
-} ; class AquaHotkey_ComValue extends AquaHotkey
+}

@@ -132,7 +132,6 @@ class Entry {
     ToString() => Type(this)
         . " { " . String(this.Key) . ": " . String(this.Value) . " }"
 
-    ; TODO use base object to determine equality?
     /**
      * Determines whether this map entry is equal to the `Other`.
      * 
@@ -277,4 +276,3 @@ class AquaHotkey_Entry_Json extends AquaHotkey {
 }
 
 ;@endregion
-

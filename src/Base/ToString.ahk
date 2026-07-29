@@ -29,6 +29,8 @@
  */
 class AquaHotkey_ToString extends AquaHotkey
 {
+    ;@region Support
+
     /**
      * Helper function that converts a value into a string, with additional
      * `unset` support.
@@ -46,6 +48,7 @@ class AquaHotkey_ToString extends AquaHotkey
     }
 
     ;@region Any
+
     class Any {
         static __New() {
             ({}.DefineProp)(this.Prototype, "ToString", { Call: String })

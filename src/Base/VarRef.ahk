@@ -43,3 +43,4 @@ class AquaHotkey_VarRef extends AquaHotkey {
         }
     }
 }
+

@@ -2,7 +2,6 @@
 
 ; TODO add a lotta stuff for objects in general, and then put that into a
 ;      `Object` folder?
-; TODO static constructors like `Object.WithBase()`?
 ; TODO find a way to differentiate between `Method()` (create prop desc) and
 ;      `Method()` (create object mapper)
 
@@ -242,9 +241,7 @@ class AquaHotkey_Object extends AquaHotkey {
                 throw TypeError("Expected an Object",, Type(BaseObj))
             }
 
-            Obj := Object()
-            ObjSetBase(Obj, BaseObj)
-            return Obj
+            return { base: BaseObj }
         }
     }
 

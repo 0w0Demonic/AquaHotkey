@@ -78,4 +78,3 @@ class AquaHotkey_Boolean extends AquaHotkey {
         }
     }
 }
-
