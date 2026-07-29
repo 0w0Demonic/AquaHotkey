@@ -47,6 +47,8 @@ class AquaHotkey_ToString extends AquaHotkey
         Val := IsSet(Val) ? String(Val) : "unset"
     }
 
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Any
 
     class Any {
@@ -114,6 +116,19 @@ class AquaHotkey_ToString extends AquaHotkey
          * @returns {String}
          */
         ToString() => this
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Number
+
+    class Number {
+        /**
+         * Returns this number as string.
+         * 
+         * @returns {String}
+         */
+        ToString() => String(this)
     }
 
     ;@endregion
@@ -236,7 +251,7 @@ class AquaHotkey_ToString extends AquaHotkey
          * 
          * ToStr([1, 2, 3]) ; "[1, 2, 3]"
          */
-        ToString => (Value) => this.ToString(Value)
+        ToString => ObjBindMethod(this, "ToString")
     }
 
     ;@endregion
