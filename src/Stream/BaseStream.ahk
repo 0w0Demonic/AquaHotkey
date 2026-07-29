@@ -43,6 +43,11 @@ class BaseStream extends Enumerator {
             throw TypeError("This abstract class cannot be used directly.")
         }
 
+        ; already the requested stream; nothing to do.
+        if (Source is this) {
+            return Source
+        }
+
         ; `.__Enum()` always takes priority before `.Call()`
         if (HasProp(Source, "__Enum")) {
             Source := Source.__Enum(this.Size)
