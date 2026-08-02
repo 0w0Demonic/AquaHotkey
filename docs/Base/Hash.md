@@ -18,13 +18,9 @@ Implements a universal `.HashCode()` method for generating stable, well-distribu
 
 ## How to Implement
 
-To determine whether a value is present, a HashMap uses the value's hash code to find the correct bucket, then compares the value to the entries in that bucket via [`.Eq()`](./Eq.md).
+To determine whether a value is present, a [HashMap](../Collections/HashMap.md) uses the value's hash code to find the correct bucket, then compares the value to the entries in that bucket via [`.Eq()`](./Eq.md).
 
-Therefore, `.HashCode()` must be consistent with its equality definition `.Eq()`. If two values are considered equal by `.Eq()`, they must have the same hash code.
-
-In addition, the `.HashCode()` method must consistently return the same result, as long as no information used in `.Eq()` is changed.
-
-If any of the information is considered "absent", or has an `unset` value, the hash code of that information must be equal to `0`.
+Therefore, `.HashCode()` must be consistent with its equality definition `.Eq()`. If two values are considered equal by `.Eq()`, they must have the same hash code. In addition, the `.HashCode()` method must consistently return the same result, as long as no information used in `.Eq()` is changed. If any of the information is considered "absent", or has an `unset` value, the hash code of that information must be equal to `0`.
 
 Here's a simple example of how to implement `.HashCode()` for a simple `Point` type:
 

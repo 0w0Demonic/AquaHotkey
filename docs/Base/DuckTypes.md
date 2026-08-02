@@ -70,8 +70,7 @@ The exact way how a pattern matches its value is defined by its `.IsInstance()` 
 
 So far, so good.
 
-That means, `Val.Is(T)` is always equivalent to `T.IsInstance(Val)`. For
-classes, that's the same as `Val is T`.
+That means, `Val.Is(T)` is always equivalent to `T.IsInstance(Val)`. For classes, that's the same as `Val is T`.
 
 ### The `.IsInstance(Val?)` Method
 
@@ -127,12 +126,9 @@ class EmptyString extends String {
 }
 ```
 
-Changing the base of a class to something like `String` might be unintuitive,
-but remember: we *only* use this class to do simple pattern matching, nothing
-else.
+Changing the base of a class to something like `String` might be unintuitive, but remember: we *only* use this class to do simple pattern matching, nothing else.
 
-Other objects define their own `.CanCastFrom()` in a way that reflects how
-subtypes work for that particular type. Here's some small examples:
+Other objects define their own `.CanCastFrom()` in a way that reflects how subtypes work for that particular type. Here's some small examples:
 
 ```ahk
 ; --> true (based on the objects fields)
@@ -245,10 +241,7 @@ MaybeInteger.IsInstance(42)     ; true
 MaybeInteger.IsInstance([1, 2]) ; false
 ```
 
-Nullable is a class that's able to *wrap* an existing type and allow it to be
-`unset`. This is known as a *type wrapper*. When using
-[generic arrays](../Collections/GenericArray.md), this wrapper can be passed
-*between the brackets*:
+Nullable is a class that's able to *wrap* an existing type and allow it to be `unset`. This is known as a *type wrapper*. When using [generic arrays](../Collections/GenericArray.md), this wrapper can be passed *between the brackets*:
 
 ```ahk
 NullableIntegers := Integer[Nullable]
@@ -277,8 +270,7 @@ Nothing.CanCastFrom(Nothing) ; true
 - [<Base/DuckTypes/Callable>](./DuckTypes/Callable.md)
 - [<Base/DuckTypes/Numeric>](./DuckTypes/Numeric.md)
 
-Callable refers to any callable object. In other words, an object with `Call`
-property.
+Callable refers to any callable object. In other words, an object with `Call` property.
 
 ```ahk
 MsgBox.Is(Callable) ; true
@@ -304,9 +296,7 @@ Permission := Type.Enum("Admin", "User", "Guest")
 "Other".Is(Permission) ; false
 ```
 
-Combine two or more types together into one, either through intersection
-("type must fulfill *all* of those"), or by union ("type must be *one or
-more* of those").
+Combine two or more types together into one, either through intersection ("type must fulfill *all* of those"), or by union ("type must be *one or more* of those").
 
 ```ahk
 NumericString := Type.Intersection(Numeric, String)
@@ -357,9 +347,7 @@ You can use any arbitrary function as a type pattern. In that case, the function
 (42).Is(  InstanceOf(Numeric).And(Gt(0))  )
 ```
 
-I *wouldn't* recommend doing this, but I won't stop you from doing so. Just
-remember that the lack of `.CanCastFrom()` can become an issue rather quickly.
-Proceed with a little more caution.
+I *wouldn't* recommend doing this, but I won't stop you from doing so. Just remember that the lack of `.CanCastFrom()` can become an issue rather quickly.  Proceed with a little more caution.
 
 ## Type-Checked Functions
 

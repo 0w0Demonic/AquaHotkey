@@ -104,5 +104,3 @@ static Equals(A?, B?) {
     ... ; perform an equality check as you'd do in `.Eq()`
 }
 ```
-
-Note that support for `unset` might be removed in the future, in favor of [Nullable](./DuckTypes/Nullable.md).

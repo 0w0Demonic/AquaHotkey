@@ -20,9 +20,7 @@ At the moment, only size 1 gatherers are supported, but this might change very s
 
 ## How to Implement
 
-If you're curious about how to implement your own custom gatherers, you can
-have a look at the source code of
-[Gatherer.ahk](../../src/Extensions/Gatherer.ahk). Here's a quick rundown:
+If you're curious about how to implement your own custom gatherers, you can have a look at the source code of [Gatherer.ahk](../../src/Extensions/Gatherer.ahk). Here's a quick rundown:
 
 A gatherer is a subclass of `Func`. It must have the following signature:
 

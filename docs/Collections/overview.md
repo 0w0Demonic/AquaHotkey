@@ -166,8 +166,7 @@ L := LinkedList(...).Freeze() ; because `LinkedList extends IArray`
 - [<Collections/SkipListMap>](./SkipListMap.md)
 - [<Collections/SkipListSet>](./SkipListSet.md)
 
-Probabilistic and ordered maps and sets using skip lists. Relies on `<Base/Eq>`
-and `<Base/Comparable>` to determine value presence and to order its elements.
+Probabilistic and ordered maps and sets using skip lists. Relies on `<Base/Eq>` and `<Base/Comparable>` to determine value presence and to order its elements.
 
 Note: Go ahead and check them out, these are really interesting... I promise.
 
@@ -219,8 +218,7 @@ MsgBox(M.Count) ; 0
 
 **LinkedList**:
 
-Doubly-linked list implementation for efficient insertion/deletion at
-arbitrary positions. Supports generic typing via `LinkedList.OfType()`.
+Doubly-linked list implementation for efficient insertion/deletion at arbitrary positions. Supports generic typing via `LinkedList.OfType()`.
 
 ```ahk
 L := LinkedList(1, 2, 3, 4) ; 1 <> 2 <> 3 <> 4

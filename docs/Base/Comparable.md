@@ -82,15 +82,11 @@ return Integer.Compare(this.Major, Other.Major)
     || Integer.Compare(this.Patch, Other.Patch)
 ```
 
-Although [duck types](./DuckTypes.md) might not inherit any `.Compare()`
-methods, you can still provide a static `.Compare(A, B)` method for the class
-that defines the duck type.
+Although [duck types](./DuckTypes.md) might not inherit any `.Compare()` methods, you can still provide a static `.Compare(A, B)` method for the class that defines the duck type.
 
 ## Comparator Functions
 
-`T.Compare` returns a [comparator function](../Func/Comparator.md) which can
-be used as configuration inside ordered collections, or as parameter for
-`.Sort()` methods.
+`T.Compare` returns a [comparator function](../Func/Comparator.md) which can be used as configuration inside ordered collections, or as parameter for `.Sort()` methods.
 
 ```ahk
 Arr := ["24.2", 45, 0, "0", 22.0, "-3"]

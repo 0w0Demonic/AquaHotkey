@@ -55,8 +55,7 @@ Buf.PutString(Str, Offset := 0, Encoding := "UTF-16")
 
 ## Filling the IBuffer
 
-To fill the buffer with the specified byte value, use `.Fill(Byte)`.
-Use `.Zero()` to fill the buffer with zeros.
+To fill the buffer with the specified byte value, use `.Fill(Byte)`. Use `.Zero()` to fill the buffer with zeros.
 
 ```ahk
 Buf.Fill(0xFF)
@@ -67,8 +66,10 @@ Buf.Zero()
 
 `.HexDump()` lets you return a hexadecimal representation of the buffer.
 
+```ahk
 ; "66 6F 6F 00"
 Buffer.OfString("foo", "UTF-8").HexDump()
+```
 
 ## Defining Properties
 

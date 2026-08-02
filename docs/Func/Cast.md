@@ -8,7 +8,7 @@
 
 ## Overview
 
-This feature allows easy type-casting between different `Func` types.  Because AquaHotkeyX introduces many subclasses of `Func`, it can be useful to be able to "elevate" a `Func` to a more specific type.
+This feature allows easy type-casting between different `Func` types. Because AquaHotkeyX introduces many subclasses of `Func`, it can be useful to be able to "elevate" a `Func` to a more specific type.
 
 You generally only need this feature if you want to implement a custom `Func` subclass that has additional methods beyond the base `Func` class.
 

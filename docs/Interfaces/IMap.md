@@ -11,11 +11,7 @@
 
 ## Overview
 
-The base class of map classes. Implementing classes include Map,
-[ImmutableMap](../Collections/ImmutableMap.md),
-[GenericMap](../Collections/Generic/Map.md),
-[HashMap](../Collections/HashMap.md), and
-[SkipListMap](../Collections/SkipListMap.md).
+The base class of map classes. Implementing classes include Map, [ImmutableMap](../Collections/ImmutableMap.md), [GenericMap](../Collections/Generic/Map.md), [HashMap](../Collections/HashMap.md), and [SkipListMap](../Collections/SkipListMap.md).
 
 Extending `IMap` gives you a skeletal implementation with many useful default methods.
 
@@ -48,8 +44,7 @@ HashMap.Create(M) ; Error! Expected a(n) HashMap.
 
 ## Duck Type
 
-Any object that implements a subset of all Map methods can match the
-[duck type](../Base/DuckTypes.md) imposed by `IMap`.
+Any object that implements a subset of all Map methods can match the [duck type](../Base/DuckTypes.md) imposed by `IMap`.
 
 ```ahk
 Obj := {

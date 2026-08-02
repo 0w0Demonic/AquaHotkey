@@ -85,8 +85,7 @@ D := DerivesFrom(String)
 
 ## Ordering
 
-You can use the same methods for total ordering defined in
-[<Base/Comparable>](../Base/Comparable.md) to form predicates:
+You can use the same methods for total ordering defined in [<Base/Comparable>](../Base/Comparable.md) to form predicates:
 
 ```ahk
 ; --> [2, 3, 4]

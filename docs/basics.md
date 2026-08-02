@@ -179,8 +179,7 @@ Now that we've covered the very basics, I encourage you to try it out yourself:
 
 ## Quick Summary
 
-- At its core, AquaHotkey involves moving properties between different classes.  Classes are treated as property containers, and their contents (properties)
-  can be copied and moved freely between each other.
+- At its core, AquaHotkey involves moving properties between different classes.  Classes are treated as property containers, and their contents (properties) can be copied and moved freely between each other.
 - Extension classes define properties that should be applied onto one or more targets, usually built-in classes
   ([or functions](./advanced.md#extending-functions)).
 - Schema of an extension class:

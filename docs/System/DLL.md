@@ -11,15 +11,11 @@
 
 ## Overview
 
-The `DLL` class provides an object-oriented interface for dynamically
-loading and interacting with DLL files in a clean and structured way.
-It automatically loads and frees the library, resolves function addresses
-and binds method signatures for type safety.
+The `DLL` class provides an object-oriented interface for dynamically loading and interacting with DLL files in a clean and structured way.  It automatically loads and frees the library, resolves function addresses and binds method signatures for type safety.
 
 ## Usage
 
-To create a DLL wrapper, define a subclass and specify the target DLL using
-the `static FilePath` property:
+To create a DLL wrapper, define a subclass and specify the target DLL using the `static FilePath` property:
 
 ```ahk
 class User32 extends DLL {
@@ -70,10 +66,7 @@ class User32 extends DLL {
 
 ## Using Hidden Ordinal Functions
 
-The `DLL` class supports calling undocumented functions that are **only
-accessible via ordinal numbers** rather than exported names. The functions
-are automatically loaded whenever an entry in the `TypeSignatures` property
-starts with a **numeric value** (indicating an ordinal).
+The `DLL` class supports calling undocumented functions that are **only accessible via ordinal numbers** rather than exported names. The functions are automatically loaded whenever an entry in the `TypeSignatures` property starts with a **numeric value** (indicating an ordinal).
 
 ```ahk
 class UXTheme extends DLL {
@@ -86,8 +79,7 @@ class UXTheme extends DLL {
 }
 ```
 
-Note that **hidden functions are undocumented** and may very between Windows
-versions.
+Note that **hidden functions are undocumented** and may very between Windows versions.
 
 ## Limitations
 

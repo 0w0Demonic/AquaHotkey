@@ -10,6 +10,8 @@
 
 ## Overview
 
+Common file operations.
+
 ## Standard Input/Output/Error Streams
 
 Open the standard input, output, and error streams but using `FileOpen.StdIn`, `FileOpen.StdOut` and `FileOpen.StdErr` respectively.

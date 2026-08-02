@@ -29,8 +29,7 @@ Ref.Get().MsgBox()
 
 ## VARIANT Type Constants
 
-`ComValue` now includes properties for each VARIANT type (e.g.
-`BOOL`, `BSTR`, `INT32`, etc.)
+`ComValue` now includes properties for each VARIANT type (e.g.  `BOOL`, `BSTR`, `INT32`, etc.)
 
 These properties serve two purposes:
 

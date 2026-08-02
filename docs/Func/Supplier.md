@@ -13,8 +13,7 @@ A zero parameter function that represents a supplier of results.
 
 Constant functions are functions that always return the same value.
 
-Use `Constantly(x)` or `Supplier.Of(x)` to return a supplier function that
-always returns `x`.
+Use `Constantly(x)` or `Supplier.Of(x)` to return a supplier function that always returns `x`.
 
 ```ahk
 Fn := Constantly(42) ; alternatively: `Supplier.Of(42)`

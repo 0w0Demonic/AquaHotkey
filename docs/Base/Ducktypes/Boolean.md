@@ -3,6 +3,7 @@
 - [\<Base/DuckTypes/Boolean\>](#baseducktypesboolean)
   - [Overview](#overview)
   - [Value Conversion](#value-conversion)
+  - [Natural Ordering](#natural-ordering)
 
 ## Overview
 
@@ -13,13 +14,13 @@ Only integer values `1` and `0` are treated as booleans, not floats or numeric s
 `Boolean` is considered a subtype of `Integer`.
 
 ```ahk
-(true).Is(Boolean) ; true
-(false).Is(Boolean) ; true
+(true).Is(Boolean) ; ==> true
+(false).Is(Boolean) ; ==> true
 
-(0).Is(Boolean) ; true
-(1).Is(Boolean) ; true
+(0).Is(Boolean) ; ==> true
+(1).Is(Boolean) ; ==> true
 
-Integer[].CanCastFrom(Boolean[]) ; because `Integer.CanCastFrom(Boolean)`
+Integer[].CanCastFrom(Boolean[]) ; ==> true (`Integer.CanCastFrom(Boolean)`)
 ```
 
 ## Value Conversion
@@ -31,4 +32,18 @@ Boolean(false)     ; !!(false) --> false
 Boolean("example") ; !!("example") --> true
 
 Boolean(unset) ; --> false
+```
+
+## Natural Ordering
+
+(see [natural ordering](../Comparable.md))
+
+You can perform natural ordering on booleans by using `Boolean.Compare(A, B)`. `true` is considered greater than `false`, similar to `1 > 0`.
+
+```ahk
+([true, false, true, false]).Sort(Boolean.Compare)
+; ==> [false, false, true, true]
+
+([42, true]).Sort(Boolean.Compare)
+; ==> TypeError! Expected a Boolean, but got an Integer.
 ```

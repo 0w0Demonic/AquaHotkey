@@ -2,6 +2,7 @@
 
 - [\<Base/Assertions\>](#baseassertions)
   - [Overview](#overview)
+  - [Conventions](#conventions)
     - [Removed Methods in v2](#removed-methods-in-v2)
   - [Function `Assert()`](#function-assert)
   - [Method `.Assert(Condition, Args*)`](#method-assertcondition-args)
@@ -11,9 +12,13 @@
 
 ## Overview
 
-Introduces a set of assertion methods, perfect for validating parameters and making assumptions in your program at runtime. Because of their conciseness, they're particularly useful inside unit tests.
+This module introduces assertion methods, which make assumptions about the program during runtime. They are especially useful for use inside of unit tests.
 
-Methods return the value itself (`return this`), meaning you can chain multiple assertions together fluently.
+## Conventions
+
+An assertion method MUST return the calling object (i.e., `return this`).
+
+Methods must return the original object. This lets you write a sequence of assertions.
 
 ### Removed Methods in v2
 
@@ -33,8 +38,7 @@ In this example `4 == 4` is an expression that should return either `true` or `f
 
 ## Method `.Assert(Condition, Args*)`
 
-You can also use it as a method, generically with the help of
-[predicate](../Func/Predicate.md) functions.
+You can also use it as a method, generically with the help of [predicate](../Func/Predicate.md) functions.
 
 ```ahk
 ; 1. assert that value is a non-empty string

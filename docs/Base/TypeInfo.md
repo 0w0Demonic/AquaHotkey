@@ -39,8 +39,7 @@ These properties return the type of the value, either as string (which is equiva
 ([1, 2]).Class ; Array (class)
 ```
 
-`.Class` relies on the `__Class` property of a value in order to find the
-implementing class.
+`.Class` relies on the `__Class` property of a value in order to find the implementing class.
 
 ## Properties `.Hierarchy` and `.Bases`
 

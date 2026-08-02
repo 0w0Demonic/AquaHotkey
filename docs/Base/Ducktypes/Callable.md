@@ -18,3 +18,5 @@ Obj.Is(Callable) ; true
 ; every `Func` is callable by definition
 Callable.CanCastFrom(Func) ; --> true
 ```
+
+Only objects (as seen by `IsObject()`) can be instance of `Callable`. Primitive values such as `"str"` can never be callable, even if e.g. `String.Prototype.Call` was assigned.
