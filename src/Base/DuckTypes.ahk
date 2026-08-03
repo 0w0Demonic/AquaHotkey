@@ -482,14 +482,10 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * Number.CanCastFrom(Integer)
          */
         CanCastFrom(T?) {
-            if (!IsSet(T) || (T == Nothing)) {
+            if (!IsSet(T) || (T == Nothing) || (T is Nullable)) {
                 return false
             }
             return (this == T) || HasBase(T, this) || (T is this)
-            ; note: because something like `Any.CanCastFrom({ foo: Integer })`
-            ;       should return `true` (makes sense), we're also checking
-            ;       `(T is this)`. Somehow, this *didn't* destroy any tests?
-            ;       very nice.
         }
     }
 

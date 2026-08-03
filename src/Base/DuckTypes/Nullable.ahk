@@ -150,6 +150,20 @@ class Nullable extends Class
     IsInstance(Val?) => (!IsSet(Val)) || this.T.IsInstance(Val)
 
     /**
+     * Determines whether the value is considered equivalent to, or a subtype
+     * of this class.
+     * 
+     * @param   {Any?}  Val  any value
+     * @returns {Boolean}
+     */
+    static CanCastFrom(Val?) {
+        return (!IsSet(Val)) ; unset
+            || (Val == Nothing) ; Nothing
+            || (Val == this) || HasBase(Val, this) ; Nullable + subclasses
+            || (Val is this) ; Nullable(...)
+    }
+
+    /**
      * Determines whether the value is compatible with this nullable type.
      * 
      * @param   {Any?}  Val  any value
