@@ -17,22 +17,8 @@
  * TimesTwo() ; 8 (random)
  * TimesTwo() ; 2 (random)
  */
-class Supplier extends Func {
-    /**
-     * Creates a new supplier from an existing function and zero or more
-     * arguments.
-     * 
-     * @param   {Callable}  Fn    any function
-     * @param   {Any*}      Args  zero or more arguments
-     * @returns {Supplier}
-     * @example
-     * RollDice := Supplier(Random, 1, 6)
-     * 
-     * RollDice() ; 3 (random)
-     * RollDice() ; 5 (random)
-     */
-    static Call(Fn, Args*) => this.Cast((*) => Fn(Args*))
-
+class Supplier extends Func
+{
     /**
      * Returns a supplier that constantly returns the given `Value`.
      * 
