@@ -45,7 +45,7 @@ class BaseStream extends Enumerator {
         if (Source is this) {
             return Source
         }
-        return this.Cast(GetEnumerator(Source))
+        return this.Cast(GetEnumerator(Source, this.Size))
     }
 
     /**
