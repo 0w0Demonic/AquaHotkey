@@ -49,10 +49,6 @@ class OrderedMap extends IMap {
     /**
      * Creates an `OrderedMap` from an existing Map-like object, preserving
      * order.
-     * 
-     * Constructs an OrderedMap from any `IMap`-compatible source.
-     * The internal map is created from {@link IMap.Create() `MapParam`}, then
-     * each item is inserted via `Set()` to build the linked list in order.
      *
      * @param   {Any}  MapParam  map parameter
      * @returns {OrderedMap}
@@ -63,16 +59,15 @@ class OrderedMap extends IMap {
      * ; same as:
      * O := Map("A", 1, "B", 2).Ordered()
      */
-    static From(MapParam) {
-        M := IMap.Create(MapParam)
+    static From(MapObj) {
+        if (!IMap.IsInstance(MapObj)) {
+            throw TypeError("Expected an IMap",, Type(MapObj))
+        }
 
-        O := Object()
-        ObjSetBase(O, this.Prototype)
-
+        O := DefineConst({ base: this.Prototype, }, "M", IMap.BasedFrom(MapObj))
         O.__Init()
-        O.DefineProp("M", { Get: (_) => M })
 
-        for Key, Value in M {
+        for Key, Value in MapObj {
             O.Set(Key, Value)
         }
         return O
