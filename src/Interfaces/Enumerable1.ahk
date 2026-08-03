@@ -186,10 +186,10 @@ class Enumerable1 {
         if (!IsSet(Downstream)) {
             return M
         }
-
+        GetMethod(Downstream)
         return Map(
-            true, Downstream(M.Get(true)),
-            false, Downstream(M.Get(false))
+            true, Downstream(M.Get(true)*),
+            false, Downstream(M.Get(false)*)
         )
     }
 
