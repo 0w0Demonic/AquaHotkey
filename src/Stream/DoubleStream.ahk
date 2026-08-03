@@ -459,7 +459,7 @@ class DoubleStream extends BaseStream
         return this.Cast(DistinctBy)
 
         DistinctBy(&A, &B) {
-            while (this(&A)) {
+            while (this(&A, &B)) {
                 if (Cache.Add(KeyExtractor(A?, B?))) {
                     return true
                 }
