@@ -163,16 +163,12 @@ class Com {
      * 3. Sets up `ComCall()`-methods declared in `static MethodSignatures`.
      */
     static __New() {
-        static GetProp := {}.GetOwnPropDesc
-        static Define  := {}.DefineProp
-        static Delete  := {}.DeleteProp
-
         if (this == Com || this == AbstractCom) {
             return
         }
         ClassName := this.Prototype.__Class
         if (!HasBase(this, AbstractCom)) {
-            Delete(this.Prototype, "__Class")
+            DeleteProp(this.Prototype, "__Class")
             if (!this.CLSID) {
                 throw ValueError('Missing "static CLSID" property.',,
                                  ClassName)
@@ -193,7 +189,7 @@ class Com {
 
         if (this.ReturnTypes) {
             Types := this.ReturnTypes
-            if (ObjGetBase(Types) != Object.Prototype) {
+            if (!IsPlainObject(Types)) {
                 throw TypeError("Expected an Object literal",, Type(Types))
             }
             for PropName, ReturnType in ObjOwnProps(Types) {
@@ -201,7 +197,7 @@ class Com {
                     throw TypeError("Expected a Com class", Type(ReturnType))
                 }
                 PropDesc := CreateMethod(PropName, ReturnType)
-                Define(this.Prototype, PropName, PropDesc)
+                DefineProp(this.Prototype, PropName, PropDesc)
 
                 static CreateMethod(PropName, T) {
                     return {
@@ -217,7 +213,7 @@ class Com {
         }
 
         Signatures := this.MethodSignatures
-        if (ObjGetBase(Signatures) != Object.Prototype) {
+        if (!IsPlainObject(Signatures)) {
             Msg   := '"static MethodSignatures" must be an object literal'
             Extra := Type(Signatures)
             throw TypeError(Msg,, Extra)
@@ -257,9 +253,9 @@ class Com {
             Callback := ObjBindMethod(ComCall,, Index, unset, Mask*)
             try  {
                 Name := Cls.Prototype.__Class . ".Prototype." . MethodName
-                Define(Callback, "Name", { Get: (_) => Name })
+                DefineProp(Callback, "Name", { Get: (_) => Name })
             }
-            Define(Cls.Prototype, MethodName, { Call: Callback })
+            DefineProp(Cls.Prototype, MethodName, { Call: Callback })
         }
     }
 
@@ -307,7 +303,7 @@ class Com {
         }
         if (!HasBase(EventSink, Com.EventSink))
         {
-            (Object.Prototype.DeleteProp)(EventSink, "__New")
+            DeleteProp(EventSink, "__New")
             ObjSetBase(EventSink,           Com.EventSink)
             ObjSetBase(EventSink.Prototype, Com.EventSink.Prototype)
 
@@ -404,7 +400,7 @@ class Com {
         if (!HasBase(this.EventSink, Com.EventSink))
         {
             ; ensure that `Com.EventSink.Prototype.__New` is called.
-            (Object.Prototype.DeleteProp)(this.EventSink, "__New")
+            DeleteProp(this.EventSink, "__New")
 
             ObjSetBase(this.EventSink,           Com.EventSink)
             ObjSetBase(this.EventSink.Prototype, Com.EventSink.Prototype)

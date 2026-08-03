@@ -26,6 +26,18 @@ IsPrimitive(Val) {
 }
 
 /**
+ * Determines whether the value is a "plain" object that directly inherits
+ * from `Object.Prototype`. Object literals are plain objects, unless a `base`
+ * property is specified.
+ * 
+ * @param   {Any}  Val  any value
+ * @returns {Boolean}
+ * @example
+ * MsgBox(IsPlainObject({ Key: "Value" })) ; ==> true
+ */
+IsPlainObject(Val) => (ObjGetBase(Val) == Object.Prototype)
+
+/**
  * Determines whether the property descriptor might potentially refer to a
  * nested class. This function does NOT call any properties to check whether
  * the returned value is a class. You can do this by using
@@ -41,7 +53,7 @@ IsNestedClassProp(PropDesc) {
     ;   Get: (Cls) => NestedClass,
     ;   Call: (Cls, Args*) => NestedClass(Args*)
     ; }
-    return (ObjGetBase(PropDesc) == Object.Prototype)
+    return IsPlainObject(PropDesc)
         && ObjHasOwnProp(PropDesc, "Get")
         && ObjHasOwnProp(PropDesc, "Call")
         && (ObjOwnPropCount(PropDesc) == 2)
@@ -187,7 +199,7 @@ DefineConst(Obj, PropName, Value) {
  * })
  */
 DefineProps(Obj, PropDescs) {
-    if (ObjGetBase(PropDescs) != Object.Prototype) {
+    if (!IsPlainObject(PropDescs)) {
         throw TypeError("Expected a plain object",, Type(Obj))
     }
     for PropName, PropDesc in OwnValueProps(PropDescs) {
@@ -210,7 +222,7 @@ DefineProps(Obj, PropDescs) {
  * Obj := DefineConsts({}, { Prop1: "value1", Prop2: "value2" })
  */
 DefineConsts(Obj, PropDescs) {
-    if (ObjGetBase(PropDescs) != Object.Prototype) {
+    if (!IsPlainObject(PropDescs)) {
         throw TypeError("Expected a plain object",, Type(PropDescs))
     }
     for PropName, PropDesc in OwnValueProps(PropDescs) {
@@ -235,7 +247,7 @@ DefineConsts(Obj, PropDescs) {
  * MsgBox(Obj.A) ; 42
  */
 ObjFromDesc(Desc, BaseObj := Object.Prototype) {
-    if (ObjGetBase(Desc) != Object.Prototype) {
+    if (!IsPlainObject(Desc)) {
         throw TypeError("Expected a plain object",, Type(Desc))
     }
 

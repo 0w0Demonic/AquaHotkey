@@ -124,7 +124,7 @@ class Record extends Class
         }
 
         ; only supposed to work on plain objects, for now.
-        if (ObjGetBase(Val) != Object.Prototype) {
+        if (!IsPlainObject(Val)) {
             return false
         }
 

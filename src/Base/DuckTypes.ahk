@@ -293,8 +293,8 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          */
         IsInstance(Val?) {
             if (!IsSet(Val)
-                || (ObjGetBase(this) != Object.Prototype)
-                || (ObjGetBase(Val) != Object.Prototype))
+                || !IsPlainObject(this)
+                || !IsPlainObject(Val))
             {
                 return false
             }
@@ -335,8 +335,8 @@ class AquaHotkey_DuckTypes extends AquaHotkey
                 return true
             }
             if (!IsSet(T)
-                || (ObjGetBase(this) != Object.Prototype)
-                || (ObjGetBase(T) != Object.Prototype))
+                || !IsPlainObject(this)
+                || !IsPlainObject(T))
             {
                 return false
             }

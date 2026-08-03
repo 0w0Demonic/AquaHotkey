@@ -1081,7 +1081,7 @@ class AquaHotkey_Json extends AquaHotkey {
          * @returns {Json(Object)}
          */
         ToJson() {
-            if (ObjGetBase(this) != Object.Prototype) {
+            if (!IsPlainObject(this)) {
                 throw TypeError("Expected a plain object",, Type(this))
             }
 
@@ -1130,7 +1130,7 @@ class AquaHotkey_Json extends AquaHotkey {
          * @param   {VarRef<Any>}  Any  any value
          */
         CastFromJson(&Val) {
-            if (ObjGetBase(this) != Object.Prototype) {
+            if (!IsPlainObject(this)) {
                 throw TypeError("Expected a plain object",, Type(this))
             }
             if (!(Val is Map)) {

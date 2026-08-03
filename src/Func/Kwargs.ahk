@@ -148,7 +148,7 @@ class AquaHotkey_Kwargs extends AquaHotkey
          */
         With(ArgObj) {
             GetMethod(this)
-            if (ObjGetBase(ArgObj) != Object.Prototype) {
+            if (!IsPlainObject(ArgObj)) {
                 throw TypeError("Expected an Object literal",, Type(ArgObj))
             }
             if (!HasProp(this, "Signature")) {

@@ -1,6 +1,7 @@
 #Requires AutoHotkey v2.0
 
 #Include <AquaHotkey>
+#Include <AquaHotkey\src\Core\Utils>
 #Include <AquaHotkey\src\Base\Eq>
 #Include <AquaHotkey\src\Base\Hash>
 #Include <AquaHotkey\src\Base\Object>
@@ -67,7 +68,7 @@ class DataObject {
         if (!IsSet(Schema)) {
             throw UnsetError("Expected a plain Object")
         }
-        if (ObjGetBase(Schema) != Object.Prototype) {
+        if (!IsPlainObject(Schema)) {
             throw TypeError("Expected a plain Object",, Type(Schema))
         }
 
@@ -117,7 +118,7 @@ class DataObject {
      * Obj := T({ Value: 42 })
      */
     __New(Obj := {}) {
-        if (ObjGetBase(Obj) != Object.Prototype) {
+        if (!IsPlainObject(Obj)) {
             throw TypeError("Expected a plain Object",, Type(Obj))
         }
         for PropertyName in ObjOwnProps(Obj) {
