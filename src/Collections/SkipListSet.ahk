@@ -1,5 +1,5 @@
-#Include "%A_LineFile%\..\Set.ahk"
-#Include "%A_LineFile%\..\SkipListMap.ahk"
+#Include "%A_LineFile%\..\..\Collections\Set.ahk"
+#Include "%A_LineFile%\..\..\Collections\SkipListMap.ahk"
 
 /**
  * A {@link Set} implementation of {@link SkipListMap}. Keys are sorted
@@ -19,9 +19,7 @@ class SkipListSet extends Set {
      * @returns {SkipListSet}
      */
     __New(Values*) {
-        M := SkipListMap()
-        this.DefineProp("M", { Get: (_) => M })
-        this.Add(Values*)
+        DefineConst(this, "M", SkipListMap()).Add(Values*)
     }
 
     /**
@@ -39,16 +37,11 @@ class SkipListSet extends Set {
      */
     static WithComparator(Comp) {
         MapCls := SkipListMap.WithComparator(Comp)
-
-        Cls := Class()
-        Proto := Object()
-        Cls.Prototype := Proto
-        Proto.DefineProp("Call", {
-            Call: (Cls, Values*) => this.FromMap(MapCls(Values*))
-        })
-
-        ObjSetBase(Cls, this)
-        ObjSetBase(Proto, this.Prototype)
-        return Cls
+        return DefineMethod({
+            base: this,
+            Prototype: {
+                base: this.Prototype
+            }
+        }, "Call", (Cls, Values*) => this.FromMap(MapCls(), Values*))
     }
 }

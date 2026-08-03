@@ -1,5 +1,5 @@
-#Include "%A_LineFile%\..\..\DuckTypes.ahk"
-#Include "%A_LineFile%\..\..\Comparable.ahk"
+#Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\..\Base\Comparable.ahk"
 
 /**
  * @duck

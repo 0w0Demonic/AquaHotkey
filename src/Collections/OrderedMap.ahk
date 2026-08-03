@@ -43,9 +43,7 @@ class OrderedMap extends IMap {
      * O := OrderedMap("Name", "Alice", "Age", 30)
      */
     __New(Args*) {
-        M := Map()
-        this.DefineProp("M", { Get: (_) => M })
-        this.Set(Args*)
+        DefineConst(this, "M", Map()).Set(Args*)
     }
 
     /**
@@ -107,8 +105,7 @@ class OrderedMap extends IMap {
         if (Values.Length & 1) {
             throw ValueError("invalid param count",, Values.Length)
         }
-        Enumer := Values.__Enum(1)
-        while (Enumer(&Key) && Enumer(&Value)) {
+        for Key, Value in Pairwise(Values) {
             Node := { Key: Key, Value: Value, Next: false }
             (this.M).Set(Key, Node)
 
@@ -151,7 +148,7 @@ class OrderedMap extends IMap {
             this.Head.Prev := false
         }
 
-        Key := Head.Key
+        Key   := Head.Key
         Value := Head.Value
     }
 
@@ -191,8 +188,7 @@ class OrderedMap extends IMap {
         if (Values.Length & 1) {
             throw ValueError("invalid param count",, Values.Length)
         }
-        Enumer := Values.__Enum(1)
-        while (Enumer(&Key) && Enumer(&Value)) {
+        for Key, Value in Pairwise(Values) {
             Node := { Key: Key, Value: Value, Prev: false }
             (this.M).Set(Key, Node)
 
@@ -264,10 +260,10 @@ class OrderedMap extends IMap {
     /**
      * Enumerates entries in insertion order.
      *
-     * @param   {Integer}  ArgSize  1 for keys only, 2 for key-value pairs
+     * @param   {Integer?}  ArgSize  1 for keys only, 2 for key-value pairs
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) {
+    __Enum(ArgSize := 1) {
         Node := this.Head
         ObjSetBase(Enumer, Enumerator.Prototype)
         return Enumer
@@ -311,6 +307,18 @@ class OrderedMap extends IMap {
         get => (this.M).CaseSense
         set {
             ((this.M).CaseSense := value)
+        }
+    }
+
+    /**
+     * Default value returned, if an item is not present.
+     * 
+     * @type {Any?}
+     */
+    Default {
+        get => (this.M).Default
+        set {
+            (this.M).Default := (value?)
         }
     }
 }

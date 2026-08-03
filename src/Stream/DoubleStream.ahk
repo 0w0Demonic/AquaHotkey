@@ -1,4 +1,4 @@
-#Include "%A_LineFile%\..\BaseStream.ahk"
+#Include "%A_LineFile%\..\..\Stream\BaseStream.ahk"
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
@@ -509,13 +509,13 @@ class DoubleStream extends BaseStream
 class AquaHotkey_DoubleStream extends AquaHotkey {
     class Any {
         static __New() {
-            ({}.DefineProp)(this.Prototype, "DoubleStream",
-                    { Call: DoubleStream })
+            DefineMethod(this.Prototype, "DoubleStream", DoubleStream)
         }
 
         /**
          * Creates a {@link DoubleStream} for this value.
          * 
+         * @inlined
          * @returns {DoubleStream}
          * @example
          * Array(3, 5, 2, 6).DoubleStream() ; <(1, 3), (2, 5), (3, 2), ()>

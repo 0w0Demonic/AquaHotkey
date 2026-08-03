@@ -1,11 +1,9 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Base\Eq.ahk"
 #Include "%A_LineFile%\..\..\Base\Hash.ahk"
-#Include "%A_LineFile%\..\UrlEncoding.ahk"
+#Include "%A_LineFile%\..\..\Net\UrlEncoding.ahk"
 
-; TODO
-; - find a way to make URIs comparable
-; - add logic for creating and extracting URL query parameters
+; TODO find a way to make URIs comparable
 
 ;@region Uri
 
@@ -32,7 +30,7 @@
  * 
  * Supports {@link AquaHotkey_DuckTypes duck types}, if present.
  * 
- * ```
+ * ```ahk
  * "mailto:user@example.com".Is(Uri)     ; true
  * "mailto:user@example.com".Is(HttpUri) ; false
  * 
@@ -77,8 +75,8 @@ class Uri {
             static Init() {
                 M := Map()
                 M.CaseSense := false
-                M.DefineProp("Set", { Call: Set })
-                M.DefineProp("__Item", { Set: __Item_set })
+                DefineProp(M, "Set", { Call: Set })
+                DefineProp(M, "__Item", { Set: __Item_set })
                 return M
 
                 Set(MapObj, Values*) {
@@ -226,7 +224,7 @@ class Uri {
                 Out := ValueError("invalid scheme",, Scheme)
                 return false
             }
-            b.DefineProp("RawScheme", { Get: (_) => Scheme })
+            DefineProp(b, "RawScheme", { Get: (_) => Scheme })
             p++ ; skip ":"
 
             ; does URI define a path?
@@ -242,7 +240,7 @@ class Uri {
 
                 ; the scheme-specific part of the URI
                 Spec := SubStr(Str, p, q - p)
-                b.DefineProp("RawSchemeSpecific", { Get: (_) => Spec })
+                DefineProp(b, "RawSchemeSpecific", { Get: (_) => Spec })
             }
         } else {
             ; no scheme was found; try to parse path / authority
@@ -256,7 +254,7 @@ class Uri {
                 Out := ValueError('invalid char "#" in fragment',, Frag)
                 return false
             }
-            b.DefineProp("RawFragment", { Get: (_) => Frag })
+            DefineProp(b, "RawFragment", { Get: (_) => Frag })
         }
         Out := r
         if (!(Out is this)) {
@@ -273,13 +271,13 @@ class Uri {
                 p += 2
                 q := RegExMatch(Str, "[/?#]", unset, p) || n
                 Authority := SubStr(Str, p, q - p)
-                b.DefineProp("RawAuthority", { Get: (_) => Authority })
+                DefineProp(b, "RawAuthority", { Get: (_) => Authority })
                 p := q
             }
             ; path (terminates on either query "?" or fragment "#")
             q := RegExMatch(Str, "[?#]", unset, p) || n
             Path := SubStr(Str, p, q - p)
-            b.DefineProp("RawPath", { Get: (_) => Path })
+            DefineProp(b, "RawPath", { Get: (_) => Path })
             p := q
 
             ; query
@@ -287,7 +285,7 @@ class Uri {
                 p++
                 q := InStr(Str, "#", unset, p) || n
                 Query := SubStr(Str, p, q - p)
-                b.DefineProp("RawQuery", { Get: (_) => Query })
+                DefineProp(b, "RawQuery", { Get: (_) => Query })
                 p := q
             }
         }
@@ -358,7 +356,7 @@ class Uri {
     Scheme {
         get {
             Str := UrlDecode(this.RawScheme)
-            this.DefineProp("Scheme", { Get: (_) => Str })
+            DefineProp(this, "Scheme", { Get: (_) => Str })
             return Str
         }
     }
@@ -372,7 +370,7 @@ class Uri {
     SchemeSpecific {
         get {
             Str := UrlDecode(this.RawSchemeSpecific)
-            this.DefineProp("SchemeSpecific", { Get: (_) => Str })
+            DefineProp(this, "SchemeSpecific", { Get: (_) => Str })
             return Str
         }
     }
@@ -386,7 +384,7 @@ class Uri {
     Authority {
         get {
             Str := UrlDecode(this.RawAuthority)
-            this.DefineProp("Authority", { Get: (_) => Str })
+            DefineProp(this, "Authority", { Get: (_) => Str })
             return Str
         }
     }
@@ -400,7 +398,7 @@ class Uri {
     Path {
         get {
             Str := UrlDecode(this.RawPath)
-            this.DefineProp("Path", { Get: (_) => Str })
+            DefineProp(this, "Path", { Get: (_) => Str })
             return Str
         }
     }
@@ -414,7 +412,7 @@ class Uri {
     Query {
         get {
             Str := UrlDecode(this.RawQuery)
-            this.DefineProp("Query", { Get: (_) => Str })
+            DefineProp(this, "Query", { Get: (_) => Str })
             return Str
         }
     }
@@ -428,7 +426,7 @@ class Uri {
     Fragment {
         get {
             Str := UrlDecode(this.RawFragment)
-            this.DefineProp("Fragment", { Get: (_) => Str })
+            DefineProp(this, "Fragment", { Get: (_) => Str })
             return Str
         }
     }
@@ -535,7 +533,7 @@ class Uri {
             Str .= "#"
             Str .= this.RawFragment
         }
-        this.DefineProp("ToString", { Call: (_) => Str })
+        DefineProp(this, "ToString", { Call: (_) => Str })
         return Str
     }
 
@@ -632,7 +630,7 @@ class Uri {
             Result ^= this.HasAuthority && this.Authority.HashCode()
             Result *= Prime
         }
-        this.DefineProp("HashCode", { Call: (_) => Result })
+        DefineProp(this, "HashCode", { Call: (_) => Result })
         return Result
     }
 
@@ -658,7 +656,7 @@ class Uri {
         }
         
         Base := ObjGetBase(this).Clone()
-        Base.DefineProp("RawPath", { Get: (_) => NormalizedPath })
+        DefineProp(Base, "RawPath", { Get: (_) => NormalizedPath })
         Result := Object()
         ObjSetBase(Result, Base)
         return Result
@@ -748,23 +746,20 @@ class Uri {
             }
         }
 
-        Base := Object()
-        ObjSetBase(Base, Uri.Prototype)
+        Base := { base: Uri.Prototype }
 
         RawPath := SubStr(OtherPath, Len + 1)
-        Base.DefineProp("RawPath", { Get: (_) => RawPath })
+        DefineProp(Base, "RawPath", { Get: (_) => RawPath })
 
         if (Other.HasQuery) {
             RawQuery := Other.RawQuery
-            Base.DefineProp("RawQuery", { Get: (_) => RawQuery })
+            DefineProp(Base, "RawQuery", { Get: (_) => RawQuery })
         }
         if (Other.HasFragment) {
             RawFragment := Other.RawFragment
-            Base.DefineProp("RawFragment", { Get: (_) => RawFragment })
+            DefineProp(Base, "RawFragment", { Get: (_) => RawFragment })
         }
-        Result := Object()
-        ObjSetBase(Result, Base)
-        return Result
+        return { base: Base }
     }
 
     ;@endregion
@@ -812,11 +807,10 @@ class Uri {
                     && (Other.Path == "") && Other.HasFragment)
         {
             Base := ObjGetBase(this).Clone()
-            Result := Object()
-            ObjSetBase(Result, Base)
+            Result := { base: Base }
 
             RawFragment := Other.RawFragment
-            Base.DefineProp("RawFragment", { Get: (_) => RawFragment })
+            DefineProp(Base, "RawFragment", { Get: (_) => RawFragment })
             return Result
         }
 
@@ -835,13 +829,12 @@ class Uri {
         ; Uri("https://www.example.com").Resolve("//www.github.com")
         if (Other.HasAuthority) {
             Base := ObjGetBase(Other).Clone()
-            Result := Object()
-            ObjSetBase(Result, Base)
+            Result := { base: Base }
 
-            Base.DeleteProp("RawScheme")
+            DeleteProp(Base, "RawScheme")
             if (this.HasScheme) {
                 RawScheme := this.RawScheme
-                Base.DefineProp("RawScheme", { Get: (_) => RawScheme })
+                DefineProp(Base, "RawScheme", { Get: (_) => RawScheme })
                 ObjSetBase(Base, ObjGetBase(this))
             } else {
                 ObjSetBase(Base, Uri.Prototype)
@@ -851,31 +844,30 @@ class Uri {
 
         ; only query, fragment and path are different from the current URI.
         Base := ObjGetBase(this).Clone()
-        Result := Object()
-        ObjSetBase(Result, Base)
+        Result := { base: Base }
 
-        Base.DeleteProp("RawQuery")
-        Base.DeleteProp("RawFragment")
+        DeleteProp(Base, "RawQuery")
+        DeleteProp(Base, "RawFragment")
         if (Other.HasQuery) {
             RawQuery := Other.RawQuery
-            Base.DefineProp("RawQuery", { Get: (_) => RawQuery })
+            DefineProp(Base, "RawQuery", { Get: (_) => RawQuery })
         }
         if (Other.HasFragment) {
             RawFragment := Other.RawFragment
-            Base.DefineProp("RawFragment", { Get: (_) => RawFragment })
+            DefineProp(Base, "RawFragment", { Get: (_) => RawFragment })
         }
 
         RawPath := Other.RawPath
         if (SubStr(RawPath, 1, 1) == "/") {
             ; path is absolute
-            Base.DefineProp("RawPath", { Get: (_) => RawPath })
+            DefineProp(Base, "RawPath", { Get: (_) => RawPath })
             return Result
         }
 
         ; resolve relative path
         RawPath := Uri.ResolvePath(this.Path, Other.Path, this.IsAbsolute)
 
-        Base.DefineProp("RawPath", { Get: (_) => RawPath })
+        DefineProp(Base, "RawPath", { Get: (_) => RawPath })
         return Result
     }
 
@@ -942,13 +934,13 @@ class Uri {
 class AquaHotkey_Uri extends AquaHotkey {
     class String {
         static __New() {
-            ; "inline" this
-            ({}.DefineProp)(this.Prototype, "ToUri", { Call: Uri })
+            DefineMethod(this.Prototype, "ToUri", Uri)
         }
 
         /**
          * Converts this string into a {@link Resource}.
          * 
+         * @inlined
          * @returns {Uri}
          */
         ToUri() => Uri(this)

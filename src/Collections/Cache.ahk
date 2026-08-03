@@ -40,12 +40,10 @@ class Cache extends IMap {
             throw ValueError("Must be > 0",, Ttl)
         }
         ; note: do not assign `.__Class` to ensure the prototype is deleteable.
-        Cls := Object()
-        Proto := Object()
-        Proto.DefineProp("TTL", { Get: (_) => Ttl })
-        Cls.DefineProp("Prototype", { Value: Proto })
-        ObjSetBase(Cls, Cache)
-        ObjSetBase(Cls, Cache.Prototype)
+        return {
+            base: this,
+            Prototype: DefineConst({ base: this.Prototype }, "TTL", Ttl )
+        }
     }
 
     /**
@@ -69,11 +67,8 @@ class Cache extends IMap {
             throw ValueError("invalid param count",, Args.Length)
         }
 
-        M := Map()
-        Timers := Map()
-
-        this.DefineProp("M", { Get: (_) => M })
-        this.DefineProp("Timers", { Get: (_) => Timers })
+        DefineConst(this, "M",      Map())
+        DefineConst(this, "Timers", Map())
         this.Set(Args*)
     }
 
@@ -100,8 +95,7 @@ class Cache extends IMap {
     Clone() {
         Prev := Critical("On")
 
-        Copy := Object()
-        ObjSetBase(Copy, ObjGetBase(this))
+        Copy := { base: ObjGetBase(this) }
         Copy.__Init()
         Copy.__New()
         for Key, Value in this {
@@ -199,10 +193,10 @@ class Cache extends IMap {
     /**
      * Returns an {@link Enumerator} for the map.
      * 
-     * @param   {Integer}  ArgSize  argument size
+     * @param   {Integer?}  ArgSize  argument size
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) => (this.M).__Enum(ArgSize)
+    __Enum(ArgSize := 1) => (this.M).__Enum(ArgSize)
 
     /**
      * The number of items in the map.
@@ -210,15 +204,4 @@ class Cache extends IMap {
      * @returns {Integer}
      */
     Count => (this.M).Count
-
-    /**
-     * Gets and sets items in the cache.
-     * 
-     * @property {Any}
-     * @param    {Any}  Key  map key
-     */
-    __Item[Key] {
-        get => this.Get(Key)
-        set => this.Set(Key, value)
-    } 
 }

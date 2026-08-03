@@ -1,7 +1,5 @@
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
-; TODO implement StreamN that doesn't care about speed and/or size?
-
 /**
  * Internals of {@link Stream} and {@link DoubleStream}, along with commonly
  * shared methods.
@@ -47,37 +45,7 @@ class BaseStream extends Enumerator {
         if (Source is this) {
             return Source
         }
-
-        ; `.__Enum()` always takes priority before `.Call()`
-        if (HasProp(Source, "__Enum")) {
-            Source := Source.__Enum(this.Size)
-        }
-
-        ; At this point, `Source` must be callable
-        if (!HasMethod(Source)) {
-            throw UnsetError("value is not enumerable",, Type(Source))
-        }
-
-        ; do some assertions on the parameter length of the stream source.
-        ; at this point, `Source` might still be a method call instead of a
-        ; `Func`, so we need to account for the extra `this` parameter and
-        ; also "bind" with the source object.
-        if (Source is Func) {
-            ThisParam := 0
-            f := Source
-        } else {
-            ThisParam := 1
-            f := GetMethod(Source, "Call")
-            Source := ObjBindMethod(Source)
-        }
-        if (f.IsVariadic) {
-            throw ValueError("varargs parameter",, Source.Name)
-        }
-        if (f.MinParams - ThisParam > this.Size) {
-            throw ValueError("invalid number of parameters",,
-                f.MinParams - ThisParam)
-        }
-        return this.Cast(Source)
+        return this.Cast(GetEnumerator(Source))
     }
 
     /**

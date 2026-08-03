@@ -1,6 +1,6 @@
 ; #Include "%A_LineFile%\..\..\..\wip\BufferEditor.ahk"
 #Include "%A_LineFile%\..\..\Base\TypeInfo.ahk"
-#Include "%A_LineFile%\..\Serial.ahk"
+#Include "%A_LineFile%\..\..\IO\Serial.ahk"
 
 /**
  * Implements binary serialization for many of the built-in AHK types and

@@ -1,3 +1,4 @@
+#Include "%A_LineFile%\..\..\Core\Utils.ahk"
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
@@ -9,12 +10,18 @@
  */
 class AquaHotkey_Substrings extends AquaHotkey {
     class String {
+        static __New() {
+            DefineMethod(this.Prototype, "Sub", SubStr)
+            RenameProp(this.Prototype, "_Until", "Until")
+        }
+
         ;@region General
 
         /**
          * Returns a substring at index `Start` and length `Length` in
          * characters.
          * 
+         * @inlined
          * @param   {Integer}   Start   starting index
          * @param   {Integer?}  Length  length in characters
          * @returns {String}
@@ -165,14 +172,6 @@ class AquaHotkey_Substrings extends AquaHotkey {
                 return SubStr(this, 1, FoundPos - 1)
             }
             return this
-        }
-
-        static __New() {
-            ({}.DefineProp)(this.Prototype, "Sub", { Call: SubStr })
-            
-            PropDesc := ({}.GetOwnPropDesc)(this.Prototype, "_Until")
-            ({}.DeleteProp)(this.Prototype, "_Until")
-            ({}.DefineProp)(this.Prototype, "Until", PropDesc)
         }
 
         /**

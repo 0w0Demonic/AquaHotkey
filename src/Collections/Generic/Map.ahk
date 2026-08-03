@@ -1,3 +1,4 @@
+#Include "%A_LineFile%\..\..\..\Core\Utils.ahk"
 #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Hash.ahk"
@@ -37,9 +38,6 @@ class GenericMap extends IMap {
      * Map.OfType(String, Integer)
      */
     static __New(M := Map, K?, V?) {
-        static Define := {}.DefineProp
-        static Delete := {}.DeleteProp
-
         if (this == GenericMap) {
             return
         }
@@ -57,11 +55,12 @@ class GenericMap extends IMap {
         }
 
         ; make sure that class prototypes are disposable.
-        Delete(this.Prototype, "__Class")
-
-        Define(this.Prototype, "MapType",   { Get: (_) => M })
-        Define(this.Prototype, "KeyType",   { Get: (_) => K })
-        Define(this.Prototype, "ValueType", { Get: (_) => V })
+        DeleteProp(this.Prototype, "__Class")
+        DefineConsts(this.Prototype, {
+            MapType:   M,
+            KeyType:   K,
+            ValueType: V
+        })
     }
 
     /**
@@ -71,9 +70,7 @@ class GenericMap extends IMap {
      * @param   {Any*}  Args  alternating key-value pairs
      */
     __New(Args*) {
-        M := (this.MapType)()
-        ({}.DefineProp)(this, "M", { Get: (_) => M })
-        M.Set(Args*)
+        DefineConst(this, "M", (this.MapType)()).Set(Args*)
     }
 
     ;@endregion
@@ -85,7 +82,7 @@ class GenericMap extends IMap {
      * the `Class#Name` property defined in {@link AquaHotkey_TypeInfo}, as
      * `.__Class` cannot be used to determine the name of the class.
      * 
-     * @property {String}
+     * @returns {String}
      */
     static Name => (this.Prototype).ClassName
 
@@ -93,21 +90,16 @@ class GenericMap extends IMap {
      * The name of the class. Provides information about the map, key and
      * value type.
      * 
-     * @property {String}
+     * @returns {String}
      */
     ClassName {
         get {
             Name := Format(
                 "{}<{}, {}>",
-                this.MapType.Prototype.__Class, ; map class name
-                this.KeyTypeName, ; key type
-                this.ValueTypeName ; value type
-            )
-            Obj := this
-            while (!ObjHasOwnProp(Obj, "MapType")) {
-                Obj := ObjGetBase(Obj)
-            }
-            ({}.DefineProp)(Obj, "ClassName", { Get: (_) => Name })
+                this.MapTypeName,
+                this.KeyTypeName,
+                this.ValueTypeName)
+            DefineConst(OwnerOfProp(this, "MapType"), "ClassName", Name)
             return Name
         }
     }
@@ -125,7 +117,7 @@ class GenericMap extends IMap {
      * Returns the map type which the generic map wraps around.
      * 
      * @abstract
-     * @property {Class}
+     * @returns {Class}
      * @example
      * M := SkipListMap.OfType(String, { Value: Integer })
      * M.MapType ; SkipListMap
@@ -133,6 +125,26 @@ class GenericMap extends IMap {
     MapType {
         get {
             throw PropertyError("abstract property")
+        }
+    }
+
+    /**
+     * Name of the underlying map.
+     * 
+     * @returns {String}
+     */
+    static MapTypeName => (this.Prototype).MapTypeName
+
+    /**
+     * Name of the underlying map.
+     * 
+     * @returns {String}
+     */
+    MapTypeName {
+        get {
+            Name := (this.MapType).Prototype.__Class
+            DefineConst(OwnerOfProp(this, "MapType"), "MapTypeName", Name)
+            return Name
         }
     }
 
@@ -163,14 +175,14 @@ class GenericMap extends IMap {
     /**
      * Name of the key type in this generic map class.
      * 
-     * @property {String}
+     * @returns {String}
      */
     static KeyTypeName => (this.Prototype).KeyTypeName
 
     /**
      * Name of the key type in this generic map.
      * 
-     * @property {String}
+     * @returns {String}
      */
     KeyTypeName {
         get {
@@ -182,11 +194,7 @@ class GenericMap extends IMap {
             } else {
                 Name := Type(T)
             }
-            Obj := this
-            while (!ObjHasOwnProp(Obj, "KeyType")) {
-                Obj := ObjGetBase(Obj)
-            }
-            ({}.DefineProp)(Obj, "KeyTypeName", { Get: (_) => Name })
+            DefineConst(OwnerOfProp(this, "KeyType"), "KeyTypeName", Name)
             return Name
         }
     }
@@ -204,7 +212,7 @@ class GenericMap extends IMap {
      * Returns the value type associated with this generic map.
      * 
      * @abstract
-     * @property {Class}
+     * @returns {Class}
      * @example
      * M := Map.OfType(String, Integer)("foo", 12)
      * M.ValueType ; class Integer
@@ -218,14 +226,14 @@ class GenericMap extends IMap {
     /**
      * The name of the value type in this generic map class.
      * 
-     * @property {String}
+     * @returns {String}
      */
     static ValueTypeName => (this.Prototype).ValueTypeName
 
     /**
      * The name of the value type in this generic map.
      * 
-     * @property {String}
+     * @returns {String}
      */
     ValueTypeName {
         get {
@@ -237,11 +245,7 @@ class GenericMap extends IMap {
             } else {
                 Name := Type(T)
             }
-            Obj := this
-            while (!ObjHasOwnProp(Obj, "ValueType")) {
-                Obj := ObjGetBase(Obj)
-            }
-            ({}.DefineProp)(Obj, "ValueTypeName", { Get: (_) => Name })
+            DefineConst(OwnerOfProp(this, "ValueType"), "ValueTypeName", Name)
             return Name
         }
     }
@@ -430,10 +434,10 @@ class GenericMap extends IMap {
     /**
      * Returns an {@link Enumerator} for this map.
      * 
-     * @param   {Integer}  ArgSize  argument size
+     * @param   {Integer?}  ArgSize  argument size
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) => (this.M).__Enum(ArgSize)
+    __Enum(ArgSize := 1) => (this.M).__Enum(ArgSize)
 
     /**
      * The number of items present in the map.
@@ -455,6 +459,45 @@ class GenericMap extends IMap {
             (this.M)[Key] := value
         }
     }
+
+    /**
+     * Capacity of the backing map.
+     * 
+     * @param   {Integer}  value  new capacity
+     * @returns {Integer}
+     */
+    Capacity {
+        get => (this.M).Capacity
+        set {
+            (this.M).Capacity := value
+        }
+    }
+
+    /**
+     * Case sensitivity of the backing map.
+     * 
+     * @param   {Primitive}  value  new case sensitivity
+     * @returns {Integer}
+     */
+    CaseSense {
+        get => (this.M).CaseSense
+        set {
+            (this.M).CaseSense := value
+        }
+    }
+
+    /**
+     * Default value returned, if an item is not present.
+     * 
+     * @param   {Any?}  value  new default value
+     * @returns {Any}
+     */
+    Default {
+        get => (this.M).Default
+        set {
+            (this.M).Default := (value?)
+        }
+    }
 }
 
 ;@endregion
@@ -471,17 +514,21 @@ class AquaHotkey_GenericMap extends AquaHotkey {
         }
 
         if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
-            ({}.DefineProp)(this.IMap, "OfType", { Call: Disabled_OfType })
+            DefineMethod(this.IMap, "OfType", (Cls, K, V) => Cls)
+        } else {
+            DefineMethod(this.IMap, "OfType",
+                ; (Cls, K, V) =>
+                ;     AquaHotkey.CreateClass(GenericMap, "", Cls, K, V)
+                ObjBindMethod(AquaHotkey, "CreateClass", GenericMap, ""))
         }
         super.__New()
-
-        static Disabled_OfType(Cls, K, V) => Cls
     }
 
     class IMap {
         /**
          * Returns a generic map class.
          * 
+         * @inlined
          * @param   {Any}  K  type of keys
          * @param   {Any}  V  type of values
          * @returns {Class<? extends IMap>}
@@ -512,11 +559,7 @@ class AquaHotkey_GenericMap_Serialization extends AquaHotkey {
             Output.WriteObject(this.MapType, Refs)
             Output.WriteObject(this.KeyType, Refs)
             Output.WriteObject(this.ValueType, Refs)
-            Output.WriteUInt(this.Count)
-            for Key, Value in this {
-                Output.WriteObject(Key?, Refs)
-                Output.WriteObject(Value?, Refs)
-            }
+            Output.WriteObject(this.M, Refs)
         }
 
         /**
@@ -531,26 +574,16 @@ class AquaHotkey_GenericMap_Serialization extends AquaHotkey {
             Input.ReadObject(&KeyType, Refs)
             Input.ReadObject(&ValueType, Refs)
             if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
-                KeyType := Any
+                KeyType := Any ; maps can never contain `unset`
                 ValueType := Any
             }
-
-            Cls := AquaHotkey.CreateClass(
+            ObjSetBase(this, AquaHotkey.CreateClass(
                 GenericMap,
-                unset, ; `.__Class` is not used anyways
-                MapType, KeyType, ValueType)
+                unset, ; `.__Class` is not used anyway
+                MapType, KeyType, ValueType).Prototype)
 
-            ObjSetBase(this, Cls.Prototype)
-
-            this.__Init()
-            this.__New()
-
-            Count := Input.ReadUInt()
-            loop Count {
-                Input.ReadObject(&Key, Refs)
-                Input.ReadObject(&Value, Refs)
-                this.Set(Key, Value)
-            }
+            Input.ReadObject(&M, Refs)
+            DefineConst(this, "M", M)
         }
     }
 }

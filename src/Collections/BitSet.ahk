@@ -23,10 +23,7 @@ class BitSet extends ISet
         if (!IsObject(Buf) || !HasProp(Buf, "Ptr") || !HasProp(Buf, "Size")) {
             throw ValueError("Expected a Buffer-like object")
         }
-        Result := Object()
-        ObjSetBase(Result, this.Prototype)
-        Result.DefineProp("B", { Get: (_) => Buf })
-        return Result
+        return DefineConst({ base: this.Prototype }, "B", Buf)
     }
 
     /**
@@ -36,9 +33,7 @@ class BitSet extends ISet
      * @param   {Integer*}  Values  zero or more elements
      */
     __New(Values*) {
-        Buf := Buffer()
-        this.DefineProp("B", { Get: (_) => Buf })
-        this.Add(Values*)
+        DefineConst(this, "B", Buffer()).Add(Values*)
     }
 
     ;@endregion
@@ -138,9 +133,10 @@ class BitSet extends ISet
      * Returns an {@link Enumerator} that enumerates through the indices of
      * all 1-bits in this bit set.
      * 
+     * @param   {Integer?}  ArgSize  argument size
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) {
+    __Enum(ArgSize := 1) {
         i := 0
         ObjSetBase(Enumer, Enumerator.Prototype)
         return Enumer
@@ -211,9 +207,15 @@ class BitSet extends ISet
  */
 class AquaHotkey_BitSet extends AquaHotkey {
     class IBuffer {
+        static __New() {
+            DefineMethod(this.Prototype, "AsBitSet",
+                ObjBindMethod(BitSet, "FromBuffer"))
+        }
+
         /**
          * Returns a {@link BitSet} view of this buffer.
          * 
+         * @inlined
          * @returns {BitSet}
          */
         AsBitSet() => BitSet.FromBuffer(this)
@@ -254,7 +256,7 @@ class AquaHotkey_BitSet_Serialization extends AquaHotkey {
          */
         Deserialize(Input, Refs) {
             Input.ReadObject(&B, Refs)
-            Input.DefineProp("B", { Get: (_) => B })
+            DefineConst(this, "B", B)
         }
     }
 }

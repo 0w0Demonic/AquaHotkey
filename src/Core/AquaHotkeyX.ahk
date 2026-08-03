@@ -6,7 +6,8 @@
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 ;@region Core/
-    #Include "%A_LineFile%\..\AquaHotkey.ahk"
+    #Include "%A_LineFile%\..\..\Core\Utils.ahk"
+    #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 ;@endregion
 ;@region Base/
     ;@region DuckTypes/
@@ -40,12 +41,14 @@
     #Include "%A_LineFile%\..\..\Collections\BitSet.ahk"
     #Include "%A_LineFile%\..\..\Collections\ByteArray.ahk"
     #Include "%A_LineFile%\..\..\Collections\Cache.ahk"
+    #Include "%A_LineFile%\..\..\Collections\Entry.ahk"
     #Include "%A_LineFile%\..\..\Collections\HashMap.ahk"
     #Include "%A_LineFile%\..\..\Collections\HashSet.ahk"
     #Include "%A_LineFile%\..\..\Collections\ImmutableArray.ahk"
     #Include "%A_LineFile%\..\..\Collections\ImmutableMap.ahk"
     #Include "%A_LineFile%\..\..\Collections\ImmutableSet.ahk"
     #Include "%A_LineFile%\..\..\Collections\LinkedList.ahk"
+    #Include "%A_LineFile%\..\..\Collections\MapEntry.ahk"
     #Include "%A_LineFile%\..\..\Collections\OrderedMap.ahk"
     #Include "%A_LineFile%\..\..\Collections\OrderedSet.ahk"
     #Include "%A_LineFile%\..\..\Collections\Set.ahk"

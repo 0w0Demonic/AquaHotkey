@@ -1,4 +1,4 @@
-#Include "%A_LineFile%\..\Cast.ahk"
+#Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
 /**
  * Utility for creating reduction operations.

@@ -17,6 +17,7 @@ class IMap {
         if (this != IMap) {
             return
         }
+        (AquaHotkey)
         ObjSetBase(this,           ObjGetBase(Map))
         ObjSetBase(this.Prototype, ObjGetBase(Map.Prototype))
         ObjSetBase(Map,            this)
@@ -117,6 +118,8 @@ class IMap {
                 && HasMethod(Val, "Set")
                 && HasMethod(Val, "__Enum")
                 && HasProp(Val, "Count")
+                ; note: although `IMap` implements a default `.__Item[]`, the
+                ;       object might not inherit from there.
                 && HasProp(Val, "__Item")
 
     ;@endregion
@@ -170,7 +173,7 @@ class IMap {
      * Unsupported `.__Enum()` method.
      * @see {@link Map#__Enum()}
      */
-    __Enum(ArgSize) {
+    __Enum(ArgSize := 1) {
         throw MethodError("not implemented")
     }
 
@@ -493,23 +496,21 @@ class IMap {
      * MsgBox(Copy.Default) ; "(empty)"
      */
     static BasedFrom(M) {
-        static Define := {}.DefineProp
-        static GetProp := {}.GetOwnPropDesc
-
         if (M is Map) {
             Result := Map()
         } else {
             Result := {}
         }
+
         ObjSetBase(Result, ObjGetBase(M))
         Result.__Init()
         Result.__New()
 
         if (ObjHasOwnProp(M, "Default")) {
-            Define(Result, "Default", GetProp(M, "Default"))
+            DefineProp(Result, "Default", GetOwnPropDesc(M, "Default"))
         }
         if (ObjHasOwnProp(M, "CaseSense")) {
-            Define(Result, "CaseSense", GetProp(M, "CaseSense"))
+            DefineProp(Result, "CaseSense", GetOwnPropDesc(M, "CaseSense"))
         }
 
         if (!this.IsInstance(Result)) {

@@ -1,11 +1,12 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 #Include "%A_LineFile%\..\..\Base\DuckTypes.ahk"
-#Include "%A_LineFile%\..\Set.ahk"
+#Include "%A_LineFile%\..\..\Collections\Set.ahk"
 
 ; TODO
 ; - combine additions and deletions through "DELETED" as magic object?
 ; - need to copy more than just changes, getting from original map is still O(n)
+; - go fully into immutability?
 
 /**
  * An immutable view of an existing {@link IMap} that has a set of added or
@@ -38,10 +39,6 @@ class OverlayMap extends IMap
     __New(Parent := EMPTY, Depth := 1) {
         static EMPTY := Map() ; can be reused, because never modified
 
-        Define(Name, Value) {
-            ({}.DefineProp)(this, Name, { Get: (_) => Value })
-        }
-
         if (!IMap.IsInstance(Parent)) {
             throw TypeError("Expected an IMap",, Type(Parent))
         }
@@ -63,15 +60,15 @@ class OverlayMap extends IMap
             throw ValueError("parent cannot be map itself")
         }
 
-        Define("Parent", Parent)
-        Define("Additions", Additions)
-        Define("Deletions", Deletions)
+        DefineProp(this, "Parent",    { Get: (_) => Parent    })
+        DefineProp(this, "Additions", { Get: (_) => Additions })
+        DefineProp(this, "Deletions", { Get: (_) => Deletions })
 
         if (Depth > this.MaxDepth) {
             this.Flatten()
             Depth := 1
         }
-        Define("Depth", Depth)
+        DefineProp(this, "Depth", { Get: (_) => Depth })
     }
 
     ;@endregion

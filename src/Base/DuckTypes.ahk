@@ -1,9 +1,9 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\Eq.ahk"
-#Include "%A_LineFile%\..\DuckTypes\Nothing.ahk"
+#Include "%A_LineFile%\..\..\Base\DuckTypes\Nothing.ahk"
+#Include "%A_LineFile%\..\..\Base\DuckTypes\Nullable.ahk"
+#Include "%A_LineFile%\..\..\Base\Eq.ahk"
 
 ; TODO use own class (e.g. `TypeDef`) for composing intersections, unions, etc.?
-; TODO implement VarRef#IsInstance() ?
 
 /**
  * Provides a flexible and customizable duck typing system which extends the
@@ -292,33 +292,20 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * Success.IsInstance({ status: 200, data: String }) ; true
          */
         IsInstance(Val?) {
-            static GetProp := {}.GetOwnPropDesc
-            if (!IsSet(Val) || !IsObject(Val)) {
+            if (!IsSet(Val)
+                || (ObjGetBase(this) != Object.Prototype)
+                || (ObjGetBase(Val) != Object.Prototype))
+            {
                 return false
             }
-
-            if (ObjGetBase(this) != Object.Prototype) {
-                return false
-            }
-            if (ObjGetBase(Val) != Object.Prototype) {
-                return false
-            }
-
-            for Name in ObjOwnProps(this) {
-                ; get patterns of this object
-                PropDesc := GetProp(this, Name)
-                if (!ObjHasOwnProp(PropDesc, "Value")) {
-                    continue
-                }
-                Pattern := PropDesc.Value
-
+            for Name, Pattern in OwnValueProps(this) {
                 ; get the same property of other object, if applicable
-                PropValue := unset
-                if (ObjHasOwnProp(Val, Name)) {
-                    PropDesc := GetProp(Val, Name)
-                    if (ObjHasOwnProp(PropDesc, "Value")) {
-                        PropValue := PropDesc.Value
-                    }
+                if (TryGetOwnPropDesc(Val, Name, &PropDesc)
+                 && ObjHasOwnProp(PropDesc, "Value"))
+                {
+                    PropValue := PropDesc.Value
+                } else {
+                    PropValue := unset
                 }
 
                 ; property value must match pattern
@@ -339,8 +326,6 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * ({ x: Number, y: Number }).CanCastFrom({ x: Integer, y: Integer })
          */
         CanCastFrom(T?) {
-            static GetProp := {}.GetOwnPropDesc
-
             ; note: whatever satisfies the contraints imposed by this object
             ;       will *also* satisfy the constraints of ... well, this
             ; object -- we already checked. And because this works similarly
@@ -349,35 +334,18 @@ class AquaHotkey_DuckTypes extends AquaHotkey
             if (this == T) {
                 return true
             }
-            if (!IsSet(T)) {
+            if (!IsSet(T)
+                || (ObjGetBase(this) != Object.Prototype)
+                || (ObjGetBase(T) != Object.Prototype))
+            {
                 return false
             }
 
-            ; this is only meant to work on object literals
-            if (ObjGetBase(this) != Object.Prototype) {
-                return false
-            }
-            if (ObjGetBase(T) != Object.Prototype) {
-                return false
-            }
-
-            for Name in ObjOwnProps(this) {
-                PropDesc := GetProp(this, Name)
-                if (!ObjHasOwnProp(PropDesc, "Value")) {
-                    continue
-                }
-                Pattern := PropDesc.Value
-
-                if (!ObjHasOwnProp(T, Name)) {
-                    return false
-                }
-                PropDesc := GetProp(T, Name)
-                if (!ObjHasOwnProp(PropDesc, "Value")) {
-                    return false
-                }
-                PropT := PropDesc.Value
-
-                if (!Pattern.CanCastFrom(PropT)) {
+            for Name, Pattern in OwnValueProps(this) {
+                if (!TryGetOwnPropDesc(T, Name, &PropDesc)
+                 || !ObjHasOwnProp(PropDesc, "Value")
+                 || !Pattern.CanCastFrom(PropDesc.Value))
+                {
                     return false
                 }
             }

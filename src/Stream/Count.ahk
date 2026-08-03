@@ -1,4 +1,4 @@
-#Include "%A_LineFile%\..\Stream.ahk"
+#Include "%A_LineFile%\..\..\Stream\Stream.ahk"
 
 /**
  * Creates an unbound arithmetic progression stream, starting at `Start` and

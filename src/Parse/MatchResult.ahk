@@ -1,3 +1,5 @@
+#Include "%A_LineFile%\..\..\Core\Utils.ahk"
+
 /**
  * Result type used by {@link Parser}.
  * 
@@ -27,8 +29,8 @@ class MatchResult {
          * @param   {Integer}  Pos    next starting position in the string
          */
         __New(Value, Pos) {
-            this.DefineProp("Value", { Get: (_) => Value })
-            this.DefineProp("Pos",   { Get: (_) => Pos   })
+            DefineProp(this, "Value", { Get: (_) => Value })
+            DefineProp(this, "Pos",   { Get: (_) => Pos   })
         }
         
         /**
@@ -43,7 +45,7 @@ class MatchResult {
                 Pos: this.Pos
             }).ToString()
 
-            this.DefineProp("ToString", { Call: (_) => Str })
+            DefineProp(this, "ToString", { Call: (_) => Str })
             return Str
         }
     }
@@ -61,8 +63,8 @@ class MatchResult {
          * @param   {Integer}  Pos      string position of failed parser
          */
         __New(Message, Pos) {
-            this.DefineProp("Message", { Get: (_) => Message })
-            this.DefineProp("Pos",     { Get: (_) => Pos     })
+            DefineProp(this, "Message", { Get: (_) => Message })
+            DefineProp(this, "Pos",     { Get: (_) => Pos     })
         }
 
         /**
@@ -77,7 +79,7 @@ class MatchResult {
                 Pos: this.Pos
             }).ToString()
 
-            this.DefineProp("ToString", { Call: (_) => Str })
+            DefineProp(this, "ToString", { Call: (_) => Str })
             return Str
         }
     }

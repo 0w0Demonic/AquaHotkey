@@ -1,6 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\Stream.ahk"
-#Include "%A_LineFile%\..\DoubleStream.ahk"
+#Include "%A_LineFile%\..\..\Stream\Stream.ahk"
+#Include "%A_LineFile%\..\..\Stream\DoubleStream.ahk"
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
 /**

@@ -145,7 +145,6 @@ class AquaHotkey_Hash extends AquaHotkey
     ;---------------------------------------------------------------------------
     ;@region IArray
 
-    ; TODO move to `Enumerable1`?
     class IArray {
         /**
          * Creates a hash from all elements in this array. Elements are
@@ -170,7 +169,6 @@ class AquaHotkey_Hash extends AquaHotkey
     ;---------------------------------------------------------------------------
     ;@region IMap
 
-    ; TODO move to `Enumerable2`?
     class IMap {
         /**
          * Creates a hash from all key-value pairs in this map.
@@ -195,8 +193,7 @@ class AquaHotkey_Hash extends AquaHotkey
     ;---------------------------------------------------------------------------
     ;@region String
 
-    ; TODO outsource this into a DLL or something. Also add
-    ;      case-insensitive hash.
+    ; TODO outsource this into a DLL?
 
     class String {
         /**
@@ -269,9 +266,8 @@ class AquaHotkey_Hash extends AquaHotkey
          * @returns {Integer}
          */
         HashCode() {
-            static GetProp := ({}.GetOwnPropDesc)
-            static Offset  := AquaHotkey_Hash.Offset
-            static Prime   := AquaHotkey_Hash.Prime
+            static Offset := AquaHotkey_Hash.Offset
+            static Prime  := AquaHotkey_Hash.Prime
 
             Obj := this
             Result := Offset
@@ -286,7 +282,7 @@ class AquaHotkey_Hash extends AquaHotkey
                         Result ^= Ord(A_LoopField)
                         Result *= Prime
                     }
-                    PropDesc := GetProp(Obj, PropertyName)
+                    PropDesc := GetOwnPropDesc(Obj, PropertyName)
                     Value := ObjHasOwnProp(PropDesc, "Value")
                         ? PropDesc.Value
                         : unset

@@ -1,5 +1,5 @@
-#Include "%A_LineFile%\..\..\DuckTypes.ahk"
-#Include "%A_LineFile%\..\..\Comparable.ahk"
+#Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\..\Base\Comparable.ahk"
 
 /**
  * @duck
@@ -56,7 +56,6 @@ class Boolean extends Integer {
     }
 }
 
-; TODO figure out how to convert AHK boolean -> JSON boolean
 /**
  * {@link Json.Boolean} to {@link Boolean} conversion.
  */

@@ -168,7 +168,7 @@ class AquaHotkey_Comparable extends AquaHotkey
         Compare {
             set {
                 GetMethod(value)
-                ({}.DefineProp)(this, "Compare", { Call: value })
+                DefineProp(this, "Compare", { Call: value })
             }
         }
 

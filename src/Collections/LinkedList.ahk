@@ -9,48 +9,9 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic
  */
-class LinkedList extends IArray {
-    ;@region Private
-
-    /**
-     * This class represents the nodes that make up the linked list.
-     */
-    class Node {
-        /**
-         * The next node, or `false`.
-         * 
-         * @private
-         * @type {LinkedList.Node}
-         */
-        Next := false
-
-        /**
-         * The previous node, or `false`.
-         * 
-         * @private
-         * @type {LinkedList.Node}
-         */
-        Prev := false
-
-        /**
-         * Constructs a new node.
-         * 
-         * @constructor
-         * @param   {Any?}  Value  item contained in the node
-         */
-        __New(Value?) {
-            if (IsSet(Value)) {
-                this.DefineProp("Value", { Value: Value })
-            }
-        }
-
-        /**
-         * Determines whether this node contains a value.
-         * 
-         * @returns {Boolean}
-         */
-        HasValue => ObjHasOwnProp(this, "Value")
-    }
+class LinkedList extends IArray
+{
+    ;@region Nodes
 
     /**
      * Returns the node at the given index, otherwise throws an `IndexError`.
@@ -185,7 +146,7 @@ class LinkedList extends IArray {
      */
     Has(Index) {
         Node := this.NodeAt(Index)
-        return Node && Node.HasValue
+        return Node && ObjHasOwnProp(Node, "Value")
     }
 
     /**
@@ -213,7 +174,7 @@ class LinkedList extends IArray {
     Get(Index, Default?) {
         Node := this.RequiredNodeAt(Index)
 
-        if (Node.HasValue) {
+        if (ObjHasOwnProp(Node, "Value")) {
             return Node.Value
         }
         if (IsSet(Default)) {
@@ -223,21 +184,6 @@ class LinkedList extends IArray {
             return this.Default
         }
         throw UnsetItemError("No value present")
-    }
-
-    /**
-     * Sets the value of the element at the given index.
-     * 
-     * @param   {Integer}  Index  index of element
-     * @param   {Any?}     Value  new value
-     * @throws  {IndexError}      if the index is invalid
-     * @example
-     * L := LinkedList(1, 2, 3)
-     * L.Set(3, 4)      ; or: L[3] := 4
-     * MsgBox(L.Get(4)) ; or: MsgBox(L[4])
-     */
-    Set(Index, Value?) {
-        this.RequiredNodeAt(Index).Value := (Value?)
     }
     
     /**
@@ -249,10 +195,32 @@ class LinkedList extends IArray {
      */
     Delete(Index) {
         Node := this.RequiredNodeAt(Index)
-        if (Node.HasValue) {
+        if (ObjHasOwnProp(Node, "Value")) {
             Value := Node.Value
             Node.Value := unset
             return Value
+        }
+    }
+
+    /**
+     * Gets or retrieves elements at the given index. `unset` is allowed to be
+     * used when setting an element.
+     * 
+     * @param   {Integer}  Index  index of element
+     * @param   {Any?}     Value  new value
+     * @returns {Any}
+     * @see {@link LinkedList#Get() .Get()}
+     * @see {@link LinkedList#Set() .Set()}
+     * @example
+     * L := LinkedList(1, 2, 3)
+     * L[1] := 23
+     * L[2] := unset
+     * MsgBox(L[3]) ; 3
+     */
+    __Item[Index] {
+        get => this.Get(Index)
+        set {
+            this.RequiredNodeAt(Index).Value := (Value?)
         }
     }
 
@@ -264,14 +232,14 @@ class LinkedList extends IArray {
      * Returns a 1-param or 2-param {@link Enumerator} that iterates through
      * the elements of this list.
      * 
-     * @param   {Integer}  ArgSize  number of variables passed to for-loop
+     * @param   {Integer?}  ArgSize  number of variables passed to for-loop
      * @returns {Enumerator}
      * @example
      * for Value in LinkedList(1, 2, 3) { ... }
      * 
      * for Index, Value in LinkedList(3, 5, 2) { ... }
      */
-    __Enum(ArgSize) {
+    __Enum(ArgSize := 1) {
         if (!IsInteger(ArgSize)) {
             throw TypeError("Expected an Integer",, Type(ArgSize))
         }
@@ -285,7 +253,7 @@ class LinkedList extends IArray {
             if (!Node) {
                 return false
             }
-            Value := Node.HasValue ? Node.Value : unset
+            Value := ObjHasOwnProp(Node, "Value") ? Node.Value : unset
             Node  := Node.Next
             return true
         }
@@ -295,7 +263,7 @@ class LinkedList extends IArray {
                 return false
             }
             Index := ++Idx
-            Value := Node.HasValue ? Node.Value : unset
+            Value := ObjHasOwnProp(Node, "Value") ? Node.Value : unset
             Node  := Node.Next
             return true
         }
@@ -305,7 +273,6 @@ class LinkedList extends IArray {
     ;--------------------------------------------------------------------------
     ;@region Head/Tail Ops
 
-    ; TODO should this insert the other way around?
     /**
      * Inserts the specified elements at the beginning of this linked list.
      * 
@@ -316,12 +283,10 @@ class LinkedList extends IArray {
      * L.Stream().Join(", ") ; "3, 2, 1"
      */
     Shove(Values*) {
-        if (!Values.Length) {
+        if (!FirstItem(Values, &Value, &Enumer)) {
             return
         }
-        Enumer := Values.__Enum(1)
-        Enumer(&Value)
-        Curr := LinkedList.Node(Value?)
+        Curr := { Next: false, Prev: false, Value: (Value?) }
         if (!this.Size) {
             this.Tail := Curr
         } else {
@@ -330,8 +295,7 @@ class LinkedList extends IArray {
         }
 
         for Value in Enumer {
-            Node := LinkedList.Node(Value?)
-            Node.Next := Curr
+            Node := { Next: Curr, Prev: false, Value: (Value?) }
             Curr.Prev := Node
             Curr := Node
         }
@@ -350,12 +314,10 @@ class LinkedList extends IArray {
      * L.Stream().Join(", ") ; "1, 2, 3, 4"
      */
     Push(Values*) {
-        if (!Values.Length) {
+        if (!FirstItem(Values, &Value, &Enumer)) {
             return
         }
-        Enumer := Values.__Enum(1)
-        Enumer(&Value)
-        Curr := LinkedList.Node(Value?)
+        Curr := { Next: false, Prev: false, Value: (Value?) }
         if (!this.Size) {
             this.Head := Curr
         } else {
@@ -364,7 +326,7 @@ class LinkedList extends IArray {
         }
 
         for Value in Enumer {
-            Node := LinkedList.Node(Value?)
+            Node := { Next: false, Prev: false, Value: (Value?) }
             Node.Prev := Curr
             Curr.Next := Node
             Curr := Node
@@ -398,7 +360,7 @@ class LinkedList extends IArray {
         }
         --this.Size
 
-        if (Head.HasValue) {
+        if (ObjHasOwnProp(Head, "Value")) {
             return Head.Value
         }
     }
@@ -428,7 +390,7 @@ class LinkedList extends IArray {
         }
         --this.Size
 
-        if (Tail.HasValue) {
+        if (ObjHasOwnProp(Tail, "Value")) {
             return Tail.Value
         }
     }
@@ -466,14 +428,13 @@ class LinkedList extends IArray {
         Enumer := Values.__Enum(1)
         if (!Curr) {
             Enumer(&Value)
-            Node := LinkedList.Node(Value?)
+            Node := { Next: false, Prev: false, Value: (Value?) }
             this.Head := Node
             Curr := Node
         }
 
         for Value in Enumer {
-            Node := LinkedList.Node(Value?)
-            Node.Prev := Curr
+            Node := { Next: false, Prev: Curr, Value: (Value?) }
             Curr.Next := Node
             Curr := Curr.Next
         }
@@ -525,7 +486,7 @@ class LinkedList extends IArray {
             }
 
             --this.Size
-            if (Node.HasValue) {
+            if (ObjHasOwnProp(Node, "Value")) {
                 return Node.Value
             }
             return
@@ -589,26 +550,6 @@ class LinkedList extends IArray {
     }
 
     /**
-     * Gets or retrieves elements at the given index. `unset` is allowed to be
-     * used when setting an element.
-     * 
-     * @param   {Integer}  Index  index of element
-     * @param   {Any?}     Value  new value
-     * @returns {Any}
-     * @see {@link LinkedList#Get() .Get()}
-     * @see {@link LinkedList#Set() .Set()}
-     * @example
-     * L := LinkedList(1, 2, 3)
-     * L[1] := 23
-     * L[2] := unset
-     * MsgBox(L[3]) ; 3
-     */
-    __Item[Index] {
-        get => this.Get(Index)
-        set => this.Set(Index, Value?)
-    }
-
-    /**
      * The capacity of this linked list, which equal to the number of elements.
      * 
      * @property {Integer}
@@ -629,8 +570,6 @@ class LinkedList extends IArray {
      */
     Iterator(Index := 1) => LinkedList.Iterator(this, Index)
 
-    ; TODO reversed iterator?
-    ; TODO probably generalize this into IArray.Iterator or something
     /**
      * An iterator for the linked list that allows bidirectional traversal and
      * modification of the list during iteration.
@@ -657,7 +596,7 @@ class LinkedList extends IArray {
             if (!IsInteger(Index)) {
                 throw TypeError("Expected an Integer",, Type(Index))
             }
-            this.DefineProp("List", { Get: (_) => List })
+            DefineConst(this, "List", List)
             if (Index < 1) {
                 Index += List.Length + 1
             }
@@ -730,9 +669,7 @@ class LinkedList extends IArray {
                 Prev := this.PrevNode
                 Next := this.NextNode
 
-                Node := LinkedList.Node(Value?)
-                Node.Prev := Prev
-                Node.Next := Next
+                Node := { Next: Next, Prev: Prev, Value: (Value?) }
 
                 if (Prev) {
                     Prev.Next := Node
@@ -783,7 +720,7 @@ class LinkedList extends IArray {
             Curr := this.NextNode
             Next := Curr.Next
 
-            if (Curr.HasValue) {
+            if (ObjHasOwnProp(Curr, "Value")) {
                 OutValue := Curr.Value
             } else {
                 OutValue := unset
@@ -814,7 +751,7 @@ class LinkedList extends IArray {
             Curr := this.PrevNode
             Prev := Curr.Prev
 
-            if (Curr.HasValue) {
+            if (ObjHasOwnProp(Curr, "Value")) {
                 Value := Curr.Value
             } else {
                 Value := unset

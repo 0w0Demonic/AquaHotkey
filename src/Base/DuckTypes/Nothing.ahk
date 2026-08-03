@@ -1,5 +1,5 @@
 #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\..\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
 
 /**
  * @duck
@@ -72,4 +72,3 @@ class AquaHotkey_Nothing_Json extends AquaHotkey {
         }
     }
 }
-

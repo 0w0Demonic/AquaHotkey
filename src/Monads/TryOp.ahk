@@ -102,12 +102,9 @@ class TryOp {
     ;@region Side Effects
 
     static __New() {
-        if (this != TryOp) {
-            return
+        if (this == TryOp) {
+            RenameProp(this.Prototype, "_Finally", "Finally")
         }
-        PropDesc := ({}.GetOwnPropDesc)(this.Prototype, "_Finally")
-        ({}.DeleteProp)(this.Prototype, "_Finally")
-        ({}.DefineProp)(this.Prototype, "Finally", PropDesc)
     }
 
     /**
@@ -454,7 +451,7 @@ class TryOp {
          * SuccessfulTry := TryOp.Success(42)
          */
         __New(Value) {
-            this.DefineProp("Value", { Get: (_) => Value })
+            DefineProp(this, "Value", { Get: (_) => Value })
         }
 
         /**
@@ -639,7 +636,7 @@ class TryOp {
             if (!(Err is Error)) {
                 throw TypeError("Expected an Error",, Type(Err))
             }
-            this.DefineProp("Value", { Get: (_) => Err })
+            DefineProp(this, "Value", { Get: (_) => Err })
         }
 
         /**
@@ -790,7 +787,7 @@ class TryOp {
 class AquaHotkey_Try extends AquaHotkey {
     class Object {
         static __New() {
-            ({}.DefineProp)(this.Prototype, "TryCall", { Call: TryOp })
+            DefineMethod(this.Prototype, "TryCall", TryOp)
         }
 
         /**

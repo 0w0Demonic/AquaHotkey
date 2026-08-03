@@ -115,6 +115,10 @@ class HashMap extends IMap {
      * @param   {Integer}  Cap  minimum capacity
      */
     Resize(CurrentSize) {
+        if (!IsInteger(CurrentSize)) {
+            throw TypeError("Expected an Integer",, Type(CurrentSize))
+        }
+
         Cap := this.Capacity
         while (CurrentSize > (Cap * this.LoadFactor)) {
             Cap <<= 1
@@ -130,8 +134,8 @@ class HashMap extends IMap {
             Buckets.Push(false)
         }
 
-        this.Buckets  := Buckets
-        this.DefineProp("Capacity", { Get: (_) => Cap })
+        this.Buckets := Buckets
+        DefineConst(this, "Capacity", Cap)
 
         for Bucket in OldBuckets {
             if (!Bucket) {
@@ -157,8 +161,9 @@ class HashMap extends IMap {
         if (Values.Length & 1) {
             throw ValueError("invalid param count",, Values.Length)
         }
-        Cap := this.InitialCap
-        this.DefineProp("Capacity", { Get: (_) => Cap })
+        this.Resize(Values.Length >> 1)
+
+        Cap := this.Capacity
         Buckets := this.Buckets
         Buckets.Length := Cap
         loop (Cap) {
@@ -190,12 +195,9 @@ class HashMap extends IMap {
      * @returns {HashMap}
      */
     Clone() {
-        Result := Object()
-        ObjSetBase(Result, ObjGetBase(this))
-        Result.Size := this.Size
-
-        Cap := this.Capacity
-        Result.DefineProp("Capacity", { Get: (_) => Cap })
+        Result := DefineConst(
+            { base: ObjGetBase(this), Size: this.Size },
+            "Capacity", this.Capacity)
 
         NewBuckets := Array()
         OldBuckets := this.Buckets
@@ -227,9 +229,7 @@ class HashMap extends IMap {
      * @returns {Any}
      */
     Delete(Key) {
-        Index := (Key.HashCode() & this.Mask) + 1
-
-        Bucket := this.Buckets.Get(Index)
+        Bucket := this.Buckets.Get((Key.HashCode() & this.Mask) + 1)
         if (Bucket) {
             for Entry in Bucket {
                 if (Key.Eq(Entry.Key)) {
@@ -252,9 +252,7 @@ class HashMap extends IMap {
      * @returns {Boolean}
      */
     TryDelete(Key, &OutValue?) {
-        Index := (Key.HashCode() & this.Mask) + 1
-
-        Bucket := this.Buckets.Get(Index)
+        Bucket := this.Buckets.Get((Key.HashCode() & this.Mask) + 1)
         if (Bucket) {
             for Entry in Bucket {
                 if (Key.Eq(Entry.Key)) {
@@ -277,9 +275,7 @@ class HashMap extends IMap {
      * @returns {Any}
      */
     Get(Key, Default?) {
-        Index := (Key.HashCode() & this.Mask) + 1
-
-        Bucket := this.Buckets.Get(Index)
+        Bucket := this.Buckets.Get((Key.HashCode() & this.Mask) + 1)
         if (Bucket) {
             for Entry in Bucket {
                 if (Key.Eq(Entry.Key)) {
@@ -306,9 +302,8 @@ class HashMap extends IMap {
      * @returns {Boolean}
      */
     TryGet(Key, &OutValue) {
-        Index := (Key.HashCode() & this.Mask) + 1
+        Bucket := this.Buckets.Get((Key.HashCode() & this.Mask) + 1)
 
-        Bucket := this.Buckets.Get(Index)
         if (Bucket) {
             for Entry in Bucket {
                 if (Key.Eq(Entry.Key)) {
@@ -317,30 +312,25 @@ class HashMap extends IMap {
                 }
             }
         }
-        OutValue := unset
         return false
     }
 
     /**
      * Determines whether the map has an entry with the specified map key.
      * 
-     * @param   {Any}           Key       map key
-     * @param   {VarRef<Any>?}  OutValue  (out) the associated key, if present
+     * @param   {Any}  Key  map key
      * @returns {Boolean}
      */
-    Has(Key, &OutValue?) {
-        Index := (Key.HashCode() & this.Mask) + 1
-        Bucket := this.Buckets.Get(Index)
+    Has(Key) {
+        Bucket := this.Buckets.Get((Key.HashCode() & this.Mask) + 1)
 
         if (Bucket) {
             for Entry in Bucket {
                 if (Key.Eq(Entry.Key)) {
-                    OutValue := Entry.Value
                     return true
                 }
             }
         }
-        OutValue := unset
         return false
     }
 
@@ -354,7 +344,6 @@ class HashMap extends IMap {
             throw ValueError("Invalid param count",, Values.Length)
         }
 
-        this.Resize(this.Size + Values.Length)
         Enumer := Values.__Enum(1)
         Buckets := this.Buckets
 
@@ -365,7 +354,7 @@ class HashMap extends IMap {
 
             if (!Bucket) {
                 Buckets[Index] := Array({ Key: Key, Value: Value })
-                ++this.Size
+                this.Resize(++this.Size)
                 continue
             }
 
@@ -377,17 +366,17 @@ class HashMap extends IMap {
             }
 
             Bucket.Push({ Key: Key, Value: Value })
-            ++this.Size
+            this.Resize(++this.Size)
         }
     }
 
     /**
      * Returns an `Enumerator` that enumerates the elements of this HashMap.
      * 
-     * @param   {Integer}  ArgSize  param size of for-loop
+     * @param   {Integer?}  ArgSize  param size of for-loop
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) {
+    __Enum(ArgSize := 1) {
         Buckets := this.Buckets.__Enum(1)
         Entries := (*) => false
         ObjSetBase(Enumer, Enumerator.Prototype)
@@ -421,9 +410,7 @@ class HashMap extends IMap {
      * @returns {Integer}
      */
     Capacity {
-        get {
-            throw UnsetError("Capacity not found")
-        }
+        get => (this.InitialCap) ; { get; } is overwritten by the map methods
         set {
             this.Resize(Value)
         }

@@ -1,5 +1,4 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\..\String\String.ahk"
 
 ;@region Extensions
 
@@ -27,9 +26,15 @@
  */
 class AquaHotkey_UrlEncoding extends AquaHotkey {
     class String {
+        static __New() {
+            DefineMethod(this.Prototype, "UrlEncode", UrlEncode)
+            DefineMethod(this.Prototype, "UrlDecode", UrlDecode)
+        }
+
         /**
          * URL-encodes the string.
          * 
+         * @inlined
          * @param   {String?}  Encoding  character encoding (default: "UTF-8")
          * @returns {String}
          * @note    UTF-8 is recommended as per RFC 3986 specification
@@ -42,6 +47,7 @@ class AquaHotkey_UrlEncoding extends AquaHotkey {
         /**
          * URL-decodes the string.
          * 
+         * @inlined
          * @param   {String?}  Encoding  character encoding (default: "UTF-8")
          * @returns {String}
          * @note    UTF-8 is recommended as per RFC 3986 specification

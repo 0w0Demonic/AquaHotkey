@@ -15,8 +15,7 @@
 Tuple(Values*) => ImmutableArray.FromArray(Values)
 
 ; allows the use of `Tuple(...) is Tuple`
-; TODO find a way to absolutely *force* this line to execute
-({}.DefineProp)(Tuple, "Prototype", { Value: ImmutableArray.Prototype })
+DefineProp(Tuple, "Prototype", { Value: ImmutableArray.Prototype })
 
 ;@endregion
 ;-------------------------------------------------------------------------------
@@ -42,13 +41,13 @@ class ImmutableArray extends IArray {
      * IA := ImmutableArray.FromArray(A)
      */
     static FromArray(A) {
-        if (!IArray.IsInstance(A)) {
-            throw TypeError("Expected an IArray")
+        if (A is ImmutableArray) {
+            return A
         }
-        Obj := Object()
-        Obj.DefineProp("A", { Get: (_) => A })
-        ObjSetBase(Obj, this.Prototype)
-        return Obj
+        if (!IArray.IsInstance(A)) {
+            throw TypeError("Expected an IArray",, Type(A))
+        }
+        return DefineConst({ base: this.Prototype }, "A", A)
     }
 
     /**
@@ -89,7 +88,7 @@ class ImmutableArray extends IArray {
      * 
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) => (this.A).__Enum(ArgSize)
+    __Enum(ArgSize := 1) => (this.A).__Enum(ArgSize)
 
     /**
      * Readonly `.Length`.
@@ -176,7 +175,6 @@ class AquaHotkey_ImmutableArray extends AquaHotkey {
          * T := Tuple(1, 2, 3, 4)
          */
         Freeze() {
-            ; TODO find a more comprehensive way to determine immutability
             if (this is ImmutableArray) {
                 return this
             }
@@ -213,6 +211,8 @@ class AquaHotkey_ImmutableArray_Serialization extends AquaHotkey {
      */
     Deserialize(Input, Refs) {
         Input.ReadObject(&BackingArray, Refs)
-        this.DefineProp("A", { Get: (_) => BackingArray })
+        DefineConst(this, "A", BackingArray)
     }
 }
+
+;@endregion

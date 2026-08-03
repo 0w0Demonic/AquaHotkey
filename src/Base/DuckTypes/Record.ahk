@@ -1,6 +1,7 @@
-#Include "%A_LineFile%\..\..\Eq.ahk"
-#Include "%A_LineFile%\..\..\Hash.ahk"
-#Include "%A_LineFile%\..\..\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\..\Core\Utils.ahk"
+#Include "%A_LineFile%\..\..\..\Base\Eq.ahk"
+#Include "%A_LineFile%\..\..\..\Base\Hash.ahk"
+#Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
 
 ;@region Record
 
@@ -71,15 +72,10 @@ class Record extends Class
      * 
      * MsgBox(Cats.Is( Record(CatName, CatInfo) )) ; true
      */
-    static Call(KeyType, ValueType) {
-        ; note: no validation, because any value implements `IsInstance()`,
-        ;       which is a valid type pattern.
-        Cls := {}
-        ({}.DefineProp)(Cls, "KeyType", { Get: (_) => KeyType })
-        ({}.DefineProp)(Cls, "ValueType", { Get: (_) => ValueType })
-        ObjSetBase(Cls, this.Prototype)
-        return Cls
-    }
+    static Call(KeyType, ValueType) => DefineProps({ base: this.Prototype }, {
+        KeyType:   { Get: (_) => KeyType   },
+        ValueType: { Get: (_) => ValueType }
+    })
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -139,7 +135,7 @@ class Record extends Class
             if (!K.IsInstance(PropName)) {
                 return false
             }
-            PropDesc := Val.GetOwnPropDesc(PropName)
+            PropDesc := GetOwnPropDesc(Val, PropName)
             if (!ObjHasOwnProp(PropDesc, "Value")) {
                 ; forbid any type of black magic with prop descs... for now.
                 return false
@@ -223,8 +219,9 @@ class AquaHotkey_Record_Serialization extends AquaHotkey {
         Deserialize(Input, Refs) {
             Input.ReadObject(&KeyType, Refs)
             Input.ReadObject(&ValueType, Refs)
-            ({}.DefineProp)(this, "KeyType", { Get: (_) => KeyType })
-            ({}.DefineProp)(this, "ValueType", { Get: (_) => ValueType })
+            DefineProps(this, {
+                TypeType:   { Get: (_) => KeyType   },
+                ValueType:  { Get: (_) => ValueType } })
         }
     }
 }

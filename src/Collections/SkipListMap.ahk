@@ -150,14 +150,12 @@ class SkipListMap extends IMap {
             loop Level {
                 Forward.Push(false)
             }
-
-            Obj := {
+            return {
                 Key: Key,
                 Value: Value,
-                Forward: Forward
+                Forward: Forward,
+                base: this.Prototype
             }
-            ObjSetBase(Obj, this.Prototype)
-            return Obj
         }
 
         /**
@@ -237,15 +235,10 @@ class SkipListMap extends IMap {
      */
     static WithComparator(Comp) {
         GetMethod(Comp)
-        Cls := Class()
-        Proto := Object()
-        Cls.Prototype := Proto
-        Proto.DefineProp("Comp", { Get: (_) => Comp })
-
-        ObjSetBase(Cls, this)
-        ObjSetBase(Proto, this.Prototype)
-
-        return Cls
+        return {
+            base: this,
+            Prototype: DefineConst({ base: this.Prototype }, "Comp", Comp)
+        }
     }
 
     /**
@@ -277,9 +270,7 @@ class SkipListMap extends IMap {
             Forward.Push(false)
         }
 
-        Head := { Forward: Forward }
-        ObjSetBase(Head, SkipListMap.Node.Prototype)
-        this.Head := Head
+        this.Head := { Forward: Forward, base: SkipListMap.Node.Prototype }
 
         Enumer := Values.__Enum(1)
         while (Enumer(&Key) && Enumer(&Value)) {
@@ -474,7 +465,7 @@ class SkipListMap extends IMap {
      * Creates an {@link Enumerator} object that enumerates the items of
      * the skip list.
      * 
-     * @param   {Integer}  ArgSize  parmeter size of for-loop
+     * @param   {Integer?}  ArgSize  parmeter size of for-loop
      * @returns {Enumerator}
      * @example
      * SL := SkipListMap(...)
@@ -483,30 +474,16 @@ class SkipListMap extends IMap {
      * 
      * for Key, Value in SL { ... }
      */
-    __Enum(ArgSize) {
-        if (!IsInteger(ArgSize)) {
-            throw TypeError("Expected an Integer",, Type(ArgSize))
-        }
+    __Enum(ArgSize := 1) {
         Curr := this.Head
-        Result := (ArgSize < 2) ? Enumer1 : Enumer2
-        ObjSetBase(Result, Enumerator.Prototype)
-        return Result
+        ObjSetBase(Enumer, Enumerator.Prototype)
+        return Enumer
 
-        Enumer1(&OutKey) {
+        Enumer(&OutKey, &OutValue?) {
             Node := Curr.Forward.Get(1)
             if (Node) {
                 Curr := Node
                 OutKey := Node.Key
-                return true
-            }
-            return false
-        }
-
-        Enumer2(&OutKey, &OutValue) {
-            Node := Curr.Forward.Get(1)
-            if (Node) {
-                Curr     := Node
-                OutKey   := Node.Key
                 OutValue := Node.Value
                 return true
             }

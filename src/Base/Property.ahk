@@ -1,10 +1,10 @@
-; TODO cast descs to Property.Prototype, add instance methods
-; TODO remove this again
+#Include "%A_LineFile%\..\..\Base\DuckTypes.ahk"
 
 /**
  * Provides a wide range of property descriptors for constructing AutoHotkey
  * objects.
  * 
+ * @deprecated
  * @module  <Base/Property>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey

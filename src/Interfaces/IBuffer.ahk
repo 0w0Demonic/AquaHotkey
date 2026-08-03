@@ -1,6 +1,8 @@
 #Include "%A_LineFile%\..\..\Base\DuckTypes.ahk"
 #Include "%A_LineFile%\..\..\Collections\ByteArray.ahk"
-#Include "%A_LineFile%\..\IArray.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
+
+; (TODO why do I need `IArray`?)
 
 /**
  * @interface
@@ -42,11 +44,10 @@ class IBuffer {
     ;@region Read/Write Methods
 
     static __New() {
-        static Define := {}.DefineProp
         if (this != IBuffer) {
             return
         }
-
+        (AquaHotkey)
         ObjSetBase(this,             ObjGetBase(Buffer))
         ObjSetBase(this.Prototype,   ObjGetBase(Buffer.Prototype))
         ObjSetBase(Buffer,           this)
@@ -58,8 +59,8 @@ class IBuffer {
                 "Int", "UInt", "Int64", "UInt64",
                 "Float", "Double", "Ptr", "UPtr")
         {
-            Define(Proto, "Get" . T, { Call: (Proto.Get).Bind(unset, T) })
-            Define(Proto, "Put" . T, { Call: (Proto.Put).Bind(unset, T) })
+            DefineProp(Proto, "Get" . T, { Call: (Proto.Get).Bind(unset, T) })
+            DefineProp(Proto, "Put" . T, { Call: (Proto.Put).Bind(unset, T) })
         }
     }
 
@@ -156,12 +157,11 @@ class IBuffer {
      * `LineLength` determines the amount of bytes to display per line. If
      * zero, no line breaks are made.
      * 
-     * @example
-     * Buffer.OfString("foo", "UTF-8").HexDump() ; "66 6F 6F 00"
-     * 
      * @param   {String?}   Delimiter   separator string
      * @param   {Integer?}  LineLength  amount of bytes per line
      * @returns {String}
+     * @example
+     * Buffer.OfString("foo", "UTF-8").HexDump() ; "66 6F 6F 00"
      */
     HexDump(Delimiter := A_Space, LineLength := 16) {
         if (IsObject(Delimiter)) {
@@ -247,7 +247,7 @@ class IBuffer {
         }
         Buffer.SizeOf(NumType) ; find out whether it's a valid AHK type
 
-        return this.DefineProp(PropertyName, {
+        return DefineProp(this, PropertyName, {
             Get: (Buf)        => NumGet(Buf, Offset, NumType),
             Set: (Buf, Value) => NumPut(NumType, Value, Buf, Offset)
         })
@@ -256,8 +256,6 @@ class IBuffer {
     ;@endregion   
     ;---------------------------------------------------------------------------
     ;@region Slice()
-
-    ; TODO negative indexing + default values, like `SubStr()`?
 
     /**
      * Returns a buffer view that encloses a subsection of the current buffer.
@@ -284,18 +282,11 @@ class IBuffer {
                                 "offset: " . Offset . ", length: " . Size)
         }
 
-        Result := Object()
-        Result.DefineProp("Ptr", {
-            Get: (_) => (this.Ptr + Offset)
+        return DefineProps({ base: IBuffer.Prototype }, {
+            Ptr: { Get: (_) => (this.Ptr + Offset) },
+            Size: { Get: (_) => Max(Min(this.Size - Offset, Size), 0) },
+            Buf: { Get: (_) => this }
         })
-        Result.DefineProp("Size", {
-            Get: (_) => Max(Min(this.Size - Offset, Size), 0)
-        })
-        Result.DefineProp("Buf", {
-            Get: (_) => this
-        })
-        ObjSetBase(Result, IBuffer.Prototype)
-        return Result
     }
 }
 

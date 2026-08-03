@@ -1,6 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
-#Include "%A_LineFile%\..\Entry.ahk"
+#Include "%A_LineFile%\..\..\Collections\Entry.ahk"
 
 ;@region MapEntry
 
@@ -50,11 +50,10 @@ class AquaHotkey_MapEntry extends AquaHotkey {
          * @returns {MapEntry}
          */
         Entry(Key) {
-            Entry := {}
-            ObjSetBase(Entry, MapEntry.Prototype)
-            ({}.DefineProp)(Entry, "M",   { Get: (_) => this })
-            ({}.DefineProp)(Entry, "Key", { Get: (_) => Key  })
-            return Entry
+            E := { base: MapEntry.Prototype }
+            DefineProp(E, "M",   { Get: (_) => this })
+            DefineProp(E, "Key", { Get: (_) => Key  })
+            return E
         }
     }
 }
@@ -87,9 +86,9 @@ class AquaHotkey_MapEntry_Serialization extends AquaHotkey {
          */
         Deserialize(Input, Refs) {
             Input.ReadObject(&Key, Refs)
-            Input.ReadObject(&M, Refs)
-            ({}.DefineProp)(this, "M",   { Get: (_) => M   })
-            ({}.DefineProp)(this, "Key", { Get: (_) => Key })
+            Input.ReadObject(&M,   Refs)
+            DefineProp(this, "M",   { Get: (_) => M   })
+            DefineProp(this, "Key", { Get: (_) => Key })
         }
     }
 }

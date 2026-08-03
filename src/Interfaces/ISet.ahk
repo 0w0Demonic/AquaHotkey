@@ -1,5 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Stream\Stream.ahk"
 #Include "%A_LineFile%\..\..\Base\ToString.ahk"
 #Include "%A_LineFile%\..\..\Func\Comparator.ahk"
@@ -7,6 +7,7 @@
 ; TODO Intersection(), Disjunction(), Union(), etc.
 
 ;@region ISet
+
 /**
  * @interface
  * @description
@@ -34,6 +35,7 @@
 class ISet {
     static __New() {
         if (this == ISet) {
+            (AquaHotkey)
             this.Backup(Enumerable1)
         }
     }
@@ -116,7 +118,6 @@ class ISet {
     ;---------------------------------------------------------------------------
     ;@region Unimplemented
 
-    ; TODO redefine return value as amount of new elements instead of boolean
     /**
      * Unimplemented `.Add()` method.
      * 
@@ -200,12 +201,12 @@ class ISet {
      * 
      * Creates an `Enumerator` that enumerates all elements of this set.
      * 
-     * @param   {Integer}  ArgSize  param size of for-loop
+     * @param   {Integer?}  ArgSize  param size of for-loop
      * @returns {Enumerator}
      * @example
      * for Value in Set(1, 2, 3) { ... }
      */
-    __Enum(ArgSize) {
+    __Enum(ArgSize := 1) {
         throw MethodError("not implemented")
     }
 
@@ -340,18 +341,16 @@ class ISet {
      */
     ToString() {
         Result := Type(this) . " { "
-        Enumer := this.__Enum(1)
-
-        Enumer(&Value)
-        AquaHotkey_ToString(&Value)
-        Result .= Value
-
-        while (Enumer(&Value)) {
-            Result .= ", "
+        if (FirstItem(this, &Value, &More)) {
             AquaHotkey_ToString(&Value)
             Result .= Value
-        }
 
+            while (More(&Value)) {
+                Result .= ", "
+                AquaHotkey_ToString(&Value)
+                Result .= Value
+            }
+        }
         Result .= " }"
         return Result
     }

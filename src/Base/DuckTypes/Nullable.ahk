@@ -1,7 +1,8 @@
 #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\..\DuckTypes.ahk"
-#Include "%A_LineFile%\..\..\Eq.ahk"
-#Include "%A_LineFile%\..\..\Hash.ahk"
+#Include "%A_LineFile%\..\..\..\Core\Utils.ahk"
+#Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\..\Base\Eq.ahk"
+#Include "%A_LineFile%\..\..\..\Base\Hash.ahk"
 
 ;@region Nullable
 
@@ -27,13 +28,13 @@ class Nullable extends Class
 {
     ;@region Support
 
-    ; TODO find out if this breaks anything
     ; (evil hacks)
     ; `extends Class` allows us to use methods such as `[]` (`Array.OfType()`).
     ; 
     ; Because an instance of `Nullable` is now expected to be a class, it's
     ; also expected to have a `Prototype`, but right now it doesn't; So let's
-    ; fix that. Just reuse the existing prototype defined here.
+    ; fix that. Just reuse the existing prototype defined here. Circular ref
+    ; doesn't matter here.
     static Prototype.Prototype := this.Prototype
 
     ; paranoia: don't let anyone mess around with this class
@@ -55,13 +56,9 @@ class Nullable extends Class
      * @returns {Nullable<T>}
      */
     static Call(T) {
-        if (T is this) { ; Nullable<Nullable<T>> is just Nullable<T>
-            return T
-        }
-        Obj := Object()
-        Obj.DefineProp("T", { Get: (_) => T })
-        ObjSetBase(Obj, this.Prototype)
-        return Obj
+        return (T is this) ? T ; Nullable<Nullable<T>> is just Nullable<T>
+            : DefineProp({ base: this.Prototype }, "T",
+                { Get: (_) => T })
     }
 
     ;@endregion
@@ -226,8 +223,7 @@ class AquaHotkey_Nullable_Serialization extends AquaHotkey {
          */
         Deserialize(Input, Refs) {
             Input.ReadObject(&T, Refs)
-            this.DefineProp("T", { Get: (_) => T })
+            DefineProp(this, "T", { Get: (_) => T })
         }
     }
 }
-

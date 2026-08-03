@@ -53,7 +53,7 @@ class AquaHotkey_ToString extends AquaHotkey
 
     class Any {
         static __New() {
-            ({}.DefineProp)(this.Prototype, "ToString", { Call: String })
+            DefineMethod(this.Prototype, "ToString", String)
         }
 
         /**
@@ -84,11 +84,10 @@ class AquaHotkey_ToString extends AquaHotkey
          * A.ToString() ; don't try this at home...
          */
         ToString() {
-            static GetProp := {}.GetOwnPropDesc
             Result := Type(this) . " { "
             Count := 0
             for PropName in ObjOwnProps(this) {
-                PropDesc := GetProp(this, PropName)
+                PropDesc := GetOwnPropDesc(this, PropName)
                 if (!ObjHasOwnProp(PropDesc, "Value")) {
                     continue
                 }
@@ -211,6 +210,7 @@ class AquaHotkey_ToString extends AquaHotkey
     ;@region Class
 
     class Class {
+        ; TODO use duck types instead of `is this`?
         /**
          * Returns the string representation of the class if no argument
          * is given.

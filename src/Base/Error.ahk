@@ -1,7 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
-; TODO Error JSON (de)serialization?
-
 /**
  * Error utility.
  * 
@@ -14,14 +12,8 @@ class AquaHotkey_Error extends AquaHotkey {
         ;@region Throwing
 
         static __New() {
-            static Rename(Obj, From, To) {
-                PropDesc := ({}.GetOwnPropDesc)(Obj, From)
-                ({}.DeleteProp)(Obj, From)
-                ({}.DefineProp)(Obj, To, PropDesc)
-            }
-
-            Rename(this,           "_Throw", "Throw")
-            Rename(this.Prototype, "_Throw", "Throw")
+            RenameProp(this,           "_Throw", "Throw")
+            RenameProp(this.Prototype, "_Throw", "Throw")
         }
 
         /**
@@ -69,7 +61,7 @@ class AquaHotkey_Error extends AquaHotkey {
                 this.Stack .= "`r`nSpecifically: " . Cause.Extra
             }
             this.Stack .= "`r`n" . Cause.Stack
-            this.DefineProp("Cause", { Get: (_) => Cause })
+            DefineProp(this, "Cause", { Get: (_) => Cause })
             return this
         }
 
@@ -103,10 +95,10 @@ class AquaHotkey_Error extends AquaHotkey {
                 if (!(value is Error)) {
                     throw TypeError("expected an Error",, Type(value))
                 }
-                if (!IsSet(value)) {
-                    ({}.DeleteProp)(this, "Cause")
+                if (IsSet(value)) {
+                    DefineProp(this, "Cause", { Get: (_) => value })
                 } else {
-                    ({}.DefineProp)(this, "Cause", { Get: (_) => value })
+                    DeleteProp(this, "Cause")
                 }
             }
         }

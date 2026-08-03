@@ -2,6 +2,7 @@
 #Include "%A_LineFile%\..\..\Func\Continuation.ahk"
 
 ;@region Extensions
+
 /**
  * File utilities.
  * 
@@ -9,8 +10,10 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class AquaHotkey_FileUtils extends AquaHotkey {
+class AquaHotkey_FileUtils extends AquaHotkey
+{
     ;@region FileOpen
+
     class FileOpen {
         /**
          * Opens the standard input stream.
@@ -103,7 +106,7 @@ class AquaHotkey_FileUtils extends AquaHotkey {
                 FileName := SubStr(StrGet(Buf), 5) ; remove "\\?\"-prefix
 
                 ; memoize result, because it is immutable
-                this.DefineProp("Name", { Get: (_) => FileName })
+                DefineConst(this, "Name", FileName)
                 return FileName
             }
         }

@@ -10,9 +10,7 @@
 class AquaHotkey_StringFormatting extends AquaHotkey {
     class String {
         static __New() {
-            static Define := {}.DefineProp
             Proto := this.Prototype
-            
             for Name, Fn in ObjOwnProps({
                 Replace: StrReplace,
                 RegExReplace: RegExReplace,
@@ -23,7 +21,7 @@ class AquaHotkey_StringFormatting extends AquaHotkey {
                 ToLower: StrLower,
                 ToTitle: StrTitle
             }) {
-                Define(Proto, Name, { Call: Fn })
+                DefineMethod(Proto, Name, Fn)
             }
         }
 
@@ -55,6 +53,7 @@ class AquaHotkey_StringFormatting extends AquaHotkey {
         /**
          * Replaces occurrences of `Pattern` in the string.
          * 
+         * @inlined
          * @param   {String}      Pattern    string to replace
          * @param   {String?}     Rep        replacement string
          * @param   {Primitive?}  CaseSense  case-sensitivity
@@ -71,6 +70,7 @@ class AquaHotkey_StringFormatting extends AquaHotkey {
         /**
          * Replaces occurrences of a regex expression in the string.
          * 
+         * @inlined
          * @param   {String}    Pattern  regular expression
          * @param   {String?}   Replace  replacement string
          * @param   {VarRef?}   Count    output count
@@ -185,7 +185,7 @@ class AquaHotkey_StringFormatting extends AquaHotkey {
                 }
             }
             return SubStr(this, 1, Position - 1)
-                . SubStr(this, Position + Length)
+                 . SubStr(this, Position + Length)
         }
 
         ;@endregion
@@ -235,6 +235,7 @@ class AquaHotkey_StringFormatting extends AquaHotkey {
          * Trims characters `OmitChars` from the beginning and end of the
          * string.
          * 
+         * @inlined
          * @param   {String?}  OmitChars  characters to trim
          * @returns {String}
          * @example
@@ -245,6 +246,7 @@ class AquaHotkey_StringFormatting extends AquaHotkey {
         /**
          * Trims characters `OmitChars` from the beginning of the string.
          * 
+         * @inlined
          * @param   {String?}  OmitChars  characters to trim
          * @returns {String}
          * @example
@@ -255,6 +257,7 @@ class AquaHotkey_StringFormatting extends AquaHotkey {
         /**
          * Trims characters `OmitChars` from the end of the string.
          * 
+         * @inlined
          * @param   {String?}  OmitChars  characters to trim
          * @returns {String}
          * @example
@@ -269,6 +272,7 @@ class AquaHotkey_StringFormatting extends AquaHotkey {
         /**
          * Converts this string to uppercase.
          * 
+         * @inlined
          * @returns {String}
          * @example
          * "foo".ToUpper() ; "FOO"
@@ -278,6 +282,7 @@ class AquaHotkey_StringFormatting extends AquaHotkey {
         /**
          * Converts the string to lowercase.
          * 
+         * @inlined
          * @returns {String}
          * @example
          * "FOO".ToLower() ; "foo"
@@ -287,6 +292,7 @@ class AquaHotkey_StringFormatting extends AquaHotkey {
         /**
          * Converts this string to title case.
          * 
+         * @inlined
          * @returns {String}
          * @example
          * "foo".ToTitle() ; "Foo"

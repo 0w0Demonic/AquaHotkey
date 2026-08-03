@@ -1,4 +1,7 @@
+#Include "%A_LineFile%\..\..\Core\Utils.ahk"
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
+
+;@deprecated
 
 /**
  * Provides keyword argument (kwargs) support for callable objects.
@@ -224,8 +227,8 @@ class AquaHotkey_Kwargs extends AquaHotkey
                 Sig := ArgMap
 
                 ; define a custom string representation
-                Sig.DefineProp("ToString", { Call: Signature_ToString })
-                this.DefineProp("Signature", { Get: (_) => Sig })
+                DefineMethod(Sig, "ToString", Signature_ToString)
+                DefineConst(this, "Signature", Sig)
 
                 /**
                  * Returns a custom string representation.
@@ -247,7 +250,16 @@ class AquaHotkey_Kwargs extends AquaHotkey
                             M[Index] := Index . ": " . ParameterName
                         }
                     }
-                    return M.JoinLine()
+                    Str := ""
+                    if (!FirstItem(M, &Value, &More)) {
+                        return Str
+                    }
+                    Str .= Value
+                    while (More(&Value)) {
+                        Str .= "`r`n"
+                        Str .= Value
+                    }
+                    return Str
                 }
             }
         }
@@ -263,13 +275,17 @@ class AquaHotkey_Kwargs extends AquaHotkey
         }
         super.__New()
 
+        Config := InitConfig()
+        if (!(Config is Array)) {
+            throw TypeError("Expected an Array",, Type(Config))
+        }
+
         /**
          * the actual code of InitConfig is offloaded into a separate file
          * (KwargsConfig.ahk). To use your own configs, simply redirect the
          * `#Include` statement to elsewhere.
          */
-        Enumer := InitConfig().__Enum(1)
-        while (Enumer(&Function) && Enumer(&Signature)) {
+        for Function, Signature in Pairwise(Config) {
             ; this might apply to functions only present in the alpha releases.
             ; hence the reason we're using arrays: you can always fall back
             ; with the help of `?`, if the function doesn't exist in that
@@ -300,7 +316,7 @@ class AquaHotkey_Kwargs extends AquaHotkey
                 case (Signature is String):
                     Function.Signature := Signature
                 case (HasMethod(Signature)):
-                    Function.DefineProp("With", { Call: Signature })
+                    DefineMethod(Function, "With", Signature)
                 default:
                     throw ValueError("Invalid signature",, Type(Signature))
             }

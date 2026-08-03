@@ -2,8 +2,10 @@
 #Include "%A_LineFile%\..\..\Stream\DoubleStream.ahk"
 #Include "%A_LineFile%\..\..\Monads\Optional.ahk"
 #Include "%A_LineFile%\..\..\Func\Monoid.ahk"
-#Include "%A_LineFile%\..\IArray.ahk"
-#Include "%A_LineFile%\..\IMap.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
+
+; TODO implement `GetEnumerator()` into methods here
 
 /**
  * @mixin
@@ -220,6 +222,8 @@ class Enumerable1 {
     ;---------------------------------------------------------------------------
     ;@region Find Methods
 
+    ; TODO use first param as `VarRef` out instead?
+
     /**
      * Returns an {@link Optional} that contains the first matching element,
      * if found. The element found is *not* allowed to be `unset`.
@@ -336,6 +340,8 @@ class Enumerable1 {
         }
         return 0
     }
+
+    ; TODO something like `.AtIndex(Idx)`?
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -586,8 +592,6 @@ class Enumerable1 {
         }
         return Sum / Count
     }
-
-    ; TODO unset handling
 
     /**
      * Concatenates all elements into a string with the given delimiter.

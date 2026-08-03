@@ -2,9 +2,6 @@
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 
-; TODO
-; - accomodate Enumerable1 and Enumerable2 without overwriting existing stuff
-
 /**
  * Creates a registry stream.
  * 
@@ -451,10 +448,10 @@ class Continuation extends Func {
     /**
      * Returns an {@link Enumerator} for this continuation.
      * 
-     * @param   {Integer}  ArgSize  param-size of for-loop
+     * @param   {Integer?}  ArgSize  param-size of for-loop
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) {
+    __Enum(ArgSize := 1) {
         Arr := Array()
         this(Collect)
         return Arr.__Enum(ArgSize)
@@ -464,4 +461,6 @@ class Continuation extends Func {
             return true
         }
     }
+
+    ;@endregion
 }

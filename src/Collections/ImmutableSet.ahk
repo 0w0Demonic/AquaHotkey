@@ -1,6 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\ISet.ahk"
-#Include "%A_LineFile%\..\Set.ahk"
+#Include "%A_LineFile%\..\..\Collections\Set.ahk"
 
 ;@region ImmutableSet
 
@@ -11,7 +11,8 @@
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
-class ImmutableSet extends ISet {
+class ImmutableSet extends ISet
+{
     ;@region Construction
 
     /**
@@ -36,10 +37,7 @@ class ImmutableSet extends ISet {
         if (S is ImmutableSet) {
             return S
         }
-        Obj := Object()
-        Obj.DefineProp("S", { Get: (_) => S })
-        ObjSetBase(Obj, this.Prototype)
-        return Obj
+        return DefineConst({ base: this.Prototype }, "S", S)
     }
 
     /**
@@ -77,10 +75,10 @@ class ImmutableSet extends ISet {
     /**
      * Returns an {@link Enumerator} for the set.
      * 
-     * @param   {Integer}  ArgSize  arg-size of for-loop
+     * @param   {Integer?}  ArgSize  arg-size of for-loop
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) => (this.S).__Enum(ArgSize)
+    __Enum(ArgSize := 1) => (this.S).__Enum(ArgSize)
 
     /**
      * Returns the size of the set.
@@ -108,7 +106,6 @@ class AquaHotkey_ImmutableSet extends AquaHotkey {
          * @returns {ImmutableSet}
          */
         Freeze() {
-            ; TODO find better way to determine immutability
             if (this is ImmutableSet) {
                 return this
             }
@@ -145,9 +142,10 @@ class AquaHotkey_ImmutableSet_Serialization extends AquaHotkey {
          * @see {@link AquaHotkey_Serializer}
          */
         Deserialize(Input, Refs) {
-            Input.ReadObject(&BackingSet, Refs)
-            this.DefineProp("S", { Get: (_) => BackingSet })
+            Input.ReadObject(&S, Refs)
+            DefineConst(this, "S", S)
         }
     }
 }
 
+;@endregion

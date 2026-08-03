@@ -1,10 +1,10 @@
+#Include "%A_LineFile%\..\..\..\Core\Utils.ahk"
 #Include "%A_LineFile%\..\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\..\Base\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\..\Base\DuckTypes\Nullable.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Hash.ahk"
 #Include "%A_LineFile%\..\..\..\Base\Eq.ahk"
 #Include "%A_LineFile%\..\..\..\Interfaces\IArray.ahk"
-
-; TODO allow any amount of constraints? Would be cool.
 
 ;@region GenericArray
 
@@ -97,9 +97,6 @@ class GenericArray extends IArray
      * Arr_MaybeString := GenericArray(Array, String, Nullable)
      */
     static __New(A?, T?, C?) {
-        static Define := {}.DefineProp
-        static Delete := {}.DeleteProp
-
         if (this == GenericArray) {
             return
         }
@@ -124,10 +121,10 @@ class GenericArray extends IArray
 
         ; remove `.__Class` to make sure that class prototypes are
         ; deletable. (see AHK docs: `/Objects.htm#Custom_NewDelete`)
-        Delete(this.Prototype, "__Class")
+        DeleteProp(this.Prototype, "__Class")
 
-        Define(this.Prototype, "ComponentType", { Get: (_) => T })
-        Define(this.Prototype, "ArrayType",     { Get: (_) => A })
+        DefineConst(this.Prototype, "ComponentType", T)
+        DefineConst(this.Prototype, "ArrayType",     A)
     }
 
     /**
@@ -137,10 +134,7 @@ class GenericArray extends IArray
      * @param   {T*}  Values  zero or more values
      */
     __New(Values*) {
-        A := (this.ArrayType)()
-
-        this.DefineProp("A", { Get: (_) => A })
-        this.Push(Values*)
+        DefineConst(this, "A", (this.ArrayType)()).Push(Values*)
     }
 
     ;@endregion
@@ -152,27 +146,68 @@ class GenericArray extends IArray
      * the `Class#Name` property defined in {@link AquaHotkey_TypeInfo}, as
      * `.__Class` cannot be used to determine the name of the class.
      * 
-     * @property {String}
+     * @returns {String}
      */
     static Name => (this.Prototype).ClassName
-
+    
     /**
      * The name of the class. Provides information about the array and
      * component type.
      * 
-     * @property {String}
+     * @returns {String}
      */
     ClassName {
         get {
-            ClassName := (this.ArrayType.Prototype.__Class)
-                            . "<" . this.ComponentTypeName . ">"
+            Name := this.ArrayTypeName . "<" . this.ComponentTypeName . ">"
+            DefineConst(OwnerOfProp(this, "ArrayType"), ; prototype object
+                        "ClassName", Name)
+            return Name
+        }
+    }
 
-            Obj := this
-            while (!ObjHasOwnProp(Obj, "ComponentType")) {
-                Obj := ObjGetBase(Obj)
-            }
-            ({}.DefineProp)(Obj, "ClassName", { Get: (_) => ClassName })
-            return ClassName
+    /**
+     * The type of array being wrapped around by this class.
+     * 
+     * @returns {Class}
+     * @see {@link GenericArray#ArrayType}
+     */
+    static ArrayType => (this.Prototype).ArrayType
+
+    /**
+     * The type of array being wrapped around by this class.
+     * 
+     * This property should be overridden by subclasses of `GenericArray`.
+     * 
+     * @abstract
+     * @returns {Class}
+     * @example
+     * LL := LinkedList.OfType(String)
+     * 
+     * MsgBox(String(LL.ArrayType)) ; "class LinkedList"
+     */
+    ArrayType {
+        get {
+            throw PropertyError("array type not found")
+        }
+    }
+
+    /**
+     * Name of the underlying array class.
+     * 
+     * @returns {String}
+     */
+    static ArrayTypeName => (this.Prototype).ArrayTypeName
+
+    /**
+     * Name of the underlying array class.
+     * 
+     * @returns {String}
+     */
+    ArrayTypeName {
+        get {
+            Name := (this.ArrayType).Prototype.__Class
+            DefineConst(OwnerOfProp(this, "ArrayType"), "ArrayTypeName", Name)
+            return Name
         }
     }
 
@@ -180,7 +215,7 @@ class GenericArray extends IArray
      * Returns the component type of this generic array. In other words, the
      * type which the array holds elements of.
      * 
-     * @property {Any}
+     * @returns {Any}
      * @see {@link GenericArray#ComponentType}
      */
     static ComponentType => (this.Prototype).ComponentType
@@ -192,7 +227,7 @@ class GenericArray extends IArray
      * This property should be overridden by subclasses of `GenericArray`.
      * 
      * @abstract
-     * @property {Any}
+     * @returns {Any}
      * @example
      * StrArr := String[]("foo", "bar")
      * 
@@ -207,14 +242,14 @@ class GenericArray extends IArray
     /**
      * The generic array class's component type displayed as string.
      * 
-     * @property {String}
+     * @returns {String}
      */
     static ComponentTypeName => (this.Prototype).ComponentTypeName
 
     /**
      * The generic array's component type displayed as string.
      * 
-     * @property {String}
+     * @returs {String}
      */
     ComponentTypeName {
         get {
@@ -226,39 +261,10 @@ class GenericArray extends IArray
             } else {
                 Name := Type(T)
             }
-
-            Obj := this
-            while (!ObjHasOwnProp(Obj, "ComponentType")) {
-                Obj := ObjGetBase(Obj)
-            }
-            ({}.DefineProp)(Obj, "ComponentTypeName", { Get: (_) => Name })
+            DefineConst(
+                OwnerOfProp(this, "ComponentType"),
+                "ComponentTypeName", Name)
             return Name
-        }
-    }
-
-    /**
-     * The type of array being wrapped around by this class.
-     * 
-     * @property {Class}
-     * @see {@link GenericArray#ArrayType}
-     */
-    static ArrayType => (this.Prototype).ArrayType
-
-    /**
-     * The type of array being wrapped around by this class.
-     * 
-     * This property should be overridden by subclasses of `GenericArray`.
-     * 
-     * @abstract
-     * @property {Class}
-     * @example
-     * LL := LinkedList.OfType(String)
-     * 
-     * MsgBox(String(LL.ArrayType)) ; "class LinkedList"
-     */
-    ArrayType {
-        get {
-            throw PropertyError("array type not found")
         }
     }
 
@@ -419,16 +425,7 @@ class GenericArray extends IArray
      * 
      * @returns {GenericArray<A, T>}
      */
-    Clone() {
-        Copy := (this.A).Clone()
-
-        Obj := Object()
-        Obj.DefineProp("A", { Get: (_) => Copy })
-
-        ; same class; `ArrayType` and `ComponentType` should already be there.
-        ObjSetBase(Obj, ObjGetBase(this))
-        return Obj
-    }
+    Clone() => DefineConst({ base: ObjGetBase(this) }, "A", (this.A).Clone())
 
     /**
      * Deletes an item from the array, returning the previously contained
@@ -504,10 +501,10 @@ class GenericArray extends IArray
     /**
      * Returns an {@link Enumerator} for the array.
      * 
-     * @param   {Integer}  ArgSize  arg-size of for-loop
+     * @param   {Integer?}  ArgSize  arg-size of for-loop
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) => (this.A).__Enum(ArgSize)
+    __Enum(ArgSize := 1) => (this.A).__Enum(ArgSize)
 
     /**
      * Retrieves and sets items in the array.
@@ -533,7 +530,7 @@ class GenericArray extends IArray
     Length {
         get => (this.A).Length
         set {
-            (this.A).Length := (value?)
+            (this.A).Length := value
         }
     }
 
@@ -546,14 +543,14 @@ class GenericArray extends IArray
     Capacity {
         get => (this.A).Capacity
         set {
-            (this.A).Capacity := (value?)
+            (this.A).Capacity := value
         }
     }
 
     /**
      * Retrieves and sets the `Default` property of the array.
      * 
-     * @param   {Any}  value  value of default property
+     * @param   {Any?}  value  value of default property
      * @returns {Any}
      */
     Default {
@@ -578,19 +575,25 @@ class AquaHotkey_GenericArray extends AquaHotkey {
         if (this != AquaHotkey_GenericArray) {
             return
         }
+        DefineGetter(this.Class, "__Item", ObjBindMethod(Array, "OfType"))
 
+        
         if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
-            ({}.DefineProp)(this.IArray, "OfType", { Call: Disabled_OfType })
+            DefineMethod(this.IArray, "OfType", (Cls, T, Constraint?) => Cls)
+        } else {
+            DefineMethod(this.IArray, "OfType",
+                ; (Cls, T, C?) =>
+                ;     AquaHotkey.CreateClass(GenericArray, "", Cls, T, C?)
+                ObjBindMethod(AquaHotkey, "CreateClass", GenericArray, ""))
         }
         super.__New()
-
-        static Disabled_OfType(Cls, T, Constraint?) => Cls
     }
 
     class Class {
         /**
          * Returns the "array class" of this class.
          * 
+         * @inlined
          * @param   {Class?}  Constraint  additional type constraint
          * @returns {Class<? extends GenericArray<Array, this>>}
          */
@@ -636,10 +639,7 @@ class AquaHotkey_GenericArray_Serialization extends AquaHotkey {
             (Object.Prototype.Serialize)(this, Output, Refs)
             Output.WriteObject(this.ArrayType, Refs)
             Output.WriteObject(this.ComponentType, Refs)
-            Output.WriteUInt(this.Length)
-            for Value in this {
-                Output.WriteObject(Value?, Refs)
-            }
+            Output.WriteObject(this.A, Refs)
         }
 
         /**
@@ -654,22 +654,13 @@ class AquaHotkey_GenericArray_Serialization extends AquaHotkey {
             Input.ReadObject(&TArray, Refs)
             Input.ReadObject(&TComponent, Refs)
             if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
-                TComponent := Any
+                TComponent := Nullable(Any)
             }
-            Cls := AquaHotkey.CreateClass(GenericArray,, TArray, TComponent)
-            ObjSetBase(this, Cls.Prototype)
-
-            ; - `.__Init()` for moral support
-            ; - `.__New()` to create the backing array
-            this.__Init()
-            this.__New()
-
-            ; read length of array, followed by the elements themselves
-            Length := Input.ReadUInt()
-            loop Length {
-                Input.ReadObject(&Value, Refs)
-                this.Push(Value?)
-            }
+            ObjSetBase(this, AquaHotkey.CreateClass(GenericArray,,
+                    TArray, TComponent).Prototype)
+            
+            Input.ReadObject(&A)
+            DefineConst(this, "A", A)
         }
     }
 }
@@ -704,4 +695,3 @@ class AquaHotkey_GenericArray_Json extends AquaHotkey {
 }
 
 ;@endregion
-

@@ -1,7 +1,6 @@
 # TODO List
 
 - tests for new IArray and IMap methods (do they work for all classes?)
-- test `IMap#TryDelete()` and `IMap#TryGet()` methods
 
 - add SubList view?
 - reversed list view?

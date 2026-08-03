@@ -65,7 +65,9 @@ class Optional {
      * Empty := Optional()
      */
     __New(Value?) {
-        (IsSet(Value) && this.DefineProp("Value", { Get: (_) => Value }))
+        if (IsSet(Value)) {
+            DefineProp(this, "Value", { Get: (_) => Value })
+        }
     }
 
     ;@endregion
@@ -427,16 +429,16 @@ class Optional {
 class AquaHotkey_Optional extends AquaHotkey {
     class Any {
         static __New() {
-            ({}.DefineProp)(this.Prototype, "ToOptional", { Call: Optional })
+            DefineMethod(this.Prototype, "ToOptional", Optional)
         }
 
         /**
          * Returns a new optional that wraps arount the element.
          * 
+         * @inlined
+         * @returns {Optional}
          * @example
          * "Hello world!".Optional().IfPresent(MsgBox)
-         * 
-         * @returns {Optional}
          */
         ToOptional() => Optional(this)
     }
@@ -525,7 +527,7 @@ class AquaHotkey_Optional_Serialization extends AquaHotkey {
         Deserialize(Input, Refs) {
             if (Input.ReadUChar()) {
                 Input.ReadObject(&Value, Refs)
-                this.DefineProp("Value", { Get: (_) => Value })
+                DefineProp(this, "Value", { Get: (_) => Value })
             }
         }
     }

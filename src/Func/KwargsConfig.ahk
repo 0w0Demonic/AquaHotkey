@@ -1,4 +1,24 @@
 
+/**
+ * Defines the names of parameters of global functions. This file is enclosed
+ * inside a function that returns an array of alternating key value
+ * (`return Array(Key1, Value1, Key2, Value2, ...)`). The key is a function
+ * for which a type signature should be defined. The value is either the type
+ * signature as string, or a custom function.
+ * 
+ * When the value is a string, parameters are delimited using comma ","
+ * (ignoring whitespace). Aliases of the same parameter are delimited with
+ * forward slashes "/".  When the value is a function, it becomes the new
+ * `.With()` method of the targeted function.
+ * 
+ * @deprecated
+ * @module  <Func/KwargsConfig>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ */
+;-------------------------------------------------------------------------------
+;@region Defs
+
 SimpleMath := "Number/Value/x"
 SimpleString := "String/Str"
 
@@ -49,6 +69,10 @@ Callback := "Callback, AddRemove"
 Message := "Msg/Message/MsgNumber/MessageNumber"
 
 Process := "Proc/Process/Name/ProcessName/PID"
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Return Statement
 
 return Array(
     Abs, SimpleMath,
@@ -419,6 +443,10 @@ return Array(
     WinWaitClose, WinTitleTimeout
 )
 
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Custom Implementations
+
 Array_With(_, ArgObj) => Array(ArgObj.Values*)
 
 Format_With(_, ArgObj) {
@@ -482,3 +510,5 @@ ComObjQuery_With(_, ArgObj) {
     }
     return ComObjQuery(ArgObj.ComObj, ArgObj.IID)
 }
+
+;@endregion

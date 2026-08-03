@@ -2,6 +2,7 @@
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 ;@region ImmutableMap
+
 /**
  * An immutable view of an {@link IMap}.
  * 
@@ -13,7 +14,8 @@
  * 
  * M.Set("foo", "bar") ; Error! This map is immutable.
  */
-class ImmutableMap extends IMap {
+class ImmutableMap extends IMap
+{
     ;@region Construction
 
     /**
@@ -32,16 +34,13 @@ class ImmutableMap extends IMap {
      * @returns {ImmutableMap}
      */
     static FromMap(M) {
-        if (!IMap.IsInstance(M)) {
-            throw TypeError("Expected an IMap",, Type(M))
-        }
         if (M is ImmutableMap) {
             return M
         }
-        Obj := Object()
-        Obj.DefineProp("M", { Get: (_) => M })
-        ObjSetBase(Obj, this.Prototype)
-        return Obj
+        if (!IMap.IsInstance(M)) {
+            throw TypeError("Expected an IMap",, Type(M))
+        }
+        return DefineConst({ base: this.Prototype }, "M", M)
     }
 
     ;@endregion
@@ -75,10 +74,10 @@ class ImmutableMap extends IMap {
     /**
      * Returns an `Enumerator` that enumerates the items of the map.
      * 
-     * @param   {Integer}  ArgSize  param-size of for-loop
+     * @param   {Integer?}  ArgSize  param-size of for-loop
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) => (this.M).__Enum(ArgSize)
+    __Enum(ArgSize := 1) => (this.M).__Enum(ArgSize)
 
     /**
      * Returns the size of the map.
@@ -150,7 +149,6 @@ class AquaHotkey_ImmutableMap extends AquaHotkey {
          * Clone.Set(5, 6) ; Error!
          */
         Freeze() {
-            ; TODO find better way to determine immutability
             if (this is ImmutableMap) {
                 return this
             }
@@ -187,9 +185,10 @@ class AquaHotkey_ImmutableMap_Serialization extends AquaHotkey {
          * @see {@link AquaHotkey_Serializer}
          */
         Deserialize(Input, Refs) {
-            Input.ReadObject(&BackingMap, Refs)
-            this.DefineProp("M", { Get: (_) => BackingMap })
+            Input.ReadObject(&M, Refs)
+            DefineConst(this, "M", M)
         }
     }
 }
 
+;@endregion

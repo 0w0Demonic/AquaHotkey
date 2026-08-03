@@ -1,5 +1,5 @@
-#Include "%A_LineFile%\..\Set.ahk"
-#Include "%A_LineFile%\..\WeakRefMap.ahk"
+#Include "%A_LineFile%\..\..\Collections\Set.ahk"
+#Include "%A_LineFile%\..\..\Collections\WeakRefMap.ahk"
 
 /**
  * An {@link ISet} of weak references.
@@ -30,8 +30,6 @@ class WeakRefSet extends Set {
      * @param   {Any*}  Values  zero or more elements
      */
     __New(Values*) {
-        M := WeakRefMap()
-        this.DefineProp("M", { Get: (_) => M })
-        this.Add(Values*)
+        DefineConst(this, "M", WeakRefMap()).Add(Values*)
     }
 }

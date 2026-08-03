@@ -2,6 +2,7 @@
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 ;@region Func
+
 /**
  * Basic function composition.
  * 
@@ -12,6 +13,7 @@
 class AquaHotkey_Func extends AquaHotkey {
     class Func {
         ;@region Composition
+
         /**
          * Returns a composed function that first applies this function with
          * the given input, and then forwards the result to `After` as first
@@ -59,9 +61,11 @@ class AquaHotkey_Func extends AquaHotkey {
             GetMethod(Before)
             return (Args*) => this( Before(Args*), NextArgs* )
         }
-        ;@endregion
 
+        ;@endregion
+        ;-----------------------------------------------------------------------
         ;@region Memoization
+
         /**
          * Returns a memoized version of this function, caching previously
          * computed results in a Map to avoid redundant computation.
@@ -86,10 +90,9 @@ class AquaHotkey_Func extends AquaHotkey {
          */
         Memoized(Hasher?, MapParam := Map()) {
             Cache := IMap.Create(MapParam)
-
-            Result := IsSet(Hasher) ? HashedMemoized : Memoized
-            Result.DefineProp("Memoized", { Call: x => x })
-            return Result
+            return DefineMethod(
+                    IsSet(Hasher) ? HashedMemoized : Memoized,
+                    "Memoized", x => x)
 
             Memoized(Key) {
                 if (!Cache.Has(Key)) {
@@ -155,9 +158,7 @@ class AquaHotkey_Func extends AquaHotkey {
         }
 
         static __New() {
-            PropDesc := ({}.GetOwnPropDesc)(this.Prototype, "_Loop")
-            ({}.DeleteProp)(this.Prototype, "_Loop")
-            ({}.DefineProp)(this.Prototype, "Loop", PropDesc)
+            RenameProp(this.Prototype, "_Loop", "Loop")
         }
 
         /**

@@ -39,10 +39,7 @@ class WeakRefMap extends IMap {
         if (Args.Length & 1) {
             throw ValueError("Invalid param count",, Args.Length)
         }
-
-        M := Map()
-        this.DefineProp("M", { Get: (_) => M })
-        this.Set(Args*)
+        DefineConst(this, "M", Map()).Set(Args*)
     }
 
     /**
@@ -69,8 +66,7 @@ class WeakRefMap extends IMap {
      * @returns {WeakRefMap}
      */
     Clone() {
-        Copy := Object()
-        ObjSetBase(Copy, ObjGetBase(this))
+        Copy := { base: this }
         Copy.__Init()
         Copy.__New()
         for Key, Value in this {
@@ -141,21 +137,37 @@ class WeakRefMap extends IMap {
     /**
      * Case-sensitivity of the map.
      * 
-     * @property {Integer}
+     * @type {Integer}
      */
     CaseSense {
         get => (this.M).CaseSense
-        set => ((this.M).CaseSense := value)
+        set {
+            (this.M).CaseSense := value
+        }
+    }
+
+    /**
+     * Capacity of the map.
+     * 
+     * @type {Integer}
+     */
+    Capacity {
+        get => (this.M).Capacity
+        set {
+            (this.M).Capacity := value
+        }
     }
 
     /**
      * Default value of the map.
      * 
-     * @property {Any}
+     * @type {Any?}
      */
     Default {
         get => (this.M).Default
-        set => ((this.M).Default := value)
+        set {
+            (this.M).Default := value
+        }
     }
 
     /**
@@ -184,7 +196,7 @@ class AquaHotkey_WeakRef extends AquaHotkey {
          * 
          * @private
          * @readonly
-         * @property {Map<Object, Func>}
+         * @type {Map<Object, Func>}
          */
         WeakRefs {
             get {
@@ -197,8 +209,8 @@ class AquaHotkey_WeakRef extends AquaHotkey {
                 if (HasProp(this, "__Delete")) {
                     Del := this.__Delete
                 }
-                this.DefineProp("__Delete", { Call: Destructor })
-                this.DefineProp("WeakRefs", { Get: (_) => Refs })
+                DefineMethod(this, "__Delete", Destructor)
+                DefineConst(this, "WeakRef", Refs)
                 return Refs
 
                 Destructor(this) {

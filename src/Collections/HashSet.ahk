@@ -1,5 +1,5 @@
-#Include "%A_LineFile%\..\HashMap.ahk"
-#Include "%A_LineFile%\..\Set.ahk"
+#Include "%A_LineFile%\..\..\Collections\HashMap.ahk"
+#Include "%A_LineFile%\..\..\Collections\Set.ahk"
 
 /**
  * A set implementation that supports object equality comparisons
@@ -18,8 +18,6 @@ class HashSet extends Set {
      * @returns {HashSet}
      */
     __New(Values*) {
-        M := HashMap()
-        this.DefineProp("M", { Get: (_) => M })
-        this.Add(Values*)
+        DefineConst(this, "M", HashMap()).Add(Values*)
     }
 }

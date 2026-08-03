@@ -10,9 +10,7 @@
 class AquaHotkey_Primitives extends AquaHotkey {
     class Primitive {
         static __New() {
-            static Define := {}.DefineProp
             Proto := this.Prototype
-
             for Name, Fn in ObjOwnProps({
                 ToFloat: Float, ToNumber: Number, ToInteger: Integer,
                 Abs: Abs, ASin: ASin, ACos: ACos, ATan: ATan,
@@ -20,7 +18,7 @@ class AquaHotkey_Primitives extends AquaHotkey {
                 Floor: Floor, Ln: Ln, Sin: Sin, Sqrt: Sqrt,
                 Tan: Tan, Mod: Mod, Round: Round })
             {
-                Define(Proto, Name, { Call: Fn })
+                DefineMethod(Proto, Name, Fn)
             }
         }
 
@@ -58,6 +56,7 @@ class AquaHotkey_Primitives extends AquaHotkey {
         /**
          * Converts the value into a float.
          * 
+         * @inlined
          * @returns {Float}
          * @example
          * (1).ToFloat() ; 1.0
@@ -67,6 +66,7 @@ class AquaHotkey_Primitives extends AquaHotkey {
         /**
          * Converts the value to a number.
          * 
+         * @inlined
          * @returns {Number}
          * @example
          * "912".ToNumber() ; 912
@@ -77,6 +77,7 @@ class AquaHotkey_Primitives extends AquaHotkey {
         /**
          * Converts the value to an integer.
          * 
+         * @inlined
          * @returns {Integer}
          * @example
          * (8.34).ToInteger() ; 8
@@ -142,6 +143,9 @@ class AquaHotkey_Primitives extends AquaHotkey {
         
         /**
          * Built-in math functions.
+         * 
+         * @inlined
+         * @returns {Number}
          */
         Abs()     => Abs(this)
         ASin()    => ASin(this)
@@ -156,7 +160,6 @@ class AquaHotkey_Primitives extends AquaHotkey {
         Sin()     => Sin(this)
         Sqrt()    => Sqrt(this)
         Tan()     => Tan(this)
-
         Mod(N)    => Mod(this, N)
         Round(N?) => Round(this, N?)
 

@@ -1,3 +1,5 @@
+#Include "%A_LineFile%\..\..\Core\Utils.ahk"
+
 /**
  * A user-friendly framework that wraps COM objects in clean and class-based
  * interfaces.
@@ -480,10 +482,10 @@ class Com {
     /**
      * Enumerates the contents of the underlying Com object.
      * 
-     * @param   {Integer}  ArgSize  parameter length of the for-loop
+     * @param   {Integer?}  ArgSize  parameter length of the for-loop
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) {
+    __Enum(ArgSize := 1) {
         Result := Array()
         for Value in this._ {
             Result.Push(Value)

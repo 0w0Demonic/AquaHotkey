@@ -1,8 +1,8 @@
-#Include "%A_LineFile%\..\Set.ahk"
-#Include "%A_LineFile%\..\OrderedMap.ahk"
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\ISet.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
+#Include "%A_LineFile%\..\..\Collections\Set.ahk"
+#Include "%A_LineFile%\..\..\Collections\OrderedMap.ahk"
 
 /**
  * A doubly-linked list-backed {@link ISet} that preserves insertion order.
@@ -19,9 +19,7 @@ class OrderedSet extends Set {
      * @param   {Any*}  Values  zero or more elements
      */
     __New(Values*) {
-        M := OrderedMap()
-        this.DefineProp("M", { Get: (_) => M })
-        this.Add(Values*)
+        DefineConst(this, "M", OrderedMap()).Add(Values*)
     }
 
     /**
@@ -38,11 +36,8 @@ class OrderedSet extends Set {
             throw TypeError("Expected an IMap",, Type(M))
         }
         return super.FromMap(
-            OrderedMap.IsInstance(M)
-                ? M
-                : M.Ordered(),
-            Values*
-        )
+            OrderedMap.IsInstance(M) ? M : M.Ordered(),
+            Values*)
     }
 
     /**

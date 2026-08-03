@@ -1,3 +1,4 @@
+#Include "%A_LineFile%\..\..\Core\Utils.ahk"
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
 /**
@@ -27,7 +28,6 @@ class AquaHotkey_ComValue extends AquaHotkey
     ;@region ComValue
     class ComValue {
         static __New() {
-            static Define := (Object.Prototype.DefineProp)
             static ARRAY  := 0x2000
             static BYREF  := 0x4000
 
@@ -39,8 +39,8 @@ class AquaHotkey_ComValue extends AquaHotkey
 
             ; ComValue.ARRAY { get => 0x2000 }
             ; ComValue.BYREF { get => 0x4000 }
-            Define(this, "ARRAY", ConstantGet(Name_ComValue, "ARRAY", ARRAY))
-            Define(this, "BYREF", ConstantGet(Name_ComValue, "BYREF", BYREF))
+            DefineProp(this, "ARRAY", ConstGet(Name_ComValue, "ARRAY", ARRAY))
+            DefineProp(this, "BYREF", ConstGet(Name_ComValue, "BYREF", BYREF))
 
             for Arr in [
                     ["EMPTY",    0x00], ["NULL",     0x01], ["INT16",    0x02],
@@ -58,31 +58,30 @@ class AquaHotkey_ComValue extends AquaHotkey
                 ; e.g.:
                 ; - ComValue.BSTR        => 0x0008
                 ; - ComValue.BSTR("foo") => ComValue(0x0008, "foo")
-                Define(ComValue, Name, {
+                DefineProp(ComValue, Name, {
                     Get:  Constant(Name_ComValue, Name, Value),
                     Call: Constructor(Name_ComValue, Name, Value)})
 
                 ; e.g.:
                 ; - ComValueRef.BSTR      => (0x0008 | 0x4000)
                 ; - ComValueRef.BSTR(Ptr) => ComValue(0x0008 | 0x4000, Ptr)
-                Define(ComValueRef, Name, {
+                DefineProp(ComValueRef, Name, {
                     Get:  Constant(Name_ComValueRef, Name, Value | BYREF),
                     Call: RefCons(Name_ComValueRef, Name, Value | BYREF)})
 
                 ; e.g.:
                 ; - ComObjArray.BSTR    => (0x0008 | 0x2000)
                 ; - ComObjArray.BSTR(3) => ComObjArray(0x0008, 3)
-                Define(ComObjArray, Name, {
+                DefineProp(ComObjArray, Name, {
                     Get:  Constant(Name_ComObjArray, Name, Value | ARRAY),
                     Call: ArrCons(Name_ComObjArray, Name, Value)})
             }
 
-            static ConstantGet(Args*) => { Get: Constant(Args*) }
+            static ConstGet(Args*) => { Get: Constant(Args*) }
 
             static Constant(ClassName, VarName, VarType) {
                 Name := ClassName . "." . VarName . ".Get"
-                Getter.DefineProp("Name", { Get: (_) => Name })
-                return Getter
+                return DefineConst(Getter, "Name", Name)
 
                 Getter(Cls) {
                     if ((Cls == ComObject) || HasBase(Cls, ComObject)) {
@@ -93,9 +92,7 @@ class AquaHotkey_ComValue extends AquaHotkey
             }
 
             static Constructor(ClassName, VarName, VarType) {
-                Name := ClassName . "." . VarName
-                Cons.DefineProp("Name", { Get: (_) => Name })
-                return Cons
+                return DefineConst(Cons, "Name", ClassName . "." . VarName)
 
                 Cons(Cls, Value, Flags?) {
                     if ((Cls == ComObject) || HasBase(Cls, ComObject)) {
@@ -106,9 +103,7 @@ class AquaHotkey_ComValue extends AquaHotkey
             }
 
             static RefCons(ClassName, VarName, VarType) {
-                Name := ClassName . "." . VarName
-                Cons.DefineProp("Name", { Get: (_) => Name })
-                return Cons
+                return DefineConst(Cons, "Name", ClassName . "." . VarName)
 
                 Cons(Cls, Value) {
                     if (!IsInteger(Value)) {
@@ -123,13 +118,9 @@ class AquaHotkey_ComValue extends AquaHotkey
             }
 
             static ArrCons(ClassName, VarName, VarType) {
-                Name := ClassName . "." . VarName
-                Cons.DefineProp("Name", { Get: (_) => Name })
-                return Cons
+                return DefineConst(Cons, "Name", ClassName . "." . VarName)
 
-                Cons(Cls, Dimensions*) {
-                    return Cls(VarType, Dimensions*)
-                }
+                Cons(Cls, Dimensions*) => Cls(VarType, Dimensions*)
             }
         }
     } ; class ComValue
@@ -140,14 +131,16 @@ class AquaHotkey_ComValue extends AquaHotkey
 
     class ComValueRef {
         ; just reuse the existing `__Item[]` getter instead of wrapping
-        static __New() => ({}.DefineProp)(
-            this.Prototype,
-            "Get",
-            { Call: ({}.GetOwnPropDesc)(ComValueRef.Prototype, "__Item").Get })
+        static __New() {
+            DefineProp(this.Prototype, "Get", {
+                Call: GetOwnPropDesc(ComValueRef.Prototype, "__Item").Get
+            })
+        }
 
         /**
          * Gets the value contained by this `ComValueRef`.
          * 
+         * @inlined
          * @returns {Any} the referenced value
          */
         Get() => this[]

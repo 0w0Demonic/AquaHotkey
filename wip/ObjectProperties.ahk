@@ -100,7 +100,7 @@ class Object {
          * 
          * @returns {Enumerator}
          */
-        __Enum(ArgSize) => ObjOwnProps(this.O)
+        __Enum(ArgSize := 1) => ObjOwnProps(this.O)
 
         /**
          * Retrieves the size of this map.

@@ -89,8 +89,8 @@ class Test_HashMap extends TestSuite {
             .Assert(Eq(true))
     }
 
-    static Has_with_output() {
-        HashMap(1, 2).Has(1, &OutValue).Assert(Eq(true))
+    static TryGet() {
+        HashMap(1, 2).TryGet(1, &OutValue).Assert(Eq(true))
         OutValue.Assert(Eq(2))
     }
 

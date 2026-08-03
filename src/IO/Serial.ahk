@@ -1,7 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\Serializer.ahk"
-
-; TODO Error serialization?
+#Include "%A_LineFile%\..\..\IO\Serializer.ahk"
 
 /**
  * Implements value-level serialization and deserialization for objects
@@ -260,13 +258,10 @@ class AquaHotkey_Serial extends AquaHotkey {
                 Output.Write(T)
             }
             if (this.Serialize == Object.Prototype.Serialize) {
-                for PropertyName in ObjOwnProps(this) {
-                    PropDesc := this.GetOwnPropDesc(PropertyName)
-                    if (ObjHasOwnProp(PropDesc, "Value")) {
-                        Output.WriteUShort(StrLen(PropertyName))
-                        Output.Write(PropertyName)
-                        Output.WriteObject(PropDesc.Value, Refs)
-                    }
+                for PropName, Value in OwnValueProps(this) {
+                    Output.WriteUShort(StrLen(PropName))
+                    Output.Write(PropName)
+                    Output.WriteObject(Value, Refs)
                 }
                 Output.WriteUShort(0)
             }
@@ -296,7 +291,7 @@ class AquaHotkey_Serial extends AquaHotkey {
                 }
                 PropName := Input.Read(Size)
                 Input.ReadObject(&Value, Refs)
-                this.DefineProp(PropName, { Value: Value })
+                DefineProp(this, PropName, { Value: Value })
             }
         }
     }
@@ -384,13 +379,10 @@ class AquaHotkey_Serial extends AquaHotkey {
          */
         Serialize(Output, Refs) {
             (Object.Prototype.Serialize)(this, Output, Refs)
-            for PropertyName in ObjOwnProps(this) {
-                PropDesc := this.GetOwnPropDesc(PropertyName)
-                if (ObjHasOwnProp(PropDesc, "Value")) {
-                    Output.WriteUShort(StrLen(PropertyName))
-                    Output.Write(PropertyName)
-                    Output.WriteObject(PropDesc.Value, Refs)
-                }
+            for PropName, Value in OwnValueProps(this) {
+                Output.WriteUShort(StrLen(PropName))
+                Output.Write(PropName)
+                Output.WriteObject(Value, Refs)
             }
             Output.WriteUShort(0)
         }
@@ -410,7 +402,7 @@ class AquaHotkey_Serial extends AquaHotkey {
                 }
                 PropName := Input.Read(Size)
                 Input.ReadObject(&Value, Refs)
-                this.DefineProp(PropName, { Value: Value })
+                DefineProp(this, PropName, { Value: Value })
             }
         }
     }

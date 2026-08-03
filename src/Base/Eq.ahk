@@ -3,8 +3,6 @@
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 ; TODO static Equals() for duck types
-; TODO refactor collection classes to use `Any.Equals` OR custom predicates
-; TODO change Any.Equals() to *not* allow unset, and offset to Nullable(Any) ?
 
 /**
  * Adds a universal `.Eq()` method for checking whether two values are
@@ -300,8 +298,6 @@ class AquaHotkey_Eq extends AquaHotkey
          * ({ foo: "bar" }).Eq({ FOO: "BAR" })
          */
         Eq(Other?) {
-            static GetProp := ({}.GetOwnPropDesc)
-
             if (!IsSet(Other)) {
                 return false
             }
@@ -319,6 +315,7 @@ class AquaHotkey_Eq extends AquaHotkey
                 return false
             }
 
+            ; TODO refactor this with some kind of zipping function
             ThisEnumer := ObjOwnProps(this)
             OtherEnumer := ObjOwnProps(Other)
 
@@ -327,13 +324,13 @@ class AquaHotkey_Eq extends AquaHotkey
                     return false
                 }
                 ; value of this object prop
-                PropDesc := GetProp(this, ThisProp)
+                PropDesc := GetOwnPropDesc(this, ThisProp)
                 ThisValue := (ObjHasOwnProp(PropDesc, "Value"))
                         ? PropDesc.Value
                         : unset
                 
                 ; value of other object prop
-                PropDesc := GetProp(Other, OtherProp)
+                PropDesc := GetOwnPropDesc(Other, OtherProp)
                 OtherValue := (ObjHasOwnProp(PropDesc, "Value"))
                         ? PropDesc.Value
                         : unset
@@ -399,13 +396,9 @@ class AquaHotkey_Eq extends AquaHotkey
             if (this == Other) {
                 return true
             }
-            if (!(Other is Map)) {
+            if (!IMap.IsInstance(Other) || (this.Count != Other.Count)) {
                 return false
             }
-            if (this.Count != Other.Count) {
-                return false
-            }
-
             for Key, Value in this {
                 if (!Other.Has(Key) || !Other.Get(Key).Eq(Value)) {
                     return false

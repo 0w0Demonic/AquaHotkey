@@ -10,7 +10,6 @@
 class AquaHotkey_StringMatching extends AquaHotkey {
     class String {
         static __New() {
-            static Define := {}.DefineProp
             Proto := this.Prototype
 
             for Name, Fn in ObjOwnProps({
@@ -24,7 +23,7 @@ class AquaHotkey_StringMatching extends AquaHotkey {
                 IsTime:   IsTime,
                 RegExMatch: RegExMatch,
             }) {
-                Define(Proto, Name, { Call: Fn })
+                DefineMethod(Proto, Name, Fn)
             }
         }
 
@@ -32,6 +31,8 @@ class AquaHotkey_StringMatching extends AquaHotkey {
 
         /**
          * Is-functions (see AHK docs).
+         * 
+         * @inlined
          * @returns {Boolean}
          */
         IsDigit  => IsDigit(this)
@@ -67,6 +68,7 @@ class AquaHotkey_StringMatching extends AquaHotkey {
         /**
          * Determines whether the string matches the given regex `Pattern`.
          * 
+         * @inlined
          * @param   {String}    Pattern   regular expression
          * @param   {VarRef?}   MatchObj  output match object
          * @param   {Integer?}  Pos       position to start searching from

@@ -1,6 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Base\Assertions.ahk"
-#Include "%A_LineFile%\..\Cast.ahk"
+#Include "%A_LineFile%\..\..\Func\Cast.ahk"
 
 ;@region Predicate
 
@@ -24,8 +24,7 @@ class Predicate extends Func {
                    IsSpace, IsTime, DirExist, FileExist, ProcessExist] {
             this.Cast(Fn)
         }
-
-        ({}.DefineProp)(this.Prototype, "AsAssertion", { Call: Assertion })
+        DefineMethod(this.Prototype, "AsAssertion", Assertion)
     }
 
     ;@region Static
@@ -209,11 +208,9 @@ class Predicate extends Func {
      * @example
      * P := IsNumber.Negate()
      */
-    Negate() {
-        Pred := this.Cast((Val?) => (!this(Val?)))
-        Pred.DefineProp("Negate", { Call: (_) => this })
-        return Pred
-    }
+    Negate() => DefineConst(this.Cast( (Val?) => !this(Val?) ), "Negate", this)
+
+    ; TODO don't make assertions mandatory
 
     /**
      * Converts this predicate into an assertion method.

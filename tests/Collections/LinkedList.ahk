@@ -75,7 +75,7 @@ class Test_LinkedList extends TestSuite {
     static Simple_Set() {
         L := LinkedList(1, 2, 3)
 
-        L.Set(1, 2)
+        L[1] := 2
         L.Get(1).Assert(Eq(2))
     }
 
@@ -245,18 +245,6 @@ class Test_LinkedList extends TestSuite {
         L := LinkedList(1, 2, 3)
         L.RemoveAt(2, 0)
         L.Size.Assert(Eq(3))
-    }
-
-    static __Delete_Works() {
-        L := LinkedList(1, 2, 3)
-
-        Value := 0
-        ({}.DefineProp)(LinkedList.Node.Prototype, "__Delete", {
-            Call: (Instance) => ++Value
-        })
-
-        L := ""
-        Value.Assert(Eq(3))
     }
 
     static Sizeable_Properties() {

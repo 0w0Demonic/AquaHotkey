@@ -1,4 +1,4 @@
-#Include "%A_LineFile%\..\MatchResult.ahk"
+#Include "%A_LineFile%\..\..\Parse\MatchResult.ahk"
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 #Include "%A_LineFile%\..\..\Func\Cast.ahk"
 #Include "%A_LineFile%\..\..\Monads\Optional.ahk"
@@ -7,6 +7,7 @@
 ;@region Parser
 
 ; TODO allow `unset` as return value?
+; TODO remove MatchResult again?
 
 /**
  * A simple parser combinator intended to parse grammers such as regex,
@@ -537,6 +538,7 @@ class Parser extends Func {
         ))
     }
 
+    ; TODO just use a collector here, maybe
     /**
      * Returns a parser that matches zero or more times.
      * 

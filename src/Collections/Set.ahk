@@ -22,9 +22,7 @@ class Set extends ISet {
      * @param   {Any*}  Values  zero or more elements
      */
     __New(Values*) {
-        M := Map()
-        this.DefineProp("M", { Get: (_) => M })
-        this.Add(Values*)
+        DefineConst(this, "M", Map()).Add(Values*)
     }
 
     /**
@@ -39,9 +37,7 @@ class Set extends ISet {
         if (!IMap.IsInstance(M)) {
             throw TypeError("Expected an IMap",, Type(M))
         }
-        Obj := Object()
-        Obj.DefineProp("M", { Get: (_) => M })
-        ObjSetBase(Obj, this.Prototype)
+        Obj := DefineConst({ base: this.Prototype }, "M", M)
         Obj.Add(Values*)
         return Obj
     }
@@ -82,13 +78,7 @@ class Set extends ISet {
      * 
      * @returns {Set}
      */
-    Clone() {
-        M := this.M.Clone()
-        Obj := Object()
-        Obj.DefineProp("M", { Get: (_) => M })
-        ObjSetBase(Obj, ObjGetBase(this))
-        return Obj
-    }
+    Clone() => DefineConst({ base: ObjGetBase(this) }, "M", (this.M).Clone())
 
     /**
      * Deletes values from the set. This method returns the amount of elements
@@ -123,10 +113,10 @@ class Set extends ISet {
     /**
      * Returns an `Enumerator` for the set.
      * 
-     * @param   {Integer}  ArgSize  parameter size of for-loop
+     * @param   {Integer?}  ArgSize  parameter size of for-loop
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) => (this.M).__Enum(1)
+    __Enum(ArgSize := 1) => (this.M).__Enum(1)
 
     /**
      * Amount of elements contained in the set.

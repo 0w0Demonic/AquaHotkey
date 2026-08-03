@@ -1,10 +1,5 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
 
-; TODO add a lotta stuff for objects in general, and then put that into a
-;      `Object` folder?
-; TODO find a way to differentiate between `Method()` (create prop desc) and
-;      `Method()` (create object mapper)
-
 ;@region Extensions
 
 /**
@@ -21,22 +16,18 @@
 class AquaHotkey_Object extends AquaHotkey {
     class Any {
         static __New() {
-            ; save indirection
-            static Define := {}.DefineProp
-            static GetProp := {}.GetOwnPropDesc
             Proto := this.Prototype
+            DefineMethod(Proto, "BindMethod",  ObjBindMethod)
+            DefineMethod(Proto, "OwnProps",    ObjOwnProps)
+            DefineMethod(Proto, "DefineProps", DefineProps)
+            DefineMethod(Proto, "GetPropDesc", GetPropDesc)
+            DefineMethod(Proto, "OwnerOfProp", OwnerOfProp)
 
-            Define(Proto, "BindMethod", { Call: ObjBindMethod })
-            Define(Proto, "OwnProps",   { Call: ObjOwnProps   })
-
-            Copy(Name) {
-                Define(Proto, Name, GetProp(Object.Prototype, Name))
+            for Name in ["DefineProp", "DeleteProp",
+                         "GetOwnPropDesc", "HasOwnProp"]
+            {
+                DefineProp(Proto, Name, GetOwnPropDesc(Object.Prototype, Name))
             }
-
-            Copy("DefineProp")
-            Copy("DeleteProp")
-            Copy("GetOwnPropDesc")
-            Copy("HasOwnProp")
         }
 
         ;@region General
@@ -45,6 +36,7 @@ class AquaHotkey_Object extends AquaHotkey {
          * Creates a `BoundFunc` which calls a method `MethodName` bound to this
          * particular instance, followed by zero or more arguments `Args*`.
          * 
+         * @inlined
          * @param   {String}  MethodName  the name of a method
          * @param   {Any*}    Args        zero or more additional arguments
          * @returns {BoundFunc}
@@ -107,8 +99,8 @@ class AquaHotkey_Object extends AquaHotkey {
          */
         TransformProp(PropName, Mapper, Args*) {
             GetMethod(Mapper)
-            PropDesc := this.GetOwnPropDesc(PropName)
-            this.DefineProp(PropName, Mapper(PropDesc, Args*))
+            PropDesc := GetOwnPropDesc(this, PropName)
+            DefineProp(this, PropName, Mapper(PropDesc, Args*))
             return PropDesc
         }
 
@@ -117,6 +109,7 @@ class AquaHotkey_Object extends AquaHotkey {
          * 
          * `Props` is required to be a plain object.
          * 
+         * @inlined
          * @param   {Object}  Props  object containing property descriptors
          * @returns {this}
          * @example
@@ -126,21 +119,7 @@ class AquaHotkey_Object extends AquaHotkey {
          *     ...
          * })
          */
-        DefineProps(Props) {
-            static GetProp := {}.GetOwnPropDesc
-
-            if (ObjGetBase(Props) != Object.Prototype) {
-                throw TypeError("Expected a plain object",, Type(Props))
-            }
-            for PropName in ObjOwnProps(Props) {
-                PropDesc := GetProp(Props, PropName)
-                if (!ObjHasOwnProp(PropDesc, "Value")) {
-                    continue
-                }
-                this.DefineProp(PropName, PropDesc.Value)
-            }
-            return this
-        }
+        DefineProps(Props) => DefineProps(this, Props)
 
         ;@endregion
         ;-----------------------------------------------------------------------
@@ -148,25 +127,31 @@ class AquaHotkey_Object extends AquaHotkey {
 
         /**
          * Returns the property descriptor of the object like
-         * `.GetOwnPropDesc()`, but regardless where it is inherited.
+         * `.GetOwnPropDesc()`, but regardless where it is inherited. Returns
+         * `false`, if unable to find property.
          * 
+         * @inlined
          * @param   {String}  PropName  name of the property
-         * @returns {Object}
+         * @returns {Object|false}
          * @see {@link AquaHotkey_DuckTypes}
          * @example
          * ; --> { Call: AquaHotkey_DuckTypes.Any.Prototype.Is }
          * (42).GetPropDesc("Is")
          */
-        GetPropDesc(PropName) {
-            if (!HasProp(this, PropName)) {
-                return ""
-            }
-            Obj := this
-            while (!ObjHasOwnProp(Obj, PropName)) {
-                Obj := ObjGetBase(Obj)
-            }
-            return ({}.GetOwnPropDesc)(Obj, PropName)
-        }
+        GetPropDesc(PropName) => GetPropDesc(this, PropName)
+
+        /**
+         * Returns the object that owns property `PropName`.
+         * 
+         * @inlined
+         * @param   {String}  PropName  name of the property
+         * @returns {Object|false}
+         * @example
+         * Arr := [1, 2]
+         * Arr.OwnerOfProp("Length")     ; ==> Array.Prototype
+         * Arr.OwnerOfProp("DefineProp") ; ==> Object.Prototype
+         */
+        OwnerOfProp(PropName) => OwnerOfProp(this, PropName)
 
         ;@endregion
         ;-----------------------------------------------------------------------
@@ -175,6 +160,7 @@ class AquaHotkey_Object extends AquaHotkey {
         /**
          * Defines a new property with the given name and property descriptor.
          * 
+         * @inlined
          * @param   {String}  Name  name of the property
          * @param   {Object}  Desc  property descriptor
          * @returns {this}
@@ -184,6 +170,7 @@ class AquaHotkey_Object extends AquaHotkey {
         /**
          * Deletes a property by name.
          * 
+         * @inlined
          * @param   {String}  Name  name of the property
          * @returns {Object}
          */
@@ -193,6 +180,7 @@ class AquaHotkey_Object extends AquaHotkey {
          * Returns a descriptor for a given property, compatible with
          * {@link Object#DefineProp}.
          * 
+         * @inlined
          * @param   {String}  Name  name of the property
          * @returns {Object}
          */
@@ -202,6 +190,7 @@ class AquaHotkey_Object extends AquaHotkey {
          * Determines whether this object owns a property with the specified
          * name.
          * 
+         * @inlined
          * @param   {String}  Name  name of the property
          * @returns {Boolean}
          */
@@ -210,6 +199,7 @@ class AquaHotkey_Object extends AquaHotkey {
         /**
          * Enumerates the object's own properties.
          * 
+         * @inlined
          * @returns {Enumerator}
          */
         OwnProps() => ObjOwnProps(this)
@@ -237,54 +227,11 @@ class AquaHotkey_Object extends AquaHotkey {
                 throw TypeError('This method can only be called by Object',,
                             this.Prototype.__Class)
             }
-            if (!IsObject(BaseObj)) {
-                throw TypeError("Expected an Object",, Type(BaseObj))
-            }
-
             return { base: BaseObj }
         }
     }
 
     ;@endregion
-}
-
-;@endregion
-;-------------------------------------------------------------------------------
-;@region ObjFromDesc()
-
-; TODO move this into `Object.FromDesc()`?
-
-/**
- * Creates an object described only by the property descriptors in `Desc`.
- * 
- * @param   {Object}  Desc  a set of properties
- * @returns {Object}
- * @example
- * ; value of `A` and `B` are treated as prop descs
- * Obj := ObjFromDesc({
- *     A: { get: (Obj) => Obj.B },
- *     B: { get: (Obj) => 42 }
- * })
- * 
- * MsgBox(Obj.A) ; 42
- */
-ObjFromDesc(Desc) {
-    static GetProp := {}.GetOwnPropDesc
-    static Define  := {}.DefineProp
-
-    if (ObjGetBase(Desc) != Object.Prototype) {
-        throw TypeError("Expected a plain object",, Type(Desc))
-    }
-
-    Obj := Object()
-    for PropertyName in ObjOwnProps(Desc) {
-        PropDesc := GetProp(Desc, PropertyName)
-        if (!ObjHasOwnProp(PropDesc, "Value")) {
-            continue
-        }
-        Define(Obj, PropertyName, PropDesc.Value)
-    }
-    return Obj
 }
 
 ;@endregion

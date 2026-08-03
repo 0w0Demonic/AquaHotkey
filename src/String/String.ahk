@@ -17,8 +17,8 @@
 class AquaHotkey_String extends AquaHotkey {
     class String {
         static __New() {
-            ({}.DefineProp)(this.Prototype, "Split",  { Call: StrSplit })
-            ({}.DefineProp)(this.Prototype, "Length", { Get:  StrLen   })
+            DefineMethod(this.Prototype, "Split", StrSplit)
+            DefineGetter(this.Prototype, "Length", StrLen)
         }
 
         ;@region Enumeration
@@ -71,6 +71,7 @@ class AquaHotkey_String extends AquaHotkey {
         /**
          * Separates the string into an array of substrings using `Delimiter`.
          * 
+         * @inlined
          * @param   {String?/Array?}  Delimiters  boundaries between substrings
          * @param   {String?}         OmitChars   list of characters to trim
          * @param   {Integer}         MaxParts    maximum number of substrings
@@ -173,6 +174,7 @@ class AquaHotkey_String extends AquaHotkey {
         /**
          * Returns the length of the string in characters.
          * 
+         * @inlined
          * @returns {Integer}
          * @example
          * "Hello".Length   ; 5

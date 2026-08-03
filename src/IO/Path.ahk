@@ -25,11 +25,7 @@ class Path {
         if (!(Path is String)) {
             throw TypeError("Expected a String",, Type(Path))
         }
-        
-        Result := Object()
-        ObjSetBase(Result, this.Prototype)
-        Result.DefineProp("Value", { Get: (_) => Path })
-        return Result
+        return DefineConst({ base: this.Prototype }, "Value", Path)
     }
 
     ;@endregion

@@ -424,33 +424,7 @@ class Json extends Class
     static __New() {
         ;@region Helpers
 
-        static Define  := {}.DefineProp
-        static GetProp := {}.GetOwnPropDesc
-        static Delete  := {}.DeleteProp
-
-        static DefineGetter(Obj, Name, Getter) {
-            Define(Obj, Name, { Get: Getter })
-        }
-
-        static DefineConstGetter(Obj, Name, Value) {
-            DefineGetter(Obj, Name, Constantly(Value))
-        }
-
-        static DefineMethod(Obj, Name, Method) {
-            Define(Obj, Name, { Call: Method })
-        }
-
-        static DefineConstMethod(Obj, Name, Value) {
-            DefineMethod(Obj, Name, Constantly(Value))
-        }
-
         static Constantly(Value) => ((_) => (Value))
-
-        static Rename(Obj, OldName, NewName) {
-            PropDesc := GetProp(Obj, OldName)
-            Delete(Obj, OldName)
-            Define(Obj, NewName, PropDesc)
-        }
 
         if (this != Json) {
             throw ValueError("this class must not be subclassed")
@@ -462,12 +436,12 @@ class Json extends Class
         ;-----------------------------------------------------------------------
         ;@region True/False/Null
 
-        Rename(this, "__True", "True")
-        Rename(this, "__False", "False")
+        RenameProp(this, "__True", "True")
+        RenameProp(this, "__False", "False")
 
-        DefineConstGetter(this, "True", this.True.Prototype)
-        DefineConstGetter(this, "False", this.False.Prototype)
-        DefineConstGetter(this, "Null", this.Null.Prototype)
+        DefineConst(this, "True", this.True.Prototype)
+        DefineConst(this, "False", this.False.Prototype)
+        DefineConst(this, "Null", this.Null.Prototype)
 
         ;@endregion
         ;-----------------------------------------------------------------------
@@ -484,7 +458,7 @@ class Json extends Class
             ? Comments
             : NoComments
 
-        Define(this, "AllowsComments", {
+        DefineProp(this, "AllowsComments", {
             Get: (_) => (_Ws == Comments),
             Set: Json_AllowsComments_Set
         })
@@ -553,7 +527,7 @@ class Json extends Class
          */
         static PropertyCaseSense := "On"
 
-        Define(this, "CaseSense", {
+        DefineProp(this, "CaseSense", {
             Get: (Cls) => PropertyCaseSense,
             Set: SetPropertyCaseSense
         })
@@ -616,7 +590,7 @@ class Json extends Class
 
         JsonParser := _JsonValue
 
-        DefineConstGetter(this, "Parser", JsonParser)
+        DefineConst(this, "Parser", JsonParser)
 
         ;@endregion
     }
@@ -681,12 +655,8 @@ class Json extends Class
      * @param   {Any}  T  inner type
      * @returns {Class}
      */
-    static Call(T) {
-        Cls := {}
-        Cls.DefineProp("T", { Get: (_) => T })
-        ObjSetBase(Cls, this.Prototype)
-        return Cls
-    }
+    static Call(T) => DefineProp({ base: this.Prototype },
+            "T", { Get: (_) => T })
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -1111,22 +1081,15 @@ class AquaHotkey_Json extends AquaHotkey {
          * @returns {Json(Object)}
          */
         ToJson() {
-            static GetProp := {}.GetOwnPropDesc
             if (ObjGetBase(this) != Object.Prototype) {
                 throw TypeError("Expected a plain object",, Type(this))
             }
 
             Result := "{"
-            Count := 0
-            for PropName in ObjOwnProps(this) {
-                PropDesc := GetProp(this, PropName)
-                if (!ObjHasOwnProp(PropDesc, "Value")) {
-                    continue
-                }
-                if (++Count != 1) {
+            for PropName, PropDesc in OwnValueProps(this) {
+                if (A_Index != 1) {
                     Result .= ","
                 }
-                Value := PropDesc.Value
                 AquaHotkey_Json(&PropName)
                 AquaHotkey_Json(&Value)
                 Result .= PropName
@@ -1145,8 +1108,6 @@ class AquaHotkey_Json extends AquaHotkey {
          * @param   {VarRef<Any>}  Val  any value
          */
         static CastFromJson(&Val) {
-            static Define := {}.DefineProp
-
             if (this != Object) {
                 throw TypeError("Not applicable for this class",,
                         this.Prototype.__Class)
@@ -1156,7 +1117,7 @@ class AquaHotkey_Json extends AquaHotkey {
             }
             Result := {}
             for Key, Value in Val {
-                Define(Result, Key, { Value: Value })
+                DefineProp(Result, Key, { Value: Value })
             }
             Val := Result
         }
@@ -1169,9 +1130,6 @@ class AquaHotkey_Json extends AquaHotkey {
          * @param   {VarRef<Any>}  Any  any value
          */
         CastFromJson(&Val) {
-            static GetProp := {}.GetOwnPropDesc
-            static Define  := {}.DefineProp
-
             if (ObjGetBase(this) != Object.Prototype) {
                 throw TypeError("Expected a plain object",, Type(this))
             }
@@ -1180,18 +1138,13 @@ class AquaHotkey_Json extends AquaHotkey {
             }
 
             Result := {}
-            for PropName in ObjOwnProps(this) {
-                PropDesc := GetProp(this, PropName)
-                if (!ObjHasOwnProp(PropDesc, "Value")) {
-                    continue
-                }
-                T := PropDesc.Value
+            for PropName, T in OwnValueProps(this) {
                 if (!Val.TryGet(PropName, &Value)) {
                     throw PropertyError("property not found",, PropName)
                 }
                 T.CastFromJson(&Value)
                 if (IsSet(Value)) {
-                    Define(Result, PropName, { Value: Value })
+                    DefineProp(Result, PropName, { Value: Value })
                 }
             }
             Val := Result
@@ -1244,7 +1197,7 @@ class AquaHotkey_Json_Serialization extends AquaHotkey {
          */
         Deserialize(Input, Refs) {
             Input.ReadObject(&T, Refs)
-            ({}.DefineProp)(this, "T", { Get: (_) => T })
+            DefineProp(this, "T", { Get: (_) => T })
         }
     }
 }

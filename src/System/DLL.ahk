@@ -1,3 +1,5 @@
+#Include "%A_LineFile%\..\..\Core\Utils.ahk"
+
 /**
  * An object-oriented interface for loading and interacting with DDL files.
  * 
@@ -67,8 +69,6 @@ class DLL extends Any {
      * properties.
      */
     static __New() {
-        static Define := {}.DefineProp
-
         /**
          * Loads the library targeted by `static FilePath` and defines a `Ptr`
          * property containing the module handle.
@@ -150,7 +150,7 @@ class DLL extends Any {
                                   "AStr", Name, "Ptr")
 
                 ; define getter and setter using the name and proc address
-                Define(DllClass, Name, {
+                DefineProp(DllClass, Name, {
                     Get: CreateGetter(Addr),
                     Set: CreateSetter(Name)
                 })
@@ -197,7 +197,7 @@ class DLL extends Any {
         if (ObjGetBase(this) == DLL) {
             hModule := LoadLibrary(this)
             DeleteAllProperties(this)
-            Define(this, "Ptr", { Get: (_) => hModule })
+            DefineProp(this, "Ptr", { Get: (_) => hModule })
         }
 
         LoadProperties(this, TypeSignatures)
@@ -226,8 +226,6 @@ class DLL extends Any {
      * UXTheme.FlushMenuThemes     := [136]
      */
     static __Set(PropName, Args, TypeSignature) {
-        static Define := {}.DefineProp
-
         if (!IsObject(TypeSignature)) {
             TypeSignature := StrSplit(TypeSignature, ",", A_Space)
         }
@@ -260,7 +258,7 @@ class DLL extends Any {
             BaseClass := ObjGetBase(BaseClass)
         }
 
-        Define(BaseClass, PropName, {
+        DefineProp(BaseClass, PropName, {
             Get:  CreateGetter(EntryPoint),
             Set:  CreateSetter(PropName),
             Call: CreateCallback(EntryPoint, TypeSignature)
@@ -297,13 +295,10 @@ class DLL extends Any {
      * EntryPoint := User32.MessageBox 
      */
     static __Get(PropName, Args) {
-        static GetProp := {}.GetOwnPropDesc
-        static Define  := {}.DefineProp
-
         NewPropName := PropName . "W"
         if (HasProp(this, NewPropName)) {
-            PropDesc := GetProp(this, NewPropName)
-            Define(this, PropName, PropDesc)
+            PropDesc := GetPropDesc(this, NewPropName)
+            DefineProp(OwnerOfProp(this, NewPropName), PropName, PropDesc)
             return (PropDesc.Get)(this)
         }
         throw PropertyError("DLL function does not exist",, PropName)
@@ -320,13 +315,10 @@ class DLL extends Any {
      * @param   {Array}   Args      zero or more additional arguments
      */
     static __Call(PropName, Args) {
-        static GetProp := {}.GetOwnPropDesc
-        static Define  := {}.DefineProp
-
         NewPropName := PropName . "W"
         if (HasProp(this, NewPropName)) {
-            PropDesc := GetProp(this, NewPropName)
-            Define(this, PropName, PropDesc)
+            PropDesc := GetPropDesc(this, NewPropName)
+            DefineProp(OwnerOfProp(this, NewPropName), PropName, PropDesc)
             return (PropDesc.Get)(this)
         }
         throw PropertyError("DLL function does not exist",, PropName)

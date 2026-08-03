@@ -27,8 +27,8 @@ class Entry {
      * @param   {Any}  Value  map entry value
      */
     __New(Key, Value) {
-        ({}.DefineProp)(this, "Key",   { Get: (_) => Key   })
-        ({}.DefineProp)(this, "Value", { Get: (_) => Value })
+        DefineConst(this, "Key",   Key)
+        DefineConst(this, "Value", Value)
     }
 
     ;@endregion

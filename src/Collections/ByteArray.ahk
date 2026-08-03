@@ -30,6 +30,34 @@
  */
 class ByteArray extends IArray
 {
+    ;@region Ptr, Size
+
+    /**
+     * The pointer of the array.
+     * 
+     * @returns {Integer}
+     */
+    Ptr {
+        get => (this.B).Ptr
+        set {
+            (this.B).Ptr := value
+        }
+    }
+
+    /**
+     * The size of the array in bytes.
+     * 
+     * @returns {Integer}
+     */
+    Size {
+        get => (this.B).Size
+        set {
+            (this.B).Size := value
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Array Impl
 
     /**
@@ -42,14 +70,7 @@ class ByteArray extends IArray
         if (!IBuffer.IsInstance(Buf)) {
             throw TypeError("Expected an IBuffer",, Type(Buf))
         }
-        this.DefineProp("B", {
-            Get: (_)        => Buf })
-        this.DefineProp("Ptr", {
-            Get: (_)        => Buf.Ptr,
-            Set: (_, Value) => (Buf.Ptr := Value) })
-        this.DefineProp("Size", {
-            Get: (_)        => Buf.Size,
-            Set: (_, Value) => (Buf.Size := Value) })
+        DefineConst(this, "B", Buf)
     }
 
     /**
@@ -73,6 +94,8 @@ class ByteArray extends IArray
         Size := StrPut(Str, Encoding)
         Buf := Buffer(Size)
         StrPut(Str, Buf, Encoding)
+
+        ; TODO does this even work?
         if (!IncludeNullTerminator) {
             Buf.Size -= StrPut("", Encoding)
         }
@@ -107,21 +130,6 @@ class ByteArray extends IArray
      * @returns {Integer}
      */
     Get(Index, _?) => NumGet(this, this.CheckIndex(Index) - 1, "UChar")
-
-    /**
-     * Sets one or more items.
-     * 
-     * @param   {Any*}  Values  any number of key-value pairs
-     */
-    Set(Values*) {
-        if (Values.Length & 1) {
-            throw ValueError("Odd number of parameter",, Values.Length)
-        }
-        Enumer := Values.__Enum(1)
-        while (Enumer(&Index) && Enumer(&Value)) {
-            NumPut("UChar", Value, this, this.CheckIndex(Index) - 1)
-        }
-    }
 
     /**
      * Determines whether the given array index is valid. The index is
@@ -168,13 +176,13 @@ class ByteArray extends IArray
      * (bytes in the buffer). Both 1- and 2-parameter for-loops are
      * supported.
      * 
-     * @param   {Integer}  ArgSize  for-loop parameter size
+     * @param   {Integer?}  ArgSize  for-loop parameter size
      * @returns {Enumerator}
      * @example
      * for Value in Arr ...
      * for Index, Value in Arr ...
      */
-    __Enum(ArgSize) {
+    __Enum(ArgSize := 1) {
         Offset := 0
         Result := (ArgSize <= 1) ? Enumer1 : Enumer2
         ObjSetBase(Result, Enumerator.Prototype)
@@ -228,9 +236,14 @@ class ByteArray extends IArray
  */
 class AquaHotkey_ByteArray extends AquaHotkey {
     class IBuffer {
+        static __New() {
+            DefineMethod(this.Prototype, "AsByteArray", ByteArray)
+        }
+
         /**
          * Returns this buffer viewed as a {@link ByteArray}.
          * 
+         * @inlined
          * @returns {ByteArray}
          */
         AsByteArray() => ByteArray(this)
@@ -242,11 +255,18 @@ class AquaHotkey_ByteArray extends AquaHotkey {
          */
         ToByteArray() => ByteArray(this.Clone())
     }
+
     class String {
+        static __New() {
+            DefineMethod(this.Prototype, "Bytes",
+                ObjBindMethod(ByteArray, "OfString"))
+        }
+
         /**
          * Returns a byte array that represents this string in the given
          * encoding.
          * 
+         * @inlined
          * @param   {Primitive?}  Encoding               string encoding
          * @param   {Boolean?}    IncludeNullTerminator  include null terminator
          * @returns {ByteArray}
@@ -286,7 +306,7 @@ class AquaHotkey_ByteArray_Serialization extends AquaHotkey {
          */
         Deserialize(Input, Refs) {
             Input.ReadObject(&B, Refs)
-            this.__New(B)
+            DefineConst(this, "B", B)
         }
     }
 }

@@ -11,6 +11,9 @@ class AquaHotkey_Buffer extends AquaHotkey
 {
     ;@region Buffer
     class Buffer {
+        ;@region AHK Number Types
+
+        ; TODO use some kind of immutable map view?
         /**
          * Map that holds all AHK number types mapped to their size in bytes.
          * 
@@ -18,39 +21,32 @@ class AquaHotkey_Buffer extends AquaHotkey
          */
         static NumTypes {
             get {
-                ; TODO use a form of readonly `Map` instead?
-                static NumTypes := Init()
-                return NumTypes.Clone()
+                M := Map()
+                M.CaseSense := false
 
-                static Init() {
-                    M := Map()
-                    M.CaseSense := false
+                Int("Char", 1)
+                Int("Short", 2)
+                Int("Int", 4)
+                Int("Int64", 8)
+                Flt("Float", 4)
+                Flt("Double", 8)
+                Int("Ptr", A_PtrSize)
 
-                    Int("Char", 1)
-                    Int("Short", 2)
-                    Int("Int", 4)
-                    Int("Int64", 8)
-                    Flt("Float", 4)
-                    Flt("Double", 8)
-                    Int("Ptr", A_PtrSize)
-
-                    Int(Name, Size) {
-                        Fill(Name, Size)
-                        Fill("U" . Name, Size)
-                    }
-                    Flt(Name, Size) => Fill(Name, Size)
-
-                    Fill(Num, Size) => M.Set(
-                        Num, Size,
-                        Num . "P", A_PtrSize,
-                        Num . "*", A_PtrSize)
-
-                    return M
+                Int(Name, Size) {
+                    Fill(Name, Size)
+                    Fill("U" . Name, Size)
                 }
+                Flt(Name, Size) => Fill(Name, Size)
+
+                Fill(Num, Size) => M.Set(
+                    Num, Size,
+                    Num . "P", A_PtrSize,
+                    Num . "*", A_PtrSize)
+
+                DefineGetter(this, "NumTypes", (_) => M.Clone())
+                return M
             }
         }
-
-        ;@region AHK Number Types
 
         /**
          * Returns the size of the AHK number type in bytes.
@@ -59,10 +55,12 @@ class AquaHotkey_Buffer extends AquaHotkey
          * @returns {Integer}
          */
         static SizeOf(NumType) {
+            static NumTypes := Buffer.NumTypes
+
             if (!(NumType is String)) {
                 throw TypeError("Expected a String",, Type(NumType))
             }
-            Result := Buffer.NumTypes.Get(NumType, false)
+            Result := NumTypes.Get(NumType, false)
             if (!Result) {
                 throw ValueError("Invalid number type",, NumType)
             }

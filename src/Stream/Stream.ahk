@@ -1,7 +1,8 @@
-#Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Core\Utils.ahk"
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\BaseStream.ahk"
-#Include "%A_LineFile%\..\DoubleStream.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
+#Include "%A_LineFile%\..\..\Stream\BaseStream.ahk"
+#Include "%A_LineFile%\..\..\Stream\DoubleStream.ahk"
 
 ;@region Stream
 
@@ -703,13 +704,13 @@ class Stream extends BaseStream
 class AquaHotkey_Stream extends AquaHotkey {
     class Any {
         static __New() {
-            ({}.DefineProp)(this.Prototype, "Stream",
-                    { Call: Stream })
+            DefineMethod(this.Prototype, "Stream", Stream)
         }
 
         /**
          * Returns a new {@link Stream} for this value.
          * 
+         * @inlined
          * @returns {Stream}
          * @example
          * Arr    := [1, 2, 3, 4, 5]

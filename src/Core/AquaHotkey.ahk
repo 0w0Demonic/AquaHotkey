@@ -1,6 +1,5 @@
+#Include "%A_LineFile%\..\..\Core\Utils.ahk"
 #Requires AutoHotkey v2
-
-; TODO consider removing `.Mixins` again
 
 /**
  * @file AquaHotkey.ahk
@@ -144,26 +143,11 @@ class AquaHotkey extends AquaHotkey_Ignore
      * }
      */
     static __New() {
-        ;----
-        static GetProp(Obj, Name) => ({}.GetOwnPropDesc)(Obj, Name)
-        static Delete(Obj, Name)  => ({}.DeleteProp)(Obj, Name)
         Log(Str, Args*) => (AquaHotkey_Ignore.Log)(this, Str, Args*)
-        ;----
 
         Log("# Extension Class: {1}", this.Prototype.__Class)
-        Classes := Array()
-        for PropertyName in ObjOwnProps(this)
-        {
-            PropDesc := GetProp(this, PropertyName)
-            switch {
-                case (ObjHasOwnProp(PropDesc, "Value")):
-                    Supplier := PropDesc.Value
-                case (ObjHasOwnProp(PropDesc, "Get")):
-                    try Supplier := (PropDesc.Get)(this)
-                default:
-                    Supplier := unset
-            }
-            if (!IsSet(Supplier) || !(Supplier is Class)) {
+        for PropertyName in ObjOwnProps(this) {
+            if (!TryGetNestedClass(this, PropertyName, &Supplier)) {
                 continue
             }
             if (HasBase(Supplier, AquaHotkey_Ignore)) {
@@ -171,14 +155,7 @@ class AquaHotkey extends AquaHotkey_Ignore
                 continue
             }
             Receiver := (AquaHotkey.Deref)(PropertyName)
-            Classes.Push(PropertyName)
             (AquaHotkey_Ignore.Apply)(this, Supplier, Receiver)
-        }
-        ; TODO deleting might be overkill. for now, let's just be safe.
-        if (this == AquaHotkey) {
-            for Cls in Classes {
-                Delete(this, Cls)
-            }
         }
         return this
     }
@@ -203,57 +180,7 @@ class AquaHotkey extends AquaHotkey_Ignore
     ;---------------------------------------------------------------------------
     ;@region Extensions
 
-    ; TODO rethink mixins / .Implements(), yet again.
-
-    class Any {
-        ;@region Implements()
-
-        /**
-         * Determines whether this value implements the given mixin class.
-         * 
-         * @public
-         * @param   {Class}  Mixin  the given mixin class
-         * @returns {Boolean}
-         * @example
-         * Array(1, 2, 3).Implements(Enumerable1) ; true
-         */
-        Implements(Mixin) {
-            if (!(Mixin is Class)) {
-                throw TypeError("Expected a Class",, Type(Mixin))
-            }
-            if (!HasProp(this, "Mixins")) {
-                return false
-            }
-            Val := this
-            loop {
-                if (ObjHasOwnProp(Val, "Mixins")) {
-                    Mixins := Val.Mixins
-                    if (Mixins.Has(Mixin)) {
-                        return true
-                    }
-                }
-                Val := ObjGetBase(Val)
-            } until (!Val)
-            return false
-        }
-
-        ;@endregion
-    }
-
     class Class {
-        ;@region Mixins
-
-        /**
-         * The mixin classes implemented by this class.
-         * 
-         * @public
-         * @abstract
-         * @readonly
-         * @type {Map}
-         */
-        Mixins => Map()
-
-        ;@endregion
         ;-----------------------------------------------------------------------
         ;@region Include()
 
@@ -273,8 +200,6 @@ class AquaHotkey extends AquaHotkey_Ignore
          * Array.Include(Enumerable1)
          */
         Include(Mixins*) {
-            static Define := ({}.DefineProp)
-
             Log(Str, Args*) {
                 (AquaHotkey_Ignore.Log)(this, Str, Args*)
             }
@@ -289,21 +214,8 @@ class AquaHotkey extends AquaHotkey_Ignore
                 if (!(M is Class)) {
                     throw TypeError("Expected a Class",, Type(M))
                 }
-            }
-
-            Mixins := this.Mixins
-
-            for M in Mixins {
                 (AquaHotkey.Apply)(this, M, this, false)
             }
-
-            for M in Mixins {
-                Mixins.Set(M, true)
-            }
-
-            Getter := { Get: (_) => Mixins.Clone() }
-            Define(this,           "Mixins", Getter)
-            Define(this.Prototype, "Mixins", Getter)
             return this
         }
 
@@ -416,12 +328,6 @@ class AquaHotkey extends AquaHotkey_Ignore
      * AquaHotkey.CreateClass(MyClass, "MySubclass", "Param")
      */
     static CreateClass(BaseClass := Object, Name?, Args*) {
-        static Define(Obj, Name, PropDesc) {
-            if (ObjOwnPropCount(PropDesc)) {
-                ({}.DefineProp)(Obj, Name, PropDesc)
-            }
-        }
-
         if (!(BaseClass is Class)) {
             throw TypeError("Expected a Class",, Type(BaseClass))
         }
@@ -437,20 +343,14 @@ class AquaHotkey extends AquaHotkey_Ignore
             return Class(BaseClass, Args*)
         }
 
-        Cls      := {}
-        ClsProto := {}
-        Define(Cls, "Prototype", { Value: ClsProto })
+        ClsProto := { __Class: (Name?) }
+        Cls := { base: BaseClass, Prototype: ClsProto }
 
         try {
             ObjSetBase(Cls.Prototype, BaseClass.Prototype)
-            ObjSetBase(Cls, BaseClass)
         } catch {
             throw TypeError("Unable to subclass. Try using v2.1-alpha.3+.",,
                 Cls.Prototype.__Class . " -> " . BaseClass.Prototype.__Class)
-        }
-
-        if (IsSet(Name)) {
-            Define(ClsProto, "__Class", { Value: Name })
         }
 
         if (HasMethod(Cls, "__New")) {
@@ -492,8 +392,6 @@ class AquaHotkey_Ignore
 {
     ;---------------------------------------------------------------------------
     ;@region static Version()
-
-    ; TODO rename this method to `.IsVersion()`?
 
     /**
      * Determines whether the current AutoHotkey version fulfills the given
@@ -550,22 +448,14 @@ class AquaHotkey_Ignore
             }
             Log("deleting " . PropertyPath)
             Props := StrSplit(PropertyPath, ".")
-            Name := Props.Pop()
-            Obj := this
 
-            for Prop in Props {
-                PropDesc := ({}.GetOwnPropDesc)(Obj, Prop)
-                if (ObjHasOwnProp(PropDesc, "Value")) {
-                    Obj := PropDesc.Value
-                    continue
-                }
-                if (ObjHasOwnProp(PropDesc, "Get")) {
-                    Obj := (PropDesc.Get)(Obj)
-                    continue
-                }
-                throw PropertyError("Unknown property", -2, Prop)
+            Name := Props.Pop()
+
+            Obj := this
+            for PropName in Props {
+                Obj := GetValueOfOwnProp(Obj, PropName)
             }
-            ({}.DeleteProp)(Obj, Name)
+            DeleteProp(Obj, Name)
         }
         return this
     }
@@ -602,8 +492,6 @@ class AquaHotkey_Ignore
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region static Requires()
-
-    ; TODO reuse as assertion if no property paths are present?
 
     /**
      * Asserts that the given symbol is present in global namespace, otherwise
@@ -715,27 +603,8 @@ class AquaHotkey_Ignore
             if (ObjHasOwnProp(Obj, Name) && (!Override)) {
                 return
             }
-            ({}.DefineProp)(Obj, Name, PropDesc)
+            DefineProp(Obj, Name, PropDesc)
         }
-
-        /**
-         * `Object.Prototype.DeleteProp()`.
-         * 
-         * @param   {Object}  Obj   object to delete property from
-         * @param   {String}  Name  name of property
-         */
-        static Delete(Obj, Name) {
-            ({}.DeleteProp)(Obj, Name)
-        }
-
-        /**
-         * `Object.Prototype.GetOwnPropDesc()`.
-         * 
-         * @param   {Object}  Obj   object to retrieve property from
-         * @param   {String}  Name  name of property
-         * @returns {Object}
-         */
-        static GetPropDesc(Obj, Name) => ({}.GetOwnPropDesc)(Obj, Name)
 
         /**
          * Resolves the name and "prototype" of the given class or function.
@@ -793,10 +662,10 @@ class AquaHotkey_Ignore
          * 
          * @param   {Object}  PropDesc  a property descriptor
          * @param   {Func}    Val       delegate value
-         * @param   {Object}
+         * @returns {Object}
          */
         static Delegate(Obj, Name, Val) {
-            PropDesc := GetPropDesc(Obj, Name)
+            PropDesc := GetOwnPropDesc(Obj, Name)
             Result := Object()
             for Name, Value in ObjOwnProps(PropDesc) {
                 Value := ((Name = "Value") || !Value.IsBuiltIn)
@@ -805,27 +674,6 @@ class AquaHotkey_Ignore
                 Define(Result, Name, { Value: Value }, true)
             }
             return Result
-        }
-
-        /**
-         * Returns the from an object's property.
-         * 
-         * @param   {Object}  Obj   an object
-         * @param   {String}  Name  name of the property
-         * @returns {Boolean}
-         */
-        static GetValueOfProp(Obj, PropertyName) {
-            PropDesc := GetPropDesc(Obj, PropertyName)
-            switch {
-                case (ObjHasOwnProp(PropDesc, "Value")):
-                    return PropDesc.Value
-
-                case (ObjHasOwnProp(PropDesc, "Get")):
-                    return (PropDesc.Get)(Obj)
-                
-                default:
-                    throw PropertyError("unknown property",, PropertyName)
-            }
         }
 
         /**
@@ -901,42 +749,18 @@ class AquaHotkey_Ignore
                 && ((Receiver == Object) || HasBase(Receiver, Object)))
         {
             ; because `.__Init()` is only relevant for `Object.Call`, the class
-            ;         must either be equal to `Object` or derive from it
+            ; must either be equal to `Object` or derive from it.
 
-            ReceiverInit := GetInitializer(ReceiverProto)
-            SupplierInit := GetInitializer(SupplierProto)
-
-            /**
-             * Gets the `.__Init()` method of an object, assuring that
-             * `.__Init()` is a valid method. If `.__Init()` doesn't exist,
-             * `false` is returned.
-             * 
-             * @param   {Object}  Obj  any object
-             * @returns {Func|false}
-             */
-            static GetInitializer(Obj) {
-                if (!IsObject(Obj)) {
-                    throw TypeError("Expected an Object",, Type(Obj))
-                }
-                if (!HasProp(Obj, "__Init")) {
-                    return false
-                }
-                loop {
-                    if (ObjHasOwnProp(Obj, "__Init")) {
-                        PropDesc := GetPropDesc(Obj, "__Init")
-                        if (!ObjHasOwnProp(PropDesc, "Call")) {
-                            throw MethodError("invalid method")
-                        }
-                        return PropDesc.Call
-                    }
-                    Obj := ObjGetBase(Obj)
-                } until (!Obj)
-            }
+            ReceiverInit := GetValueOfOwnProp(
+                    GetPropDesc(ReceiverProto, "__Init"),
+                    "Call")
+            SupplierInit := GetValueOfOwnProp(
+                    GetPropDesc(SupplierProto, "__Init"),
+                    "Call")
 
             ReceiverInitName := ReceiverProtoName . ".__Init"
             SupplierInitName := SupplierProtoName . ".__Init"
 
-            ; TODO treat missing `.__Init()` as error?
             if (!SupplierInit)
             {
                 LogVerbose(3, "ignore. supplier .__Init() does not exist")
@@ -998,7 +822,7 @@ class AquaHotkey_Ignore
             }
             LogVerbose(3, "> {1}", Name)
             Define(ReceiverProto, Name,
-                   GetPropDesc(SupplierProto, Name),
+                   GetOwnPropDesc(SupplierProto, Name),
                    Override)
         }
 
@@ -1017,7 +841,7 @@ class AquaHotkey_Ignore
             }
 
             DoRecursion := false
-            PropDesc := GetPropDesc(Supplier, Name)
+            PropDesc := GetOwnPropDesc(Supplier, Name)
 
             ; determine whether this is a nested class. it MUST explicitly be
             ; in the form of `{ get; call; }`, we don't allow simple
@@ -1029,13 +853,7 @@ class AquaHotkey_Ignore
             ;           own property descriptors. `MaxParams` should be fine
             ;           because varargs aren't counted.
             ;    (maybe just write a dirty fix in `NestedClassProperty`?)
-            if ((Supplier is Class)
-                    && ObjHasOwnProp(PropDesc, "Get")
-                    && ObjHasOwnProp(PropDesc, "Call")
-                    && (ObjOwnPropCount(PropDesc) == 2)
-                    && (PropDesc.Get.MaxParams == 1) ; paranoia
-                    && (PropDesc.Call.MaxParams == 1))
-            {
+            if ((Supplier is Class) && IsNestedClassProp(PropDesc)) {
                 Log(3, "calling {}.{} (get): is this a nested class?",
                         SupplierName, Name)
                 try {
@@ -1052,7 +870,8 @@ class AquaHotkey_Ignore
                     Log(3, Type(Err))
                     if ((Err is Error)
                         && ObjHasOwnProp(Err, "Message")
-                        && ObjHasOwnProp(GetPropDesc(Err, "Message"), "Value"))
+                        && ObjHasOwnProp(GetOwnPropDesc(Err, "Message"),
+                                         "Value"))
                     {
                         Log(3, Err.Message)
                     }
@@ -1061,18 +880,18 @@ class AquaHotkey_Ignore
 
             if (!DoRecursion) {
                 LogVerbose(3, "> {1}", Name)
-                Define(Receiver, Name, GetPropDesc(Supplier, Name), Override)
+                Define(Receiver, Name, GetOwnPropDesc(Supplier, Name), Override)
                 continue
             }
 
-            NestedSupplier     := GetValueOfProp(Supplier, Name)
+            NestedSupplier     := GetValueOfOwnProp(Supplier, Name)
             NestedSupplierName := NestedSupplier.Prototype.__Class
             NestedReceiverName := ReceiverName . "." . Name
 
             LogVerbose(3, "nested class... {1}", Name)
 
             if (ObjHasOwnProp(Receiver, Name)) {
-                NestedReceiver := GetValueOfProp(Receiver, Name)
+                NestedReceiver := GetValueOfOwnProp(Receiver, Name)
                 if (NestedReceiver is Class) {
                     LogVerbose(3, "recurse into existing: {1}",
                                NestedReceiverName)
@@ -1301,4 +1120,3 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore
 }
 
 ;@endregion
-

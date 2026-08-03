@@ -1,5 +1,6 @@
 #Include "%A_LineFile%\..\..\Core\AquaHotkey.ahk"
-#Include "%A_LineFile%\..\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\Base\DuckTypes.ahk"
+#Include "%A_LineFile%\..\..\Base\Eq.ahk"
 
 /**
  * Provides a wide range of chainable assertion methods.
@@ -48,18 +49,15 @@ class AquaHotkey_Assertions extends AquaHotkey {
     static __New() {
         if (this == AquaHotkey_Assertions) {
             if (IsSet(AquaHotkey_cfg_DisableTypeAssertions)) {
-                ({}.DefineProp)(this.Any.Prototype, "AssertType",
-                    { Call: Disabled_AssertType })
+                DefineMethod(this.Any.Prototype, "AssertType",
+                             (Val, T) => Val)
             }
             if (IsSet(AquaHotkey_cfg_DisableAssertions)) {
-                ({}.DefineProp)(this.Any.Prototype, "Assert",
-                    { Call: Disabled_Assert })
+                DefineMethod(this.Any.Prototype, "Assert",
+                             (Val, Condition, *) => Val)
             }
         }
         super.__New()
-
-        static Disabled_AssertType(Val, T) => Val
-        static Disabled_Assert(Val, Condition, *) => Val
     }
 }
 

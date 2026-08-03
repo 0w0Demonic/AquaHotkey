@@ -194,11 +194,7 @@ class Comparator extends Func {
      * @example
      * ByStrLen_Desc := Comparator.Num(StrLen).Rev()
      */
-    Rev() {
-        Fn := this.Cast((A?, B?) => this(B?, A?))
-        Fn.DefineProp("Rev", { Call: (_) => this })
-        return Fn
-    }
+    Rev() => DefineConst(this.Cast((A?, B?) => this(B?, A?)), "Rev", this)
 
     ;@endregion
     ;---------------------------------------------------------------------------

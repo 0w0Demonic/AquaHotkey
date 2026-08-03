@@ -5,6 +5,8 @@
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable1.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\Enumerable2.ahk"
 
+;@region IArray
+
 /**
  * @interface
  * @description
@@ -28,18 +30,19 @@
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
  */
 class IArray {
+    ;@region Support
+
     static __New() {
         if (this != IArray) {
             return
         }
+        (AquaHotkey)
         ObjSetBase(this,            ObjGetBase(Array))
         ObjSetBase(this.Prototype,  ObjGetBase(Array.Prototype))
         ObjSetBase(Array,           this)
         ObjSetBase(Array.Prototype, this.Prototype)
         this.Backup(Enumerable1, Enumerable2)
     }
-
-    ;@region Support
 
     /**
      * Determines whether the given `Index` is valid based on the length of
@@ -119,9 +122,6 @@ class IArray {
      * MsgBox(ObjGetBase(Arr) == ObjGetBase(Copy)) ; always `true`
      */
     static BasedFrom(Arr) {
-        static Define := {}.DefineProp
-        static GetProp := {}.GetOwnPropDesc
-        
         ; note: use literals to avoid `.__Init()` and `.__New()`
         if (Arr is Array) {
             Result := []
@@ -135,7 +135,7 @@ class IArray {
         ; since we're assigning the same base object, we only need to
         ; define `Default` explicitly if it's directly owned by `Arr`.
         if (ObjHasOwnProp(Arr, "Default")) {
-            Define(Result, "Default", GetProp(Arr, "Default"))
+            DefineProp(Result, "Default", GetOwnPropDesc(Arr, "Default"))
         }
 
         ; let's be lenient and assume everything works *after*
@@ -255,7 +255,7 @@ class IArray {
      * Unsupported `.__Enum()` method.
      * @see {@link Array#_Enum}
      */
-    __Enum(ArgSize) {
+    __Enum(ArgSize := 1) {
         throw MethodError("not implemented")
     }
 
@@ -562,6 +562,8 @@ class IArray {
         return Result
     }
 
+    ; TODO use `IArray?`
+
     /**
      * Returns a new array containing all elements in the array
      * transformed by applying the given `Mapper`, resulting arrays
@@ -615,6 +617,7 @@ class IArray {
     ;---------------------------------------------------------------------------
     ;@region Filling
 
+    ; TODO make this faster on LinkedList?
     /**
      * Fills the array with the specified value.
      * 
@@ -628,6 +631,7 @@ class IArray {
         return this
     }
 
+    ; TODO make this faster on LinkedList?
     /**
      * Fills the array using a function that produces values.
      * 
@@ -658,6 +662,7 @@ class IArray {
         return this
     }
 
+    ; TODO make this faster on LinkedList?
     /**
      * Transforms all values in the array in place by applying the given
      * `Mapper`.
@@ -707,8 +712,10 @@ class IArray {
         return this
     }
 
+    ; TODO shuffle a new array?
+
     /**
-     * Shuffles the array.
+     * Shuffles the array in place.
      * 
      * @returns {this}
      */
@@ -778,6 +785,8 @@ class IArray {
         return Result
     }
 
+    ; TODO just return a new array?
+
     /**
      * Reverses all elements in place.
      * 
@@ -795,6 +804,7 @@ class IArray {
         return this
     }
 
+    ; TODO remove dep on Comparator?
     /**
      * Sorts elements in place according to the given comparator function.
      * 
@@ -943,7 +953,13 @@ class IArray {
      * @returns {Boolean}
      */
     IsNotEmpty => (!!this.Length)
+
+    ;@endregion
 }
+
+;@endregion
+;-------------------------------------------------------------------------------
+;@region Extensions
 
 /**
  * {@link AquaHotkey_Serializer binary serialization} support for
@@ -988,3 +1004,4 @@ class AquaHotkey_IArray_Serialization extends AquaHotkey {
     }
 }
 
+;@endregion

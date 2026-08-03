@@ -1,5 +1,5 @@
-#Include "%A_LineFile%\..\IArray.ahk"
-#Include "%A_LineFile%\..\IMap.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
+#Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 
 /**
  * @mixin
@@ -22,23 +22,18 @@
 class Enumerable2 {
     static __New() {
         static Clone   := {}.Clone
-        static GetProp := {}.GetOwnPropDesc
-        static Define  := {}.DefineProp
-        static Delete  := {}.DeleteProp
 
         if (this != Enumerable2) {
             return
         }
 
-        Cls := Clone(this)
         Prot := Clone(this.Prototype)
-        Define(Cls, "Prototype", { Value: Prot })
+        Cls := DefineProp(Clone(this), "Prototype", { Value: Prot })
 
         WithAlias(Cls)
         WithAlias(Prot)
 
-        Define(this, "Strict", { Get: (_) => Cls })
-
+        DefineConst(this, "Strict", Cls)
         this.Extend(IArray, IMap)
 
         ; dirty hack
@@ -48,15 +43,12 @@ class Enumerable2 {
         static WithAlias(Target) {
             Arr := Array()
             for PropName in ObjOwnProps(Target) {
-                if (SubStr(PropName, -1) != "2") {
-                    continue
+                if (SubStr(PropName, -1) == "2") {
+                    Arr.Push(PropName)
                 }
-                Arr.Push(PropName)
             }
             for PropName in Arr {
-                PropDesc := GetProp(Target, PropName)
-                Delete(Target, PropName)
-                Define(Target, SubStr(PropName, 1, -1), PropDesc)
+                RenameProp(Target, PropName, SubStr(PropName, 1, -1))
             }
         }
     }

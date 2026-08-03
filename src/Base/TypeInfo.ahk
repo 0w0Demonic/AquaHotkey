@@ -11,12 +11,13 @@
 class AquaHotkey_TypeInfo extends AquaHotkey {
     class Any {
         static __New() {
-            ({}.DefineProp)(this.Prototype, "Type", { Call: Type })
+            DefineMethod(this.Prototype, "Type", Type)
         }
 
         /**
          * Returns the type of this value via `Type()`.
          * 
+         * @inlined
          * @returns {String}
          * @example
          * "foo".Type ; "String"
@@ -50,10 +51,11 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
         Hierarchy {
             get {
                 Val := this
-                Result := Array(Val)
-                while (Val := ObjGetBase(Val)) {
+                Result := Array()
+                loop {
                     Result.Push(Val)
-                }
+                    Val := ObjGetBase(Val)
+                } until (!Val)
                 return Result
             }
         }
@@ -70,10 +72,13 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
             get {
                 Val := this
                 Result := Array()
-                while (Val := ObjGetBase(Val)) {
+                loop {
+                    Val := ObjGetBase(Val)
+                    if (!Val) {
+                        return Result
+                    }
                     Result.Push(Val)
                 }
-                return Result
             }
         }
     }

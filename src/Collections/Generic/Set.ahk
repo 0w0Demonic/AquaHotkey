@@ -35,9 +35,6 @@ class GenericSet extends ISet
             return
         }
 
-        static Define := {}.DefineProp
-        static Delete := {}.DeleteProp
-
         if (!IsSet(S)) {
             throw UnsetError("unset; Expected an ISet class")
         }
@@ -50,23 +47,9 @@ class GenericSet extends ISet
         if ((S != ISet) && !HasBase(S, ISet)) {
             throw TypeError("Expected an ISet class",, S.Prototype.__Class)
         }
-        OuterType := S.Prototype.__Class
-
-        if (T is Class) {
-            InnerType := T.Prototype.__Class
-        } else if (IsSet(AquaHotkey_ToString)) {
-            InnerType := String(T)
-        } else {
-            InnerType := Type(T) ; fallback to something reasonable
-        }
-
-        ClassName := (OuterType . "<" . InnerType . ">")
-
-        Delete(this.Prototype, "__Class")
-        Define(this, "Name", { Get: (_) => ClassName })
-
-        Define(this.Prototype, "ComponentType", { Get: (_) => T })
-        Define(this.Prototype, "SetType",       { Get: (_) => S })
+        DeleteProp(this.Prototype, "__Class")
+        DefineProp(this.Prototype, "ComponentType", { Get: (_) => T })
+        DefineProp(this.Prototype, "SetType",       { Get: (_) => S })
     }
 
     /**
@@ -76,9 +59,7 @@ class GenericSet extends ISet
      * @param   {Any*}  Values  zero or more elements
      */
     __New(Values*) {
-        S := (this.SetType)()
-        this.DefineProp("S", { Get: (_) => S })
-        this.Add(Values*)
+        DefineConst(this, "S", (this.SetType)()).Add(Values*)
     }
 
     ;@endregion
@@ -88,7 +69,7 @@ class GenericSet extends ISet
     /**
      * The name of this generic set class.
      * 
-     * @property {String}
+     * @returns {String}
      */
     static Name => (this.Prototype.ClassName)
 
@@ -96,18 +77,60 @@ class GenericSet extends ISet
      * The name of the class. Provides information about the set and component
      * type.
      * 
-     * @property {String}
+     * @returns {String}
      */
     ClassName {
         get {
-            Name := (this.SetType.Prototype.__Class)
-                . "<" (this.ComponentTypeName) . ">"
+            Name := (this.SetTypeName) . "<" . (this.ComponentTypeName) . ">"
+            DefineProp(OwnerOfProp(this, "SetType"), "ClassName", {
+                Get: (_) => Name
+            })
+            return Name
+        }
+    }
 
-            Obj := this
-            while (!ObjHasOwnProp(Obj, "SetType")) {
-                Obj := ObjGetBase(Obj)
-            }
-            ({}.DefineProp)(Obj, "ClassName", { Get: (_) => Name })
+    /**
+     * The type of set being wrapped around by this class.
+     * 
+     * @returns {Class}
+     * @see {@link GenericSet#SetType}
+     */
+    static SetType => (this.Prototype).SetType
+
+    /**
+     * The type of set being wrapped around by this class.
+     * 
+     * This property should be overridden by subclasses of `GenericSet`.
+     * 
+     * @abstract
+     * @returns {Class}
+     * @example
+     * Set.OfType(String).SetType.ToString().MsgBox() ; "class Set"
+     */
+    SetType {
+        get {
+            throw PropertyError("set type not found")
+        }
+    }
+    
+    /**
+     * Name of the underlying set type.
+     * 
+     * @returns {String}
+     */
+    static SetTypeName => (this.Prototype).SetTypeName
+
+    /**
+     * Name of the underlying set type.
+     * 
+     * @returns {String}
+     */
+    SetTypeName {
+        get {
+            Name := (this.SetType).Prototype.__Class
+            DefineProp(OwnerOfProp(this, "SetType"), "SetTypeName", {
+                Get: (_) => Name
+            })
             return Name
         }
     }
@@ -162,36 +185,11 @@ class GenericSet extends ISet
                 Name := Type(T)
             }
 
-            Obj := this
-            while (!ObjHasOwnProp(Obj, "ComponentType")) {
-                Obj := ObjGetBase(Obj)
-            }
-            ({}.DefineProp)(Obj, "ComponentTypeName", { Get: (_) => Name })
+            DefineProp(
+                    OwnerOfProp(this, "ComponentType"),
+                    "ComponentTypeName",
+                    { Get: (_) => Name })
             return Name
-        }
-    }
-
-    /**
-     * The type of set being wrapped around by this class.
-     * 
-     * @property {Class}
-     * @see {@link GenericSet#SetType}
-     */
-    static SetType => (this.Prototype).SetType
-
-    /**
-     * The type of set being wrapped around by this class.
-     * 
-     * This property should be overridden by subclasses of `GenericSet`.
-     * 
-     * @abstract
-     * @property {Class}
-     * @example
-     * Set.OfType(String).SetType.ToString().MsgBox() ; "class Set"
-     */
-    SetType {
-        get {
-            throw PropertyError("set type not found")
         }
     }
 
@@ -335,15 +333,7 @@ class GenericSet extends ISet
      * 
      * @returns {GenericSet}
      */
-    Clone() {
-        Copy := (this.S).Clone()
-
-        Obj := Object()
-        Obj.DefineProp("S", { Get: (_) => Copy })
-
-        ObjSetBase(Obj, ObjGetBase(this))
-        return Obj
-    }
+    Clone() => DefineConst({ base: this }, "S", (this.S).Clone())
 
     /**
      * Deletes zero or more elements from the set.
@@ -365,9 +355,10 @@ class GenericSet extends ISet
      * Returns an {@link Enumerator} that enumerates all elements of this
      * set.
      * 
+     * @param   {Integer?}  ArgSize  argument size
      * @returns {Enumerator}
      */
-    __Enum(ArgSize) => (this.S).__Enum(ArgSize)
+    __Enum(ArgSize := 1) => (this.S).__Enum(ArgSize)
 
     /**
      * Size of the set.
@@ -393,11 +384,13 @@ class AquaHotkey_GenericSet extends AquaHotkey {
         }
 
         if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
-            ({}.DefineProp)(this.ISet, "OfType", { Call: Disabled_OfType })
+            DefineMethod(this.ISet, "OfType", (Cls, T, Constraint?) => Cls)
+        } else {
+            DefineMethod(this.ISet, "OfType",
+                ; (Cls, T) => AquaHotkey.CreateClass(GenericSet, "", Cls, T)
+                ObjBindMethod(AquaHotkey, "CreateClass", GenericSet, ""))
         }
         super.__New()
-
-        static Disabled_OfType(Cls, T, Constraint?) => Cls
     }
 
     class ISet {
@@ -405,7 +398,8 @@ class AquaHotkey_GenericSet extends AquaHotkey {
          * Returns a type-checked set of the given type, and optional type
          * constraint.
          * 
-         * @param   {Any}   T           type pattern
+         * @inlined
+         * @param   {Any}   T  pattern
          * @returns {Class}
          */
         static OfType(T) {
@@ -435,10 +429,7 @@ class AquaHotkey_GenericSet_Serialization extends AquaHotkey {
             (Object.Prototype.Serialize)(this, Output, Refs)
             Output.WriteObject(this.SetType, Refs)
             Output.WriteObject(this.ComponentType, Refs)
-            Output.WriteUInt(this.Size)
-            for Value in this {
-                Output.WriteObject(Value?, Refs)
-            }
+            Output.WriteObject(this.S)
         }
 
         /**
@@ -454,19 +445,14 @@ class AquaHotkey_GenericSet_Serialization extends AquaHotkey {
             if (!IsSet(AquaHotkey_cfg_DisableGenerics)) {
                 ComponentType := Any
             }
-            Cls := AquaHotkey.CreateClass(GenericSet,, SetType, ComponentType)
-            ObjSetBase(this, Cls.Prototype)
+            ObjSetBase(this, AquaHotkey.CreateClass(GenericSet,,
+                    SetType, ComponentType).Prototype)
 
-            this.__Init()
-            this.__New()
-
-            Size := Input.ReadUInt()
-            loop Size {
-                Input.ReadObject(&Value, Refs)
-                this.Push(Value?)
-            }
+            Input.ReadObject(&S, Refs)
+            DefineConst(this, "S", S)
         }
     }
 }
 
 ;@endregion
+
