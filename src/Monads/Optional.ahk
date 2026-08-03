@@ -29,7 +29,6 @@
 class Optional {
     ;@region Construction
 
-    ; TODO use `=> this()`?
     /**
      * Returns an optional with no value present.
      * 
@@ -39,9 +38,8 @@ class Optional {
      * Opt := Optional.Empty()
      * Opt.IsPresent ; false
      */
-    static Empty() => Optional()
+    static Empty() => this()
 
-    ; TODO use `=> this(Value)`?
     /**
      * Returns an optional with the given nonnull value.
      * 
@@ -52,7 +50,7 @@ class Optional {
      * Opt := Optional.Of(42)
      * Opt.IsPresent ; true
      */
-    static Of(Value) => Optional(Value)
+    static Of(Value) => this(Value)
 
     /**
      * Constructs a new optional describing the given `Value` if specified,
@@ -148,13 +146,11 @@ class Optional {
      * Optional(4).RetainIf(IsNumber) ; Optional(4)
      */
     RetainIf(Condition, Args*) {
-        if (!ObjHasOwnProp(this, "Value")) {
+        if (ObjHasOwnProp(this, "Value") && Condition(this.Value, Args*)) {
             return this
+        } else {
+            return { base: ObjGetBase(this) }
         }
-        if (!Condition(this.Value, Args*)) {
-            return Optional()
-        }
-        return this
     }
 
     /**
@@ -167,13 +163,11 @@ class Optional {
      * Optional(4).RemoveIf(IsNumber) ; Optional.Empty()
      */
     RemoveIf(Condition, Args*) {
-        if (!ObjHasOwnProp(this, "Value")) {
+        if (ObjHasOwnProp(this, "Value") && !Condition(this.Value, Args*)) {
             return this
+        } else {
+            return { base: ObjGetBase(this) }
         }
-        if (Condition(this.Value, Args*)) {
-            return Optional()
-        }
-        return this
     }
 
     ;@endregion
@@ -199,10 +193,11 @@ class Optional {
      * Optional.Empty().Map(Multiply, 2)  ; Optional.Empty()
      */
     Map(Mapper, Args*) {
-        if (!ObjHasOwnProp(this, "Value")) {
+        if (ObjHasOwnProp(this, "Value")) {
+            return { base: ObjGetBase(this), Value: Mapper(this.Value, Args*) }
+        } else {
             return this
         }
-        return Optional(Mapper(this.Value, Args*))
     }
 
     /**
@@ -219,14 +214,14 @@ class Optional {
     FlatMap(Mapper, Args*) {
         if (!ObjHasOwnProp(this, "Value")) {
             return this
+        } else {
+            O := Mapper(this.Value, Args*)
+            if (!(O is Optional)) {
+                throw TypeError("Expected an Optional",, Type(O))
+            }
+            ObjSetBase(O, ObjGetBase(this))
+            return O
         }
-        O := Mapper(this.Value, Args*)
-
-        ; TODO use `HasBase(O, ObjGetBase(this))`?
-        if (!(O is Optional)) {
-            throw TypeError("Expected an Optional",, Type(O))
-        }
-        return O
     }
 
     ;@endregion
@@ -245,8 +240,9 @@ class Optional {
     Get() {
         if (ObjHasOwnProp(this, "Value")) {
             return this.Value
+        } else {
+            throw UnsetError("value unset")
         }
-        throw UnsetError("value unset")
     }
 
     /**
@@ -261,8 +257,9 @@ class Optional {
     OrElse(Default) {
         if (ObjHasOwnProp(this, "Value")) {
             return this.Value
+        } else {
+            return Default
         }
-        return Default
     }
 
     /**
@@ -279,8 +276,9 @@ class Optional {
     OrElseGet(Supplier, Args*) {
         if (ObjHasOwnProp(this, "Value")) {
             return this.Value
+        } else {
+            return Supplier(Args*)
         }
-        return Supplier(Args*)
     }
 
     /**
@@ -298,12 +296,13 @@ class Optional {
     OrElseThrow(ExceptionSupplier := Error, Args*) {
         if (ObjHasOwnProp(this, "Value")) {
             return this.Value
+        } else {
+            try Err := ExceptionSupplier(Args*)
+            if (IsSet(Err)) {
+                throw Err
+            }
+            throw ValueError("value unset")
         }
-        try Err := ExceptionSupplier(Args*)
-        if (IsSet(Err)) {
-            throw Err
-        }
-        throw ValueError("value unset")
     }
 
     ;@endregion
