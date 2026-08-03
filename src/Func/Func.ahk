@@ -59,7 +59,12 @@ class AquaHotkey_Func extends AquaHotkey {
          */
         Compose(Before, NextArgs*) {
             GetMethod(Before)
-            return (Args*) => this( Before(Args*), NextArgs* )
+            ObjSetBase(Compose, ObjGetBase(this))
+            return Compose
+
+            Compose(Args*) {
+                return this( Before(Args*), NextArgs* )
+            }
         }
 
         ;@endregion
