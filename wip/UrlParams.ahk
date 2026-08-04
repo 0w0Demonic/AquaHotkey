@@ -2,6 +2,8 @@
 #Include <AquaHotkey\src\Net\UrlEncoding>
 #Include <AquaHotkey\src\Net\Uri>
 
+#Include <AquaHotkey\wip\UrlParam>
+
 /**
  * An array of URL query parameters.
  */
@@ -150,4 +152,3 @@ class AquaHotkey_UrlParams extends AquaHotkey {
         }
     }
 }
-

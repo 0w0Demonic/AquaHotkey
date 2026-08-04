@@ -12,8 +12,11 @@ class UrlParam extends Entry {
      * @param   {Primitive}  Value  query value
      */
     __New(Key, Value) {
-        if (!(Key is Primitive)) {
+        if (!IsPrimitive(Key)) {
             throw TypeError("Expected a String",, Type(Key))
+        }
+        if (!IsPrimitive(Value)) {
+            throw TypeError("Expected a String",, Type(Value))
         }
         super.__New(Key, Value)
     }

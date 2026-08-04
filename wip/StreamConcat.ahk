@@ -1,11 +1,28 @@
 #Include <AquaHotkey>
+#Include <AquaHotkey\src\Core\Utils>
 #Include <AquaHotkey\src\Stream\Stream>
 #Include <AquaHotkey\src\Func\Cast>
 
+/**
+ * Concatenation operations for {@link Stream}.
+ * 
+ * @module  <Stream/Concat>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ */
 class AquaHotkey_Stream_Concat extends AquaHotkey {
     class Stream {
+        /**
+         * Returns a new stream with the given values appended at the end.
+         * 
+         * @param   {Any*}  Values
+         * @returns {Stream}
+         */
         ConcatValues(Values*) => this.Concat(Stream(Values))
 
+        /**
+         * 
+         */
         Concat(Seqs*) {
             if (!Seqs.Length) {
                 return this
@@ -16,8 +33,8 @@ class AquaHotkey_Stream_Concat extends AquaHotkey {
                 }
             }
 
-            Enumers := Array(this, Seqs*).__Enum(1)
-            Enumers(&Enumer)
+            Enumers := GetEnumerator(Seqs)
+            Enumer  := this
             ObjSetBase(Concat, ObjGetBase(this))
             return this.Cast(Concat)
 
@@ -33,17 +50,23 @@ class AquaHotkey_Stream_Concat extends AquaHotkey {
             }
         }
 
+        /**
+         * 
+         */
         PrependValues(Values*) => Stream(Values).Concat(this)
 
+        /**
+         * Prepends zero or more other sequences.
+         */
         Prepend(Seqs*) {
-            if (!Seqs.Length) {
-                return this
-            }
             Seqs.Push(this)
-            Enumer := Seqs.__Enum(1)
-            Enumer(&First)
-            return Stream(First).Concat(Enumer*)
+            FirstItem(Seqs, &First, &More)
+            return Stream(First).Concat(More*)
         }
     }
 }
 
+#Include <AquaHotkey\src\Base\Primitives>
+Stream.Of(1, 2, 3, 4).Concat(Stream.Of(5, 6, 7, 8))
+      .Join(", ", "[", "]")
+      .MsgBox()
