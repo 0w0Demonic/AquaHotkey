@@ -1,5 +1,14 @@
 #Requires AutoHotkey v2.0
 #Include <AquaHotkey\src\Parse\Parser>
+#Include <AquaHotkey\src\Net\Uri>
+
+; class DataUri extends Uri {
+;     static Schemes => ["data"]
+; 
+;     static CreateForFile(FileObj) {
+; 
+;     }
+; }
 
 IsAsciiWhitespace(c) {
     return IsSpace(c) && (c != "`v")
@@ -117,7 +126,7 @@ class HtmlAttribute {
     }
 }
 
-#Include <AquaHotkey\src\Base\Primitives> ; for `.MsgBox()`
+; #Include <AquaHotkey\src\Base\Primitives> ; for `.MsgBox()`
 
 ; "<!-- this is a test y'all -->"
 ;     .Parse(Html.Comment())
@@ -139,15 +148,15 @@ class HtmlAttribute {
 ;     .ToClipboard()
 ;     .MsgBox()
 
-Choice(Psrs*) => Parser.AnyOf(Psrs*)
-AtLeastThree(Str) => Parser.String(Str)
-        .AtLeastOnceDelimitedBy(Parser.Whitespace())
-        .SuchThat(A => A.Length >= 3, "at least 3 characters required")
-
-HorizontalLine := Parser.Whitespace()
-    .SuchThat(s => StrLen(s) < 4, "less than 4 characters indentation")
-    .FollowedBy((["-", "*", "_"]).Map(AtLeastThree).Collect(Choice))
-    .FollowedBy(Parser.Whitespace())
-    .FollowedBy(Parser.Regex("\v?"))
-
-MsgBox(HorizontalLine.Matches(&Input := "   -  -     -  "))
+; Choice(Psrs*) => Parser.AnyOf(Psrs*)
+; AtLeastThree(Str) => Parser.String(Str)
+;         .AtLeastOnceDelimitedBy(Parser.Whitespace())
+;         .SuchThat(A => A.Length >= 3, "at least 3 characters required")
+; 
+; HorizontalLine := Parser.Whitespace()
+;     .SuchThat(s => StrLen(s) < 4, "less than 4 characters indentation")
+;     .FollowedBy((["-", "*", "_"]).Map(AtLeastThree).Collect(Choice))
+;     .FollowedBy(Parser.Whitespace())
+;     .FollowedBy(Parser.Regex("\v?"))
+; 
+; MsgBox(HorizontalLine.Matches(&Input := "   -  -     -  "))

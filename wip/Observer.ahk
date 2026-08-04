@@ -85,8 +85,13 @@ class Observable {
 ; TODO use `Enumerator.Empty()`?
 class AquaHotkey_Enumerator_Empty extends AquaHotkey {
     class Enumerator {
-        static Empty() => (*) => false
-        static Empty   => (*) => false
+        static __New() {
+            static Enumer(*) => false
+            ({}.DefineProp)(this, "Empty", {
+                Call: (_) => Enumer,
+                Get: (_) => Enumer
+            })
+        }
     }
 }
 
