@@ -482,10 +482,13 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * Number.CanCastFrom(Integer)
          */
         CanCastFrom(T?) {
-            if (!IsSet(T) || (T == Nothing) || (T is Nullable)) {
+            if (!IsSet(T)) {
                 return false
             }
-            return (this == T) || HasBase(T, this) || (T is this)
+            if (T.CanCastFrom(unset)) {
+                return false
+            }
+            return ((this == T) || HasBase(T, this) || (T is this))
         }
     }
 
