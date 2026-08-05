@@ -3,8 +3,6 @@
 #Include "%A_LineFile%\..\..\Base\Hash.ahk"
 #Include "%A_LineFile%\..\..\Net\UrlEncoding.ahk"
 
-; TODO find a way to make URIs comparable
-
 ;@region Uri
 
 /**
@@ -65,7 +63,7 @@ class Uri {
      * Map that holds schemes mapped to their resource handlers.
      * 
      * @readonly
-     * @property {Map<String, Uri>}
+     * @type {Map<String, Uri>}
      */
     static Types {
         get {

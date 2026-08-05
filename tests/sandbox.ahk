@@ -44,4 +44,3 @@
 ; MsgBox(RegExMatch("1", Pat))   ; "matching..." ; 1
 ; MsgBox(RegExMatch("255", Pat)) ; "matching..." ; 1
 ; MsgBox(RegExMatch("256", Pat)) ; "matching..." ; 0
-

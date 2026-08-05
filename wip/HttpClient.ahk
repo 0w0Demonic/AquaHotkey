@@ -1,6 +1,9 @@
+#Include <AquaHotkey\src\Core\Utils>
 #Include <AquaHotkey\src\Base\Assertions>
+
 #Include <AquaHotkey\src\Net\Uri>
 #Include <AquaHotkey\src\Monads\TryOp>
+
 #Include <AquaHotkey\wip\HttpHeaders>
 #Include <AquaHotkey\wip\HttpMethod>
 #Include <AquaHotkey\wip\UrlParam>
@@ -12,16 +15,21 @@ class HttpUri extends Uri {
 
 class HttpClient {
     __New() {
-        this.Client := ComObject("MSXML2.XMLHTTP.6.0")
+        DefineConst(this, "Client", ComObject("MSXML2.XMLHTTP.6.0"))
     }
 
     static __New() {
         DeleteProp(this, "__New")
         for Verb in HttpMethod {
-            DefineMethod(this.Prototype, Verb, ObjBindMethod(Send,, Verb))
+            DefineMethod(
+                    this.Prototype, Verb,
+                    ObjBindMethod(SendRequest,, Verb))
         }
 
-        static Send(Verb, this, Url, Headers := [], Body?) {
+        static SendRequest(
+                    Verb, ; <-- HTTP verb (bound)
+                    this, Url, Headers := [], Body?)
+        {
             Url := Url.AssertType(HttpUri).ToString()
             Headers := Headers.ToHttpHeaders().AssertType(HttpHeaders)
             if (IsSet(Body) && (IsObject(Body) || !(Body is String))) {
@@ -35,11 +43,36 @@ class HttpClient {
             }
             C.Send(Body?)
 
-            FileOpen("out.html", "w").Write(C.ResponseText)
-            if (C.Status == 200) {
-                return TryOp.Success(C.ResponseText)
-            } else {
-                return TryOp.Failure(Error("(placeholder)"))
+            return HttpResponse(C.ResponseText, C.ResponseXML, C.Status, C.StatusText)
+        }
+    }
+}
+
+class HttpResponse {
+    __New(ResponseText, ResponseXML, Status, StatusText) {
+        DefineConst(this, "ResponseText", ResponseText)
+        DefineConst(this, "ResponseXML", ResponseXML)
+        DefineConst(this, "Status", Status)
+        DefineConst(this, "StatusText", StatusText)
+    }
+}
+
+class AquaHotkey_HttpClient extends AquaHotkey {
+    class HttpUri {
+        static __New() {
+            for Verb in HttpMethod {
+                Callback := GetOwnPropDesc(HttpClient.Prototype, Verb).Call
+                DefineMethod(
+                        this.Prototype, Verb,
+                        ObjBindMethod(SendRequest,, Callback))
+            }
+
+            static SendRequest(
+                    Callback, ; <-- method `HttpClient.<Verb>()` (bound)
+                    this, Headers := [], Body?)
+            {
+                ; same as `HttpClient().<Verb>(this, Headers, Body?)`
+                return Callback(HttpClient(), this, Headers, Body?)
             }
         }
     }
