@@ -154,27 +154,11 @@ class AquaHotkey extends AquaHotkey_Ignore
                 Log("- ignoring: {1}", Supplier.Prototype.__Class)
                 continue
             }
-            Receiver := (AquaHotkey.Deref)(PropertyName)
+            Receiver := Deref(PropertyName)
             (AquaHotkey_Ignore.Apply)(this, Supplier, Receiver)
         }
         return this
     }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region Deref()
-
-    /**
-     * Resolves a global value by its name. This method must be called like
-     * a function.
-     * 
-     * @public
-     * @param   {String}  this  name of global value
-     * @returns {Any}
-     * @example
-     * (AquaHotkey.Deref)("String")
-     */
-    static Deref() => %this%
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -920,18 +904,6 @@ class AquaHotkey_Ignore
         ;@endregion
     }
     ;@endregion
-
-    /**
-     * Dereferences a global variable by name.
-     * 
-     * This method must be called like this:
-     * @example
-     * (this.Deref)("MyVariableName")
-     * 
-     * @package
-     * @returns {Any}
-     */
-    static Deref() => %this%
 }
 
 ;@endregion

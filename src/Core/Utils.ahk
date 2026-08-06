@@ -538,6 +538,21 @@ RenameProp(Obj, OldName, NewName) {
     return Obj
 }
 
+/**
+ * Dereferences either a `VarRef` or a string referring to a variable at
+ * global scope. Throws, if the `VarRef` has no value or no variable exists
+ * with that name.
+ * 
+ * If the value is a string, it cannot be equal to `"this"`.
+ * 
+ * @param   {VarRef|String}  this  value to deref
+ * @returns {Any}
+ * @example
+ * A := 42
+ * B := Deref("A") ; 42
+ */
+Deref(this) => %this%
+
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Enumerators
