@@ -558,6 +558,47 @@ Deref(this) => %this%
 ;@region Enumerators
 
 /**
+ * Determines whether the given value is an {@link Enumerator} that resulted
+ * from calling {@link ObjOwnProps()}. This function is required when checking
+ * whether a function is callable with a given number of parameters.
+ * 
+ * @param   {Any}  Obj  any value
+ * @returns {Boolean}
+ * @see {@link AcceptsParamCount()}
+ * @example
+ * Enumer := ObjOwnProps(Obj)
+ * MsgBox(IsObjOwnPropsEnumerator(Enumer)) ; true
+ */
+IsObjOwnPropsEnumerator(Obj) {
+    return (Obj is Func) && Obj.IsBuiltIn && (!Obj.MaxParams)
+        && (!Obj.MinParams) && (!Obj.IsVariadic) && (Obj.Name == "")
+}
+
+/**
+ * Determines whether the given object is callable with the given amount of
+ * parameters without causing it to throw immediately. Same as
+ * `HasMethod(Obj,, ParamSize)`, but handles the edge case of
+ * `HasMethod(ObjOwnProps(Obj),, 1)` incorrectly returning `false`.
+ * 
+ * @param   {Object}   Obj        any object
+ * @param   {Integer}  ParamSize  parameter size
+ * @returns {Boolean}
+ * @example
+ * AcceptsParamCount(MsgBox, 0) ; ==> true
+ * 
+ * Enumer := ObjOwnProps({})
+ * AcceptsParamCount(Enumer, 2) ; ==> true
+ * HasMethod(Enumer,, 2) ; ==> false (oops!)
+ */
+AcceptsParamCount(Obj, ParamSize) {
+    if (!IsObject(Obj)) {
+        throw TypeError("Expected an object",, Type(Obj))
+    }
+    GetMethod(Obj)
+    return HasMethod(Obj, ParamSize) || IsObjOwnPropsEnumerator(Obj)
+}
+
+/**
  * Retrieves an enumerator for an object.
  * 
  * @param   {Object}    Obj      any object
