@@ -21,69 +21,133 @@ LazyInit(Target, PropName, PropDesc) {
     }
 }
 
-class Annotation {
-    static __New(Target?) {
-        if (this == Annotation) {
-            return
-        }
-        if (!IsSet(Target)) {
-            throw UnsetError()
-        }
-        if (!(Target is Class)) {
-            throw TypeError()
-        }
-        for PropName in ObjOwnProps(this) {
-            if (PropName = "__Init" || PropName = "Prototype" || PropName = "__New") {
-                continue
-            }
-            if (!ObjHasOwnProp(Target, PropName)) {
-                continue
-            }
-            Value := GetValueOfOwnProp(this, PropName)
-            if (!(Value is Array)) {
-                throw TypeError()
-            }
-            for Annot in Value {
-                Annot(Target, PropName)
-            }
-        }
-
-        for PropName in ObjOwnProps(this.Prototype) {
-            MsgBox(PropName)
-            if (PropName = "__Init" || PropName = "__Class") {
-                continue
-            }
-            if (!ObjHasOwnProp(Target.Prototype, PropName)) {
-                MsgBox("does not have")
-                continue
-            }
-            Value := GetValueOfOwnProp(this.Prototype, PropName)
-            if (!(Value is Array)) {
-                throw TypeError()
-            }
-            for Annot in Value {
-                Annot(Target.Prototype, PropName, GetOwnPropDesc(Target.Prototype, PropName))
-            }
-        }
+LazyInitOnPrototype(Target, PropName, PropDesc) {
+    if (ObjOwnPropCount(PropDesc) != 1) {
+        throw Error()
+    }
+    if (!ObjHasOwnProp(PropDesc, "Get")) {
+        throw Error()
+    }
+    DefineProp(Target, PropName, { Get: Getter })
+    Getter(this) {
+        Value := (PropDesc.Get)(this)
+        DefineProp(
+            OwnerOfProp(this, "__Class"),
+            PropName,
+            { Get: (_) => Value })
+        return Value
     }
 }
-
 
 class Person {
-    FirstName {
-        get {
-            MsgBox("get...")
-            return "Name"
+}
+
+class Annotation {
+    static __New() {
+        for PropName in ObjOwnProps(this) {
+            if (!TryGetNestedClass(this, PropName, &Nested)) {
+                continue
+            }
+            Target := (AquaHotkey.Deref)(PropName)
+            if (ObjHasOwnProp(Nested, "__New")) {
+                Value := Nested.__New()
+                for Annot in Value {
+                    Annot(Nested)
+                }
+            }
+
+            for PropName in ObjOwnProps(Nested) {
+                if (PropName = "__Init" || PropName = "Prototype" || PropName = "__New") {
+                    continue
+                }
+                if (!ObjHasOwnProp(Target, PropName)) {
+                    continue
+                }
+                Value := GetValueOfOwnProp(Nested, PropName)
+                if (!(Value is Array)) {
+                    throw TypeError()
+                }
+                for Annot in Value {
+                    Annot(Target, PropName, GetOwnPropDesc(Target, PropName))
+                }
+            }
+
+            for PropName in ObjOwnProps(Nested.Prototype) {
+                if (PropName = "__Init" || PropName = "__Class") {
+                    continue
+                }
+                if (!ObjHasOwnProp(Target.Prototype, PropName)) {
+                    continue
+                }
+                Value := GetValueOfOwnProp(Nested.Prototype, PropName)
+                if (!(Value is Array)) {
+                    throw TypeError()
+                }
+                for Annot in Value {
+                    Annot(Target.Prototype, PropName, GetOwnPropDesc(Target.Prototype, PropName))
+                }
+            }
         }
     }
 }
 
-class Person_LazyInit extends Annotation {
-    static __New() => super.__New(Person)
-
-    FirstName => [LazyInit]
+class Deprecated {
+    __New(Reason) {
+    }
+    Call(Cls) {
+        MsgBox("deprecated class " . Cls.Prototype.__Class)
+    }
 }
 
-P := Person()
-MsgBox(P.FirstName)
-MsgBox(P.FirstName)
+class Serializable {
+    static Call(Cls) {
+        MsgBox("serializable class " . Cls.Prototype.__Class)
+    }
+}
+class DataClass {
+    __New(Args*) {
+    }
+    Call(Cls) {
+        MsgBox("data class " . Cls.Prototype.__Class)
+    }
+}
+class Checked {
+    __New(T) {
+    }
+    Call(Obj, PropName, PropDesc) {
+        MsgBox("checked property " . PropName)
+    }
+}
+
+class Person {
+    static __New() => this.Annotate({
+        this: [Deprecated("Reason"),
+               Serializable,
+               DataClass("FirstName", "LastName")],
+
+        %"static Call"%: [OnAccess(DoSomething)],
+
+        FirstName: [Checked()]
+    })
+}
+
+class Person {
+}
+
+class Person_Annotations extends Annotation {
+    class Person {
+        ; annotations for `Person` itself
+        static __New() => [
+            Deprecated("Reason"),
+            Serializable,
+            DataClass("FirstName", "LastName")]
+
+        ; annotation for instance property `FirstName`
+        FirstName => [Checked(String)]
+
+        ; annotation for static property `Create`
+        static Create() => [OnAccess(SomeFunction)]
+    }
+}
+
+
