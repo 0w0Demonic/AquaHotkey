@@ -488,7 +488,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
             if (T.CanCastFrom(unset)) {
                 return false
             }
-            return ((this == T) || HasBase(T, this) || (T is this))
+            return ((this == T) || HasBase(T, this) || T.Is(this))
         }
     }
 
