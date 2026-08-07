@@ -570,8 +570,21 @@ Deref(this) => %this%
  * MsgBox(IsObjOwnPropsEnumerator(Enumer)) ; true
  */
 IsObjOwnPropsEnumerator(Obj) {
-    return (Obj is Func) && Obj.IsBuiltIn && (!Obj.MaxParams)
-        && (!Obj.MinParams) && (!Obj.IsVariadic) && (Obj.Name == "")
+    static GetProp(PropName, PropType) {
+        PropDesc := GetOwnPropDesc(Func.Prototype, PropName)
+        if (!ObjHasOwnProp(PropDesc, PropType)) {
+            throw PropertyError("incorrect prop type. Expected . " . PropType)
+        }
+        return PropDesc.%PropType%
+    }
+    static IsBuiltIn  := GetProp("IsBuiltIn",  "Get")
+    static MaxParams  := GetProp("MaxParams",  "Get")
+    static MinParams  := GetProp("MinParams",  "Get")
+    static IsVariadic := GetProp("IsVariadic", "Get")
+    static Name       := GetProp("Name",       "Get")
+
+    return (Obj is Func) && IsBuiltIn(Obj) && !MaxParams(Obj)
+        && !MinParams(Obj) && !IsVariadic(Obj) && (Name(Obj) == "")
 }
 
 /**
@@ -617,6 +630,7 @@ GetEnumerator(Obj, ArgSize := 1) {
     }
 
     ; at this point, `Obj` MUST be an object AND callable
+    ; TODO use `is Object` instead?
     if (!IsObject(Obj)) {
         throw TypeError("Expected an object",, Type(Obj))
     }
@@ -637,25 +651,44 @@ GetEnumerator(Obj, ArgSize := 1) {
 
     Obj := ObjBindMethod(Obj)
 
-    if ((f.MinParams - ThisParam) > ArgSize) {
+    static GetProp(PropName, PropType) {
+        PropDesc := GetOwnPropDesc(Func.Prototype, PropName)
+        if (!ObjHasOwnProp(PropDesc, PropType)) {
+            throw PropertyError("invalid prop type. Expected " . PropType)
+        }
+        return PropDesc.%PropType%
+    }
+    static IsBuiltIn  := GetProp("IsBuiltIn",  "Get")
+    static MinParams  := GetProp("MinParams",  "Get")
+    static MaxParams  := GetProp("MaxParams",  "Get")
+    static Name       := GetProp("Name",       "Get")
+    static IsVariadic := GetProp("IsVariadic", "Get")
+
+    Hi := MaxParams(f)
+    Lo := MinParams(f)
+    Va := IsVariadic(f)
+
+    if (IsBuiltIn(f) && !Hi && !Lo && !Va && (Name(f) == "")) {
+        ; assume this resulted from `ObjOwnProps()`
+        ; (do nothing here...)
+    } else if ((Lo - ThisParam) > ArgSize) {
         throw ValueError("too many parameters for size " . ArgSize,,
-                f.MinParams - ThisParam)
-    }
-    ; variadic funcs can never receive "too many" arguments
-    if (!f.IsVariadic && ((f.MaxParams - ThisParam) < ArgSize)) {
+                Lo - ThisParam)
+    } else if (!Va && (Hi - ThisParam) < ArgSize) {
         throw ValueError("not enough parameters for size " . ArgSize,,
-                f.MaxParams - ThisParam)
+                Hi - ThisParam)
     }
-
-    ; optional. We can ensure that all parameters are byref, but the function
-    ; will fail soon enough with a reasonable error message, if something goes
-    ; wrong.
-
-;;;;loop (f.MaxParams - ThisParam) {
-;;;;    if (!Obj.IsByRef(A_Index + ThisParam)) {
-;;;;        throw ValueError("not a ByRef parameter",, "#" . A_Index)
-;;;;    }
-;;;;}
+;.  ; optional. We can ensure that all parameters are byref, but the
+;.  ; function will fail soon enough with a reasonable error message, if
+;.  ; something goes wrong.
+;.  else {
+;.      static IsByRef := GetProp("IsByRef", "Call")
+;.      loop (Hi - ThisParam) {
+;.          if (!IsByRef(Obj, A_Index + ThisParam)) {
+;.              throw ValueError("not a ByRef parameter",, "#" . A_Index)
+;.          }
+;.      }
+;.  }
 
     ObjSetBase(Obj, Enumerator.Prototype)
     return Obj
