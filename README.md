@@ -9,50 +9,56 @@
 
 ## What is AquaHotkey?
 
-AquaHotkey is a *class-prototyping* library that lets you easily rewrite
-built-in types like `Array`, `String` or `Map` to match your own style
-and preferences.
+AquaHotkey is a *class-prototyping* library for AutoHotkey v2.
+
+It extends built-in types such as `Array`, `String`, and `Map` with custom methods and properties. You define these extensions in classes declaratively, instead of calling `.DefineProp()` manually.
 
 ```ahk
 ; "Hello, AquaHotkey!"
 "Hello, World!".SubStr(1, 7).Append("AquaHotkey!").MsgBox()
 ```
 
-Setting up this one-liner to work is really easy! Just do the following:
+Create an extension class:
 
 ```ahk
 #Requires AutoHotkey v2
 #Include <AquaHotkey>
 
 class StringUtil extends AquaHotkey {
-  class String {
-    SubStr(Idx, Len?) => SubStr(this, Idx, Len*)
-    Append(Str)       => (this . Str)
-    MsgBox()          => MsgBox(this)
-  }
+    class String {
+        SubStr(Idx, Len?) => SubStr(this, Idx, Len*)
+        Append(Str)       => (this . Str)
+        MsgBox()          => MsgBox(this)
+    }
 }
 ```
 
-What you see is an *extension class* that contains custom methods `.SubStr()`,
-`.Append()` and `.MsgBox()` for the type `String`. As soon as the script loads,
-the extension class "pastes" its contents into the specified target, in this
-case `String`.
+The nested `StringUtil.String` class targets the built-in `String` type.
+
+When the script loads, AquaHotkey copies the methods and properties from the extension class into the target prototype. After that, every string can use these methods.
 
 ## Quick Start
 
-Download the repository, ideally inside one of the
-[lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib):
+Copy this repository into one of the [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib):
 
 ```batch
-git clone https://www.github.com/0w0Demonic/AquaHotkey "%USERPROFILE%\Documents\TestFolder\lib\AquaHotkey"
+git clone https://www.github.com/0w0Demonic/AquaHotkey "%USERPROFILE%\Documents\AutoHotkey\lib\AquaHotkey"
 ```
 
-Now, you can import the library:
+Alternatively, use [Aris](https://github.com/Descolada/Aris):
+
+```ahk
+aris install AquaHotkey
+```
+
+---
+
+Finally, include the library in your script:
 
 ```ahk
   #Requires AutoHotkey v2
   #Include <AquaHotkey>
-; #Include <AquaHotkeyX> (extra features --- see below)
+; #Include <AquaHotkeyX> ; extra features (see below)
 ```
 
 ## Documentation
@@ -75,14 +81,9 @@ Also see:
 
 ## Core Idea
 
-Coming from other programming languages, there might be a set of methods that
-the equivalent class in AutoHotkey might not have. A good example might be
-the wide set of methods like `.map()`, `.includes()` and `.forEach()` provided
-to arrays in JavaScript.
+Many programming languages provide utility methods on their standard types. For example, JavaScript arrays include methods such as `.map()`, `.includes()` and `.forEach()`.
 
-Because AutoHotkey uses prototype-based objects just like JavaScript, you *can*
-define these features yourself with the help of `.DefineProp(...)` and the use
-of property descriptors.
+AutoHotkey allows similar extensions through `.DefineProp()`:
 
 ```ahk
 Array.Prototype.DefineProp("ForEach", { Call: Array_ForEach })
@@ -96,13 +97,9 @@ Array_ForEach(this, Action, Args*) {
 }
 ```
 
-This works just fine, if you need only a few simple utility functions, but
-doing this manually is tedious, and requires quite a bit of knowledge about
-objects in AHK.
+This approach works, but each methods requires lots of knowledge of AutoHotkey's prototype system, and boilerplate code for setup.
 
-In AquaHotkey, all of this is done declaratively using "extension classes"
-that each contain the properties and methods that should be added to the
-built-in classes.
+This is where AquaHotkey comes into play. It replaces this pattern with declarative extension classes.
 
 ```ahk
 class ArrayUtils extends AquaHotkey {
@@ -113,7 +110,7 @@ class ArrayUtils extends AquaHotkey {
 }
 ```
 
-After you're done, you can use these new methods anywhere you want!
+These new methods are available everywhere after the extension class loads.
 
 ```ahk
 Arr := Array(1, 2, 3)
@@ -121,170 +118,177 @@ Arr.ForEach(MsgBox)    ; 1, 2, 3
 Arr.Contains(2)        ; true
 ```
 
-## Why This Matters
+## Why Use AquaHotkey?
 
-### Customizability
+### Extend Existing Types
 
-One of the main things that AquaHotkey is concerned with is *making things
-fun through customization*. It's something that I think is very opinionated,
-but pays off very quickly. With this extra expressive layer of expressing
-things in code, you can shape AutoHotkey into something that matches your
-own mental model. Kind of like your favorite code editor.
+Add your favorite features from other programming languages with minimal setup. Essentially, you always have one additional programming style up your sleeve.
 
-It's also great for making interaction with other libraries a lot more
-seamless:
+For example, instead of:
 
 ```ahk
-#Requires AutoHotkey v2
-#Include <SomeJsonLibrary>
-
-class JsonUtils extends AquaHotkey {
-    class Object {
-        ToJson() => Json.Stringify(this) ; object to JSON string
-    }
-    class String {
-        ToJson() => Json.Dump(this) ; JSON string to object
-    }
+ToString(Val) {
+    if (Val is Object) {
+        ...
+    } else if (Val is Array) {
+        ...
+    } ...
 }
 ```
 
-### Features That Feel "Fundamental" to the Language
-
-With AquaHotkey, you can very easily add features that appear as if they're
-fundamental to the language, something that'd otherwise be almost impossible.
-
-As a test, let me show you how to add a universal `.ToString()` method.
+You can attach behavior directly to the types that use it.
 
 ```ahk
-#Requires AutoHotkey v2
-
 class ToString extends AquaHotkey {
-    class Number {
-        ToString() => String(this)
+    class Object { ToString() { ... } }
+    class Array  { ToString() { ... } }
+    ...
+}
+
+{ foo: "bar" }.ToString() ; e.g. "{ foo: bar }"
+```
+
+In addition, the version written with AquaHotkey stays extensible. You simply implement your own `.ToString()` when writing a new class, instead of handling it in one giant function.
+
+### Reorganize Code
+
+If you *want* to reorganize your code in a certain way, you probably *can*.
+
+Instead of:
+
+```ahk
+MsgBox(StrReverse(FileRead(Filepath)))
+```
+
+You can write:
+
+```ahk
+Filepath.FileRead().Reverse().MsgBox()
+```
+
+### Compose Features
+
+Each extension class provides one feature. Combine only the features that your script requires.
+
+```ahk
+#Include <Collections/ArrayContains>
+#Include <Collections/ArraySort>
+#Include <String/Trim>
+```
+
+### Extend Third-Party Libraries
+
+Extension classes work with any class or function. This includes built-ins, but also things that you and other people wrote.
+
+Add methods to third-party libraries without modifying their source code or creating derived classes.
+
+```ahk
+#Include <SomeJsonLib>
+class JsonUtils extends AquaHotkey {
+    class Any {
+        DumpToJson() => ...
     }
     class String {
-        ToString() => this
-    }
-    class Array {
-        ToString() {
-            Result := "["
-            for Value in this {
-                ; ...
-            }
-            Result .= "]"
-            return Result
-        }
-    }
-    class Object {
-        ToString() { ... }
+        ParseJson() => ...
     }
 }
 ```
 
-Strings get string methods, arrays get array methods, and so on. The objects
-themselves "know" what to do. We've just successfully made `String(Value)`
-a feature that works on (almost) all data types.
+### Optional Features
 
----
+Each feature is represented by a class.
 
-This type of meta-programming uncovers a beautiful, but yet still vastly
-unexplored part of AutoHotkey, and it's my job to be your tour guide.
-If you're interested, you can check out [AquaHotkeyX](#aquahotkeyx), where
-these patterns are taken to their extreme.
-
-### Easy to Use
-
-If you know how classes work (you probably should), then learning how to use
-this library takes almost no effort at all.
-
-### Modular
-
-Changes that belong to one feature can live together in a single extension
-class. That means you can move them into their own file, `#Include` them
-when needed, and slowly build up your own collection of reusable language
-features.
-
-**StringUtils.ahk**:
+You can test whether a feature is available with `IsSet()`.
 
 ```ahk
-class StringUtils extends AquaHotkey {
-    class String {
-        Rep(Pat, Rep) => StrReplace(this, Pat, Rep)
-
-        Contains(Pat) => InStr(this, Pat)
-    }
+if (IsSet(ArrayContains)) {
+    MsgBox( Arr.Contains(Value) )
 }
 ```
 
-**MyScript.ahk**:
+It keeps features distributed as separate files that you can import whenever you need them.
+
+### A Powerful Runtime
+
+AquaHotkey consists of two parts:
+
+- the extension framework
+- a standard runtime built with that framework
+
+A quick overview:
+
+#### String Utils
 
 ```ahk
-#Include <StringUtils>
-
-Str := "Hello, world!".Rep("l,", "p").Rep("d", "m").Rep("!", "?")
-"foo".Contains("o") ; true
+"The quick brown fox jumps over the lazy dog"
+    .From("quick").Until("fox")
+    .ToUpper() ; ==> "QUICK BROWN FOX"
 ```
 
-You can start very small, one quick fix after another. And sooner than you
-think, it'll grow into your own language on top of AutoHotkey.
-
-### A Short Insight Into Class Prototyping
-
-AutoHotkey v2 is a prototype-based language, exactly like JavaScript. Everything
-has an internal link to another object called its prototype, and so on,
-forming a "prototype chain".
-
-Example - the number 42:
+#### Universal `.ToString()` Method
 
 ```ahk
-42
-`- Integer.Prototype
-   `- Number.Prototype
-      `- Primitive.Prototype
-         `- Any.Prototype
+John := { Age: 22, Friends: ["Bob", "Sophie"] }
+
+; convert to string
+John.ToString() ; ==> "{ Age: 22, Friends: [Bob, Sophie] }"
 ```
 
-More interestingly, you can modify these prototypes to change the behavior of
-any deriving object.
-
-The concept behind class prototyping revolves around making changes to the internal prototype
-objects to add properties and methods:
+#### Assertions
 
 ```ahk
-; add a `.Length` property for strings
-({}.DefineProp)(String.Prototype, "Length", { Get: StrLen })
+Str := "str"
+Str.Assert(Eq("str"))
 ```
 
-We've just successfully added a `Length` property to `String.Prototype`, which
-is the prototype object of all strings.
-
-You can now use the `Length` property on strings:
+#### Pattern Matching
 
 ```ahk
-MsgBox("foo".Length) ; 3
+; pattern matching
+Person := { Age: Integer, Friends: String[] }
+John.Is(Person) ; true
+
+; as assertion
+Str.AssertType(String)
 ```
 
-Thanks to AquaHotkey, this is no longer tedious manual work.
-Everything happens declaratively, and with simple "class syntax".
-
-## AquaHotkeyX
-
-A unique and modern standard batteries-included library that builds on top
-of AquaHotkey.
-
-- Heavily chainable method calls
-- Extensive use of functional programming patterns
-- Designed for maximal elegance and conciseness
+#### Collections and Enumerable Processing
 
 ```ahk
-#Requires AutoHotkey v2
-#Include <AquaHotkeyX>
+; generic collections
+Arr := Number[](1, 2, 3, 4, 5)
+Arr.Push("not a number") ; TypeError!
 
-; Map { 4: ["kiwi", "lime"], 5: ["apple"], 6: ["banana"] }
-Array("banana", "kiwi", "apple", "lime").Group(StrLen)
+; immutable collections
+Arr := ImmutableArray(1, 2, 3)
 
-; <[1, 2, 3], [2, 3, 4], [3, 4, 5]>
-Range(5).Stream().Gather(WindowSliding(3))
+; sequences, aggregation
+"a b c a a b".CaptureAll("\w+").Stream().Frequency()
+; ==> Map { a: 3, b: 2, c: 1 }
+
+; natural ordering, sorting, comparator functions
+[34, 1, -3, unset, 12].Sort( Comparator.By(Self).NullsFirst() )
+```
+
+#### Data Handling
+
+```ahk
+; URIs
+Uri("https://www.example.com").Resolve("/path/to/file.html").Run()
+
+; binary serialization
+FileOpen("out.bin", "w").WriteObject({ FirstName: "John", LastName: "Doe" })
+FileOpen("out.bin", "r").ReadObject() ; ==> { FirstName: "John", LastName: "Doe" }
+
+; JSON parser + bindings
+"[1, 2, 3, 4]".ParseJson(Integer[]) ; ==> Array<Integer>[1, 2, 3, 4]
+{ Value: 42 }.ToJson() ; ==> '{"Value":42}'
+
+; Optional/error handling
+Result := Arr.Find(IsInteger).OrElse("(not found)")
+
+Div(a, b) => (a / b)
+Div.TryCall(0, 0).OnFailure((*) => MsgBox("failed."))
 ```
 
 For a quick overview, see [API Overview](/docs/api-overview.md).
