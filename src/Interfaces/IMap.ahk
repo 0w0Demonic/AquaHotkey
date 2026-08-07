@@ -433,6 +433,7 @@ class IMap {
             OutValue := this.Delete(Key)
             return true
         }
+        OutValue := unset
         return false
     }
 
@@ -454,6 +455,7 @@ class IMap {
             OutValue := this.Get(Key)
             return true
         }
+        OutValue := unset
         return false
     }
 
