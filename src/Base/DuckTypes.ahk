@@ -326,6 +326,9 @@ class AquaHotkey_DuckTypes extends AquaHotkey
          * ({ x: Number, y: Number }).CanCastFrom({ x: Integer, y: Integer })
          */
         CanCastFrom(T?) {
+            if (!IsSet(T)) {
+                return false
+            }
             ; note: whatever satisfies the contraints imposed by this object
             ;       will *also* satisfy the constraints of ... well, this
             ; object -- we already checked. And because this works similarly
@@ -488,7 +491,7 @@ class AquaHotkey_DuckTypes extends AquaHotkey
             if (T.CanCastFrom(unset)) {
                 return false
             }
-            return ((this == T) || HasBase(T, this) || (T is this))
+            return ((this == T) || HasBase(T, this) || T.Is(this))
         }
     }
 

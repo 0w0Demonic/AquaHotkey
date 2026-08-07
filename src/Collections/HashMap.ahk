@@ -5,6 +5,8 @@
 ; TODO find a way to accomodate duck types
 ;      (probably with generics and `static OfType()`)
 
+; use InitialCap as regular Capacity method when not overwritten?
+
 /**
  * A simple hash table implementation.
  * 
@@ -312,6 +314,7 @@ class HashMap extends IMap {
                 }
             }
         }
+        OutValue := unset
         return false
     }
 

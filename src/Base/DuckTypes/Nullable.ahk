@@ -159,7 +159,7 @@ class Nullable extends Class
     static CanCastFrom(Val?) {
         return (!IsSet(Val)) ; unset
             || (Val == Nothing) ; Nothing
-            || (Val == this) || HasBase(Val, this) ; Nullable + subclasses
+            || (Val == this) ; Nullable
             || (Val is this) ; Nullable(...)
     }
 

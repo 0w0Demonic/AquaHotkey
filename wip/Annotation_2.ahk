@@ -31,11 +31,13 @@ class Annotation extends Any {
                     }
                     Apply(NestedSupplier, NestedReceiver)
                 } else {
-                    Annotate(Annots, Receiver, PropName)
+                    TryGetOwnPropDesc(Receiver, PropName, &PropDesc)
+                    Annotate(Annots, Receiver, PropName, PropDesc?)
                 }
             }
             for PropName, Annots in Iterate(Supplier.Prototype, "__Class", "__Init") {
-                Annotate(Annots, Receiver.Prototype, PropName)
+                TryGetOwnPropDesc(Receiver.Prototype, PropName, &PropDesc)
+                Annotate(Annots, Receiver.Prototype, PropName, PropDesc?)
             }
         }
 
@@ -61,13 +63,13 @@ class Annotation extends Any {
             }
         }
 
-        static Annotate(Annots, Obj, PropName?) {
+        static Annotate(Annots, Obj, PropName?, PropDesc?) {
             if (!(Annots is Array)) {
                 throw TypeError("Expected an Array",, Type(Annots))
             }
             for Annot in Annots {
                 GetMethod(Annot)
-                Annot(Obj, PropName?)
+                Annot(Obj, PropName?, PropDesc?)
             }
         }
     }
@@ -75,12 +77,18 @@ class Annotation extends Any {
 
 #Include <AquaHotkey\src\Base\ToString>
 
-LazyProp(Getter?) {
+Lazy(Getter?, Target := DefaultTarget) {
+    static DefaultTarget(this, PropName) => this
+
+    GetMethod(Target)
+    if (IsSet(Getter)) {
+        GetMethod(Getter)
+    }
     return CreateLazyProp
 
-    CreateLazyProp(Obj, PropName) {
+    CreateLazyProp(Obj, PropName, PropDesc?) {
         if (!IsSet(Getter)) {
-            if (!TryGetOwnPropDesc(Obj, PropName, &PropDesc)) {
+            if (!IsSet(PropDesc)) {
                 throw PropertyError(
                         "target does not have own property: " . PropName)
             }
@@ -90,36 +98,113 @@ LazyProp(Getter?) {
             Getter := PropDesc.Get
         }
         GetMethod(Getter)
-        DefineProp(Obj, PropName, { Get: LazyPropImpl })
+        DefineProp(Obj, PropName, { Get: LazyImpl })
 
-        LazyPropImpl(this) {
+        LazyImpl(this) {
             if (ObjHasOwnProp(this, "__Class")) {
                 throw PropertyError("cannot be called directly by a prototype")
             }
             Value := Getter(this)
-            DefineProp(this, PropName, { Get: (_) => Value })
+            DefineProp(Target(this, PropName), PropName, { Get: (_) => Value })
             return Value
         }
     }
 }
 
-class User {
+Entity(Props*) {
     
+}
+
+AllParamConstructor(Params*) {
+}
+
+ParamsFromObjectLiteral(Params*) {
+}
+
+Before(Fns*) {
+    if (!Fns.Length) {
+        return (Obj, *) => Obj
+    }
+    for Fn in Fns {
+        GetMethod(Fn)
+    }
+    return CreateBefore
+
+    CreateBefore(Obj, PropName, PropDesc?) {
+        if (!IsSet(PropDesc)) {
+            throw UnsetError("property does not exist",, PropName)
+        }
+        if (ObjHasOwnProp(PropDesc, "Value")) {
+            throw PropertyError("not a field")
+        }
+        DefineProp(Obj, PropName, TransformDynamicProp(PropDesc, WrapFn))
+        WrapFn(Prev, Args*) {
+            for Fn in Fns {
+                Fn(Args*)
+            }
+            return Prev(Args*)
+        }
+    }
+}
+
+After(Fns*) {
+    if (!Fns.Length) {
+        return (Obj, *) => Obj
+    }
+    for Fn in Fns {
+        GetMethod(Fn)
+    }
+    return CreateAfter
+
+    CreateAfter(Obj, PropName, PropDesc?) {
+        if (ObjHasOwnProp(PropDesc, "Value")) {
+            throw PropertyError("not a field")
+        }
+        DefineProp(Obj, PropName, TransformDynamicProp(PropDesc, WrapFn))
+        WrapFn(Prev, Args*) {
+            Result := Prev(Args*)
+            for Fn in Fns {
+                Fn(Args*)
+            }
+            return Result
+        }
+    }
+}
+
+TransformDynamicProp(PropDesc, Mapper) {
+    if (!IsPlainObject(PropDesc)) {
+        throw TypeError("Expected a plain object",, Type(PropDesc))
+    }
+    GetMethod(Mapper)
+    for T, Fn in ObjOwnProps(PropDesc) {
+        GetMethod(Fn)
+        PropDesc.%T% := ObjBindMethod(Mapper,, PropDesc.%T%)
+    }
+    return PropDesc
+}
+
+class User {
+    __New(Name) {
+        this.Name := Name
+    }
+    SayHello() {
+        MsgBox("Hello, " . this.Name)
+        return "(result)"
+    }
 }
 
 class User_Annot extends Annotation {
     class User {
-        FirstName => [ LazyProp(Enter) ]
+        SayHello => [
+            Before(
+                (*) => MsgBox("before 1"),
+                (*) => MsgBox("before 2")
+            ),
+            After((*) => MsgBox("after"))
+        ]
     }
 }
 
-MsgBox()
-
-Enter(Obj) {
-    Answer := InputBox("First name doesn't exist yet. Create now")
-    return Answer.Value
-}
-
-U := User()
-MsgBox(U.FirstName)
-MsgBox(U.FirstName)
+U := User("Name")
+Result := U.SayHello()
+MsgBox(Result)
