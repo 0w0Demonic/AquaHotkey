@@ -1,16 +1,16 @@
-# Advanced - Class Prototyping
+# AquaHotkey - Advanced
 
-This file covers some slightly more advanced, but still common use cases.
+## Debug Messages
 
-- [Advanced - Class Prototyping](#advanced---class-prototyping)
-  - [Extending Nested Classes](#extending-nested-classes)
-  - [Extending Functions](#extending-functions)
-  - [Field Declarations](#field-declarations)
-  - [Some More Technical Insight](#some-more-technical-insight)
-  - [Backup Classes](#backup-classes)
-    - [Overriding Existing Properties](#overriding-existing-properties)
-  - [Shared Extensions with `AquaHotkey_MultiApply`](#shared-extensions-with-aquahotkey_multiapply)
-  - [Quick Summary](#quick-summary)
+If anything decides to break badly, you can always look at the debugger messages. They contain information about all of the extension classes and their targets.
+
+For very detailed information, you can activate verbose logging by adding `#Include <AquaHotkey\cfg\VerboseLogging>` to your script.
+
+```ahk
+; just an empty class. You can expect this to work just like #ifdef in C
+class AquaHotkey_Verbose {
+}
+```
 
 ## Extending Nested Classes
 
@@ -26,6 +26,32 @@ class GuiButton extends AquaHotkey
   }
 }
 ```
+
+## Ignored Classes
+
+Extend your class with `AquaHotkey_Ignore` to mark helper or internal-use classes that should be ignored by AquaHotkey.
+
+```ahk
+class LargeProject extends AquaHotkey {
+    class Utils extends AquaHotkey_Ignore {
+        ; ignored during property injection
+    }
+
+    ...
+}
+```
+
+## Class Hierarchy
+
+```txt
+Any
+`- AquaHotkey_Ignore
+   |- AquaHotkey
+   |- AquaHotkey_Backup
+   `- AquaHotkey_MultiApply
+```
+
+This is also the base class of all core library classes, i.e. `AquaHotkey`, `AquaHotkey_Backup` and `AquaHotkey_MultiApply`.
 
 ## Extending Functions
 
@@ -48,7 +74,7 @@ Note that you should prefer `static` when extending functions, because conceptua
 
 You can control how objects are initialized by specifying field declarations.
 
-It's really useful if you want to set default values for `Map#CaseSense` or `Array#Default`, like this:
+Using this feature is **not recommended**, but can be useful for setting default values for `Map#CaseSense` and `Array#Default`. If possible, you should prefer overriding `.__New()`.
 
 ```ahk
 class DefaultEmptyString extends AquaHotkey {
@@ -84,8 +110,7 @@ MsgBox(Arr.CaseSense) ; "Off"
 Don't overuse this, though. I recommend making only very simple changes (like e.g. `Array.Default`). You should prefer making changes to `.__New()` instead. (see `AquaHotkey_Backup` below.)
 
 > [!CAUTION]
->For `Object` and `Any`, you have to use `.__Init()` as a *function* -
->otherwise, your script will crash from infinite recursion.
+>For `Object` and `Any`, you have to use `.__Init()` as a *function*. otherwise, your script will crash from infinite recursion.
 >
 >```ahk
 >class ObjectExt extends AquaHotkey {
@@ -99,48 +124,7 @@ Don't overuse this, though. I recommend making only very simple changes (like e.
 >}
 >```
 
-Also, for obvious reasons this doesn't apply to primitive classes such as `Number`, since they're not objects you can assign properties to.
-
-## Some More Technical Insight
-
-In AquaHotkey, classes are used as "property containers" whose contents can be moved around freely. Understanding this concept is very helpful for the later sections, because there's a lot of "pushing and pulling" going on between classes and their properties.
-
-Let's say we have two classes, the built-in `Array` class and a custom `ArrayUtils` class which we use to define custom properties for `Array`:
-
-```ahk
-class ArrayUtils (custom)
-|- ...
-`- Prototype
-   |- ForEach(Action)
-   `- Contains(Value)
-
-    |
-    | paste into...
-    V
-
-class Array (built-in)
-|- ...
-`- Prototype
-   |- Get(Index, Default?)
-   |- Has(Index)
-   |- __Item[Key]
-   `- etc.
-```
-
-Here, `ArrayUtils` takes the role of an *extension class*. In order to use its properties, they need to be "pasted" into the built-in `Array` class.
-
-```ahk
-class Array (built-in)
-|- ...
-`- Prototype
-   |- ForEach(Action)
-   |- Contains(Value)
-   |
-   |- Get()
-   |- Has()
-   |- __Item[]
-   `- etc.
-```
+This feature does not work on primitive classes such as `Number`, because primitive values cannot own any properties on their own.
 
 ## Backup Classes
 
@@ -148,15 +132,19 @@ Changing an existing property of an object is *destructive*. To retain access to
 
 Because classes are treated as container objects, you can "fill" them with the contents of another class in order to make a "snapshot" of that class.
 
+For this purpose, AquaHotkey offers a `.Backup()` method for classes:
+
 ```ahk
 class Gui_Backup {
     static __New() => this.Backup(Gui)
 }
 ```
 
-In this example, calling `.Backup(Gui)` will save all properties contained in `Gui`, also including the current state of `Gui.Control` and all of the other nested classes.
+This saves the current state of `Gui` in `Gui_Backup`.
 
-### Overriding Existing Properties
+## Overriding Existing Properties
+
+(Using this feature is **not recommended**.)
 
 Let's say we want to extend the constructor of `Gui`. It should be able to create GUIs like usual, but also perform additional actions.
 
@@ -190,9 +178,9 @@ class GuiExtensions extends AquaHotkey {
 
 You can force classes to initialize by referencing them (i.e., `(MyClass1 [  , MyClass2, ...  ])`) and then finally calling `super.__New()`.
 
-## Shared Extensions with `AquaHotkey_MultiApply`
+## Mixins
 
-There might be occasions where you want to extend multiple unrelated classes to share behavior without writing things twice.
+Extend multiple unrelated classes with the same extension by using `.ApplyOnto()`.
 
 ```ahk
 class Enumerable1 {
@@ -207,25 +195,3 @@ class Enumerable1 {
     }
 }
 ```
-
-The class represents any type that supports for-loops with 1 argument.  Using `.ApplyOnto()`, we specify each of the built-in classes that fulfill this condition.
-
-```ahk
-Even(x) => !(x & 1)
-
-; [2, 4]
-Array(1, 2, 3, 4).ForEach(MsgBox)
-MatchObj.ForEach(MsgBox)
-```
-
-## Quick Summary
-
-- Overriding nested classes works exactly the same, just nest deeper.
-- You can add field declarations to built-in types.
-  - Prefer making changes to `__New()`, instead.
-  - Doesn't work on primitive types.
-  - Watch out when dealing with `Object` and `Any`!
-- `AquaHotkey_Backup` creates a snapshot of one or multiple classes.
-  - Often times, the order of execution between classes is important.
-  - Force classes to load by referencing them: `(MyClass, ...)`
-- `AquaHotkey_MultiApply` overrides the same properties into multiple classes.

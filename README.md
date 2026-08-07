@@ -22,7 +22,7 @@ Create an extension class:
 
 ```ahk
 #Requires AutoHotkey v2
-#Include <AquaHotkey>
+#Include <AquaHotkey\AquaHotkey>
 
 class StringUtil extends AquaHotkey {
     class String {
@@ -39,7 +39,7 @@ When the script loads, AquaHotkey copies the methods and properties from the ext
 
 ## Quick Start
 
-Copy this repository into one of the [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib):
+Clone this repository into one of the [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib):
 
 ```batch
 git clone https://www.github.com/0w0Demonic/AquaHotkey "%USERPROFILE%\Documents\AutoHotkey\lib\AquaHotkey"

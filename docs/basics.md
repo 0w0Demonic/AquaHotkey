@@ -1,197 +1,153 @@
-# Basics - Class Prototyping
+# AquaHotkey - Basics
 
-This guide covers:
+- [Basics](#basics)
+  - [About](#about)
+  - [Install](#install)
+  - [What is Class Prototyping?](#what-is-class-prototyping)
+    - [How to Use it to Your Advantage](#how-to-use-it-to-your-advantage)
+  - [The Extension Class](#the-extension-class)
+    - [One Feature, One Class](#one-feature-one-class)
+    - [Reuse for Other Scripts](#reuse-for-other-scripts)
 
-- [Downloading and installing the library](#including-the-library).
-- [Writing a simple extension class](#getting-started).
+## About
 
-If you're interested in the reasoning and history behind AquaHotkey, check out [About AquaHotkey](../rambling/00_about.md). It covers some of the design choices and how the library evolved into its current form.
+If you're interested in some of AquaHotkey's design choices and history, check out [About AquaHotkey](../rambling/00_about.md).
 
----
+## Install
 
-- [Basics - Class Prototyping](#basics---class-prototyping)
-  - [Including the Library](#including-the-library)
-  - [Getting Started](#getting-started)
-  - [Exercises](#exercises)
-  - [Solutions](#solutions)
-  - [Best Practices](#best-practices)
-  - [Quick Summary](#quick-summary)
+Follow [this guide](./installation.md) to install and include the library in your script.
 
-## Including the Library
+## What is Class Prototyping?
 
-First, go ahead and clone the repo:
+(also see [Wikipedia: Prototype-based programming](https://en.wikipedia.org/wiki/Prototype-based_programming))
 
-```sh
-git clone https://www.github.com/0w0Demonic/AquaHotkey.git
-```
+AutoHotkey is a *prototype-based language*, much like JavaScript. In this language, we reuse data and behavior by letting many objects *inherit from* a common *prototype*.
 
-I recommend putting it into one of the [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib), it'll make your work much easier.
+"Prototype" might be a little misleading, because in AutoHotkey this is more commonly known as a *base object*.
 
-You can now `#Include` it like this:
+A "banana" object would inherit from a "fruit" object that acts as prototype and represents properties and functionality of fruit in general.
 
-```ahk
-#Requires AutoHotkey v2
- #Include <AquaHotkey>
-;#Include <AquaHotkeyX>
-```
+When you create an array in AHK, it first inherits from the *array prototype* that defines behavior for all arrays in general. The array prototype itself inherits from the *object prototype* that defines behavior for all object. Finally, the object prototype inherits from *any prototype*, which is the base for all values in AHK.
 
-Alternatively, `#Include <AquaHotkeyX>` to include the additional features in AquaHotkeyX.
+You can find these prototype objects in `<SomeClass>.Prototype`, for example `Object.Prototype`.
 
-## Getting Started
-
-For a brief introduction to class-prototyping and design philosophy, you can check out the "[Why this Matters](../README.md#why-this-matters)" section in the README page.
-
-*Extension classes* are classes that derive from `AquaHotkey` and introduce new properties to the targeted classes.
-
-Here's how to write them:
-
-1. Create a class that derives from `AquaHotkey`.
-2. Define a nested class named after the thing to extend (e.g. "Array").
-3. Define things as if you're making changes to the actual class (`Array`).
+Structurally, our new array looks something like this:
 
 ```ahk
-class ArrayUtils extends AquaHotkey {
+[1, 2, 3]
+`- Array.Prototype
+   `- Object.Prototype
+      `- Any.Prototype
+```
+
+### How to Use it to Your Advantage
+
+The interesting part is that, if you want to change the behavior of an array, you only need to change its prototype:
+
+```ahk
+(Array.Prototype).DefineProp("ForEach", { Call: Array_ForEach })
+
+Array_ForEach(this, Action, Args*) {
+    GetMethod(Action)
+    for Value in this {
+        Action(Value?, Args*)
+    }
+}
+```
+
+Now, every array inherits this method. You can call this new method like this:
+
+```ahk
+[1, 2, 3, 4, 5].ForEach(MsgBox)
+; ==> 1, 2, 3, 4, 5
+```
+
+## The Extension Class
+
+The main focus of AquaHotkey is all about changing these prototype objects to add own behavior. Focus only on the code and class structure, while the extension framework handles the rest:
+
+First start with a new class that `extends AquaHotkey`. Give it a clear, descriptive name. Don't be afraid to make it overly verbose:
+
+```ahk
+class Array_ForEach extends AquaHotkey {
+}
+```
+
+Now, create nested classes. Its name should be that of the class that you want to extend. For example, If you want to extend `Array`, call your nested class `Array`.
+
+```ahk
+class Array_ForEach extends AquaHotkey {
     class Array {
-        IsEmpty => (!this.Length)
 
-        Sum() {
-            Sum := 0
-            for Value in this { ; `this` refers to an array
-                Sum += (Value ?? 0)
+    }
+}
+```
+
+Finally, write code as if you were changing the actual built-in `Array` class.
+
+```ahk
+class Array_ForEach extends AquaHotkey {
+    class Array {
+        ForEach(Action, Args*) {
+            GetMethod(Action)
+            for Value in this { ; <-- `this` is an array
+                Action(Value?, Args*)
             }
-            return Sum
         }
     }
 }
 
-Array(1, 2, 3, 4).Sum() ; 10
-Array().IsEmpty         ; true
+[1, 2, 3, 4, 5].ForEach(MsgBox)
+; ==> 1, 2, 3, 4, 5
 ```
 
-In general, you should write *one feature per class*. For example, if a change affects several built-in types then the extension class should define multiple nested classes.
+Note that `.ForEach()` was declared as non-static, which means it's added to the array prototype. To add things to the `Array` class, use a static property:
+
+```ahk
+...
+static WithCaseSense(CS) {
+    Arr := this()
+    Arr.CaseSense := CS
+    return Arr
+}
+...
+
+Arr := Array.WithCaseSense(false)
+```
+
+### One Feature, One Class
+
+At first, this structure might seem a little unnecessary. After all, why do we need the nested class structure?
+
+The reason is that an extension class represents *one feature*, where changes can span across multiple classes. An extension class should add one functionality to reduce clutter.
 
 ```ahk
 class ToString extends AquaHotkey {
-    class Array {
-        ToString() { ... }
-    }
-    class Object {
-        ToString() { ... }
-    }
+    class Array  { ToString() { ... } }
+    class Object { ToString() { ... } }
+    class Map    { ToString() { ... } }
     ...
 }
 ```
 
-## Exercises
+Extension classes like [Base/DuckTypes](./base/DuckTypes.md) span across many hundreds of lines of code and across almost all built-in types. AquaHotkey must reliably know where to put different variations of the same methods into different classes.
 
-Now that we've covered the very basics, I encourage you to try it out yourself:
+### Reuse for Other Scripts
 
-- Create a method `String.Contains(Str)` that checks occurrences of `Str` inside a string. (hint: use `InStr()`).
-- Then, add a method `Array.Count(Value)` to count how many elements are equal to `Value`.
-- Bonus: try adding `Array.ForEach(Action)`, which calls `Action(Value)` on each element in the array.
+After you're done, you can save the extension class into a separate file, and reuse them across multiple scripts.
 
-## Solutions
+```ahk
+#Include <ToString>
+```
 
-<details>
-  <summary><code>String.Contains(Str)</code></summary>
-  <pre>
-  class StringContains extends AquaHotkey
-  {
-      class String {
-          Contains(Pattern) => InStr(this, Pattern)
-      }
-  }
-  </pre>
-</details>
+Want to know whether an extension class is included in your script? Just use `IsSet()`:
 
-<details>
-  <summary><code>Array.Count(Value)</code></summary>
-  <pre>
-  class ArrayCount extends AquaHotkey
-  {
-      class Array {
-          Count(Value) {
-              Total := 0
-              for Elem in this {
-                  if (Elem == Value) {
-                      Total++
-                  }
-              }
-              return Total
-          }
-      }
-  }
-  </pre>
-  </details>
+```ahk
+if (IsSet(ToString)) {
+    MsgBox(Obj.ToString())
+} else {
+    MsgBox(Type(Obj))
+}
+```
 
-<details>
-  <summary><code>Array.ForEach(Action)</code></summary>
-  <pre>
-  class ArrayForEach extends AquaHotkey
-  {
-      class Array {
-          ForEach(Action) {
-              GetMethod(Action)
-              for Value in this {
-                  Action(Value?)
-              }
-              return this
-          }
-      }
-  }
-  </pre>
-</details>
-
----
-
-## Best Practices
-
-- *Consider creating new separate files for your extensions.*
-
-  Extension classes are highly reusable. If you define them in their own files, you only have to define them once, and can reuse them elsewhere.
-
-  ```ahk
-  #Include <StringUtil>
-  ```
-
-- *Don't be afraid to give your classes clear, verbose names.*
-
-  The extensions that you write are *global classes*, visible across the entire script - or even worse, across multiple different scripts. It's a good idea to give extension classes clear and verbose names.
-
-  ```ahk
-  class DefaultEmptyString extends AquaHotkey {
-    class Array {
-      Default := ""
-    }
-    class Map {
-      Default := ""
-    }
-  }
-
-  ...
-
-  #Include <DefaultEmptyString>
-  ```
-
-  Also, it makes sense to put them in lib folders. Much easier to `#Include`.
-
----
-
-## Quick Summary
-
-- At its core, AquaHotkey involves moving properties between different classes.  Classes are treated as property containers, and their contents (properties) can be copied and moved freely between each other.
-- Extension classes define properties that should be applied onto one or more targets, usually built-in classes
-  ([or functions](./advanced.md#extending-functions)).
-- Schema of an extension class:
-
-  ```ahk
-  class (name) extends AquaHotkey {
-      class (target) {
-          (custom properties)
-      }
-  }
-  ```
-
-- You should usually write only *one feature per class*. Several related changes should be collected into a single extension class.
-- Extension classes are highly reuseable. It's a good idea to put them into separate files for use across different scripts.
-- In that case, it makes lots of sense to give them clear and verbose names.
+Start writing small convenience methods, and sooner or later you'll have your own custom version of AHK!
