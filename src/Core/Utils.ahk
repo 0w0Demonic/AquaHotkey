@@ -35,7 +35,10 @@ IsPrimitive(Val) {
  * @example
  * MsgBox(IsPlainObject({ Key: "Value" })) ; ==> true
  */
-IsPlainObject(Val) => (ObjGetBase(Val) == Object.Prototype)
+IsPlainObject(Val) {
+    static Object_Prototype := ObjGetBase({})
+    return ObjGetBase(Val) == Object_Prototype
+}
 
 /**
  * Determines whether the property descriptor might potentially refer to a
@@ -48,6 +51,16 @@ IsPlainObject(Val) => (ObjGetBase(Val) == Object.Prototype)
  * @see {@link TryGetNestedClass()}
  */
 IsNestedClassProp(PropDesc) {
+    static MaxParams := GetOwnPropDesc(
+        GetOwnPropDesc(Func.Prototype, "MaxParams"),
+        "Get"
+    ).Value
+
+    static IsVariadic := GetOwnPropDesc(
+        GetOwnPropDesc(Func.Prototype, "IsVariadic"),
+        "Get"
+    ).Value
+
     ; a nested class property always looks like this:
     ; {
     ;   Get: (Cls) => NestedClass,
@@ -57,10 +70,10 @@ IsNestedClassProp(PropDesc) {
         && ObjHasOwnProp(PropDesc, "Get")
         && ObjHasOwnProp(PropDesc, "Call")
         && (ObjOwnPropCount(PropDesc) == 2)
-        && (PropDesc.Get.MaxParams == 1)
-        && (PropDesc.Call.MaxParams == 1)
-        && (PropDesc.Call.IsVariadic)
-        && (!PropDesc.Get.IsVariadic)
+        && (MaxParams(PropDesc.Get) == 1)
+        && (MaxParams(PropDesc.Call) == 1)
+        && (IsVariadic(PropDesc.Call))
+        && (!IsVariadic(PropDesc.Get))
 
         ; && (PropDesc.Call.IsBuiltIn) ; (despite strict rules, allow setting
         ; && (PropDesc.Get.IsBuiltIn)  ; nested classes manually, if done right)
@@ -772,3 +785,4 @@ StrictPairwise(Obj) {
 }
 
 ;@endregion
+
