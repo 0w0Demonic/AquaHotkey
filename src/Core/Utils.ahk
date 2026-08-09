@@ -271,6 +271,32 @@ ObjFromDesc(Desc, BaseObj := Object.Prototype) {
     return Obj
 }
 
+/**
+ * Creates a property descriptor typical for nested classes.
+ * 
+ * @param   {Class}  Cls  the nested class
+ * @returns {Object}
+ * @example
+ * class A {
+ * }
+ * class B {
+ * }
+ * PropDesc := NestedClassProp(B)
+ * MsgBox(IsNestedClassProp(PropDesc)) ; ==> true
+ * 
+ * DefineProp(A, "B", NestedClassProp(B))
+ * MsgBox(A.B == B) ; ==> true
+ */
+NestedClassProp(Cls) {
+    if (!(Cls is Class)) {
+        throw TypeError("Expected a Class",, Type(Cls))
+    }
+    return {
+        Get:  (_)        => Cls,
+        Call: (_, Args*) => Cls(Args*)
+    }
+}
+
 ;@endregion
 ;-------------------------------------------------------------------------------
 ;@region Getting Props

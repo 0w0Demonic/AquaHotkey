@@ -881,12 +881,12 @@ class AquaHotkey_Ignore
             
             LogVerbose(3, "creating new class: {1}", NestedReceiverName)
             LogVerbose(3, "base class: {1}", Base.Prototype.__Class)
-
-            Define(Receiver, Name, NestedClassProperty(NestedReceiver), true)
-
+  
+            Define(Receiver, Name, NestedClassProp(NestedReceiver), true)
+  
             LogVerbose(3, "recurse into newly created class: {1}",
                        NestedReceiverName)
-
+  
             Apply(NestedSupplier, NestedReceiver)
         }
 
