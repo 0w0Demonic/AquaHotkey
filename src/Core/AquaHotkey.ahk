@@ -86,8 +86,13 @@
  */
  #Requires AutoHotkey   v2
 ;#Requires AutoHotkey >=v2.1-alpha.3
+
 if (VerCompare(A_AhkVersion, "<v2.1-alpha.3")) {
-    AquaHotkey.Log("INFO: using an AutoHotkey version below v2.1-alpha.3")
+    AquaHotkey.Log("
+    (
+    WARN: AHK version is below v2.1-alpha.3. AquaHotkey.CreateClass()
+          might cause unexpected problems.
+    )")
 }
 
 ;@endregion
@@ -333,7 +338,8 @@ class AquaHotkey extends AquaHotkey_Ignore
         try {
             ObjSetBase(Cls.Prototype, BaseClass.Prototype)
         } catch {
-            throw TypeError("Unable to subclass. Try using v2.1-alpha.3+.",,
+            throw TypeError(
+                "Unable to subclass. Try using version v2.1-alpha.3+",,
                 Cls.Prototype.__Class . " -> " . BaseClass.Prototype.__Class)
         }
 
@@ -553,8 +559,6 @@ class AquaHotkey_Ignore
     ;---------------------------------------------------------------------------
     ;@region static Apply()
 
-    ; TODO extend usage of `Override` into an int representing priority?
-
     /**
      * Transfers all of the properties owned by the `Supplier` and overwrites
      * them into the given `Receiver`.
@@ -611,25 +615,6 @@ class AquaHotkey_Ignore
                 default:
                     throw TypeError("Expected a Class or Func",, Type(Target))
             }
-        }
-
-        /**
-         * Returns a getter property that always returns `Value`.
-         * 
-         * @param   {Any}  Value  the value to return
-         * @returns {Object}
-         */
-        static GetterProperty(Value) => { Get: (_) => Value }
-
-        /**
-         * Creates a property descriptor typical for nested classes.
-         * 
-         * @param   {Class}  Cls  the nested class
-         * @returns {Object}
-         */
-        static NestedClassProperty(Cls) => {
-            Get:  (_)        => Cls,
-            Call: (_, Args*) => Cls(Args*)
         }
 
         /**
@@ -836,7 +821,6 @@ class AquaHotkey_Ignore
             ;           class) because there's occasions we have to create our
             ;           own property descriptors. `MaxParams` should be fine
             ;           because varargs aren't counted.
-            ;    (maybe just write a dirty fix in `NestedClassProperty`?)
             if ((Supplier is Class) && IsNestedClassProp(PropDesc)) {
                 Log(3, "calling {}.{} (get): is this a nested class?",
                         SupplierName, Name)
@@ -851,7 +835,7 @@ class AquaHotkey_Ignore
                 catch Any as Err
                 {
                     ; even more paranoia
-                    Log(3, Type(Err))
+                    Log(3, "error. (type: " . Type(Err) . ")")
                     if ((Err is Error)
                         && ObjHasOwnProp(Err, "Message")
                         && ObjHasOwnProp(GetOwnPropDesc(Err, "Message"),
@@ -862,26 +846,31 @@ class AquaHotkey_Ignore
                 }
             }
 
+            ; a regular static property
             if (!DoRecursion) {
                 LogVerbose(3, "> {1}", Name)
                 Define(Receiver, Name, GetOwnPropDesc(Supplier, Name), Override)
                 continue
             }
 
+            ; might potentially be a nested class
             NestedSupplier     := GetValueOfOwnProp(Supplier, Name)
             NestedSupplierName := NestedSupplier.Prototype.__Class
             NestedReceiverName := ReceiverName . "." . Name
 
             LogVerbose(3, "nested class... {1}", Name)
 
+            ; does target have such a nested class?
             if (ObjHasOwnProp(Receiver, Name)) {
                 NestedReceiver := GetValueOfOwnProp(Receiver, Name)
                 if (NestedReceiver is Class) {
+                    ; yes -> recurse
                     LogVerbose(3, "recurse into existing: {1}",
                                NestedReceiverName)
                     Apply(NestedSupplier, NestedReceiver)
                     continue
                 } else {
+                    ; invalid -> overwrite
                     LogVerbose(3, "overwriting existing class: {1}",
                                NestedReceiverName)
                 }
