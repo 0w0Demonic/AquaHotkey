@@ -1081,3 +1081,185 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore
 }
 
 ;@endregion
+;-------------------------------------------------------------------------------
+;@region AquaHotkey_Override
+
+/**
+ * @public
+ * @abstract
+ * @class
+ * @classdesc
+ * 
+ * @module  <Core/AquaHotkey_Override>
+ * @author  0w0Demonic
+ * @see     https://www.github.com/0w0Demonic/AquaHotkey
+ * @example
+ * class Gui_Override extends AquaHotkey_Override {
+ *     class Gui {
+ *         __New(Prev, Args*) {
+ *             Prev(this, Args*)
+ *             MsgBox("after init...")
+ *         }
+ *     }
+ * }
+ */
+class AquaHotkey_Override extends AquaHotkey_Ignore {
+    static __New() {
+        ;@region Setup
+
+        if (this == AquaHotkey_Override) {
+            return
+        }
+        for PropName in ObjOwnProps(this) {
+            if (!TryGetNestedClass(this, PropName, &Supplier)) {
+                continue
+            }
+            Receiver := Deref(PropName)
+            if (!(Receiver is Class)) {
+                throw TypeError("Expected a Class",, Type(Receiver))
+            }
+            if (HasBase(Receiver, AquaHotkey_Ignore)) {
+                continue
+            }
+            Apply(Supplier, Receiver)
+        }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Apply
+
+        /**
+         * Iterates through the structure of the override class.
+         * 
+         * @param   {Class}  Supplier  supplier class
+         * @param   {Class}  Receiver  receiver class
+         */
+        static Apply(Supplier, Receiver) {
+            for PropName in ObjOwnProps(Supplier) {
+                if (PropName ~= "i)^(?>Prototype|__Init)$") {
+                    continue
+                }
+                if (!ObjHasOwnProp(Receiver, PropName)) {
+                    throw PropertyError("Property not found",, PropName)
+                }
+                TryGetNestedClass(Supplier, PropName, &NestedSupplier, &Err)
+                if (IsSet(Err)) {
+                    throw Err
+                }
+
+                TryGetNestedClass(Receiver, PropName, &NestedReceiver)
+                if (IsSet(Err)) {
+                    throw Err
+                }
+
+                if (IsSet(NestedSupplier) && !IsSet(NestedReceiver)) {
+                    throw PropertyError(
+                        "cannot overwrite a property with a class",,
+                        PropName)
+                }
+                if (!IsSet(NestedSupplier) && IsSet(NestedReceiver)) {
+                    throw PropertyError(
+                        "cannot overwrite a class with a property",,
+                        PropName)
+                }
+                ; (implies `IsSet(NestedReceiver)`)
+                if (IsSet(NestedSupplier)) {
+                    Apply(NestedSupplier, NestedReceiver)
+                } else {
+                    WrapPropDesc(Supplier, Receiver, PropName)
+                }
+            }
+            for PropName in ObjOwnProps(Supplier.Prototype) {
+                ; TODO reconsider adding `.__Init()`
+                if (PropName = "__Class") {
+                    continue
+                }
+                WrapPropDesc(Supplier.Prototype, Receiver.Prototype, PropName)
+            }
+        }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region WrapPropDesc
+
+        /**
+         * Wraps a property descriptor by binding the previous implementation.
+         * 
+         * @param   {Class}   supplier class / class prototype
+         * @param   {Class}   receiver class / class prototype
+         * @param   {String}  property name
+         */
+        static WrapPropDesc(Supplier, Receiver, PropName) {
+            Prev := Check(GetOwnPropDesc(Receiver, PropName))
+            Next := Check(GetOwnPropDesc(Supplier, PropName))
+
+            ; get { (this, Prev, Args*) => ... }
+            ;         #1    #2    ...
+            ; 
+            ; set { (this, Value, Prev, Args*) => ... }
+            ;         #1    #2     #3    ...
+            ; 
+            ; call { (this, Prev, Args*) => ... }
+            ;          #1    #2    ...
+            WrapFn(Prev, Next, "Get", 2)
+            WrapFn(Prev, Next, "Set", 3)
+            WrapFn(Prev, Next, "Call", 2)
+
+            DefineProp(Receiver, PropName, Prev)
+        }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region Check
+
+        /**
+         * Ensures the property descriptor is dynamic and overridable.
+         * 
+         * @param   {Object}  PropDesc  property descriptor
+         * @returns {Object}
+         */
+        static Check(PropDesc) {
+            ; property cannot be empty (rare edge case)
+            if (!ObjOwnPropCount(PropDesc)) {
+                throw PropertyError("property is empty")
+            }
+            ; properties must be some kind of function
+            if (ObjHasOwnProp(PropDesc, "Value")) {
+                throw PropertyError("not a dynamic property or method")
+            }
+            return PropDesc
+        }
+
+        ;@endregion
+        ;-----------------------------------------------------------------------
+        ;@region WrapFn
+
+        /**
+         * Wraps a single property in a property descriptor.
+         * 
+         * @param   {Func}     Prev     previous property
+         * @param   {Func}     Next     new property
+         * @param   {String}   T        property type
+         * @param   {Integer}  PrevPos  position of previous property as arg
+         */
+        static WrapFn(Prev, Next, T, PrevPos) {
+            if (!ObjHasOwnProp(Next, T)) {
+                return
+            }
+            if (!ObjHasOwnProp(Prev, T)) {
+                throw PropertyError("property type not found",, T)
+            }
+            ; e.g. [unset, Prev.%T%]
+            BoundArgs := Array()
+            BoundArgs.Length := PrevPos
+            BoundArgs[-1] := Prev.%T%
+
+            Prev.%T% := ObjBindMethod(Next.%T%, unset, BoundArgs*)
+        }
+
+        ;@endregion
+    }
+}
+
+;@endregion
+
