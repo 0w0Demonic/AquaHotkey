@@ -13,11 +13,6 @@ AquaHotkey is a *class-prototyping* library for AutoHotkey v2.
 
 It extends built-in types such as `Array`, `String`, and `Map` with custom methods and properties. You define these extensions in classes declaratively, instead of calling `.DefineProp()` manually.
 
-```ahk
-; "Hello, AquaHotkey!"
-"Hello, World!".SubStr(1, 7).Append("AquaHotkey!").MsgBox()
-```
-
 Create an extension class:
 
 ```ahk
@@ -36,6 +31,11 @@ class StringUtil extends AquaHotkey {
 The nested `StringUtil.String` class targets the built-in `String` type.
 
 When the script loads, AquaHotkey copies the methods and properties from the extension class into the target prototype. After that, every string can use these methods.
+
+```ahk
+; "Hello, AquaHotkey!"
+"Hello, World!".SubStr(1, 7).Append("AquaHotkey!").MsgBox()
+```
 
 ## Quick Start
 
