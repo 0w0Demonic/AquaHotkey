@@ -101,7 +101,7 @@ class AquaHotkey_TypeInfo extends AquaHotkey {
             loop parse ClassName, "." {
                 ClassObj := (ClassObj)
                         ? ClassObj.%A_LoopField%
-                        : (AquaHotkey.Deref)(A_LoopField)
+                        : Deref(A_LoopField)
                 
                 if (!(ClassObj is Class)) {
                     throw TypeError("Expected a Class for " . A_LoopField,,
