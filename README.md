@@ -63,21 +63,14 @@ Finally, include the library in your script:
 
 ## Documentation
 
-Getting started:
+Core extension framework:
 
-- [Installing](/docs/installation.md)
-- [Beginner's Guide](/docs/basics.md)
-- [Advanced Concepts](/docs/advanced.md)
+- [Installation](/docs/installation.md)
+- [core.md](./docs/core.md)
 
-Optional stuff:
+AquaHotkeyX (broad range of extension classes):
 
-- [Expert Concepts](/docs/expert.md)
-- [Advanced Installation](/docs/installation.md)
-
-Also see:
-
-- [How does this work?](#a-short-insight-into-class-prototyping)
-- [AquaHotkeyX](#aquahotkeyx)
+- [API Overview](./docs/api-overview.md)
 
 ## Core Idea
 
