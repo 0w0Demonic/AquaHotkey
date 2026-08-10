@@ -56,7 +56,7 @@ AutoHotkey is a *prototype-based language*, much like JavaScript. In this langua
 
 A "banana" object would inherit from a "fruit" object that acts as prototype and represents properties and functionality of fruit in general.
 
-When you create an array in AHK, it first inherits from the *array prototype* that defines behavior for all arrays in general. The array prototype itself inherits from the *object prototype* that defines behavior for all object. Finally, the object prototype inherits from *any prototype*, which is the base for all values in AHK.
+When you create an array in AHK, it first inherits from the *Array Prototype* that defines behavior for all arrays in general. The Array Prototype then inherits from the *Object Prototype* that defines behavior for all object. Finally, the Object Prototype inherits from *Any Prototype*, which is the base for all values in AHK.
 
 You can find these prototype objects in `<SomeClass>.Prototype`, for example `Object.Prototype`.
 
@@ -216,9 +216,9 @@ class GuiButton extends AquaHotkey {
 
 If an extension contains a nested class, AquaHotkey checks if the target already contains a class with the same name.
 
-If the target does not contain the class, AquaHotkey moves the nested class into the target.
+If the target contains the nested class, AquaHotkey recursively applies the nested class in the extension to the nested class in the target.
 
-(TODO)
+If the target does not contain the class, AquaHotkey moves the nested class into the target.
 
 For example:
 
@@ -439,7 +439,7 @@ Prefer `static __New()` instead of variable declaration to perform extra setup l
 
 ### Multiple Declarations
 
-It is **strongly recommended** to declare field declarations in their "method form", i.e. `__Init() { ... }`. Using normal assignments puts you at risk of infinite recursion.
+It is **strongly recommended** to declare variable declarations in their "method form", i.e. `__Init() { ... }`. Using normal assignments puts you at risk of infinite recursion.
 
 ```ahk
 class ObjectExt extends AquaHotkey {
@@ -489,7 +489,7 @@ __New()`. Also see [Extension Setup](#extension-setup).
 
 ### On Primitive Classes
 
-AquaHotkey ignores any extension that target class that do not derive from `Object`. This is because instances of these classes cannot own any properties on their on.
+AquaHotkey ignores the variable declaration of any extension that targets a class that does not derive from `Object`. This is because instances of these classes cannot own any properties on their on.
 
 As of AHK v2.0, the following classes cannot declare variable declarations:
 
@@ -504,7 +504,7 @@ As of AHK v2.0, the following classes cannot declare variable declarations:
   - ComObject
   - ComValueRef
 
-This also includes any class derives from the list above, or any class that directly `extends Any`.
+This also includes any class which derives from the list above, or any class that directly `extends Any`.
 
 You can use the following code snippet to determine whether a target can have custom variable declarations:
 
@@ -569,6 +569,7 @@ As workaround, you can *move* the class instead of creating a copy of it:
 
 ```ahk
 DefineProp(A, "B", NestedClassProp(Ext.A.B)) ; o.k.
+DeleteProp(A, "B") ; delete from extension class, if appropriate
 ```
 
 2. **Using `AquaHotkey_Backup.Of(Cls)`**:
@@ -621,7 +622,7 @@ class Monitor_Array_Length extends AquaHotkey_Override {
 }
 ```
 
-The first parameter of an override property or method is the previous implementation `__super__`.
+The first parameter of an override property or method is the previous implementation `__super__()`.
 The first argument of `__super__()` is always the class or class instance which called the property.
 
 The override can call this implementation to preserve the original behavior.
@@ -637,7 +638,7 @@ Push(__super__, Args*) {
 }
 ```
 
-The previous workflow involved saving the previous implementation of properties in a backup class to override an extension property. Override classes provide the previous implementation directly through `__super__`. The use of backup classes for overriding existing properties is therefore deprecated.
+The previous workflow involved saving the previous implementation of properties in a backup class to override an extension property. Override classes provide the previous implementation directly through `__super__()`. The use of backup classes for overriding existing properties is therefore deprecated.
 
 ### Override rules
 
@@ -701,13 +702,9 @@ The reference causes `OtherClass` to load if it has not already loaded.
 
 ### Recommended use
 
-Use override classes with care.
-
-An override changes existing behavior and can affect code outside the feature that defines the override. Multiple overrides can also create a call chain that depends on load order.
-
 Overrides are most useful for debugging, instrumentation, and similar tasks.
 
-For normal application logic, prefer an extension, a wrapper, or another explicit solution when possible.
+Use override classes with care. For normal application logic, prefer an extension, a wrapper, or another explicit solution when possible.
 
 ## Mixins
 
