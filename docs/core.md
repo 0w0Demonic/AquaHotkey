@@ -278,7 +278,6 @@ class FileOpen_DefaultRead extends AquaHotkey {
 **Use with caution.** When possible, define a static helper method instead (see
 `MsgBoxUtil` example above).
 
-
 ## Ignored Classes
 
 Extend your class with `AquaHotkey_Ignore` to mark helper or internal-use classes that should be ignored by AquaHotkey. This is useful for large projects. AquaHotkey ignores any class that derives from `AquaHotkey`, or any class with `AquaHotkey_` prefix.
@@ -358,7 +357,7 @@ class Example {
 
 When a class loads, it executes `static __Init()` in a similar manner.
 
-```
+```ahk
 class Example
 {
     ; Executes when AHK loads `Example` class.
@@ -750,7 +749,7 @@ class Person
 
 Alternatively, you can create a class that `extends AquaHotkey_MultiApply` and pass the targets in `super.__New()`:
 
-```
+```ahk
 class Enumerable1 extends AquaHotkey_MultiApply {
     static __New() => super.__New(Array, Map, ...)
 
@@ -909,7 +908,7 @@ If `Dependency` is not defined, `Dependency?` evaluates as `unset` instead of ca
 
 A property path is a dot-separated list of property names:
 
-```text
+```ahk
 class Ext extends AquaHotkey {
     class Any {
         Example() { ... } ; <-- Any.Prototype.Example
@@ -1015,4 +1014,3 @@ When inlining properties, you are doing class prototyping manually. Be sure to c
 For this purpose, it is recommended that you use the helper functions defined in `<Core/Utils>`.
 
 For more help, see extension classes like [Base/Object.ahk](../src/Base/Object.ahk) and [String/Formatting.ahk](../src/String/Formatting.ahk).
-
