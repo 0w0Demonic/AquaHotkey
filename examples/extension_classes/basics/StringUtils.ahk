@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2
-#Include "%A_LineFile%\..\..\AquaHotkey.ahk"
+#Include <AquaHotkey\src\Core\AquaHotkey>
+#Include <AquaHotkey\src\Core\Utils>
 
 /**
  * @file
@@ -9,6 +10,15 @@
  */
 class StringUtils extends AquaHotkey {
     class String {
+
+        ; << additional setup for `StringUtils.String` >>
+        static __New() {
+
+            ; this inlines `Length => StrLen(this)`, saving one additional call.
+            ; use with care. For help, see `~/core.md`.
+            DefineGetter(this.Prototype, "Length", StrLen)
+        }
+
         /**
          * Returns the length of the string in characters.
          * 

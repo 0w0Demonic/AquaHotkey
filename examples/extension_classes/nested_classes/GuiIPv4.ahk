@@ -1,5 +1,5 @@
 #Requires AutoHotkey v2
-#Include "%A_LineFile%\..\..\AquaHotkey.ahk"
+#Include <AquaHotkey\src\Core\AquaHotkey>
 
 /**
  * A wrapper for the `SysIpAddress32` control used for selecting IPv4 addresses,
@@ -8,14 +8,14 @@
  * 
  * ```
  * class Gui
- *         |- AddIPv4(Opt := "", Addr?)
- *         `- class IPv4 extends Gui.Custom
- *                     |- Address[Octet?] { get; set; }
- *                     |- Clear()
- *                     |- IsBlank
- *                     |- Focus(Index)
- *                     |- SetRange(Index, Lo := 0, Hi := 255)
- *                     `- OnEvent(EventName, Callback, AddRemove?)
+ * |- AddIPv4(Opt := "", Addr?)
+ * `- class IPv4 extends Gui.Custom
+ *    |- Address[Octet?] { get; set; }
+ *    |- Clear()
+ *    |- IsBlank
+ *    |- Focus(Index)
+ *    |- SetRange(Index, Lo := 0, Hi := 255)
+ *    `- OnEvent(EventName, Callback, AddRemove?)
  * ```
  */
 class Gui_IPv4 extends AquaHotkey {
@@ -25,14 +25,27 @@ class Gui {
      * 
      * @param   {String?}         Opt   additional GUI options
      * @param   {String?/Array?}  Addr  initial IPv4 address
+     * @returns {Gui.IPv4}
      */
     AddIPv4(Opt := "", Addr?) {
+        ; Create a custom GUI control.
         Ctl := this.AddCustom("ClassSysIPAddress32 r1 " . Opt)
+
+        ; Right now, the base of `Ctl` is equal to `Gui.Custom.Prototype`.
+        ; We want to "upgrade" this object to be member of our new class:
         ObjSetBase(Ctl, Gui.IPv4.Prototype)
-        (IsSet(Addr) && Ctl.Address := Addr)
+
+        ; set an address, if present (calls `Address { set; }`)
+        if (IsSet(Addr)) {
+            Ctl.Address := Addr
+        }
+        ; finally, return the GUI control
         return Ctl
     }
 
+    /**
+     * A GUI control used for entering IPv4 addresses.
+     */
     class IPv4 extends Gui.Custom {
         /**
          * Gets or sets the IPv4 address of the control.
