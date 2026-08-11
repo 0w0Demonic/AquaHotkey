@@ -134,18 +134,75 @@ Project organization and structure:
 
 ## AquaHotkeyX
 
-Overview:
+For a complete reference, see [API Overview](./docs/api-overview.md).
 
-- [AquaHotkeyX API Overview](./docs/api-overview.md)
+- Overview:
+  - [AquaHotkeyX API Overview](./docs/api-overview.md)
 
-General concepts:
+- General concepts:
+  - [duck types](./docs/base/DuckTypes.md)
+  - [natural order](./docs/base/Comparable.md)
+  - [object equality](./docs/base/Eq.md)
+  - [universal `.ToString()` method](./docs/Base/ToString.md)
 
-- [duck types](./docs/base/DuckTypes.md)
-- [natural order](./docs/base/Comparable.md)
-- [object equality](./docs/base/Eq.md)
-- [universal `.ToString()` method](./docs/Base/ToString.md)
+- Collections:
+  - [Overview](./docs/Collections/overview.md)
+  - [Sets](./docs/Collections/Set.md)
+  - [Generic Collections](./docs/Collections/Generic/overview.md)
 
-Collections:
+  - Immutable collections:
+    - [ImmutableArray](./docs/Collections/ImmutableArray.md)
+    - [ImmutableMap](./docs/Collections/ImmutableMap.md)
+    - [ImmutableSet](./docs/Collections/ImmutableSet.md)
+  
+  <!-- TODO map entries -->
 
-- [overview](./docs/Collections/overview.md)
-- [generic collections](./docs/Collections/Generic/overview.md)
+  - Ordered collections:
+    - [OrderedMap](./docs/Collections/OrderedMap.md)
+    - [OrderedSet](./docs/Collections/OrderedSet.md)
+  
+  - Sorted collections:
+    - [SkipListMap](./docs/Collections/SkipListMap.md)
+    - [SkipListSet](./docs/Collections/SkipListSet.md)
+  
+  - Weak Reference collections:
+    - [WeakRefMap](./docs/Collections/WeakRefMap.md)
+    - [WeakRefSet](./docs/Collections/WeakRefSet.md)
+
+- Function Types:
+  - [Comparators](./docs/Func/Comparator.md)
+  - [Predicates](./docs/Func/Predicate.md)
+
+- Mixins
+  - [Enumerable1](./docs/Interfaces/Enumerable1.md)
+  - [Enumerable2](./docs/Interfaces/Enumerable2.md)
+
+- Abstract class & Specifications
+  - [IArray](./docs/Interfaces/IArray.md)
+  - [IMap](./docs/Interfaces/IMap.md)
+  - [ISet](./docs/Interfaces/ISet.md)
+
+- Serialization
+  - [binary graph serialization](./docs/IO/Serializer.md)
+  <!-- TODO - JSON bindings -->
+
+- Monads
+  - [Optional (null handling)](./docs/Monads/Optional.md)
+  - [TryOp (error handling)](./docs/Monads/TryOp.md)
+
+<!-- TODO parsing -->
+
+- Sequences ("streams")
+  - [Stream](./docs/Stream/Stream.md)
+  - [DoubleStream](./docs/Stream/DoubleStream.md)
+  <!-- TODO join operations -->
+
+- String utils
+  - [String](./docs/String/String.md)
+  - [Formatting](./docs/String/Formatting.md)
+  - [Matching](./docs/String/Matching.md)
+  - [Substrings](./docs/String/Substrings.md)
+
+- Misc.
+  - [COM Framework](./docs/System/COM.md)
+  - [DLL Loader](./docs/System/DLL.md)

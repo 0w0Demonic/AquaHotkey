@@ -9,3 +9,8 @@
 
 - more cache strategies
 - time API with Win32
+
+- extra logic for `Primitive.IsInstance(Val?)` and `IsObject`
+- Error.ThrowIf...
+
+- error types

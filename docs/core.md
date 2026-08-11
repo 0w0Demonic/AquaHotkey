@@ -1,5 +1,9 @@
 # AquaHotkey - Basics
 
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
 - [AquaHotkey - Basics](#aquahotkey---basics)
   - [About](#about)
   - [Install](#install)
@@ -7,28 +11,48 @@
     - [How to Use it to Your Advantage](#how-to-use-it-to-your-advantage)
   - [Class Hierarchy](#class-hierarchy)
   - [The Extension Class](#the-extension-class)
-    - [One Feature, One Class](#one-feature-one-class)
+    - [What is an Extension Class?](#what-is-an-extension-class)
+    - [How to Create an Extension Class](#how-to-create-an-extension-class)
+    - [Static and Instance Properties](#static-and-instance-properties)
     - [Nested classes](#nested-classes)
-  - [Extending Functions](#extending-functions)
-    - [Overriding Functions](#overriding-functions)
+      - [Apply an Extension to Already Existing Nested Class](#apply-an-extension-to-already-existing-nested-class)
+      - [Create a New Nested Class For Target](#create-a-new-nested-class-for-target)
+    - [Functions](#functions)
+      - [Extend a Function](#extend-a-function)
+      - [Override a Function](#override-a-function)
+    - [How to Write Extensions Effectively](#how-to-write-extensions-effectively)
+      - [Smart Static Properties](#smart-static-properties)
+      - [Smart Instance Properties](#smart-instance-properties)
+      - [One Feature, One Class](#one-feature-one-class)
+      - [One Feature, One File](#one-feature-one-file)
+      - [Check Whether an Extension Exists in the Script](#check-whether-an-extension-exists-in-the-script)
   - [Ignored Classes](#ignored-classes)
   - [Debug Messages](#debug-messages)
+    - [Verbose Mode](#verbose-mode)
+    - [Own Debug Messages](#own-debug-messages)
   - [Variable Declarations](#variable-declarations)
     - [What are Variable Declarations?](#what-are-variable-declarations)
+    - [The Two Syntaxes](#the-two-syntaxes)
     - [Use in Extension Classes](#use-in-extension-classes)
     - [Array and Object Literals](#array-and-object-literals)
     - [Static Declarations](#static-declarations)
-    - [Multiple Declarations](#multiple-declarations)
+    - [Always Prefer `.__Init()` Syntax](#always-prefer-__init-syntax)
+    - [Multiple Variable Declarations](#multiple-variable-declarations)
     - [On Primitive Classes](#on-primitive-classes)
   - [Backup Classes](#backup-classes)
-    - [Create Classes](#create-classes)
-      - [Known Issues](#known-issues)
+  - [Create New Classes at Runtime](#create-new-classes-at-runtime)
+    - [Known Issues](#known-issues)
+      - [Copying a New Nested Class Into a Target](#copying-a-new-nested-class-into-a-target)
+      - [Using `AquaHotkey_Backup.Of(Cls)`](#using-aquahotkey_backupofcls)
   - [Override Classes](#override-classes)
+    - [What is that First Parameter?](#what-is-that-first-parameter)
     - [Override rules](#override-rules)
     - [Multiple overrides](#multiple-overrides)
     - [Recommended use](#recommended-use)
+    - [Limitations & Workarounds](#limitations--workarounds)
   - [Mixins](#mixins)
-    - [Documentation of Mixins](#documentation-of-mixins)
+    - [How to Use Mixins](#how-to-use-mixins)
+    - [How to Document Mixins](#how-to-document-mixins)
   - [Extension Setup](#extension-setup)
     - [Force a Class to Load](#force-a-class-to-load)
     - [Conditional extensions](#conditional-extensions)
@@ -37,6 +61,11 @@
       - [Dependancy Over Other Classes](#dependancy-over-other-classes)
       - [Standalone Features](#standalone-features)
     - [Inlining properties](#inlining-properties)
+      - [Properties Eligible For Inlining](#properties-eligible-for-inlining)
+      - [Where to Put Inlined Properties](#where-to-put-inlined-properties)
+      - [How to Document Inlined Properties](#how-to-document-inlined-properties)
+
+<!-- /code_chunk_output -->
 
 ## About
 
@@ -91,6 +120,8 @@ Now, every array inherits this method. You can call this new method like this:
 ; ==> 1, 2, 3, 4, 5
 ```
 
+The main focus of AquaHotkey is all about changing these prototype objects to add your own behavior. Focus only on the code and class structure, while the extension framework handles the rest.
+
 ## Class Hierarchy
 
 ```txt
@@ -110,16 +141,20 @@ Any
 
 ## The Extension Class
 
-The main focus of AquaHotkey is all about changing these prototype objects to add own behavior. Focus only on the code and class structure, while the extension framework handles the rest.
+### What is an Extension Class?
 
-First, start with an *extension class*. An extension class is a class that `extends AquaHotkey`.
+The most fundamental feature of AquaHotkey is the *extension class*. It assigns new properties across one or more target classes/functions to provide own custom behaviour.
 
-Give it a clear, descriptive name. Don't be afraid to make it overly verbose:
+### How to Create an Extension Class
+
+Start by creating a class that `extends AquaHotkey`. This becomes our *extension class*.
 
 ```ahk
 class Array_ForEach extends AquaHotkey {
 }
 ```
+
+Give it a clear, descriptive name. Don't be afraid to make it overly verbose.
 
 Now, create *extensions*, which are the nested classes that an extension class encloses. The name of the extension should be the same as the targeted class. For example, if you want to extend `Array`, the name of the extension should be `Array`.
 
@@ -143,61 +178,62 @@ class Array_ForEach extends AquaHotkey {
         }
     }
 }
+```
 
+In the `Array_ForEach.Array` class, the `this` keyword refers to any instance of `Array`. This always depends on which class you are targeting with the extension.
+
+---
+
+Done.
+
+You can assign more properties to arrays by writing more properties, or declare another nested class to target a different class.
+
+Finally, you can make use of these new features in your script:
+
+```ahk
 [1, 2, 3, 4, 5].ForEach(MsgBox)
 ; ==> 1, 2, 3, 4, 5
 ```
 
+### Static and Instance Properties
+
 Note that `.ForEach()` was declared as non-static, which means it's added to the array prototype. To add things to the `Array` class, use a static property:
 
 ```ahk
-...
-static WithCaseSense(CS) {
-    Arr := this()
-    Arr.CaseSense := CS
-    return Arr
+class MapConstructors extends AquaHotkey {
+    class Map {
+        static WithCaseSense(CS) {
+            Arr := this()
+            Arr.CaseSense := CS
+            return Arr
+        }
+    }
 }
-...
 
-Arr := Array.WithCaseSense(false)
+MapObj := Map.WithCaseSense(false)
 ```
 
-### One Feature, One Class
+- [Why does the method use `this()` instead of `Map()`?](#smart-static-properties)
 
-At first, this structure might seem a little unnecessary. After all, why do we need the nested class structure?
-
-The reason is that an extension class represents *one feature*, where changes can span across multiple classes. An extension class should add only one functionality to reduce clutter.
+Here, `this` refers to the class that called the static method.
 
 ```ahk
-class ToString extends AquaHotkey {
-    class Array  { ToString() { ... } }
-    class Object { ToString() { ... } }
-    class Map    { ToString() { ... } }
-    ...
+class CustomMap extends Map {
+    ; ...
 }
-```
 
-Extension classes like [Base/DuckTypes](./base/DuckTypes.md) span across many hundreds of lines of code and across almost all built-in types. With this structure, AquaHotkey reliably knows where to put the same property into multiple different targets.
-
-You can save an extension class into a separate file. This lets you reuse them across multiple scripts.
-
-```ahk
-#Include <ToString>
-```
-
-Want to know whether an extension class is included in your script? Just use `IsSet()`:
-
-```ahk
-if (IsSet(ToString)) {
-    MsgBox(Obj.ToString())
-} else {
-    MsgBox(Type(Obj))
-}
+CustomMap.WithCaseSense("Off") ; <-- `this` refers to `CustomMap`
 ```
 
 ### Nested classes
 
 To apply extensions to a nested class of a target, simply reflect that structure in the extension class.
+
+If an extension contains a nested class, AquaHotkey checks if the target already contains a class with the same name.
+
+#### Apply an Extension to Already Existing Nested Class
+
+If the target contains the nested class, AquaHotkey recursively applies the nested class in the extension to the nested class in the target.
 
 The following examples shows you how to extend `Gui.Button`:
 
@@ -214,11 +250,9 @@ class GuiButton extends AquaHotkey {
 }
 ```
 
-If an extension contains a nested class, AquaHotkey checks if the target already contains a class with the same name.
+#### Create a New Nested Class For Target
 
-If the target contains the nested class, AquaHotkey recursively applies the nested class in the extension to the nested class in the target.
-
-If the target does not contain the class, AquaHotkey moves the nested class into the target.
+If the target does not contain the nested class, AquaHotkey creates a new nested class on the target.
 
 For example:
 
@@ -237,11 +271,17 @@ class AquaHotkey_Gui_IPv4 extends AquaHotkey {
 ```
 
 If `Gui.IPv4` does not exist, AquaHotkey creates a completely new `IPv4` class
-at runtime. (See [known issues](#known-issues))
+at runtime.
 
 See [GuiIPv4.ahk](../examples/GuiIPv4.ahk) for the complete example script.
 
-## Extending Functions
+Also see:
+
+- [Known Issues](#known-issues)
+
+### Functions
+
+#### Extend a Function
 
 The same logic of extension classes applies to global functions:
 
@@ -258,7 +298,7 @@ MsgBox.Info("info: [...]", "(Title text)")
 
 If an extension class targets a function, you should use only `static` properties.
 
-### Overriding Functions
+#### Override a Function
 
 To override the function itself, assign a `static Call()` method.
 
@@ -278,6 +318,92 @@ class FileOpen_DefaultRead extends AquaHotkey {
 **Use with caution.** When possible, define a static helper method instead (see
 `MsgBoxUtil` example above).
 
+### How to Write Extensions Effectively
+
+#### Smart Static Properties
+
+In one of the  [previous examples](#static-and-instance-properties), `this()` creates an instance of that class that calls `.WithCaseSense()`:
+
+```ahk
+Result := this()
+```
+
+This makes the method **smart**. A smart method can return different types when it is called from different classes. Hard-coding `Map()` would always create a `Map`, even when the method is inherited by another class.
+
+#### Smart Instance Properties
+
+Instance methods are also **smart** if they return a new instance of the same type. Do not create the result with a hard-coded class such as `Array()` if the method should preserve the type of the calling instance.
+
+For example:
+
+```ahk
+Result := []
+ObjSetBase(Result, ObjGetBase(this))
+Result.__Init()
+Result.__New()
+```
+
+This creates a new instance with the same prototype as `this`, and performs the initialization that would normally occur when creating an instance of that class.
+
+This is considerably more complex than using `this()` in a static method. Use this pattern only when preserving the instance type provides a real benefit. Otherwise, use a normal constructor.
+
+<!--
+TODO maybe add chess.com icons to mark sections as difficult
+-->
+
+#### One Feature, One Class
+
+At first, this structure might seem a little unnecessary. After all, why do we need the nested class structure?
+
+The reason is that an extension class represents *one feature*, where changes can span across multiple classes. An extension class should add only one functionality to reduce clutter.
+
+```ahk
+class Ext_ToString extends AquaHotkey {
+    class Array  { ToString() { ... } }
+    class Object { ToString() { ... } }
+    class Map    { ToString() { ... } }
+    ...
+}
+```
+
+Extension classes like [Base/DuckTypes](./base/DuckTypes.md) span across many hundreds of lines of code and across almost all built-in types. With this structure, AquaHotkey reliably knows where to put the same property into multiple different targets.
+
+#### One Feature, One File
+
+You can save an extension class into a separate file. This lets you reuse them across multiple scripts.
+
+```ahk
+#Include <ToString>
+```
+
+Keeps things well distributed, so you only have to import what you really need.
+
+Generally speaking: *one feature, one file*.
+
+```ahk
+#Include <ToString>
+#Include <Array_StreamlikeOps>
+#Include <Map_StaticConstructors>
+```
+
+Try to be very descriptive of what an extension does, and don't be afraid to make it verbose. This assures that you don't run into issues with duplicate names.
+
+#### Check Whether an Extension Exists in the Script
+
+Want to know whether an extension class is included in your script? Just use `IsSet()`:
+
+```ahk
+;#Include <ToString>
+...
+if (IsSet(Ext_ToString)) {
+    MsgBox(Obj.ToString())
+} else {
+    MsgBox(Type(Obj))
+}
+```
+
+This becomes very useful later on when you specify [extra setup logic](#extension-setup) for your extension classes.
+
 ## Ignored Classes
 
 Extend your class with `AquaHotkey_Ignore` to mark helper or internal-use classes that should be ignored by AquaHotkey. This is useful for large projects. AquaHotkey ignores any class that derives from `AquaHotkey`, or any class with `AquaHotkey_` prefix.
@@ -296,15 +422,19 @@ class LargeProject extends AquaHotkey {
 
 If anything decides to break badly, you can always look at the debugger messages. They contain information about all of the extension classes and their targets.
 
+### Verbose Mode
+
 For very detailed information, you can activate verbose logging by adding `#Include <AquaHotkey\cfg\VerboseLogging>` to your script.
 
 ```ahk
 #Include <AquaHotkey\cfg\VerboseLogging>
 ```
 
+### Own Debug Messages
+
 Methods `AquaHotkey_Ignore.Log()` and `AquaHotkey_Ignore.LogVerbose()` produce `OutputDebug()` messages. You can change this behaviour by redefining the method.
 
-In the future, AquaHotkey might provide a small interface for customizing the logging output, such as output to file.
+In the future, AquaHotkey might provide a small interface for customizing the logging output, such as output to file, potentially in the form of an extension class. If you have any suggestions, please let me know!
 
 ## Variable Declarations
 
@@ -318,6 +448,8 @@ class Example {
     static StaticVar := Expressions ; <-- static variable declaration
 }
 ```
+
+### The Two Syntaxes
 
 There are two ways to define variable declarations:
 
@@ -352,18 +484,6 @@ class Example {
         this.Prop1 := "str" ; 2. assign variables to the object
         this.Prop2 := 42
     }
-}
-```
-
-When a class loads, it executes `static __Init()` in a similar manner.
-
-```ahk
-class Example
-{
-    ; Executes when AHK loads `Example` class.
-    ; Internally, this is a `static __Init()` method.
-
-    static Prop := Value
 }
 ```
 
@@ -436,7 +556,7 @@ Therefore, only the resulting properties from static declarations are applied to
 
 Prefer `static __New()` instead of variable declaration to perform extra setup logic for the extension. Also see [Extension Setup](#extension-setup).
 
-### Multiple Declarations
+### Always Prefer `.__Init()` Syntax
 
 It is **strongly recommended** to declare variable declarations in their "method form", i.e. `__Init() { ... }`. Using normal assignments puts you at risk of infinite recursion.
 
@@ -453,6 +573,8 @@ class ObjectExt extends AquaHotkey {
 ```
 
 To understand this issue, remember that using the "assignment syntax" creates an `.__Init()` method with implicit call to `super.__Init()`. This causes infinite recursion, because `super.__Init()` is the method itself.
+
+### Multiple Variable Declarations
 
 If multiple extensions define variable declarations for the same target class, the order of execution depends on the order in which the extensions applied.
 
@@ -513,8 +635,6 @@ CanOverride__Init(Cls) => (Cls == Object) || HasBase(Cls, Object)
 
 ## Backup Classes
 
-Extension classes overwrite properties *destructively*.
-
 Backup classes create snapshots of classes so that their original properties could be accessed later. For this purpose, AquaHotkey offers a `.Backup()` method for classes. The following example saves the current state of `Gui` in `Gui_Backup`:
 
 ```ahk
@@ -534,19 +654,19 @@ You can also use `AquaHotkey_Backup.Of(Cls)` to create a new class from scratch:
 OldGui := AquaHotkey_Backup.Of(Gui)
 ```
 
-### Create Classes
+## Create New Classes at Runtime
 
 AquaHotkey creates entire copies of classes, if it has to assign a new nested class to a target, or when using `AquaHotkey_Backup.Of(Cls)`.
 
 For this purpose, AquaHotkey defines a method `AquaHotkey.CreateClass()`. It accepts the base class as first argument, followed by a class name and optional arguments which are passed to the `static __New()` function of the class, if applicable.
 
-#### Known Issues
+### Known Issues
 
 If you are using an AHK version below v2.1-alpha.3, this class is unable to create prototype objects which are based on native types other than Object.
 
 Because of this, it might be unable to do the following:
 
-1. **Copy a new nested class into a target**:
+#### Copying a New Nested Class Into a Target
 
 ```ahk
 class Ext extends AquaHotkey {
@@ -571,7 +691,7 @@ DefineProp(A, "B", NestedClassProp(Ext.A.B)) ; o.k.
 DeleteProp(A, "B") ; delete from extension class, if appropriate
 ```
 
-2. **Using `AquaHotkey_Backup.Of(Cls)`**:
+#### Using `AquaHotkey_Backup.Of(Cls)`
 
 ```ahk
 class CustomArray extends Array {
@@ -596,7 +716,7 @@ class CustomArray_Backup {
 
 An override class changes the implementation of an existing property or method.
 
-An override class has the same structure as an extension class. It inherits from `AquaHotkey_Override` instead of `AquaHotkey`.
+An override class has the same structure as an [extension class](#the-extension-class). It inherits from `AquaHotkey_Override` instead of `AquaHotkey`.
 
 ```ahk
 class Monitor_Array_Length extends AquaHotkey_Override {
@@ -609,7 +729,7 @@ class Monitor_Array_Length extends AquaHotkey_Override {
 
             set {
                 MsgBox("setting array length...")
-                return __super__(this, Value)
+                __super__(this, Value)
             }
         }
 
@@ -620,6 +740,8 @@ class Monitor_Array_Length extends AquaHotkey_Override {
     }
 }
 ```
+
+### What is that First Parameter?
 
 The first parameter of an override property or method is the previous implementation `__super__()`.
 The first argument of `__super__()` is always the class or class instance which called the property.
@@ -636,8 +758,6 @@ Push(__super__, Args*) {
     return __super__(this, Args*)
 }
 ```
-
-The previous workflow involved saving the previous implementation of properties in a backup class to override an extension property. Override classes provide the previous implementation directly through `__super__()`. The use of backup classes for overriding existing properties is therefore deprecated.
 
 ### Override rules
 
@@ -705,6 +825,39 @@ Overrides are most useful for debugging, instrumentation, and similar tasks.
 
 Use override classes with care. For normal application logic, prefer an extension, a wrapper, or another explicit solution when possible.
 
+### Limitations & Workarounds
+
+Override classes save the original implementation of the property that was overridden, which becomes the first argument `__super__()`. If you require a reference to multiple overwritten properties, you must use a [backup class](#backup-classes) instead.
+
+```ahk
+class Cls {
+    A() {
+        MsgBox("original A!")
+        this.B()
+    }
+    B() {
+        MsgBox("original B!")
+    }
+}
+
+class Cls_Old {
+    static __New() => this.Backup(Cls)
+}
+
+class Cls_Ext extends AquaHotkey {
+    class Cls {
+        A() {
+            MsgBox("overridden A!")
+            this.B() => "overridden B!"
+            (Cls_Old.Prototype.A)(this) ; ==> "original B!"
+        }
+        B() {
+            MsgBox("overridden B!")
+        }
+    }
+}
+```
+
 ## Mixins
 
 Mixin classes apply the same extension to multiple targets. This is useful for defining behavior for multiple classes based on their overall behavior instead of their inheritance.
@@ -712,6 +865,8 @@ Mixin classes apply the same extension to multiple targets. This is useful for d
 Mixin classes do not have the same nested class structure as extension or override classes. Instead, properties are defined in the mixin class itself.
 
 Contrary to extension or override classes, mixin classes **cannot overwrite** existing properties. Therefore, mixin classes are ideal for implementing default properties and methods, if they're not yet defined.
+
+### How to Use Mixins
 
 Use `Mixin.Extend(Cls)` or `Cls.Include(Mixin)` to apply a mixin class to a target. You should do this inside `static __New()`:
 
@@ -747,19 +902,9 @@ class Person
 }
 ```
 
-Alternatively, you can create a class that `extends AquaHotkey_MultiApply` and pass the targets in `super.__New()`:
-
-```ahk
-class Enumerable1 extends AquaHotkey_MultiApply {
-    static __New() => super.__New(Array, Map, ...)
-
-    ForEach(...) { ... }
-}
-```
-
 You should always use `.Extend()` and `.Include()` instead of `AquaHotkey_MultiApply` directly. Always use `.Include()` over `.Extend()`, if possible.
 
-### Documentation of Mixins
+### How to Document Mixins
 
 You **should** denote mixin classes with a prefix such as `M` for *mixin* or `I` for *interface*. For example, `IEnumerable1` or `MHasName`.
 
@@ -967,7 +1112,20 @@ static __New() {
 ...
 ```
 
-You should only do this if you feel already comfortable with class prototyping.
+The `Length` property for `String` is now `StrLen()` itself, not a function that forwards to `StrLen()`. This saves one additional function call.
+
+**Use with caution**. You should only do this if you feel already comfortable with class prototyping.
+
+When inlining properties, you are doing class prototyping manually. Be sure to check your implementation thoroughly. This procedure is only recommended if:
+
+1. You want to extend `String` and are dealing with large strings.
+2. You are very concerned about performance.
+
+For this purpose, it is recommended that you use the helper functions defined in `<Core/Utils>`.
+
+For more help, see extension classes like [Base/Object.ahk](../src/Base/Object.ahk) and [String/Formatting.ahk](../src/String/Formatting.ahk).
+
+#### Properties Eligible For Inlining
 
 Use this form when the property or method forwards all arguments to a function without changing them.
 
@@ -978,11 +1136,29 @@ The arguments must:
 - have the same number of arguments
 - have no additional default values
 
-The function becomes the property value directly. This removes one additional function call.
+#### Where to Put Inlined Properties
 
 Define the property in the extension class, not in the target class.
 
 This is important because AquaHotkey can decide not to apply the extension during `static __New()`. The target class must not be modified before that decision is made.
+
+```ahk
+class Ext extends AquaHotkey {
+    static __New() {
+        ... ; do something here
+        super.__New()
+    }
+
+    class String {
+        static __New() {
+            DefineMethod(this.Prototype, "Replace", StrReplace)
+            ; `this.Prototype`, NOT `String.Prototype` directly.
+        }
+    }
+}
+```
+
+#### How to Document Inlined Properties
 
 If you use the Visual Studio Code LSP for AHK v2, you **should** always document an inlined property with the `@inlined` tag:
 
@@ -1005,12 +1181,3 @@ class StringLength extends AquaHotkey {
     }
 }
 ```
-
-When inlining properties, you are doing class prototyping manually. Be sure to check your implementation thoroughly. This procedure is only recommended if:
-
-1. You want to extend `String` and are dealing with large strings.
-2. You are very concerned about performance.
-
-For this purpose, it is recommended that you use the helper functions defined in `<Core/Utils>`.
-
-For more help, see extension classes like [Base/Object.ahk](../src/Base/Object.ahk) and [String/Formatting.ahk](../src/String/Formatting.ahk).
