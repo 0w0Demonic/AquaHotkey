@@ -39,6 +39,10 @@ When the script loads, AquaHotkey copies the methods and properties from the ext
 
 ## Quick Start
 
+Also see:
+
+- [Index](./index.md)
+
 Clone this repository into one of the [lib folders](https://www.autohotkey.com/docs/v2/Scripts.htm#lib):
 
 ```batch
