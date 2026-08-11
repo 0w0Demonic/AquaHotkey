@@ -902,7 +902,7 @@ class Person
 }
 ```
 
-You should always use `.Extend()` and `.Include()` instead of `AquaHotkey_MultiApply` directly. Always use `.Include()` over `.Extend()`, if possible.
+Always use `.Include()` over `.Extend()`, if possible.
 
 ### How to Document Mixins
 
