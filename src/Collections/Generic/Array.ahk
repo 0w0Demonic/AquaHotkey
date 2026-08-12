@@ -582,9 +582,8 @@ class AquaHotkey_GenericArray extends AquaHotkey {
             DefineMethod(this.IArray, "OfType", (Cls, T, Constraint?) => Cls)
         } else {
             DefineMethod(this.IArray, "OfType",
-                ; (Cls, T, C?) =>
-                ;     AquaHotkey.CreateClass(GenericArray, "", Cls, T, C?)
-                ObjBindMethod(AquaHotkey, "CreateClass", GenericArray, ""))
+                ; (Cls, T, C?) => CreateClass(GenericArray, "", Cls, T, C?)
+                ObjBindMethod(CreateClass,, GenericArray, ""))
         }
         super.__New()
     }
@@ -613,9 +612,7 @@ class AquaHotkey_GenericArray extends AquaHotkey {
          * T := LinkedList.OfType(Nullable(User))
          */
         static OfType(T, Constraint?) {
-            return AquaHotkey.CreateClass(GenericArray,
-                    unset, ; class name is created by `static __New()`
-                    this, T, Constraint?)
+            return CreateClass(GenericArray,, this, T, Constraint?)
         }
     }
 }
@@ -656,8 +653,7 @@ class AquaHotkey_GenericArray_Serialization extends AquaHotkey {
             if (IsSet(AquaHotkey_cfg_DisableGenerics)) {
                 TComponent := Nullable(Any)
             }
-            ObjSetBase(this, AquaHotkey.CreateClass(GenericArray,,
-                    TArray, TComponent).Prototype)
+            ObjSetBase(this, CreateClass(GenericArray,, TArray, TComponent).Prototype)
             
             Input.ReadObject(&A)
             DefineConst(this, "A", A)

@@ -658,7 +658,7 @@ OldGui := AquaHotkey_Backup.Of(Gui)
 
 AquaHotkey creates entire copies of classes, if it has to assign a new nested class to a target, or when using `AquaHotkey_Backup.Of(Cls)`.
 
-For this purpose, AquaHotkey defines a method `AquaHotkey.CreateClass()`. It accepts the base class as first argument, followed by a class name and optional arguments which are passed to the `static __New()` function of the class, if applicable.
+For this purpose, use `CreateClass()`. It accepts the base class as first argument, followed by a class name and optional arguments which are passed to the `static __New()` function of the class, if applicable.
 
 ### Known Issues
 

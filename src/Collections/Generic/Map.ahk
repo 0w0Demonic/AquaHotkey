@@ -517,9 +517,8 @@ class AquaHotkey_GenericMap extends AquaHotkey {
             DefineMethod(this.IMap, "OfType", (Cls, K, V) => Cls)
         } else {
             DefineMethod(this.IMap, "OfType",
-                ; (Cls, K, V) =>
-                ;     AquaHotkey.CreateClass(GenericMap, "", Cls, K, V)
-                ObjBindMethod(AquaHotkey, "CreateClass", GenericMap, ""))
+                ; (Cls, K, V) => CreateClass(GenericMap, "", Cls, K, V)
+                ObjBindMethod(CreateClass,, GenericMap, ""))
         }
         super.__New()
     }
@@ -533,9 +532,7 @@ class AquaHotkey_GenericMap extends AquaHotkey {
          * @param   {Any}  V  type of values
          * @returns {Class<? extends IMap>}
          */
-        static OfType(K, V) => AquaHotkey.CreateClass(GenericMap,
-                unset,
-                this, K, V)
+        static OfType(K, V) => CreateClass(GenericMap, unset, this, K, V)
     }
 }
 
@@ -577,10 +574,9 @@ class AquaHotkey_GenericMap_Serialization extends AquaHotkey {
                 KeyType := Any ; maps can never contain `unset`
                 ValueType := Any
             }
-            ObjSetBase(this, AquaHotkey.CreateClass(
-                GenericMap,
-                unset, ; `.__Class` is not used anyway
-                MapType, KeyType, ValueType).Prototype)
+            ObjSetBase(this,
+                CreateClass(GenericMap,, MapType, KeyType, ValueType)
+                        .Prototype)
 
             Input.ReadObject(&M, Refs)
             DefineConst(this, "M", M)

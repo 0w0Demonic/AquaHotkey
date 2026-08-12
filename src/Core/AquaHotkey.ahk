@@ -81,7 +81,7 @@
  * v2.1-alpha.3:
  *   Introduces `Class([Name, ] BaseClass?, Args*)` to create classes based on
  *   native classes other than `Object`, at runtime. On earlier versions, this
- *   will cause `AquaHotkey.CreateClass()` and `AquaHotkey_Backup.Of()` to fail
+ *   will cause `CreateClass()` and `AquaHotkey_Backup.Of()` to fail
  *   creating a prototype for such classes.
  */
  #Requires AutoHotkey   v2
@@ -90,8 +90,7 @@
 if (VerCompare(A_AhkVersion, "<v2.1-alpha.3")) {
     AquaHotkey.Log("
     (
-    WARN: AHK version is below v2.1-alpha.3. AquaHotkey.CreateClass()
-          might cause unexpected problems.
+    WARN: AHK <v2.1-alpha.3 -- CreateClass() might cause unexpected problems.
     )")
 }
 
@@ -293,61 +292,6 @@ class AquaHotkey extends AquaHotkey_Ignore
         Backup(Suppliers*) => (AquaHotkey_Backup.__New)(this, Suppliers*)
 
         ;@endregion
-    }
-
-    ;@endregion
-    ;---------------------------------------------------------------------------
-    ;@region static CreateClass()
-
-    /**
-     * Creates a new class.
-     * 
-     * On AutoHotkey versions below v2.1-alpha.3, this method might fail
-     * creating prototypes based on native types other than `Object`, such
-     * as `Array` or `Map`.
-     * 
-     * @param   {Class?}   BaseClass  the base of the new class
-     * @param   {String?}  Name       name of the class
-     * @param   {Any*}     Args       arguments for `static __New()`
-     * @returns {Class}
-     * @example
-     * class MyClass {
-     *     static __New(Param?) => ...
-     * }
-     * AquaHotkey.CreateClass(MyClass, "MySubclass", "Param")
-     */
-    static CreateClass(BaseClass := Object, Name?, Args*) {
-        if (!(BaseClass is Class)) {
-            throw TypeError("Expected a Class",, Type(BaseClass))
-        }
-
-        if (IsSet(Name) && !(Name is Primitive)) {
-            throw TypeError("Expected a String",, Type(Name))
-        }
-
-        if (VerCompare(A_AhkVersion, ">=v2.1-alpha.3")) {
-            if (IsSet(Name)) {
-                return Class(Name, BaseClass, Args*)
-            }
-            return Class(BaseClass, Args*)
-        }
-
-        ClsProto := { __Class: (Name?) }
-        Cls := { base: BaseClass, Prototype: ClsProto }
-
-        try {
-            ObjSetBase(Cls.Prototype, BaseClass.Prototype)
-        } catch {
-            throw TypeError(
-                "Unable to subclass. Try using version v2.1-alpha.3+",,
-                Cls.Prototype.__Class . " -> " . BaseClass.Prototype.__Class)
-        }
-
-        if (HasMethod(Cls, "__New")) {
-            Cls.__New(Args*)
-        }
-
-        return Cls
     }
 
     ;@endregion
@@ -877,7 +821,7 @@ class AquaHotkey_Ignore
             }
 
             Base := ObjGetBase(NestedSupplier)
-            NestedReceiver := AquaHotkey.CreateClass(Base, NestedSupplierName)
+            NestedReceiver := CreateClass(Base, NestedSupplierName)
             
             LogVerbose(3, "creating new class: {1}", NestedReceiverName)
             LogVerbose(3, "base class: {1}", Base.Prototype.__Class)
@@ -1072,9 +1016,7 @@ class AquaHotkey_Backup extends AquaHotkey_Ignore
         if (!(Cls is Class)) {
             throw TypeError("Expected a Class",, Type(Cls))
         }
-        return AquaHotkey
-                    .CreateClass(ObjGetBase(Cls), Cls.Prototype.__Class)
-                    .Backup(Cls)
+        return CreateClass(ObjGetBase(Cls), Cls.Prototype.__Class).Backup(Cls)
     }
 
     ;@endregion

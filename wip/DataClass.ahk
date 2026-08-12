@@ -22,7 +22,7 @@
  * T_User := DataClass({ name: String, age: Integer })
  * User := T_User({ name: "Sasha", age: 32 })
  */
-DataClass(Schema) => AquaHotkey.CreateClass(DataObject, unset, Schema)
+DataClass(Schema) => CreateClass(DataObject, unset, Schema)
 
 /**
  * A data object class that can be used to create data objects with a specific
@@ -49,7 +49,7 @@ class DataObject {
      * @example
      * User := DataObject.OfType({ name: String, age: Integer })
      */
-    static OfType(Schema) => AquaHotkey.CreateClass(DataObject, unset, Schema)
+    static OfType(Schema) => CreateClass(DataObject, unset, Schema)
 
     /**
      * Constructs a new data object class.

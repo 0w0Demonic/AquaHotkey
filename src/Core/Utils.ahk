@@ -299,6 +299,61 @@ NestedClassProp(Cls) {
 
 ;@endregion
 ;-------------------------------------------------------------------------------
+;@region Create Classes
+
+/**
+ * Creates a new class.
+ * 
+ * On AutoHotkey versions below v2.1-alpha.3, this method might fail
+ * creating prototypes based on native types other than `Object`, such
+ * as `Array` or `Map`.
+ * 
+ * @param   {Class?}   BaseClass  the base of the new class
+ * @param   {String?}  Name       name of the class
+ * @param   {Any*}     Args       arguments for `static __New()`
+ * @returns {Class}
+ * @example
+ * class MyClass {
+ *     static __New(Param?) => ...
+ * }
+ * CreateClass(MyClass, "MySubclass", "Param")
+ */
+CreateClass(BaseClass := Object, Name?, Args*) {
+    if (!(BaseClass is Class)) {
+        throw TypeError("Expected a Class",, Type(BaseClass))
+    }
+
+    if (IsSet(Name) && !(Name is Primitive)) {
+        throw TypeError("Expected a String",, Type(Name))
+    }
+
+    if (VerCompare(A_AhkVersion, ">=v2.1-alpha.3")) {
+        if (IsSet(Name)) {
+            return Class(Name, BaseClass, Args*)
+        }
+        return Class(BaseClass, Args*)
+    }
+
+    ClsProto := { __Class: (Name?) }
+    Cls := { base: BaseClass, Prototype: ClsProto }
+
+    try {
+        ObjSetBase(Cls.Prototype, BaseClass.Prototype)
+    } catch {
+        throw TypeError(
+            "Unable to subclass. Try using version v2.1-alpha.3+",,
+            Cls.Prototype.__Class . " -> " . BaseClass.Prototype.__Class)
+    }
+
+    if (HasMethod(Cls, "__New")) {
+        Cls.__New(Args*)
+    }
+
+    return Cls
+}
+
+;@endregion
+;-------------------------------------------------------------------------------
 ;@region Getting Props
 
 /**

@@ -387,8 +387,8 @@ class AquaHotkey_GenericSet extends AquaHotkey {
             DefineMethod(this.ISet, "OfType", (Cls, T, Constraint?) => Cls)
         } else {
             DefineMethod(this.ISet, "OfType",
-                ; (Cls, T) => AquaHotkey.CreateClass(GenericSet, "", Cls, T)
-                ObjBindMethod(AquaHotkey, "CreateClass", GenericSet, ""))
+                ; (Cls, T) => CreateClass(GenericSet, "", Cls, T)
+                ObjBindMethod(CreateClass,, GenericSet, ""))
         }
         super.__New()
     }
@@ -402,11 +402,7 @@ class AquaHotkey_GenericSet extends AquaHotkey {
          * @param   {Any}   T  pattern
          * @returns {Class}
          */
-        static OfType(T) {
-            return AquaHotkey.CreateClass(GenericSet,
-                    unset, ; let `static __New()` do the work
-                    this, T)
-        }
+        static OfType(T) => CreateClass(GenericSet,, this, T)
     }
 }
 
@@ -445,8 +441,9 @@ class AquaHotkey_GenericSet_Serialization extends AquaHotkey {
             if (!IsSet(AquaHotkey_cfg_DisableGenerics)) {
                 ComponentType := Any
             }
-            ObjSetBase(this, AquaHotkey.CreateClass(GenericSet,,
-                    SetType, ComponentType).Prototype)
+            ObjSetBase(this,
+                CreateClass(GenericSet,, SetType, ComponentType)
+                        .Prototype)
 
             Input.ReadObject(&S, Refs)
             DefineConst(this, "S", S)
