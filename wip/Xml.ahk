@@ -102,18 +102,34 @@ class AquaHotkey_Optional_TryGet extends AquaHotkey {
     }
 }
 
-Regex_Char := "[\x{09}\x{0A}\x{0D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}\x{10FFFF}]"
-Regex_NameStartChar := "[:\w\x{C0}-\x{D6}\x{D8}-\x{F6}\x{F8}-\x{02FF}\x{0370}-\x{037D}\x{037F}-\x{1FFF}\x{200C}-\x{200D}\x{2070}-\x{218F}\x{2C00}-\x{2FEF}\x{3001}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFFD}\x{10000}-\x{EFFFF}]"
-Regex_NameCharAdd := "[\-.0-9\x{B7}\x{0300}-\x{036F}\x{203F}-\x{2040}]"
+Group_Char_Without_Minus := "\x{09}\x{0A}\x{0D}\x{20}-\x{2C}\x{2E}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}\x{10FFFF}"
+Group_Char := Group_Char_Without_Minus . "\-"
+Group_Char := "\x{09}\x{0A}\x{0D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}\x{10FFFF}"
+Group_NameStartChar := ":\w\x{C0}-\x{D6}\x{D8}-\x{F6}\x{F8}-\x{02FF}\x{0370}-\x{037D}\x{037F}-\x{1FFF}\x{200C}-\x{200D}\x{2070}-\x{218F}\x{2C00}-\x{2FEF}\x{3001}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFFD}\x{10000}-\x{EFFFF}"
 
-Regex_NameChar := Format("(?:{}|{})", Regex_NameStartChar, Regex_NameCharAdd)
-Regex_Name := Format("{}{}*", Regex_NameStartChar, Regex_NameChar)
-Regex_S := "[\x{20}\x{09}\x{0D}\x{0A}]+"
+Group_NameChar := Group_NameStartChar . "\-.0-9\x{B7}\x{0300}-\x{036F}\x{203F}-\x{2040}"
+
+Regex_Char_Without_Minus := "[" . Group_Char_Without_Minus . "]"
+Regex_Char := "[" . Group_Char . "]"
+Regex_NameStartChar := "[" . Group_NameStartChar . "]"
+Regex_NameChar := "[" Group_NameStartChar "]"
+Regex_Name := Regex_NameStartChar . Regex_NameChar . "*"
+
+; Regex_Char := "[\x{09}\x{0A}\x{0D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}\x{10FFFF}]"
+; Regex_NameStartChar := "[:\w\x{C0}-\x{D6}\x{D8}-\x{F6}\x{F8}-\x{02FF}\x{0370}-\x{037D}\x{037F}-\x{1FFF}\x{200C}-\x{200D}\x{2070}-\x{218F}\x{2C00}-\x{2FEF}\x{3001}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFFD}\x{10000}-\x{EFFFF}]"
+; Regex_NameCharAdd := "[\-.0-9\x{B7}\x{0300}-\x{036F}\x{203F}-\x{2040}]"
+; Regex_NameChar := Format("(?:{}|{})", Regex_NameStartChar, Regex_NameCharAdd)
+; Regex_Name := Format("{}{}*", Regex_NameStartChar, Regex_NameChar)
 
 Char := Parser.Regex(Regex_Char)
 
-S := Parser.Regex(Regex_S)
-S_Opt := S.Optional()
+Regex_S := "[\x{20}\x{09}\x{0D}\x{0A}]"
+Regex_S_1N := Regex_S . "+"
+Regex_S_0N := Regex_S . "*"
+
+S := Parser.Regex(Regex_S_1N)
+S_Opt := Parser.Regex(Regex_S_0N)
+; S_Opt := S.Optional()
 
 ; NameStartChar := Parser.Regex(Regex_NameStartChar)
 
@@ -128,28 +144,50 @@ Names := Name.AtLeastOnceDelimitedBy(" ")
 Nmtoken := NameChar.AtLeastOnce()
 Nmtokens := Nmtoken.AtLeastOnceDelimitedBy(" ")
 
-SystemLiteral := Parser.Regex("
-(
-x)'[^']*'
-| "[^"]*"
-)")
+SystemLiteral := Parser.Regex("'[^']*'|`"[^`"]*`"")
 
 #Include <AquaHotkey\src\Base\ToString>
 #Include <AquaHotkey\src\Base\Primitives>
 
-PubidChar := Parser.Regex("[\x{20}\x{0D}\x{0A}\w\-'()+,./:=?;!*#@$%]")
+Group_PubidChar_WithoutQuote := "\x{20}\x{0D}\x{0A}\w\-()+,./:=?;!*#@$%"
+Group_PubidChar := Group_PubidChar_WithoutQuote . "'"
 
-PubidLiteral := PubidChar.ZeroOrMore().Between('"')
-    .Or( (PubidChar.Without("'")).ZeroOrMore().Between("'") )
+Regex_PubidChar_WithoutQuote := "[" . Group_PubidChar_WithoutQuote . "]"
+Regex_PubidChar := "[" . Group_PubidChar . "]"
 
-Comment := Char.Without("-")
-    .Or( Parser.Sequence(Array, Parser.String("-"), Char.Without("-")) )
-    .ZeroOrMore()
-    .Between("<!--", "-->")
+; PubidChar := Parser.Regex("[\x{20}\x{0D}\x{0A}\w\-'()+,./:=?;!*#@$%]")
 
-Eq := Parser.String("=").Between( S_Opt )
-VersionNum := Parser.Regex("1.[0-9]+")
+PubidLiteral := Parser.Regex(
+    Format("J)`"(?<inner>{})`"|'(?<inner>{})'",
+        Regex_PubidChar,
+        Regex_PubidChar_WithoutQuote
+    ),
+    M => M["inner"]
+)
 
+; PubidLiteral := PubidChar.ZeroOrMore().Between('"')
+;     .Or( (PubidChar.Without("'")).ZeroOrMore().Between("'") )
+
+
+Comment := Parser.Regex(Format(
+    "<!--((?:{1}|-{1})*)-->",
+    Regex_Char_Without_Minus
+), M => M[1])
+
+; Comment := Char.Without("-")
+;     .Or( Parser.Sequence(Array, Parser.String("-"), Char.Without("-")) )
+;     .ZeroOrMore()
+;     .Between("<!--", "-->")
+
+Regex_Eq := Format("{1}={1}", Regex_S_0N)
+
+Eq := Parser.Regex(Regex_Eq)
+; Eq := Parser.String("=").Between( S_Opt )
+
+Regex_VersionNum := "1.[0-9]+"
+VersionNum := Parser.Regex(Regex_VersionNum)
+
+; TODO transform this to something useful
 CData := Parser.Regex("<!\[CDATA\[" . (Regex_Char . "*?") . "\]\]>")
 
 StringType := Parser.String("CDATA")
@@ -158,15 +196,36 @@ TokenizedType := Parser.Regex("ID|IDREF|IDREFS|ENTITY|ENTITIES|NMTOKEN|NMTOKENS"
 EntityRef := Parser.Sequence(Array, Parser.String("&"), Name, Parser.String(";"))
 PEReference := Parser.Sequence(Array, Parser.String("%"), Name, Parser.String(";"))
 
-PITarget := Name.SuchThat(Str => Str != "xml")
+PITarget := Name.SuchThat(Str => Str != "xml") ; case-insensitive
 
-ETag := Parser.Sequence(Array, Parser.String("</"), Name, S_Opt, Parser.String(">"))
+EndTag := CreateEndTagParser(Name)
 
-VersionInfo := Parser.Sequence(Array, S, Parser.String("version"), Eq,
-    VersionNum.Between('"').Or( VersionNum.Between("'") )
+CreateEndTagParser(Psr) {
+    if (Psr is String) {
+        Psr := Parser.String(Psr)
+    }
+    return Parser.Sequence(
+        Array, Parser.String("</"),
+        Psr,
+        S_Opt,
+        Parser.String(">")
+    )
+}
+
+VersionInfo := Parser.Regex(
+    Format("
+        (
+        J){1}version{2}(?:"(?<inner>{3})"|'(?<inner>{3})')
+        )", Regex_S_1N, Regex_Eq, Regex_VersionNum),
+    M => M["inner"]
 )
 
-EncName := Parser.Regex("[A-Za-z][\w.\-]*")
+; VersionInfo := Parser.Sequence(Array, S, Parser.String("version"), Eq,
+;     VersionNum.Between('"').Or( VersionNum.Between("'") )
+; )
+
+Regex_EncName := "[A-Za-z][\w\.\-]*"
+EncName := Parser.Regex(Regex_EncName)
 
 ; TODO doesn't work
 PI := Parser.Sequence(Array,
@@ -174,39 +233,75 @@ PI := Parser.Sequence(Array,
     Parser.Sequence(Array,
         S,
         Parser.Regex(Regex_Char . "*?\?>"))
-    .Optional()
+    .Optional(),
+    Parser.String("?>")
 )
 
-YesNo := Parser.Regex("yes|no")
 
-SDDecl := Parser.Sequence(Array, S, Parser.String("standalone"), Eq,
-    YesNo.Between('"').Or(YesNo.Between("'"))
+SDDecl := Parser.Regex(
+    Format(
+        "{}standalone{}(?:`"yes`"|'yes'|`"no`"|'no')",
+        Regex_S_1N,
+        Regex_Eq)
+).Map(Val => !!InStr(Val, "yes"))
+
+; YesNo := Parser.Regex("yes|no")
+; SDDecl := Parser.Sequence(Array, S, Parser.String("standalone"), Eq,
+;     YesNo.Between('"').Or(YesNo.Between("'"))
+; )
+
+EncodingDecl := Parser.Regex(
+    Format("
+        (
+        J){1}encoding{2}(?:"(?<inner>{3})"|'(?<inner>{3})')
+        )", Regex_S_1N, Regex_Eq, Regex_EncName),
+    M => M["inner"]
 )
 
-EncodingDecl := Parser.Sequence(Array, S, Parser.String("encoding"), Eq,
-    EncName.Between('"').Or(EncName.Between("'"))
-)
+; EncodingDecl := Parser.Sequence(Array, S, Parser.String("encoding"), Eq,
+;     EncName.Between('"').Or(EncName.Between("'"))
+; )
 
-CharRef := Parser.Regex("&#[0-9]+;|&#x[0-9a-fA-F]+;")
+CharRef := Parser.Regex("&#([0-9]+|x[0-9a-fA-F]+);", M => M[1])
+    .Map((Val) => Chr(Integer("0" . Val))) ; use additional "x" to our advantage
+
+; CharRef := Parser.Regex("&#[0-9]+;|&#x[0-9a-fA-F]+;")
 
 Reference := EntityRef.Or(CharRef)
 
 ; TODO can omit encoding decl, but still have sddecl?
-XMLDecl := Parser.Sequence(
-    Array,
-    Parser.String("<?xml"),
+class XmlDeclaration {
+    __New(Version, Encoding, Standalone) {
+        this.Version := Version
+        this.Encoding := Encoding
+        this.Standalone := Standalone
+    }
+}
+
+XMLDecl := Parser.Sequence(XmlDeclaration,
     VersionInfo,
-    EncodingDecl.Optional(),
-    SDDecl.Optional(),
-    S_Opt,
-    Parser.String("?>")
+    EncodingDecl.OrElse(""),
+    SDDecl.OrElse("")
 )
+.FollowedBy(S_Opt)
+.Between("<?xml", "?>")
+
+; XMLDecl := Parser.Sequence(
+;     Array,
+;     Parser.String("<?xml"),
+;     VersionInfo,
+;     EncodingDecl.Optional(),
+;     SDDecl.Optional(),
+;     S_Opt,
+;     Parser.String("?>")
+; )
 
 AttValue := Parser.Regex('[^<&"]').Or(Reference).ZeroOrMore().Between('"')
         .Or(Parser.Regex("[^<&']").Or(Reference).ZeroOrMore().Between("'"))
 
-; TODO
-AttDef := Parser.Char()
+AttDef := Parser.Sequence(Array,
+    S, Name, S, AttType, S, DefaultDecl
+)
 
 Attribute := Parser.Sequence(Array, Name, Eq, AttValue)
 
@@ -249,24 +344,33 @@ EmptyElemTag := Parser.Sequence(Array,
 )
 
 class XmlTag {
-    __New(Name) {
-
+    __New(Name, Attributes) {
+        this.Name := Name
+        this.Attributes := Attributes
     }
 }
 
-STag := Parser.Sequence(Array,
-    Parser.String("<"),
+STag := Parser.Sequence(XmlTag,
     Name,
-    Parser.Sequence(Array, S, Attribute).ZeroOrMore(),
-    S_Opt,
-    Parser.String(">")
+    S.Then(Attribute).ZeroOrMore()
 )
-ETag := Parser.Sequence(Array,
-    Parser.String("</"),
-    Name,
-    S_Opt,
-    Parser.String(">")
-)
+.FollowedBy(S_Opt)
+.Between("<", ">")
+
+; STag := Parser.Sequence(Array,
+;     Parser.String("<"),
+;     Name,
+;     Parser.Sequence(Array, S, Attribute).ZeroOrMore(),
+;     S_Opt,
+;     Parser.String(">")
+; )
+
+; EndTag := Parser.Sequence(Array,
+;     Parser.String("</"),
+;     Name,
+;     S_Opt,
+;     Parser.String(">")
+; )
 
 DeclSep := PEReference.Or(S)
 
@@ -336,6 +440,7 @@ EntityValue := EntityValue_BetweenDoubleQuotes.Or(EntityValue_BetweenSingleQuote
 
 EntityDef := EntityValue.Or( Parser.Sequence(Array, ExternalID, NDataDecl.Optional()) )
 
+; TODO is this okay?
 CharData := Parser.Regex("[^<&]*(?!\]\]>)")
 
 Misc := Parser.AnyOf(Comment, PI, S)
@@ -343,7 +448,7 @@ Misc := Parser.AnyOf(Comment, PI, S)
 Content := Parser.Rule(&_Content)
 
 ; TODO extra context for tag names
-Element := EmptyElemTag.Or( Parser.Sequence(Array, STag, Content, ETag) )
+Element := EmptyElemTag.Or( Parser.Sequence(Array, STag, Content, EndTag) )
 
 Children := Parser.Sequence(Array,
     Choice.Or(Seq),
@@ -447,7 +552,7 @@ MarkupDecl := Parser.AnyOf(
     PI,
     Comment
 )
-intSubset := Parser.Sequence(Array, markupdecl, declsep).ZeroOrMore()
+intSubset := Parser.Sequence(Array, MarkupDecl, declsep).ZeroOrMore()
 
 DoctypeDecl := Parser.Sequence(Array,
     Parser.String("<!DOCTYPE"),
@@ -488,4 +593,51 @@ IncludeSect := Parser.Sequence(Array,
     Parser.String("]]>")
 )
 
-"<person isCool='yes'>".DisplayParsedResult(STag)
+Ignore := Parser.Regex(Format("
+(
+{}*(?!\Q<![\E|\Q]]>\E)
+)", Regex_Char))
+
+IgnoreSectContents := Parser.Define(I => (
+    Parser.Sequence(Array,
+        Ignore,
+        Parser.Sequence(Array,
+            Parser.String("<!["), I, Parser.String("]]>"), Ignore
+        ).ZeroOrMore()
+    )
+))
+
+IgnoreSect_FirstPart := Parser.Sequence(Array,
+    Parser.String("<!["),
+    S_Opt,
+    Parser.String("IGNORE"),
+    S_Opt,
+    Parser.String("["),
+)
+
+IgnoreSect := Parser.Sequence(Array,
+    Parser.String("<!["),
+    S_Opt,
+    Parser.String("IGNORE"),
+    S_Opt,
+    Parser.String("["),
+    ExtSubsetDecl,
+    Parser.String("]]>")
+)
+
+_ConditionalSect := IncludeSect.Or(IgnoreSect)
+
+_Content := Parser.Sequence(Array,
+    CharData.Optional(),
+    Parser.Sequence(Array,
+        Parser.AnyOf(
+            Element,
+            Reference,
+            CData,
+            PI,
+            Comment
+        ),
+        CharData
+    ).ZeroOrMore()
+)
+
