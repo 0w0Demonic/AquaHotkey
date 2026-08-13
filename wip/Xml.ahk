@@ -47,12 +47,10 @@ class XmlElement {
 
     ; constructor that receives name, optionally
     ; attributes and elements
-    __New(Name, Attrs?, Elems?) {
-        ; ...
-    }
-
-    ToString() {
-        throw ValueError("abstract method")
+    __New(Name, Attrs := [], Elems := []) {
+        this.Name := Name
+        this.Attrs := Attrs
+        this.Elems := Elems
     }
 
     ; `HasAttribute` and `HasElement`, possibly something for creating
@@ -68,12 +66,8 @@ class XmlElement {
 
 ; a comment
 class XmlComment extends XmlElement {
-    __New(Content) {
-        ; ...
-    }
-
-    ToString() {
-
+    __New(Value) {
+        this.Value := Value
     }
 }
 
@@ -172,7 +166,7 @@ PubidLiteral := Parser.Regex(
 Comment := Parser.Regex(Format(
     "<!--((?:{1}|-{1})*)-->",
     Regex_Char_Without_Minus
-), M => M[1])
+), M => XmlComment(M[1]))
 
 ; Comment := Char.Without("-")
 ;     .Or( Parser.Sequence(Array, Parser.String("-"), Char.Without("-")) )
@@ -184,11 +178,19 @@ Regex_Eq := Format("{1}={1}", Regex_S_0N)
 Eq := Parser.Regex(Regex_Eq)
 ; Eq := Parser.String("=").Between( S_Opt )
 
-Regex_VersionNum := "1.[0-9]+"
+Regex_VersionNum := "1\.[0-9]+"
+
 VersionNum := Parser.Regex(Regex_VersionNum)
 
+; VersionNum := Parser.Rule(&RuleVersionNum)
+; VersionNumLenient := Parser.Regex("1\.[0-9]+")
+; VersionNumStrict := Parser.String("1.0")
+
 ; TODO transform this to something useful
-CData := Parser.Regex("<!\[CDATA\[" . (Regex_Char . "*?") . "\]\]>")
+CData := Parser.Regex(
+    "<!\[CDATA\[(" . (Regex_Char . "*?") . ")\]\]>",
+    M => M[1]
+)
 
 StringType := Parser.String("CDATA")
 TokenizedType := Parser.Regex("ID|IDREF|IDREFS|ENTITY|ENTITIES|NMTOKEN|NMTOKENS")
@@ -227,16 +229,28 @@ VersionInfo := Parser.Regex(
 Regex_EncName := "[A-Za-z][\w\.\-]*"
 EncName := Parser.Regex(Regex_EncName)
 
-; TODO doesn't work
-PI := Parser.Sequence(Array,
-    Parser.String("<?"),
-    Parser.Sequence(Array,
-        S,
-        Parser.Regex(Regex_Char . "*?\?>"))
-    .Optional(),
-    Parser.String("?>")
-)
+class XmlProcessInstruction {
+    __New(Target, Value) {
+        this.Target := Target
+        this.Value := Value
+    }
+}
 
+PI := Parser.Sequence(XmlProcessInstruction,
+    PITarget,
+    S.Then(Parser.Regex(Regex_Char . "*?(?=\?>)")).OrElse(""),
+).Between("<?", "?>")
+
+; TODO doesn't work
+; PI := Parser.Sequence(Array,
+;     Parser.String("<?"),
+;     PITarget,
+;     Parser.Sequence(Array,
+;         S,
+;         Parser.Regex(Regex_Char . "*?(?=\?>)"))
+;     .Optional(),
+;     Parser.String("?>")
+; )
 
 SDDecl := Parser.Regex(
     Format(
@@ -296,14 +310,30 @@ XMLDecl := Parser.Sequence(XmlDeclaration,
 ;     Parser.String("?>")
 ; )
 
-AttValue := Parser.Regex('[^<&"]').Or(Reference).ZeroOrMore().Between('"')
-        .Or(Parser.Regex("[^<&']").Or(Reference).ZeroOrMore().Between("'"))
+StrJoin(Strs*) {
+    Result := ""
+    for Str in Strs {
+        Result .= Str
+    }
+    return Result
+}
 
-AttDef := Parser.Sequence(Array,
-    S, Name, S, AttType, S, DefaultDecl
-)
+AttValue := (
+    Parser.Regex('[^<&"]+').Map(StrJoin).Or(Reference)
+        .ZeroOrMore()
+        .Between('"')
+.Or(Parser.Regex("[^<&']+").Map(StrJoin).Or(Reference)
+        .ZeroOrMore()
+        .Between("'")))
 
-Attribute := Parser.Sequence(Array, Name, Eq, AttValue)
+class XmlAttribute {
+    __New(Name, Value) {
+        this.Name := Name
+        this.Value := Value
+    }
+}
+
+Attribute := Parser.Sequence(XmlAttribute, Name.FollowedBy(Eq), AttValue)
 
 DefaultDecl := Parser.AnyOf(
     Parser.String("#REQUIRED"),
@@ -312,15 +342,6 @@ DefaultDecl := Parser.AnyOf(
     AttValue
 )
 
-AttlistDecl := Parser.Sequence(
-    Array,
-    Parser.String("<!ATTLIST"),
-    S,
-    Name,
-    AttDef.ZeroOrMore(),
-    S_Opt,
-    Parser.String(">")
-)
 PublicID := Parser.Sequence(Array, Parser.String("PUBLIC"), S, PubidLiteral)
 
 ExternalID := Parser.Sequence(Array, S, SystemLiteral)
@@ -448,7 +469,24 @@ Misc := Parser.AnyOf(Comment, PI, S)
 Content := Parser.Rule(&_Content)
 
 ; TODO extra context for tag names
-Element := EmptyElemTag.Or( Parser.Sequence(Array, STag, Content, EndTag) )
+
+; STag := Parser.Sequence(XmlTag,
+;     Name,
+;     S.Then(Attribute).ZeroOrMore()
+; )
+; .FollowedBy(S_Opt)
+; .Between("<", ">")
+
+; Element := EmptyElemTag.Or( Parser.Sequence(Array, STag, Content, EndTag) )
+
+Element := EmptyElemTag.Or(
+    STag.FlatMap(ParserBasedOnStartingTag)
+)
+
+ParserBasedOnStartingTag(Tag) {
+    return Content.FollowedBy(CreateEndTagParser(Tag.Name))
+        .Map(Content => XmlElement(Tag.Name, Tag.Attributes, Content))
+}
 
 Children := Parser.Sequence(Array,
     Choice.Or(Seq),
@@ -535,14 +573,73 @@ class Ext extends AquaHotkey {
     }
 }
 
-; "
-; (
-; <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-; <!-- comments -->
-; <!-- more comments -->
-; )".Parse(Prolog).ToString().MsgBox()
+; TODO make XMLDecl mandatory by default;
+;      allow omitting by option, because of spec
 
-; "(a | b | c)".Parse(Children).ToString().MsgBox()
+Ignore := Parser.Regex(Format("
+(
+{}*(?!\Q<![\E|\Q]]>\E)
+)", Regex_Char))
+
+IgnoreSectContents := Parser.Define(I => (
+    Parser.Sequence(Array,
+        Ignore,
+        Parser.Sequence(Array,
+            Parser.String("<!["), I, Parser.String("]]>"), Ignore
+        ).ZeroOrMore()
+    )
+))
+
+IgnoreSect_FirstPart := Parser.Sequence(Array,
+    Parser.String("<!["),
+    S_Opt,
+    Parser.String("IGNORE"),
+    S_Opt,
+    Parser.String("["),
+)
+
+XmlChildren(Opt_CharData, More) {
+    Result := Array()
+    if (Opt_CharData.IsPresent) {
+        Result.Push(Opt_CharData.Value)
+    }
+    for Item in More {
+        Result.Push(Item.Elem)
+        if (Item.Opt_CharData.IsPresent) {
+            Result.Push(Item.Opt_CharData.Value)
+        }
+    }
+    return Result
+}
+
+_Content := Parser.Sequence(XmlChildren,
+    CharData.Optional(),
+    Parser.Sequence(
+        (Elem, Opt_CharData) => { Elem: Elem, Opt_CharData: Opt_CharData },
+        Parser.AnyOf(
+            Element,
+            Reference,
+            CData,
+            PI,
+            Comment
+        ),
+        CharData.Optional()
+    ).ZeroOrMore()
+)
+
+AttDef := Parser.Sequence(Array,
+    S, Name, S, AttType, S, DefaultDecl
+)
+
+AttlistDecl := Parser.Sequence(
+    Array,
+    Parser.String("<!ATTLIST"),
+    S,
+    Name,
+    AttDef.ZeroOrMore(),
+    S_Opt,
+    Parser.String(">")
+)
 
 MarkupDecl := Parser.AnyOf(
     ElementDecl,
@@ -568,6 +665,7 @@ DoctypeDecl := Parser.Sequence(Array,
     Parser.String(">")
 )
 
+; TODO allow XMLDecl to be mandatory
 Prolog := Parser.Sequence(Array,
     XMLDecl.Optional(),
     Misc.ZeroOrMore(),
@@ -577,7 +675,15 @@ Prolog := Parser.Sequence(Array,
     ).Optional()
 )
 
-Document := Parser.Sequence(Array, Prolog, Element, Misc.ZeroOrMore())
+class XmlDocument {
+    __New(Prolog, Elements, Misc) {
+        this.Prolog := Prolog
+        this.Elements := Elements
+        this.Misc := Misc
+    }
+}
+
+Document := Parser.Sequence(XmlDocument, Prolog, Element, Misc.ZeroOrMore())
 
 ExtSubsetDecl := Parser.AnyOf(
     MarkupDecl,
@@ -587,57 +693,66 @@ ExtSubsetDecl := Parser.AnyOf(
 
 ExtSubset := Parser.Sequence(Array, TextDecl.Optional(), ExtSubsetDecl)
 
-IncludeSect := Parser.Sequence(Array,
-    Parser.String("<!["), S_Opt, Parser.String("INCLUDE"), S_Opt, Parser.String("["),
-    ExtSubsetDecl,
+class XmlIncludeSection {
+    __New(Decl) {
+        this.Decl := Decl
+    }
+}
+
+IncludeSect := ExtSubsetDecl.Between(
+    Parser.Regex(Format("\Q<![{1}INCLUDE{1}[\E", Regex_S_0N)),
     Parser.String("]]>")
-)
+).Map(XmlIncludeSection)
 
-Ignore := Parser.Regex(Format("
-(
-{}*(?!\Q<![\E|\Q]]>\E)
-)", Regex_Char))
+; IncludeSect := Parser.Sequence(Array,
+;     Parser.String("<!["), S_Opt, Parser.String("INCLUDE"), S_Opt, Parser.String("["),
+;     ExtSubsetDecl,
+;     Parser.String("]]>")
+; )
 
-IgnoreSectContents := Parser.Define(I => (
-    Parser.Sequence(Array,
-        Ignore,
-        Parser.Sequence(Array,
-            Parser.String("<!["), I, Parser.String("]]>"), Ignore
-        ).ZeroOrMore()
-    )
-))
+class XmlIgnoreSection {
+    __New(Decl) {
+        this.Decl := Decl
+    }
+}
 
-IgnoreSect_FirstPart := Parser.Sequence(Array,
-    Parser.String("<!["),
-    S_Opt,
-    Parser.String("IGNORE"),
-    S_Opt,
-    Parser.String("["),
-)
-
-IgnoreSect := Parser.Sequence(Array,
-    Parser.String("<!["),
-    S_Opt,
-    Parser.String("IGNORE"),
-    S_Opt,
-    Parser.String("["),
-    ExtSubsetDecl,
+IgnoreSect := ExtSubsetDecl.Between(
+    Parser.Regex(Format("\Q<![{1}IGNORE{1}[\E", Regex_S_0N)),
     Parser.String("]]>")
-)
+).Map(XmlIgnoreSection)
+
+; IgnoreSect := Parser.Sequence(Array,
+;     Parser.String("<!["),
+;     S_Opt,
+;     Parser.String("IGNORE"),
+;     S_Opt,
+;     Parser.String("["),
+;     ExtSubsetDecl,
+;     Parser.String("]]>")
+; )
 
 _ConditionalSect := IncludeSect.Or(IgnoreSect)
 
-_Content := Parser.Sequence(Array,
-    CharData.Optional(),
-    Parser.Sequence(Array,
-        Parser.AnyOf(
-            Element,
-            Reference,
-            CData,
-            PI,
-            Comment
-        ),
-        CharData
-    ).ZeroOrMore()
-)
-
+"
+(
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+    <book id="bk101">
+        <author>John Doe</author>
+        <title>Learning XML</title>
+        <genre>Computer</genre>
+        <price>44.95</price>
+        <publish_date>2024-01-15</publish_date>
+        <description>A basic guide for beginners.</description>
+    </book>
+    <book id="bk102">
+        <author>Jane Smith</author>
+        <title>Advanced Coding</title>
+        <genre>Computer</genre>
+        <price>59.99</price>
+        <publish_date>2025-05-10</publish_date>
+        <description>Deep dive into modern code.</description>
+    </book>
+</catalog>
+)"
+.Parse(Document).ToString().MsgBox()
