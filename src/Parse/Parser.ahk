@@ -165,7 +165,7 @@ class Parser extends Func {
 
         End(&Input, Pos := 1) {
             (Unused)
-            return (Pos == StrLen(Input))
+            return (Pos == StrLen(Input) + 1)
                 ? MatchResult.Success("", Pos)
                 : MatchResult.Failure("(end)", Pos)
         }
