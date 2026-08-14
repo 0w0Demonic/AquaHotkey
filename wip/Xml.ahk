@@ -2,55 +2,25 @@
 #Include <AquaHotkey>
 
 #Include <AquaHotkey\src\Parse\Parser>
-
-; the document itself
-class Xml {
-    ; constructor, parse entire string
-    __New(Str) {
-        
-    }
-
-    ; to string, including header
-    ToString() {
-
-    }
-
-    ; TODO find a way to differentiate between eager and lazy
-    static FromFile() {
-
-    }
-
-    WriteToFile(File) {
-        
-    }
-}
+#Include <AquaHotkey\src\Base\ToString>
+#Include <AquaHotkey\src\Base\Primitives>
 
 ; any kind of XML tag --- meant to be an abstract class
 class XmlElement {
-    ; attributes (create a new map, if absent)
-    Attributes {
-        get {
-            M := Map()
-            this.DefineProp("Attributes", { Get: (_) => M })
-            return M
-        }
-    }
-
-    ; elements (create a new array, if absent)
-    Elements {
-        get {
-            A := Array()
-            this.DefineProp("Elements", { Get: (_) => A })
-            return A
-        }
-    }
-
     ; constructor that receives name, optionally
     ; attributes and elements
-    __New(Name, Attrs := [], Elems := []) {
+    __New(Name, Attributes := [], Elements := []) {
         this.Name := Name
-        this.Attrs := Attrs
-        this.Elems := Elems
+        this.Attributes := Attributes
+
+        Children := []
+        TextNodes := []
+        for Item in Elements {
+            ((Item is String) ? TextNodes : Children).Push(Item)
+        }
+
+        this.Children := Children
+        this.TextNodes := TextNodes
     }
 
     ; `HasAttribute` and `HasElement`, possibly something for creating
@@ -95,7 +65,6 @@ class AquaHotkey_Optional_TryGet extends AquaHotkey {
         }
     }
 }
-
 Group_Char_Without_Minus := "\x{09}\x{0A}\x{0D}\x{20}-\x{2C}\x{2E}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}\x{10FFFF}"
 Group_Char := Group_Char_Without_Minus . "\-"
 Group_Char := "\x{09}\x{0A}\x{0D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}\x{10FFFF}"
@@ -109,12 +78,6 @@ Regex_NameStartChar := "[" . Group_NameStartChar . "]"
 Regex_NameChar := "[" Group_NameStartChar "]"
 Regex_Name := Regex_NameStartChar . Regex_NameChar . "*"
 
-; Regex_Char := "[\x{09}\x{0A}\x{0D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}\x{10FFFF}]"
-; Regex_NameStartChar := "[:\w\x{C0}-\x{D6}\x{D8}-\x{F6}\x{F8}-\x{02FF}\x{0370}-\x{037D}\x{037F}-\x{1FFF}\x{200C}-\x{200D}\x{2070}-\x{218F}\x{2C00}-\x{2FEF}\x{3001}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFFD}\x{10000}-\x{EFFFF}]"
-; Regex_NameCharAdd := "[\-.0-9\x{B7}\x{0300}-\x{036F}\x{203F}-\x{2040}]"
-; Regex_NameChar := Format("(?:{}|{})", Regex_NameStartChar, Regex_NameCharAdd)
-; Regex_Name := Format("{}{}*", Regex_NameStartChar, Regex_NameChar)
-
 Char := Parser.Regex(Regex_Char)
 
 Regex_S := "[\x{20}\x{09}\x{0D}\x{0A}]"
@@ -123,33 +86,22 @@ Regex_S_0N := Regex_S . "*"
 
 S := Parser.Regex(Regex_S_1N)
 S_Opt := Parser.Regex(Regex_S_0N)
-; S_Opt := S.Optional()
-
-; NameStartChar := Parser.Regex(Regex_NameStartChar)
 
 NameChar := Parser.Regex(Regex_NameChar)
-; NameChar      := NameStartChar.Or(Parser.Regex(Regex_NameCharAdd))
-
 Name := Parser.Regex(Regex_Name)
 
-; Name := Parser.Sequence(Array, NameStartChar, NameChar.ZeroOrMore())
 Names := Name.AtLeastOnceDelimitedBy(" ")
 
-Nmtoken := NameChar.AtLeastOnce()
+Nmtoken := Parser.Regex(Regex_NameChar . "+")
 Nmtokens := Nmtoken.AtLeastOnceDelimitedBy(" ")
 
 SystemLiteral := Parser.Regex("'[^']*'|`"[^`"]*`"")
-
-#Include <AquaHotkey\src\Base\ToString>
-#Include <AquaHotkey\src\Base\Primitives>
 
 Group_PubidChar_WithoutQuote := "\x{20}\x{0D}\x{0A}\w\-()+,./:=?;!*#@$%"
 Group_PubidChar := Group_PubidChar_WithoutQuote . "'"
 
 Regex_PubidChar_WithoutQuote := "[" . Group_PubidChar_WithoutQuote . "]"
 Regex_PubidChar := "[" . Group_PubidChar . "]"
-
-; PubidChar := Parser.Regex("[\x{20}\x{0D}\x{0A}\w\-'()+,./:=?;!*#@$%]")
 
 PubidLiteral := Parser.Regex(
     Format("J)`"(?<inner>{})`"|'(?<inner>{})'",
@@ -159,34 +111,19 @@ PubidLiteral := Parser.Regex(
     M => M["inner"]
 )
 
-; PubidLiteral := PubidChar.ZeroOrMore().Between('"')
-;     .Or( (PubidChar.Without("'")).ZeroOrMore().Between("'") )
-
-
 Comment := Parser.Regex(Format(
     "<!--((?:{1}|-{1})*)-->",
     Regex_Char_Without_Minus
 ), M => XmlComment(M[1]))
 
-; Comment := Char.Without("-")
-;     .Or( Parser.Sequence(Array, Parser.String("-"), Char.Without("-")) )
-;     .ZeroOrMore()
-;     .Between("<!--", "-->")
-
 Regex_Eq := Format("{1}={1}", Regex_S_0N)
 
 Eq := Parser.Regex(Regex_Eq)
-; Eq := Parser.String("=").Between( S_Opt )
 
+; TODO strictness of version numbers
 Regex_VersionNum := "1\.[0-9]+"
-
 VersionNum := Parser.Regex(Regex_VersionNum)
 
-; VersionNum := Parser.Rule(&RuleVersionNum)
-; VersionNumLenient := Parser.Regex("1\.[0-9]+")
-; VersionNumStrict := Parser.String("1.0")
-
-; TODO transform this to something useful
 CData := Parser.Regex(
     "<!\[CDATA\[(" . (Regex_Char . "*?") . ")\]\]>",
     M => M[1]
@@ -195,23 +132,28 @@ CData := Parser.Regex(
 StringType := Parser.String("CDATA")
 TokenizedType := Parser.Regex("ID|IDREF|IDREFS|ENTITY|ENTITIES|NMTOKEN|NMTOKENS")
 
-EntityRef := Parser.Sequence(Array, Parser.String("&"), Name, Parser.String(";"))
-PEReference := Parser.Sequence(Array, Parser.String("%"), Name, Parser.String(";"))
+class XmlEntityRef {
+    __New(Name) {
+        this.Name := Name
+    }
+}
 
-PITarget := Name.SuchThat(Str => Str != "xml") ; case-insensitive
+class XmlParameterEntityRef {
+    __New(Name) {
+        this.Name := Name
+    }
+}
 
-EndTag := CreateEndTagParser(Name)
+EntityRef := Name.Between("&", ";").Map(XmlEntityRef)
+PEReference := Name.Between("%", ";").Map(XmlParameterEntityRef)
+
+PITarget := Parser.Regex("i)(?!xml)").Then(Name)
 
 CreateEndTagParser(Psr) {
     if (Psr is String) {
         Psr := Parser.String(Psr)
     }
-    return Parser.Sequence(
-        Array, Parser.String("</"),
-        Psr,
-        S_Opt,
-        Parser.String(">")
-    )
+    return Psr.FollowedBy(S_Opt).Between("</", ">")
 }
 
 VersionInfo := Parser.Regex(
@@ -222,12 +164,7 @@ VersionInfo := Parser.Regex(
     M => M["inner"]
 )
 
-; VersionInfo := Parser.Sequence(Array, S, Parser.String("version"), Eq,
-;     VersionNum.Between('"').Or( VersionNum.Between("'") )
-; )
-
 Regex_EncName := "[A-Za-z][\w\.\-]*"
-EncName := Parser.Regex(Regex_EncName)
 
 class XmlProcessInstruction {
     __New(Target, Value) {
@@ -241,28 +178,12 @@ PI := Parser.Sequence(XmlProcessInstruction,
     S.Then(Parser.Regex(Regex_Char . "*?(?=\?>)")).OrElse(""),
 ).Between("<?", "?>")
 
-; TODO doesn't work
-; PI := Parser.Sequence(Array,
-;     Parser.String("<?"),
-;     PITarget,
-;     Parser.Sequence(Array,
-;         S,
-;         Parser.Regex(Regex_Char . "*?(?=\?>)"))
-;     .Optional(),
-;     Parser.String("?>")
-; )
-
 SDDecl := Parser.Regex(
     Format(
         "{}standalone{}(?:`"yes`"|'yes'|`"no`"|'no')",
         Regex_S_1N,
         Regex_Eq)
 ).Map(Val => !!InStr(Val, "yes"))
-
-; YesNo := Parser.Regex("yes|no")
-; SDDecl := Parser.Sequence(Array, S, Parser.String("standalone"), Eq,
-;     YesNo.Between('"').Or(YesNo.Between("'"))
-; )
 
 EncodingDecl := Parser.Regex(
     Format("
@@ -272,14 +193,8 @@ EncodingDecl := Parser.Regex(
     M => M["inner"]
 )
 
-; EncodingDecl := Parser.Sequence(Array, S, Parser.String("encoding"), Eq,
-;     EncName.Between('"').Or(EncName.Between("'"))
-; )
-
-CharRef := Parser.Regex("&#([0-9]+|x[0-9a-fA-F]+);", M => M[1])
-    .Map((Val) => Chr(Integer("0" . Val))) ; use additional "x" to our advantage
-
-; CharRef := Parser.Regex("&#[0-9]+;|&#x[0-9a-fA-F]+;")
+CharRef := Parser.Regex("&#([0-9]+|x[0-9a-fA-F]+);",
+    M => Chr(Integer("0" . M[1]))) ; use additional "x" to our advantage
 
 Reference := EntityRef.Or(CharRef)
 
@@ -287,28 +202,22 @@ Reference := EntityRef.Or(CharRef)
 class XmlDeclaration {
     __New(Version, Encoding, Standalone) {
         this.Version := Version
-        this.Encoding := Encoding
-        this.Standalone := Standalone
+        if (Encoding.IsPresent) {
+            this.Encoding := Encoding.Value
+        }
+        if (Standalone.IsPresent) {
+            this.Standalone := Standalone.Value
+        }
     }
 }
 
 XMLDecl := Parser.Sequence(XmlDeclaration,
     VersionInfo,
-    EncodingDecl.OrElse(""),
-    SDDecl.OrElse("")
+    EncodingDecl.Optional(),
+    SDDecl.Optional()
 )
 .FollowedBy(S_Opt)
 .Between("<?xml", "?>")
-
-; XMLDecl := Parser.Sequence(
-;     Array,
-;     Parser.String("<?xml"),
-;     VersionInfo,
-;     EncodingDecl.Optional(),
-;     SDDecl.Optional(),
-;     S_Opt,
-;     Parser.String("?>")
-; )
 
 StrJoin(Strs*) {
     Result := ""
@@ -320,10 +229,10 @@ StrJoin(Strs*) {
 
 AttValue := (
     Parser.Regex('[^<&"]+').Map(StrJoin).Or(Reference)
-        .ZeroOrMore()
+        .ZeroOrMore(StrJoin)
         .Between('"')
 .Or(Parser.Regex("[^<&']+").Map(StrJoin).Or(Reference)
-        .ZeroOrMore()
+        .ZeroOrMore(StrJoin)
         .Between("'")))
 
 class XmlAttribute {
@@ -338,31 +247,71 @@ Attribute := Parser.Sequence(XmlAttribute, Name.FollowedBy(Eq), AttValue)
 DefaultDecl := Parser.AnyOf(
     Parser.String("#REQUIRED"),
     Parser.String("#IMPLIED"),
-    Parser.Sequence(Array, Parser.String("#FIXED"), S).Optional(),
-    AttValue
+    Parser.Sequence(Array,
+        Parser.String("#FIXED", S).Optional(),
+        AttValue
+    )
 )
 
-PublicID := Parser.Sequence(Array, Parser.String("PUBLIC"), S, PubidLiteral)
+class XmlPublicId {
+    __New(Value) {
+        this.Value := Value
+    }
+}
 
-ExternalID := Parser.Sequence(Array, S, SystemLiteral)
-    .Or( Parser.Sequence(Array, Parser.String("PUBLIC"), S, PubidLiteral, S, SystemLiteral) )
+PublicID := Parser.String("PUBLIC").Then(S).Then(PubidLiteral).Map(XmlPublicId)
 
-NDataDecl := Parser.Sequence(Array, S, Parser.String("NCDATA"), S, Name)
-TextDecl := Parser.Sequence(Array,
-    Parser.String("<?xml"),
+; TODO create useful output for this
+
+class XmlSystemExternal {
+    __New(Value) {
+        this.Value := Value
+    }
+}
+
+class XmlPublicExternal {
+    __New(Pub, Sys) {
+        this.Pub := Pub
+        this.Sys := Sys
+    }
+}
+
+ExternalID := Parser.AnyOf(
+    Parser.String("SYSTEM").Then(S).Then(SystemLiteral).Map(XmlSystemExternal),
+    Parser.Sequence(XmlPublicExternal,
+        Parser.String("PUBLIC").Then(S).Then(PubidLiteral),
+        S.Then(SystemLiteral)
+    )
+)
+
+class XmlNDataDeclaration {
+    __New(Name) {
+        this.Name := Name
+    }
+}
+
+NDataDecl := Parser.String("NCDATA").Between(S).Then(Name).Map(XmlNDataDeclaration)
+
+class XmlTextDecl {
+    __New(VersionInfo, EncodingDecl) {
+        this.VersionInfo := VersionInfo
+        this.EncodingDecl := EncodingDecl
+    }
+}
+
+TextDecl := Parser.Sequence(XmlTextDecl,
     VersionInfo.Optional(),
-    EncodingDecl,
-    S_Opt,
-    Parser.String("?>")
+    EncodingDecl
 )
+.FollowedBy(S_Opt)
+.Between("<?xml", "?>")
 
-EmptyElemTag := Parser.Sequence(Array,
-    Parser.String("<"),
-    Name,
-    Parser.Sequence(Array, S, Attribute).ZeroOrMore(),
-    S_Opt,
-    Parser.String("/>")
-)
+class XmlEmptyElement {
+    __New(Name, Attributes) {
+        this.Name := Name
+        this.Attributes := Attributes
+    }
+}
 
 class XmlTag {
     __New(Name, Attributes) {
@@ -371,6 +320,13 @@ class XmlTag {
     }
 }
 
+EmptyElemTag := Parser.Sequence(XmlEmptyElement,
+    Name,
+    (S.Then(Attribute)).ZeroOrMore(),
+)
+.FollowedBy(S_Opt)
+.Between("<", "/>")
+
 STag := Parser.Sequence(XmlTag,
     Name,
     S.Then(Attribute).ZeroOrMore()
@@ -378,36 +334,17 @@ STag := Parser.Sequence(XmlTag,
 .FollowedBy(S_Opt)
 .Between("<", ">")
 
-; STag := Parser.Sequence(Array,
-;     Parser.String("<"),
-;     Name,
-;     Parser.Sequence(Array, S, Attribute).ZeroOrMore(),
-;     S_Opt,
-;     Parser.String(">")
-; )
-
-; EndTag := Parser.Sequence(Array,
-;     Parser.String("</"),
-;     Name,
-;     S_Opt,
-;     Parser.String(">")
-; )
-
 DeclSep := PEReference.Or(S)
 
-Mixed := Parser.Sequence(Array,
-    Parser.String("("),
-    S_Opt,
-    Parser.String("#PCDATA"),
+class XmlMixed {
+    __New(Value) {
+        this.Value := Value
+    }
+}
 
-    Parser.Sequence(Array,
-        S_Opt, Parser.String("|"), S_Opt,
-        Name
-    ).ZeroOrMore(),
-
-    S_Opt,
-    Parser.String(")")
-)
+Mixed := Parser.String("#PCDATA").Then(
+    Parser.String("|").Between(S_Opt).Then(Name).ZeroOrMore()
+).Between(S_Opt).Between("(", ")")
 
 cp := Parser.Rule(&_cp)
 
@@ -425,24 +362,16 @@ _cp := Parser.Sequence(Array,
     Parser.Regex("[?*+]").Optional()
 )
 
-; STag.Parse(&Str := "<person isCool='yes'>").ToString().MsgBox()
-; VersionInfo.Parse(&Str := " version='1.0'").ToString().MsgBox()
-; XMLDecl.Parse(&Str := "<?xml version='1.0' encoding='utf-8' standalone='yes'?>").ToString().MsgBox()
+class XmlNotationType {
+    __New(Values*) {
+        this.Values := Values
+    }
+}
 
-NotationType := Parser.Sequence(Array,
-    Parser.String("NOTATION"),
-    S,
-    Parser.String("("),
-    S_Opt,
-    Name,
-    Parser.Sequence(Array,
-        S_Opt,
-        Parser.String("|"),
-        S_Opt,
-        Name
-    ).ZeroOrMore(),
-    S_Opt,
-    Parser.String(")")
+NotationType := Parser.String("NOTATION").Then(S).Then(
+    Name.AtLeastOnceDelimitedBy(Parser.String("|").Between(S_Opt))
+        .Between(S_Opt)
+        .Between("(", ")")
 )
 
 EntityValue_BetweenDoubleQuotes := Parser.AnyOf(
@@ -470,64 +399,95 @@ Content := Parser.Rule(&_Content)
 
 ; TODO extra context for tag names
 
-; STag := Parser.Sequence(XmlTag,
-;     Name,
-;     S.Then(Attribute).ZeroOrMore()
-; )
-; .FollowedBy(S_Opt)
-; .Between("<", ">")
-
-; Element := EmptyElemTag.Or( Parser.Sequence(Array, STag, Content, EndTag) )
-
-Element := EmptyElemTag.Or(
-    STag.FlatMap(ParserBasedOnStartingTag)
+Element := Parser.String("<").Then(
+    Parser.Sequence(Array, Name, (S.Then(Attribute)).ZeroOrMore())
+          .FlatMap(ElementFlatMap)
 )
 
-ParserBasedOnStartingTag(Tag) {
-    return Content.FollowedBy(CreateEndTagParser(Tag.Name))
-        .Map(Content => XmlElement(Tag.Name, Tag.Attributes, Content))
+ElementFlatMap(Tag) {
+    static Empty    := Parser.String("/>")
+    static Nonempty := Parser.String(">").Then(Content)
+    
+    return Parser.AnyOf(
+        Empty.Map((*) => XmlEmptyElement(Tag[1], Tag[2])),
+        Nonempty.FollowedBy(CreateEndTagParser(Tag[1]))
+                .Map(Content => XmlElement(Tag[1], Tag[2], Content))
+    )
 }
+
+; Element := EmptyElemTag.Or(STag.FlatMap(ParserBasedOnStartingTag))
+; ParserBasedOnStartingTag(Tag) {
+;     return Content.FollowedBy(CreateEndTagParser(Tag.Name))
+;         .Map(Content => XmlElement(Tag.Name, Tag.Attributes, Content))
+; }
 
 Children := Parser.Sequence(Array,
     Choice.Or(Seq),
     Parser.Regex("[?*+]").Optional()
 )
 
-NotationDecl := Parser.Sequence(Array,
-    Parser.String("<!NOTATION"),
-    S,
-    Name,
-    S,
-    ExternalID.Or(PublicId),
-    S_Opt,
-    Parser.String(">")
-)
+class XmlNotationDecl {
+    __New(Name, Ref) {
+        this.Name := Name
+        this.Ref := Ref
+    }
+}
 
-extParsedEnt := Parser.Sequence(Array,
+NotationDecl := Parser.Sequence(XmlNotationDecl,
+    Name.Between(S),
+    ExternalID.Or(PublicID).FollowedBy(S_Opt)
+).Between("<!NOTATION", ">")
+
+ExtParsedEnt := Parser.Sequence(Array,
     TextDecl.Optional(),
     Content
 )
 PEDef := EntityValue.Or(ExternalID)
-PEDecl := Parser.Sequence(Array,
-    Parser.String("<!ENTITY"),
-    S,
-    Parser.String("%"),
-    S,
-    Name,
-    S,
-    PEDef,
-    Parser.String(">")
-)
 
-GEDecl := Parser.Sequence(Array,
-    Parser.String("<!ENTITY"),
-    S,
-    Name,
-    S,
-    EntityDef,
-    S_Opt,
-    Parser.String(">")
-)
+class XmlParameterEntity {
+    __New(Name, Def) {
+        this.Name := Name
+        this.Def := Def
+    }
+}
+
+PEDecl := Parser.Sequence(XmlParameterEntity,
+    Parser.String("%").Between(S).Then(Name),
+    S.Then(PEDef)
+).Between("<!ENTITY", ">")
+
+; PEDecl := Parser.Sequence(Array,
+;     Parser.String("<!ENTITY"),
+;     S,
+;     Parser.String("%"),
+;     S,
+;     Name,
+;     S,
+;     PEDef,
+;     Parser.String(">")
+; )
+
+class XmlGEDecl {
+    __New(Name, Def) {
+        this.Name := Name
+        this.Def := Def
+    }
+}
+
+GEDecl := Parser.Sequence(XmlGEDecl,
+    Name.Between(S),
+    EntityDef.FollowedBy(S_Opt)
+).Between("<!ENTITY", ">")
+
+; GEDecl := Parser.Sequence(Array,
+;     Parser.String("<!ENTITY"),
+;     S,
+;     Name,
+;     S,
+;     EntityDef,
+;     S_Opt,
+;     Parser.String(">")
+; )
 EntityDecl := GEDecl.Or(PEDecl)
 
 Enumeration := Nmtoken.AtLeastOnceDelimitedBy(
@@ -557,15 +517,28 @@ ContentSpec := Parser.AnyOf(
     Children
 )
 
-ElementDecl := Parser.Sequence(Array,
-    Parser.String("<!ELEMENT"),
-    S,
-    Name,
-    S,
-    ContentSpec,
-    S_Opt,
-    Parser.String(">")
-)
+class XmlElementDeclaration {
+    __New(Name, ContentSpec) {
+        this.Name := Name
+        this.ContentSpec := ContentSpec
+    }
+}
+
+ElementDecl := Parser.Sequence(XmlElementDeclaration,
+    Name.Between(S),
+    ContentSpec.FollowedBy(S_Opt),
+).Between("<!ELEMENT", ">")
+
+
+; ElementDecl := Parser.Sequence(Array,
+;     Parser.String("<!ELEMENT"),
+;     S,
+;     Name,
+;     S,
+;     ContentSpec,
+;     S_Opt,
+;     Parser.String(">")
+; )
 
 class Ext extends AquaHotkey {
     class String {
@@ -589,14 +562,6 @@ IgnoreSectContents := Parser.Define(I => (
         ).ZeroOrMore()
     )
 ))
-
-IgnoreSect_FirstPart := Parser.Sequence(Array,
-    Parser.String("<!["),
-    S_Opt,
-    Parser.String("IGNORE"),
-    S_Opt,
-    Parser.String("["),
-)
 
 XmlChildren(Opt_CharData, More) {
     Result := Array()
@@ -627,19 +592,40 @@ _Content := Parser.Sequence(XmlChildren,
     ).ZeroOrMore()
 )
 
-AttDef := Parser.Sequence(Array,
-    S, Name, S, AttType, S, DefaultDecl
-)
+class XmlAttDef {
+    __New(Name, T, Decl) {
+        this.Name := Name
+        this.T := T
+        this.Decl := Decl
+    }
+}
 
-AttlistDecl := Parser.Sequence(
-    Array,
-    Parser.String("<!ATTLIST"),
-    S,
-    Name,
-    AttDef.ZeroOrMore(),
-    S_Opt,
-    Parser.String(">")
-)
+AttDef := Parser.Sequence(XmlAttDef, S.Then(Name), S.Then(AttType), S.Then(DefaultDecl))
+
+; AttDef := Parser.Sequence(Array,
+;     S, Name, S, AttType, S, DefaultDecl
+; )
+
+class XmlAttlistDecl {
+    __New(Name, Defs) {
+        this.Name := Name
+        this.Defs := Defs
+    }
+}
+
+AttlistDecl := Parser.Sequence(XmlAttlistDecl,
+    S.Then(Name),
+    AttDef.ZeroOrMore().FollowedBy(S_Opt)
+).Between("<!ATTLIST", ">")
+
+; AttlistDecl := Parser.Sequence(Array,
+;     Parser.String("<!ATTLIST"),
+;     S,
+;     Name,
+;     AttDef.ZeroOrMore(),
+;     S_Opt,
+;     Parser.String(">")
+; )
 
 MarkupDecl := Parser.AnyOf(
     ElementDecl,
@@ -649,24 +635,54 @@ MarkupDecl := Parser.AnyOf(
     PI,
     Comment
 )
-intSubset := Parser.Sequence(Array, MarkupDecl, declsep).ZeroOrMore()
+IntSubset := Parser.AnyOf(MarkupDecl, declsep).ZeroOrMore()
 
-DoctypeDecl := Parser.Sequence(Array,
-    Parser.String("<!DOCTYPE"),
-    S,
-    Name,
-    Parser.Sequence(Array, S, ExternalID).Optional(),
-    S_Opt,
-    Parser.Sequence(Array,
-        Parser.String("["),
-        intSubset,
-        Parser.String("]"),
-    ).Optional(),
-    Parser.String(">")
-)
+class XmlDoctypeDecl {
+    __New(Name, ExternalID, Subset) {
+        this.Name := Name
+        this.ExternalID := ExternalID
+        this.Subset := Subset
+    }
+}
+
+DoctypeDecl := Parser.Sequence(XmlDoctypeDecl,
+    S.Then(Name),
+    S.Then(ExternalID).Optional(),
+    S_Opt.Then(
+        IntSubset.Between("[", "]").FollowedBy(S_Opt).Optional()
+    )
+).Between("<!DOCTYPE", ">")
+
+; DoctypeDecl := Parser.Sequence(Array,
+;     Parser.String("<!DOCTYPE"),
+;     S,
+;     Name,
+;     Parser.Sequence(Array, S, ExternalID).Optional(),
+;     S_Opt,
+;     Parser.Sequence(Array,
+;         Parser.String("["),
+;         intSubset,
+;         Parser.String("]"),
+;         S_Opt
+;     ).Optional(),
+;     Parser.String(">")
+; )
+
+class XmlProlog {
+    static Strict := true
+
+    __New(Header, Misc, DoctypeDecls) {
+        if (XmlProlog.Strict) {
+            Header := Header.OrElseThrow(UnsetError, "missing XML header")
+        }
+        this.Header := Header
+        this.Misc := Misc
+        this.DoctypeDecls := DoctypeDecls
+    }
+}
 
 ; TODO allow XMLDecl to be mandatory
-Prolog := Parser.Sequence(Array,
+Prolog := Parser.Sequence(XmlProlog,
     XMLDecl.Optional(),
     Misc.ZeroOrMore(),
     Parser.Sequence(Array,
@@ -676,21 +692,25 @@ Prolog := Parser.Sequence(Array,
 )
 
 class XmlDocument {
-    __New(Prolog, Elements, Misc) {
+    __New(Prolog, Content, Misc) {
         this.Prolog := Prolog
-        this.Elements := Elements
+        this.Content := Content
         this.Misc := Misc
+    }
+
+    static Parse(Str) {
+        return (Str is VarRef) ? Document.Parse(Str) : Document.Parse(&Str)
     }
 }
 
-Document := Parser.Sequence(XmlDocument, Prolog, Element, Misc.ZeroOrMore())
+Document := Parser.Sequence(XmlDocument,
+    Prolog,
+    Element,
+    Misc.ZeroOrMore()
+)
+.FollowedBy(Parser.End()) ; anchor ending so we don't drop erroneous "misc"s
 
-ExtSubsetDecl := Parser.AnyOf(
-    MarkupDecl,
-    ConditionalSect,
-    DeclSep
-).ZeroOrMore()
-
+ExtSubsetDecl := Parser.AnyOf(MarkupDecl, ConditionalSect, DeclSep).ZeroOrMore()
 ExtSubset := Parser.Sequence(Array, TextDecl.Optional(), ExtSubsetDecl)
 
 class XmlIncludeSection {
@@ -733,26 +753,39 @@ IgnoreSect := ExtSubsetDecl.Between(
 
 _ConditionalSect := IncludeSect.Or(IgnoreSect)
 
-"
+DllCall("QueryPerformanceFrequency", "int64*", &f := 0)
+DllCall("QueryPerformanceCounter", "int64*", &t1 := 0)
+
+Result := XmlDocument.Parse("
 (
 <?xml version="1.0" encoding="UTF-8"?>
-<catalog>
-    <book id="bk101">
-        <author>John Doe</author>
-        <title>Learning XML</title>
-        <genre>Computer</genre>
-        <price>44.95</price>
-        <publish_date>2024-01-15</publish_date>
-        <description>A basic guide for beginners.</description>
-    </book>
-    <book id="bk102">
-        <author>Jane Smith</author>
-        <title>Advanced Coding</title>
-        <genre>Computer</genre>
-        <price>59.99</price>
-        <publish_date>2025-05-10</publish_date>
-        <description>Deep dive into modern code.</description>
-    </book>
-</catalog>
-)"
-.Parse(Document).ToString().MsgBox()
+<!-- The DOCTYPE defines the root element and encloses the internal DTD -->
+<!DOCTYPE company [
+    <!ELEMENT company (employee+)>
+    <!ELEMENT employee (name, department, email)>
+    <!ATTLIST employee id CDATA #REQUIRED>
+    <!ELEMENT name (#PCDATA)>
+    <!ELEMENT department (#PCDATA)>
+    <!ELEMENT email (#PCDATA)>
+]>
+
+<company>
+    <employee id="emp101">
+        <name>Jane Doe</name>
+        <department>Engineering</department>
+        <email>jane.doe@example.com</email>
+    </employee>
+    <employee id="emp102">
+        <name>John Smith</name>
+        <department>Marketing</department>
+        <email>john.smith@example.com</email>
+        <!-- comment! -->
+    </employee>
+</company>
+)")
+
+DllCall("QueryPerformanceCounter", "int64*", &t2 := 0)
+
+MsgBox(((t2 - t1) / f * 1000) . "ms")
+
+Result.ToString().MsgBox()
