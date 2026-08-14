@@ -132,7 +132,7 @@ class Parser extends Func {
      * @param   {String?|Integer?}  CaseSense  case sensitivity
      * @returns {Parser<String>}
      */
-    static String(Str, CaseSense?) {
+    static String(Str, CaseSense := true) {
         if (!(Str is Primitive)) {
             throw TypeError("Expected a String",, Type(Str))
         }
