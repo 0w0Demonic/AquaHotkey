@@ -149,7 +149,7 @@ class IMap {
      * Unsupported `.Get()` method.
      * @see {@link Map#Get()}
      */
-    Get(Key, *) {
+    Get(Key, Default?) {
         throw MethodError("not implemented")
     }
     

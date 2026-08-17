@@ -44,3 +44,66 @@
 ; MsgBox(RegExMatch("1", Pat))   ; "matching..." ; 1
 ; MsgBox(RegExMatch("255", Pat)) ; "matching..." ; 1
 ; MsgBox(RegExMatch("256", Pat)) ; "matching..." ; 0
+
+#Include <AquaHotkey\src\Base\Assertions>
+#Include <AquaHotkey\src\Base\DuckTypes>
+#Include <AquaHotkey\src\Func\Predicate>
+
+class TRange {
+    __New(T, Low?, High?) {
+        if (!IsSet(Low) && !IsSet(High)) {
+            throw UnsetError("neither Low nor High is set")
+        }
+        this.T := T
+        if (IsSet(Low)) {
+            this.Low := Low.AssertType(T)
+        }
+        if (IsSet(High)) {
+            this.High := High.AssertType(T)
+        }
+    }
+
+    IsInstance(Val?) {
+        if (!IsSet(Val)) {
+            return false
+        }
+        if (ObjHasOwnProp(this, "Low") && Val.Lt(this.Low)) {
+            return false
+        }
+        if (ObjHasOwnProp(this, "High") && Val.Gt(this.High)) {
+            return false
+        }
+        return true
+    }
+
+    CanCastFrom(Val?) {
+        return IsSet(Val) && (Val is TRange) && (this.T).CanCastFrom(Val.T)
+            && (!ObjHasOwnProp(this, "Low") ||
+                    (ObjHasOwnProp(Val, "Low") && (Val.Low).Lt(this.Low)))
+            && (!ObjHasOwnProp(this, "High") ||
+                    (ObjHasOwnProp(Val, "High") && (Val.High).Gt(this.High)))
+    }
+}
+
+class StringUtils extends AquaHotkey {
+    class String {
+        static IsNullOrEmpty(Str?) {
+            if (!IsSet(Str)) {
+                return true
+            }
+            if (IsObject(Str) || !(Str is String)) {
+                throw TypeError("Expected a String",, Type(Str))
+            }
+            return Str == ""
+        }
+        static IsNullOrWhiteSpace(Str?) {
+            if (!IsSet(Str)) {
+                return true
+            }
+            if (IsObject(Str) || !(Str is String)) {
+                throw TypeError("Expected a String",, Type(Str))
+            }
+            return IsSpace(Str)
+        }
+    }
+}

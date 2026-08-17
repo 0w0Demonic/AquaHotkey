@@ -21,10 +21,25 @@
 #Include <AquaHotkey\src\Net\Uri>
 #Include <AquaHotkey\src\Base\DuckTypes>
 
+/**
+ * @class
+ * @classdesc
+ * Represents an URI with `http` or `https` scheme.
+ * 
+ * @extends {Uri}
+ */
 class HttpUri extends Uri {
+    /**
+     * @static
+     * @readonly
+     * @type {Array<String>}
+     */
     static Schemes => ["http", "https"]
 }
 
+/**
+ * 
+ */
 class AquaHotkey_HttpServer extends AquaHotkey
 {
     ; evil hacks, just add to existing `HttpServer`.
@@ -75,86 +90,100 @@ class AquaHotkey_HttpServer extends AquaHotkey
                 return false
             }
 
-            H := HANDLE()
-            Res := HttpServer.HttpCreateHttpHandle(H)
+            RequestQueue := HANDLE()
+            Res := HttpServer.HttpCreateHttpHandle(RequestQueue)
             if (Res != WIN32_ERROR.NO_ERROR) {
-                Out := OSError("Unable to create HTTP handle")
+                Out := OSError("Unable to create HTTP handle: " . Res)
                 return false
             }
 
             for Url in Urls {
-                Res := HttpServer.HttpAddUrl(H, Url)
+                Res := HttpServer.HttpAddUrl(RequestQueue, Url)
                 if (Res != WIN32_ERROR.NO_ERROR) {
                     Out := ValueError("Unable to add URL: " . Url)
                     return false
                 }
             }
 
-            Out := { base: this.Prototype }
-            DefineConst(Out, "Handle", H)
-            DefineGetter(Out, "Urls", (_) => Urls.Clone())
+            Out := DefineProps({ base: this.Prototype }, {
+                RequestQueue: { Get: (_) => RequestQueue },
+                Urls: { Get: (_) => Urls.Clone() }
+            })
             return true
         }
 
+        /**
+         * Default buffer size for incoming requests. This buffer is reallocated
+         * if too small for the current request.
+         * 
+         * @readonly
+         * @type {Integer}
+         */
         DefaultReqBufferSize => 2048
 
-        Listen(TimeoutMs := 10000) {
-            Buf := Buffer(HTTP_REQUEST_V1.sizeof + this.DefaultReqBufferSize, 0)
+        /**
+         * Runs the HTTP server, awaiting an HTTP request with the given
+         * timeout in milliseconds. If none is specified, the server waits
+         * indefinitely.
+         * 
+         * @param   {Integer?}  TimeoutMs  timeout in milliseconds
+         */
+        Run(TimeoutMs := Threading.INFINITE) {
+            Buf := Buffer(HTTP_REQUEST_V1.sizeof + this.DefaultReqBufferSize)
+            Request := HTTP_REQUEST_V1(Buf.Ptr)
             ReqId := 0
 
-            DllCall("RtlZeroMemory", "Ptr", Buf, "Int64", Buf.Size)
-            
             OL := OVERLAPPED()
-            Event := OL.hEvent
-            Event.Value := Threading.CreateEventW(0, true, false, 0).Value
-
-            if (!OL.hEvent) {
+            Event := Threading.CreateEventW(0, TRUE, FALSE, 0)
+            if (!Event.Value) {
                 throw OSError()
             }
+            OL.hEvent.Value := Event.Value
+            loop {
+                DllCall("RtlZeroMemory", "Ptr", Buf, "Int64", Buf.Size)
 
-            Result := HttpServer.HttpReceiveHttpRequest(
-                this.Handle, ReqId, 0,
-                Buf, Buf.Size, &BytesRead := 0,
-                OL)
-
-
-            switch {
-                case (Result == WIN32_ERROR.NO_ERROR):
-                    MsgBox("immediate success")
-                    return
-                case (Result == WIN32_ERROR.ERROR_IO_PENDING):
-                    throw OSError()
+                Result := HttpServer.HttpReceiveHttpRequest(
+                    this.RequestQueue, ReqId, 0,
+                    Buf, Buf.Size, 0,
+                    OL)
+                
+                switch (Result) {
+                    case WIN32_ERROR.NO_ERROR:
+                        MsgBox("immediate success")
+                    case WIN32_ERROR.ERROR_IO_PENDING:
+                        MsgBox("pending...")
+                        WaitResult := Threading.WaitForSingleObject(OL.hEvent, TimeoutMs)
+                        switch (WaitResult) {
+                            case WAIT_EVENT.WAIT_OBJECT_0:
+                                MsgBox("success request")
+                            case WAIT_EVENT.WAIT_TIMEOUT:
+                                MsgBox("timeout")
+                            default:
+                                MsgBox("wait error: " . WaitResult)
+                                break
+                        }
+                    default:
+                        MsgBox("request error: " . Result)
+                        break
+                }
+                break
             }
 
-            WaitResult := Threading.WaitForSingleObject(OL.hEvent, TimeoutMs)
-            if (WaitResult == WAIT_EVENT.WAIT_OBJECT_0) {
-                MsgBox("delayed success")
-                return
-            }
-            if (WaitResult == WAIT_EVENT.WAIT_TIMEOUT) {
-                MsgBox("timeout")
-            } else {
-                MsgBox("other error")
-            }
-            IO.CancelIoEx(this.Handle, OL)
-            
-
-            ; switch (Result) {
-            ; case WIN32_ERROR.NO_ERROR:
-            ;     Request := HTTP_REQUEST_V1(Buf.Ptr)
-
-            ;     switch (Request.Verb) {
-            ;     case HTTP_VERB.HttpVerbGET:
-            ;         MsgBox("GET")
-            ;     }
-            ; }
+            ; avoid freeing twice
+            OL.hEvent.Value := 0
+            Buf := unset
+            Request := unset
+            Event := unset
         }
 
+        /**
+         * Frees the resources of the HTTP server.
+         */
         __Delete() {
             for Url in this.Urls {
-                HttpServer.HttpRemoveUrl(this.Handle, Url)
+                HttpServer.HttpRemoveUrl(this.RequestQueue, Url)
             }
-            DeleteProp(this, "Handle")
+            DeleteProp(this, "RequestQueue")
             HttpServer.HttpTerminate(HTTP_INITIALIZE.HTTP_INITIALIZE_SERVER)
         }
     }
@@ -166,7 +195,7 @@ class AquaHotkey_HttpServer extends AquaHotkey
 #Include <AquaHotkey\src\Time\Duration>
 
 Server := HttpServer.Create("http://localhost:8080")
-Server.Listen(Timeout := 10.Seconds)
+Server.Run(10.Seconds)
 
-Server := unset
 MsgBox("finished")
+Server := unset

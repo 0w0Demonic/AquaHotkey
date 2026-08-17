@@ -14,7 +14,7 @@ InheritBasedOnEnclosingClass(Cls, NestedClassName) {
             return Cls.%NestedClassName%
         }
         BaseNested := Getter(ObjGetBase(Cls))
-        Nested := NestedClassProp(AquaHotkey.CreateClass(BaseNested))
+        Nested := NestedClassProp(CreateClass(BaseNested))
         DefineProp(Cls, NestedClassName, Nested)
         return Nested
     }
