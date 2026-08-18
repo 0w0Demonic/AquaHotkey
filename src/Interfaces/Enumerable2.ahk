@@ -19,7 +19,7 @@
  * @example
  * for Value1, Value2 in Obj { ... }
  */
-class Enumerable2 {
+class Enumerable2 extends Any {
     static __New() {
         static Clone   := {}.Clone
 
@@ -27,18 +27,22 @@ class Enumerable2 {
             return
         }
 
-        Prot := Clone(this.Prototype)
-        Cls := DefineProp(Clone(this), "Prototype", { Value: Prot })
+        Prot := {}
+        for PropName, PropDesc in OwnPropDescs(this.Prototype) {
+            DefineProp(Prot, PropName, PropDesc)
+        }
+        Cls := { base: ObjGetBase(this), Prototype: Prot }
+        for PropName, PropDesc in OwnPropDescs(this) {
+            DefineProp(Cls, PropName, PropDesc)
+        }
 
         WithAlias(Cls)
         WithAlias(Prot)
 
         DefineConst(this, "Strict", Cls)
-        this.Extend(IArray, IMap)
 
-        ; dirty hack
-        ; TODO figure out why `Extend` refuses to work
-        (AquaHotkey.Apply)(this, Cls, DoubleStream, false)
+        this.Extend(IArray, IMap)
+        Cls.Extend(DoubleStream)
 
         static WithAlias(Target) {
             Arr := Array()

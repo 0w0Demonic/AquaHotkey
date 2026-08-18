@@ -21,8 +21,8 @@
  * @example
  * Range(1, 100).Any(Eq(20)) ; true
  */
-class Enumerable1 {
-    static __New() => this.ApplyOnto(IArray, IMap, Enumerator)
+class Enumerable1 extends Any {
+    static __New() => this.Extend(IArray, IMap, Enumerator)
 
     ;@region Collect
 
