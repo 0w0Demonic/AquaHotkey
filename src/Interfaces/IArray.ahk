@@ -402,6 +402,21 @@ class IArray {
     ;---------------------------------------------------------------------------
     ;@region Misc
 
+    /**
+     * Deletes the first item that equals the specified value. Throws, if
+     * unable to find such an item.
+     * 
+     * @param   {Any}  Value  the specified value to be deleted
+     * @returns {Any}
+     */
+    DeleteValue(Value) {
+        Index := this.IndexOf(Value)
+        if (!Index) {
+            throw UnsetItemError("Unable to find item")
+        }
+        return this.Delete(A_Index)
+    }
+
     ; TODO redefine as `.RemoveAt(...)`?
     /**
      * Clears the array.
