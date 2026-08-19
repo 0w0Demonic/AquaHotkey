@@ -22,7 +22,10 @@
  * Range(1, 100).Any(Eq(20)) ; true
  */
 class Enumerable1 extends Any {
-    static __New() => this.Extend(IArray, IMap, Enumerator)
+    static __New() {
+        (Enumerable2?) ; <-- force Enumerable2 to load first
+        this.Extend(IArray, IMap, Enumerator)
+    }
 
     ;@region Collect
 

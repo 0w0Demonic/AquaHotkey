@@ -21,40 +21,24 @@
  */
 class Enumerable2 extends Any {
     static __New() {
-        static Clone   := {}.Clone
-
-        if (this != Enumerable2) {
-            return
-        }
+        static Clone := {}.Clone
 
         Prot := {}
         for PropName, PropDesc in OwnPropDescs(this.Prototype) {
-            DefineProp(Prot, PropName, PropDesc)
+            DefineProp(Prot, (SubStr(PropName, -1) == "2")
+                    ? SubStr(PropName, 1, -1)
+                    : PropName, PropDesc)
         }
         Cls := { base: ObjGetBase(this), Prototype: Prot }
         for PropName, PropDesc in OwnPropDescs(this) {
-            DefineProp(Cls, PropName, PropDesc)
+            DefineProp(Cls, (SubStr(PropName, -1) == "2")
+                    ? SubStr(PropName, 1, -1)
+                    : PropName, PropDesc)
         }
-
-        WithAlias(Cls)
-        WithAlias(Prot)
-
-        DefineConst(this, "Strict", Cls)
+        DefineProp(this, "Strict", NestedClassProp(Cls))
 
         this.Extend(IArray, IMap)
-        Cls.Extend(DoubleStream)
-
-        static WithAlias(Target) {
-            Arr := Array()
-            for PropName in ObjOwnProps(Target) {
-                if (SubStr(PropName, -1) == "2") {
-                    Arr.Push(PropName)
-                }
-            }
-            for PropName in Arr {
-                RenameProp(Target, PropName, SubStr(PropName, 1, -1))
-            }
-        }
+        (this.Strict).Extend(DoubleStream)
     }
 
     ;@region Side Effects
