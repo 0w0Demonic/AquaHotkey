@@ -103,7 +103,7 @@ class Continuation extends Func {
      * @returns {Continuation}
      */
     RetainIf(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         return this.Cast(Result)
 
         Result(Downstream) {
@@ -131,7 +131,7 @@ class Continuation extends Func {
      * @returns {Continuation}
      */
     RemoveIf(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         return this.Cast(Result)
 
         Result(Downstream) {
@@ -211,7 +211,7 @@ class Continuation extends Func {
      * FileLoop(A_Desktop . "\*", "DR").Map((*) => A_LoopFileName).ForEach(MsgBox)
      */
     Map(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         return this.Cast(Result)
 
         Result(Downstream) {
@@ -235,7 +235,7 @@ class Continuation extends Func {
      * @returns {Continuation}
      */
     FlatMap(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         return this.Cast(Result)
 
         Result(Downstream) {
@@ -269,7 +269,7 @@ class Continuation extends Func {
      * @returns {Continuation}
      */
     TakeWhile(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         return this.Cast(Result)
 
         Result(Downstream) {
@@ -294,7 +294,7 @@ class Continuation extends Func {
      * @returns {Continuation}
      */
     TakeUntil(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         return this.Cast(Result)
 
         Result(Downstream) {
@@ -319,7 +319,7 @@ class Continuation extends Func {
      * @returns {Continuation}
      */
     DropWhile(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         return this.Cast(Result)
 
         Result(Downstream) {
@@ -348,7 +348,7 @@ class Continuation extends Func {
      * @returns {Continuation}
      */
     DropUntil(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         return this.Cast(Result)
 
         Result(Downstream) {
@@ -383,7 +383,7 @@ class Continuation extends Func {
      */
     Distinct(Classifier?, SetParam := Set()) {
         if (IsSet(Classifier)) {
-            GetMethod(Classifier)
+            GetMethod(Classifier,, 1)
         }
         return this.Cast(Result)
 

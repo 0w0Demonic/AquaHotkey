@@ -489,14 +489,15 @@ class TryOp {
          * @see {@link TryOp#RetainIf()}
          */
         RetainIf(Condition, Args*) {
+            GetMethod(Condition,, 1 + Args.Length)
             try {
                 if (Condition(this.Value, Args*)) {
                     return this
                 }
-                switch {
-                    case (Condition is Func): Name := Condition.Name
-                    default:                  Name := GetMethod(Condition).Name
-                }
+                Name := (Condition is Func)
+                    ? Condition.Name
+                    : GetMethod(Condition, "Call").Name
+
                 if (IsSpace(Name)) {
                     Name := "(unnamed)"
                 }
@@ -510,14 +511,15 @@ class TryOp {
          * @see {@link TryOp#RemoveIf()}
          */
         RemoveIf(Condition, Args*) {
+            GetMethod(Condition,, 1 + Args.Length)
             try {
                 if (!Condition(this.Value, Args*)) {
                     return this
                 }
-                switch {
-                    case (Condition is Func): Name := Condition.Name
-                    default:                  Name := GetMethod(Condition).Name
-                }
+                Name := (Condition is Func)
+                    ? Condition.Name
+                    : GetMethod(Condition, "Call").Name
+
                 if (IsSpace(Name)) {
                     Name := "(unnamed)"
                 }
@@ -531,6 +533,7 @@ class TryOp {
          * @see {@link TryOp#Map()}
          */
         Map(Mapper, Args*) {
+            GetMethod(Mapper,, 1 + Args.Length)
             try {
                 return TryOp.Success(Mapper(this.Value, Args*))
             } catch Any as Err {
@@ -542,11 +545,13 @@ class TryOp {
          * @see {@link TryOp#FlatMap()}
          */
         FlatMap(Mapper, Args*) {
+            GetMethod(Mapper,, 1 + Args.Length)
             try {
                 Result := Mapper(this.Value, Args*)
                 if (!(Result is TryOp)) {
-                    throw TypeError("Expected a Call",, Type(Result))
+                    throw TypeError("Expected a TryOp",, Type(Result))
                 }
+
                 return Result
             } catch Any as Err {
                 return TryOp.Failure(Err)
@@ -663,13 +668,13 @@ class TryOp {
          * @see {@link TryOp#OnFailure()}
          */
         OnFailure(ErrorType, Action, Args*) {
-            GetMethod(Action)
+            GetMethod(Action,, 1 + Args.Length)
             Err := this.Value
             if (Err is ErrorType) {
                 Action(Err, Args*)
                 return this
             }
-            GetMethod(ErrorType)
+            GetMethod(ErrorType,, 1)
             if (ErrorType(Err)) {
                 Action(Err, Args*)
             }
@@ -739,7 +744,7 @@ class TryOp {
          * @see {@link TryOp#Recover()}
          */
         Recover(ErrorType, RecoverFunction, Args*) {
-            GetMethod(RecoverFunction)
+            GetMethod(RecoverFunction,, 1 + Args.Length)
             Value := this.Value
             if (!(ErrorType is Class))
             {
@@ -769,7 +774,7 @@ class TryOp {
          * @see {@link TryOp#RecoverAny()}
          */
         RecoverAny(RecoverFunction, Args*) {
-            GetMethod(RecoverFunction)
+            GetMethod(RecoverFunction,, 1 + Args.Length)
             try {
                 return TryOp.Success(RecoverFunction(this.Value, Args*))
             } catch Any as Err {
@@ -803,3 +808,4 @@ class AquaHotkey_Try extends AquaHotkey {
 }
 
 ;@endregion
+

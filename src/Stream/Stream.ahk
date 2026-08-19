@@ -110,7 +110,8 @@ class Stream extends BaseStream
      * Stream.Repeat(5) ; <5, 5, 5, 5, 5, ...>
      */
     static Repeat(Value) {
-        this.Cast(Repeat)
+        return this.Cast(Repeat)
+
         Repeat(&Out) {
             Out := Value
             return true
@@ -129,8 +130,9 @@ class Stream extends BaseStream
      * Stream.Generate(Random, 0, 9).Limit(6).ToArray()
      */
     static Generate(Supplier, Args*) {
-        GetMethod(Supplier)
+        GetMethod(Supplier,, Args.Length)
         return this.Cast(Generate)
+
         Generate(&Out) {
             Out := Supplier(Args*)
             return true
@@ -177,7 +179,7 @@ class Stream extends BaseStream
      * Stream.Iterate(0, (x) => (x + 2)).Limit(6).ToArray()
      */
     static Iterate(Seed, Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         Value := unset
         return this.Cast(Iterate)
 
@@ -220,7 +222,7 @@ class Stream extends BaseStream
      * Array(1, 2, 3, 4).Stream().RetainIf(Ge, 2) ; <3, 4>
      */
     RetainIf(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         return this.Cast(RetainIf)
 
         RetainIf(&Out) {
@@ -246,8 +248,9 @@ class Stream extends BaseStream
      * Array(1, 2, 3, 4).Stream().RemoveIf(Ge, 2) ; <1, 2>
      */
     RemoveIf(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         return this.Cast(RemoveIf)
+
         RemoveIf(&Out) {
             while (this(&Out)) {
                 if (!Condition(Out?, Args*)) {
@@ -292,8 +295,9 @@ class Stream extends BaseStream
      * Stream.Of(1, 2, 3).Map(MakeMult(2)) ; <2, 4, 6>
      */
     Map(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         return this.Cast(Map)
+
         Map(&Out) {
             if (this(&Out)) {
                 Out := Mapper(Out?, Args*)
@@ -316,8 +320,8 @@ class Stream extends BaseStream
      *       .Split((o) => o.First, (o) => o.Second)
      */
     Split(KeyMapper, ValueMapper) {
-        GetMethod(KeyMapper)
-        GetMethod(ValueMapper)
+        GetMethod(KeyMapper,, 1)
+        GetMethod(ValueMapper,, 1)
         return DoubleStream.Cast(Split)
 
         Split(&Key, &Value) {
@@ -345,7 +349,7 @@ class Stream extends BaseStream
      * Array("foo", "bar").Stream().FlatMap()
      */
     FlatMap(Mapper := Stream, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         Enumer := (*) => false
         return this.Cast(FlatMap)
 
@@ -380,7 +384,7 @@ class Stream extends BaseStream
      * MsgBox(Array("foo", "bar").Stream().DoubleFlatMap().Join(" "))
      */
     DoubleFlatMap(Mapper := DoubleStream, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         Enumer := (*) => false
         return this.Cast(DoubleFlatMap)
 
@@ -415,7 +419,7 @@ class Stream extends BaseStream
      * })
      */
     MapByRef(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         return this.Cast(MapByRef)
 
         MapByRef(&Out) {
@@ -494,7 +498,7 @@ class Stream extends BaseStream
      * Array(1, -2, 4, 6, 2, 1).Stream().TakeWhile(x => x < 5) ; <1, -2, 4>
      */
     TakeWhile(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         return this.Cast(  (&Out) => this(&Out) && !!Condition(Out?, Args*)  )
     }
 
@@ -509,7 +513,7 @@ class Stream extends BaseStream
      * Array(1, -2, 4, 6, 2, 1).Stream().TakeUntil(x => x > 5) ; <1, -2, 4>
      */
     TakeUntil(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         return this.Cast(  (&Out) => this(&Out) && !Condition(Out?, Args*)  )
     }
 
@@ -524,7 +528,7 @@ class Stream extends BaseStream
      * Array(1, 2, 3, 4, 2, 1).Stream().DropWhile(x => x < 3) ; <4, 2, 1>
      */
     DropWhile(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         NoDrop := false
         return this.Cast(DropWhile)
 
@@ -549,7 +553,7 @@ class Stream extends BaseStream
      * Array(1, 2, 3, 4, 2, 1).Stream().DropUntil(x => x >= 3) ; <4, 2, 1>
      */
     DropUntil(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         NoDrop := false
         return this.Cast(DropUntil)
 
@@ -600,7 +604,7 @@ class Stream extends BaseStream
         if (!IsSet(KeyExtractor)) {
             return this.Cast(Distinct)
         }
-        GetMethod(KeyExtractor)
+        GetMethod(KeyExtractor,, 1)
         return this.Cast(DistinctBy)
 
         Distinct(&Out) {
@@ -644,7 +648,7 @@ class Stream extends BaseStream
      *       })
      */
     Peek(Action, Args*) {
-        GetMethod(Action)
+        GetMethod(Action,, 1 + Args.Length)
         return this.Cast(Peek)
 
         Peek(&Out) {
@@ -677,7 +681,7 @@ class Stream extends BaseStream
      */
     Sort(Comp?, Reversed := false) {
         if (IsSet(Comp)) {
-            GetMethod(Comp)
+            GetMethod(Comp,, 2)
         }
         Upstream := false
         return Sort

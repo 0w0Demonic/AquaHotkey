@@ -3,6 +3,7 @@
 
 ; TODO
 ; - add `.Zip()` and `.ZipWith()` as stream methods?
+; - let `.Pairwise()` be forwarded to `Zip()`?
 ; - cartesion product?
 
 /**
@@ -19,6 +20,8 @@ Zip(Left, Right) {
     return DoubleStream.Cast((&L, &R) => (LeftEnumer(&L) && RightEnumer(&R)))
 }
 
+
+; TODO switch order of parameters?
 /**
  * Returns a {@link Stream} of elements from two enumerable combined into
  * a single value by applying the given `Mapper`.
@@ -32,18 +35,5 @@ Zip(Left, Right) {
  * @param   {Object}  Right   second enumerable
  * @returns {Stream}
  */
-ZipWith(Mapper, Left, Right) {
-    GetMethod(Mapper)
-    Step := Zip(Left, Right)
-    return Stream.Cast(ZipWithEnumer)
+ZipWith(Mapper, Left, Right) => Zip(Left, Right).Map(Mapper)
 
-    ZipWithEnumer(&Out) {
-        if (Step(&L, &R)) {
-            Out := Mapper(L?, R?)
-            return true
-        } else {
-            Out := unset
-            return false
-        }
-    }
-}

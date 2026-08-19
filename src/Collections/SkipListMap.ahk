@@ -234,7 +234,7 @@ class SkipListMap extends IMap {
      * M := Cls("foo", 2, "bar", 5)
      */
     static WithComparator(Comp) {
-        GetMethod(Comp)
+        GetMethod(Comp,, 2)
         return {
             base: this,
             Prototype: DefineConst({ base: this.Prototype }, "Comp", Comp)

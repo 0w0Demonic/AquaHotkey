@@ -127,6 +127,8 @@ WindowSliding(Size, Coll := Array) {
     }
 }
 
+; TODO avoid the need for an initial value
+
 /**
  * Creates a {@link Gatherer} that collects a "running result" of its input
  * elements.
@@ -143,7 +145,7 @@ WindowSliding(Size, Coll := Array) {
  * Array(1, 2, 3, 4).Stream().Gather(  Scan(0, (A, B) => (A + B))  )
  */
 Scan(InitialValue, Merger) {
-    GetMethod(Merger)
+    GetMethod(Merger,, 2)
     Result := InitialValue
     return Gatherer.Cast(Scan)
 
@@ -173,7 +175,7 @@ class AquaHotkey_Gatherer extends AquaHotkey {
          * Range(5).Gather(WindowSliding(3))
          */
         Gather(Gath) {
-            GetMethod(Gath)
+            GetMethod(Gath,, 2)
             Arr        := Array()
             Downstream := ObjBindMethod(Arr, "Push")
             Enumer     := (*) => false
@@ -201,15 +203,16 @@ class AquaHotkey_Gatherer extends AquaHotkey {
          * either a {@link DoubleStream}, or a single-parameter {@link Stream}
          * of value pairs combined using the `Combiner` function.
          * 
-         * @param   {Callable?}  Combiner  functoin combining two values
+         * @param   {Callable?}  Combiner  function combining two values
+         * @param   {Any*}       Args      zero or more arguments
          * @returns {Stream|DoubleStream}
          * @example
          * Range(1, 7).Pairwise() ; <(1, 2), (3, 4), (5, 6)>
          */
-        Pairwise(Combiner?) {
+        Pairwise(Combiner?, Args*) {
             Strm := DoubleStream.Cast((&A, &B) => this(&A) && this(&B))
             if (IsSet(Combiner)) {
-                GetMethod(Combiner)
+                GetMethod(Combiner,, 2 + Args.Length)
                 Strm := Strm.Map(Combiner)
             }
             return Strm

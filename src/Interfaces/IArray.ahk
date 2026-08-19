@@ -366,7 +366,7 @@ class IArray {
     BinarySearch(Value, Low := 1, High := this.Length, Comp := Default) {
         static Default(A, B) => A.Compare(B)
 
-        GetMethod(Comp)
+        GetMethod(Comp,, 2)
         if (!IsInteger(Low)) {
             throw TypeError("Expected an Integer",, Type(Low))
         }
@@ -469,7 +469,7 @@ class IArray {
      * Array("foo", "bar").RetainIf(InStr, "f")  ; ["foo"]
      */
     RetainIf(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         
         Result := IArray.BasedFrom(this)
         for Value in this {
@@ -494,7 +494,7 @@ class IArray {
      * Array("foo", "bar").RemoveIf(InStr, "f")  ; ["bar"]
      */
     RemoveIf(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
 
         Result := IArray.BasedFrom(this)
         for Value in this {
@@ -568,7 +568,7 @@ class IArray {
      * Array("hello", "world").Map(SubStr, 1, 1) ; ["h", "w"]
      */
     Map(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         Result := IArray.BasedFrom(this)
         for Value in this {
             Result.Push(Mapper(Value?, Args*))
@@ -602,7 +602,7 @@ class IArray {
         Result := IArray.BasedFrom(this)
 
         if (IsSet(Mapper)) {
-            GetMethod(Mapper)
+            GetMethod(Mapper,, 1 + Args.Length)
             for Value in this {
                 Element := Mapper(Value?, Args*)
                 if (Element is Array) {
@@ -668,7 +668,7 @@ class IArray {
      * Arr.FillWith(() => A_Index)
      */
     FillWith(Factory, Args*) {
-        GetMethod(Factory)
+        GetMethod(Factory,, Args.Length)
 
         loop (this.Length) {
             this[A_Index] := Factory(Args*)
@@ -695,7 +695,7 @@ class IArray {
      * Arr.Join(", ").MsgBox() ; "2, 4, 6"
      */
     ReplaceAll(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         for Value in this {
             this[A_Index] := Mapper(Value?, Args*)
         }
@@ -839,7 +839,7 @@ class IArray {
     Sort(Comp := DefaultComp, Reversed := false) {
         static DefaultComp(A, B) => A.Compare(B)
 
-        GetMethod(Comp)
+        GetMethod(Comp,, 2)
         if (Reversed) {
             Comp := Comparator(Comp).Rev()
         }

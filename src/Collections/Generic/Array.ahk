@@ -115,7 +115,7 @@ class GenericArray extends IArray
         }
 
         if (IsSet(C)) {
-            GetMethod(C)
+            GetMethod(C,, 1)
             T := C(T) ; e.g.: `T := Nullable(String)`
         }
 

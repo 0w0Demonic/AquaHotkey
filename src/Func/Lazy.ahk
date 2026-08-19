@@ -42,7 +42,7 @@ class Lazy extends Func {
      * LoadConfig := Lazy(() => FileRead("myFile.txt"))
      */
     static Call(Supplier, Args*) {
-        GetMethod(Supplier)
+        GetMethod(Supplier,, Args.Length)
         Value := unset
         return this.Cast(Lazy)
 

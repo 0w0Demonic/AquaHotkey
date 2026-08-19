@@ -47,7 +47,7 @@ class Supplier extends Func
      * S() ; 10 (random)
      */
     Map(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1)
         return this.Cast((*) => Mapper(this(Args*)))
     }
 }

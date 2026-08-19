@@ -31,7 +31,7 @@ class AquaHotkey_Func extends AquaHotkey {
          * TimesTwoPlusFive(3) ; 11
          */
         AndThen(After, NextArgs*) {
-            GetMethod(After)
+            GetMethod(After,, 1 + NextArgs.Length)
             if (After is Func) {
                 ObjSetBase(AndThen, ObjGetBase(After))
             }
@@ -59,6 +59,7 @@ class AquaHotkey_Func extends AquaHotkey {
          */
         Compose(Before, NextArgs*) {
             GetMethod(Before)
+            GetMethod(this,, 1 + NextArgs.Length)
             ObjSetBase(Compose, ObjGetBase(this))
             return Compose
 
@@ -147,8 +148,8 @@ class AquaHotkey_Func extends AquaHotkey {
             static DefaultOnFinally() {
             } ; do nothing
 
-            GetMethod(OnCatch)
-            GetMethod(OnFinally)
+            GetMethod(OnCatch,, 1)
+            GetMethod(OnFinally,, 0)
             return WithCatch
 
             WithCatch(Args*) {

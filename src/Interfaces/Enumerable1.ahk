@@ -6,8 +6,6 @@
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 #Include "%A_LineFile%\..\..\Base\ToString.ahk"
 
-; TODO implement `GetEnumerator()` into methods here
-
 /**
  * @mixin
  * @description
@@ -104,7 +102,7 @@ class Enumerable1 extends Any {
     Frequency(Classifier?, MapParam := Map()) {
         M := IMap.Create(MapParam)
         if (IsSet(Classifier)) {
-            GetMethod(Classifier)
+            GetMethod(Classifier,, 1)
             for Value in this {
                 Key := Classifier(Value?)
                 M.Set(Key, M.Get(Key, 0) + 1)
@@ -135,7 +133,7 @@ class Enumerable1 extends Any {
      * Array(1, 2, 3, 4, 5, 6).Group(x => (x & 1))
      */
     Group(Classifier, Downstream?, MapParam := Map()) {
-        GetMethod(Classifier)
+        GetMethod(Classifier,, 1)
         if (IsSet(Downstream)) {
             GetMethod(Downstream)
         }
@@ -177,7 +175,7 @@ class Enumerable1 extends Any {
      * Range(1, 1000).Partition(Even)
      */
     Partition(Condition, Downstream?) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1)
         if (IsSet(Downstream)) {
             GetMethod(Downstream)
         }
@@ -190,7 +188,6 @@ class Enumerable1 extends Any {
         if (!IsSet(Downstream)) {
             return M
         }
-        GetMethod(Downstream)
         return Map(
             true, Downstream(M.Get(true)*),
             false, Downstream(M.Get(false)*)
@@ -215,7 +212,7 @@ class Enumerable1 extends Any {
      * Array(1, 2, 3).ForEach(MsgBox, "Listing numbers in array", 0x40)
      */
     ForEach(Action, Args*) {
-        GetMethod(Action)
+        GetMethod(Action,, 1 + Args.Length)
         for Value in this {
             Action(Value?, Args*)
         }
@@ -225,8 +222,6 @@ class Enumerable1 extends Any {
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Find Methods
-
-    ; TODO use first param as `VarRef` out instead?
 
     /**
      * Returns an {@link Optional} that contains the first matching element,
@@ -244,7 +239,7 @@ class Enumerable1 extends Any {
      * Array(1, 2, 3, 4).Find(Gt, 2) ; Optional<3>
      */
     Find(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         for Value in this {
             if (IsSet(Value) && Condition(Value, Args*)) {
                 return Optional(Value)
@@ -318,7 +313,7 @@ class Enumerable1 extends Any {
      * Array.FindIndex((v) => (A_Index == 7) || (v == "expected value"))
      */
     FindIndex(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         for Value in this {
             if (Condition(Value?, Args*)) {
                 return A_Index
@@ -345,8 +340,6 @@ class Enumerable1 extends Any {
         return 0
     }
 
-    ; TODO something like `.AtIndex(Idx)`?
-
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Quantifiers
@@ -366,7 +359,7 @@ class Enumerable1 extends Any {
      * Array(1, 2, 3, 4).Any(x => (x > 2))
      */
     Any(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         for Value in this {
             if (Condition(Value?, Args*)) {
                 return true
@@ -413,7 +406,7 @@ class Enumerable1 extends Any {
      * Array(1, 2, 3, 4).None(x => x == 4) ; false
      */
     None(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         for Value in this {
             if (Condition(Value?, Args*)) {
                 return false
@@ -551,15 +544,17 @@ class Enumerable1 extends Any {
      * Array(1, 2, 3, 4).Reduce((a, b) => (a + b)) ; 10
      */
     Reduce(Combiner, Initial?) {
-        GetMethod(Combiner)
-        if (!IsSet(Initial) && Monoid.IsInstance(Combiner)) {
-            Initial := Combiner.Identity
-        }
-        for Value in this {
-            if ((A_Index == 1) && !IsSet(Initial)) {
-                Initial := (Value?)
+        GetMethod(Combiner,, 2)
+        if (FirstItem(this, &Value, &More)) {
+            if (IsSet(Initial)) {
+                Initial := Combiner(Initial, Value?)
+            } else if (Monoid.IsInstance(Combiner)) {
+                Initial := Combiner(Combiner.Identity, Value?)
             } else {
-                Initial := Combiner(Initial?, Value?)
+                Initial := (Value?)
+            }
+            for Value in More {
+                Initial := Combiner(Initial, Value?)
             }
         }
         return Initial

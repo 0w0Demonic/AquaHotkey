@@ -89,6 +89,7 @@ Assert(Result) {
  * MustBeInteger([1, 2]) ; Error!
  */
 Assertion(Condition, Args*) {
-    GetMethod(Condition)
+    GetMethod(Condition,, 1)
     return (Val?) => Assert(Condition(Val?, Args*))
 }
+

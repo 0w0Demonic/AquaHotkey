@@ -5,6 +5,8 @@
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
 #Include "%A_LineFile%\..\..\Stream\Stream.ahk"
 
+; TODO add Args*?
+
 /**
  * Experimental set addition and SQL-like join methods for {@link Stream}.
  * 
@@ -178,10 +180,10 @@ class AquaHotkey_Stream_Joins extends AquaHotkey {
                 RHS := ((Str) => (Obj) => Obj.%Str%)(RHS)
             }
 
-            GetMethod(LHS)
-            GetMethod(RHS)
+            GetMethod(LHS,, 1)
+            GetMethod(RHS,, 1)
             if (IsSet(Mapper)) {
-                GetMethod(Mapper)
+                GetMethod(Mapper,, 2)
             }
             Lookup := false
 
@@ -265,10 +267,10 @@ class AquaHotkey_Stream_Joins extends AquaHotkey {
                 RHS := ((Str) => (Obj) => Obj.%Str%)(RHS)
             }
 
-            GetMethod(LHS)
-            GetMethod(RHS)
+            GetMethod(LHS,, 1)
+            GetMethod(RHS,, 1)
             if (IsSet(Combiner)) {
-                GetMethod(Combiner)
+                GetMethod(Combiner,, 2)
             }
 
             Lookup := false
@@ -339,7 +341,7 @@ class AquaHotkey_Stream_Joins extends AquaHotkey {
          */
         CrossJoin(Other := this, Combiner?) {
             if (IsSet(Combiner)) {
-                GetMethod(Combiner)
+                GetMethod(Combiner,, 2)
             }
             Rhs         := false
             LeftEnumer  := false

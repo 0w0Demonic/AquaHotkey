@@ -5,6 +5,8 @@
 ;@region Optional
 
 ; TODO use flyweight for the empty optional?
+; TODO use `GetMethod()` before calling?
+
 /**
  * Represents an optional value: either a value is present, or it is absent.
  * 

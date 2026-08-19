@@ -296,7 +296,7 @@ class IMap {
         if (this.TryGet(Key, &Value)) {
             return Value
         }
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         Value := Mapper(Key, Args*)
         this.Set(Key, Value)
         return Value
@@ -325,7 +325,7 @@ class IMap {
      */
     ComputeIfPresent(Key, Mapper, Args*) {
         if (this.TryGet(Key, &Value)) {
-            GetMethod(Mapper)
+            GetMethod(Mapper,, 2 + Args.Length)
             Value := Mapper(Key, Value, Args*)
             this.Set(Key, Value)
             return Value
@@ -339,7 +339,7 @@ class IMap {
      * This method returns the new item value.
      * 
      * ```ahk
-     * Mapper(Key: Any, Value: Any?, Args: Any* r Args: Any*) => Any
+     * Mapper(Key: Any, Value: Any?, Args: Any*) => Any
      * ```
      * 
      * @param   {Any}   Key     map key
@@ -348,7 +348,7 @@ class IMap {
      * @returns {Any}
      */
     Compute(Key, Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 2 + Args.Length)
         this.TryGet(Key, &Value)
         Value := Mapper(Key, Value?, Args*)
         this.Set(Key, Value)
@@ -379,7 +379,7 @@ class IMap {
      */
     Merge(Key, Value, Combiner, Args*) {
         if (this.TryGet(Key, &Current)) {
-            GetMethod(Combiner)
+            GetMethod(Combiner,, 2 + Args.Length)
             Value := Combiner(Current, Value, Args*)
         }
         this.Set(Key, Value)
@@ -402,7 +402,7 @@ class IMap {
      * Map(1, 2, 3, 4).ReplaceAll((Key, Value) => (Value * 2))
      */
     ReplaceAll(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 2 + Args.Length)
         for Key, Value in this {
             this[Key] := Mapper(Key, Value, Args*)
         }
@@ -534,7 +534,7 @@ class IMap {
      * Map(1, 2, 3, 4).RetainIf((Key, Value) => (Key == 1))
      */
     RetainIf(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 2 + Args.Length)
         Result := IMap.BasedFrom(this)
         for Key, Value in this {
             (Condition(Key, Value, Args*) && Result[Key] := Value)
@@ -558,7 +558,7 @@ class IMap {
      * Map(1, 2, 3, 4).RemoveIf((Key, Value) => (Key == 1))
      */
     RemoveIf(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 2 + Args.Length)
         Result := IMap.BasedFrom(this)
         for Key, Value in this {
             (Condition(Key, Value, Args*) || Result[Key] := Value)
@@ -582,7 +582,7 @@ class IMap {
      * Map(1, 2, 3, 4).Map((Key, Value) => (Value * 2))
      */
     Map(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 2 + Args.Length)
         Result := IMap.BasedFrom(this)
         for Key, Value in this {
             Result[Key] := Mapper(Key, Value, Args*)

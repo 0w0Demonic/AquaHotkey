@@ -64,7 +64,7 @@ class Enumerable2 extends Any {
      * Map(1, 2, 3, 4).ForEach2((K, V) => MsgBox(K . " => " . V))
      */
     ForEach2(Action, Args*) {
-        GetMethod(Action)
+        GetMethod(Action,, 2 + Args.Length)
         for Key, Value in this {
             Action(Key?, Value?, Args*)
         }
@@ -89,7 +89,7 @@ class Enumerable2 extends Any {
      * Map(1, 2, 3, 4).Any((K, V) => (K == 1)) ; true
      */
     Any2(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 2 + Args.Length)
         for Key, Value in this {
             if (Condition(Key?, Value?, Args*)) {
                 return true
@@ -113,7 +113,7 @@ class Enumerable2 extends Any {
      * Map(1, 2, 3, 4).None((K, V) => (K == 3)) ; false
      */
     None2(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 2 + Args.Length)
         for Key, Value in this {
             if (Condition(Key?, Value?, Args*)) {
                 return false
@@ -137,7 +137,7 @@ class Enumerable2 extends Any {
      * Map(1, 2, 3, 4).All2((K, V) => (K != 6)) ; true
      */
     All2(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 2 + Args.Length)
         for Key, Value in this {
             if (!Condition(Key?, Value?, Args*)) {
                 return false
@@ -202,9 +202,9 @@ class Enumerable2 extends Any {
         Merger      := ((l, r) => r),
         MapParam?)
     {
-        GetMethod(KeyMapper)
-        GetMethod(ValueMapper)
-        GetMethod(Merger)
+        GetMethod(KeyMapper,, 2)
+        GetMethod(ValueMapper,, 2)
+        GetMethod(Merger,, 2)
 
         M := Map.Create(MapParam?)
         for A, B in this {
@@ -221,3 +221,4 @@ class Enumerable2 extends Any {
 
     ;@endregion
 }
+

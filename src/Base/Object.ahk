@@ -98,7 +98,7 @@ class AquaHotkey_Object extends AquaHotkey {
          * Array(1).Pop() ; (calls our new property)
          */
         TransformProp(PropName, Mapper, Args*) {
-            GetMethod(Mapper)
+            GetMethod(Mapper,, 1 + Args.Length)
             PropDesc := GetOwnPropDesc(this, PropName)
             DefineProp(this, PropName, Mapper(PropDesc, Args*))
             return PropDesc

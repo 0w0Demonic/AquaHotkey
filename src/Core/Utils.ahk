@@ -701,7 +701,6 @@ AcceptsParamCount(Obj, ParamSize) {
     if (!IsObject(Obj)) {
         throw TypeError("Expected an object",, Type(Obj))
     }
-    GetMethod(Obj)
     return HasMethod(Obj, ParamSize) || IsObjOwnPropsEnumerator(Obj)
 }
 

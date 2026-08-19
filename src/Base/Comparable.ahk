@@ -160,6 +160,7 @@ class AquaHotkey_Comparable extends AquaHotkey
             throw MethodError("Not applicable for this type",, Type(this))
         }
 
+        ; TODO remove this again?
         /**
          * Prop setter for {@link AquaHotkey_Compare#Compare() `.Compare()`}.
          * 

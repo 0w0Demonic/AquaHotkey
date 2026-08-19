@@ -8,6 +8,7 @@
 
 ; TODO allow `unset` as return value?
 ; TODO remove MatchResult again?
+; TODO fix names received from functions
 
 /**
  * A simple parser combinator intended to parse grammers such as regex,
@@ -183,8 +184,13 @@ class Parser extends Func {
      * @param   {String?}    Name       name of the pattern
      * @returns {Parser<String>}
      */
-    static One(Condition, Name := GetMethod(Condition).Name) {
-        GetMethod(Condition)
+    static One(
+        Condition,
+        Name := (Condition is Func)
+                ? Condition.Name
+                : GetMethod(Condition, "Call").Name)
+    {
+        GetMethod(Condition,, 1)
         if (!(Name is Primitive)) {
             throw TypeError("Expected a String",, Type(Name))
         }
@@ -209,8 +215,13 @@ class Parser extends Func {
      * @param   {String?}    Name       name of the pattern
      * @returns {Parser<String>}
      */
-    static OneOrMore(Condition, Name := GetMethod(Condition).Name) {
-        GetMethod(Condition)
+    static OneOrMore(
+        Condition,
+        Name := (Condition is Func)
+                ? Condition.Name
+                : GetMethod(Condition, "Call").Name)
+    {
+        GetMethod(Condition,, 1)
         if (!(Name is Primitive)) {
             throw TypeError("Expected a String",, Type(Name))
         }
@@ -384,7 +395,7 @@ class Parser extends Func {
             throw ValueError("no parsers specified")
         }
         for Psr in Parsers {
-            GetMethod(Psr)
+            GetMethod(Psr,, 2)
         }
         return this.Cast(AnyOf)
 
@@ -416,7 +427,7 @@ class Parser extends Func {
                     Parsers.Length)
         }
         for P in Parsers {
-            GetMethod(P)
+            GetMethod(P,, 2)
         }
         return this.Cast(Sequence)
 
@@ -450,7 +461,7 @@ class Parser extends Func {
      * Expr(&Input := "((((5))))")
      */
     static Define(Mapper) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1)
 
         ; Create a "useless" parser that delegates to nothing.
         ; Then, pass that to `Mapper` so it can produce a parser that's able
@@ -460,7 +471,7 @@ class Parser extends Func {
         Psr := this.Cast((&Input, Pos := 1) => Delegate(&Input, Pos))
 
         Delegate := Mapper(Psr)
-        GetMethod(Delegate)
+        GetMethod(Delegate,, 2)
         return Psr
     }
 
@@ -529,7 +540,7 @@ class Parser extends Func {
         if (Delim is Primitive) {
             Delim := this.Cast(Parser.String(Delim))
         }
-        GetMethod(Delim)
+        GetMethod(Delim,, 2)
         GetMethod(Combiner)
         return this.Cast(Parser.Sequence(
             (x, xs) => Combiner(x, xs*),
@@ -554,14 +565,14 @@ class Parser extends Func {
 
     /**
      * Creates a parser which matches the `First` and `Second` pattern in
-     * order, delimited with `Delim`, collecting the results using `Combiner`
+     * order, delimited with `Delim`, collecting the results using `Finisher`
      * which accepts a {@link DoubleStream} of key-value pairs.
      * 
      * @template                 R         return type of `Combiner`
      * @param   {Parser}         First     first parser
      * @param   {Parser}         Second    first parser
      * @param   {String|Parser}  Delim     delimiter
-     * @param   {(Strm*) => R}   Combiner  function that combines all values
+     * @param   {(Strm*) => R}   Finisher  function that combines all values
      * @returns {Parser<R>}
      * @example
      * Psr := Parser.ZeroOrMoreDelimited(
@@ -574,11 +585,14 @@ class Parser extends Func {
      * ; MatchResult.Success { Pos: 15, Value: Map { bar: 1, foo: 23 } }
      * "{foo:23,bar:1}".Parse(Psr).ToString().MsgBox()
      */
-    static ZeroOrMoreDelimited(First, Second, Delim, Combiner) {
-        GetMethod(Combiner)
+    static ZeroOrMoreDelimited(First, Second, Delim, Finisher)
+    {
+        ; NOTE to future me: this should be good enough
+
+        GetMethod(Finisher,, 1)
         return this.Sequence(Array, First, Second)
             .ZeroOrMoreDelimitedBy(Delim,
-                (Pairs*) => Combiner(Pairs.Stream().Split(
+                (Pairs*) => Finisher(Pairs.Stream().Split(
                     (A) => A[1],
                     (A) => A[2]
                 ))
@@ -630,8 +644,8 @@ class Parser extends Func {
         if (Suffix is Primitive) {
             Suffix := this.Cast(Parser.String(Suffix))
         }
-        GetMethod(Prefix)
-        GetMethod(Suffix)
+        GetMethod(Prefix,, 2)
+        GetMethod(Suffix,, 2)
         return Prefix.Then(this).FollowedBy(Suffix)
     }
 
@@ -650,8 +664,8 @@ class Parser extends Func {
         if (After is Primitive) {
             After := this.Cast(Parser.String(After))
         }
-        GetMethod(Before)
-        GetMethod(After)
+        GetMethod(Before,, 2)
+        GetMethod(After,, 2)
         return this.Cast(QuotedBy)
 
         QuotedBy(&Input, Pos := 1) {
@@ -681,7 +695,7 @@ class Parser extends Func {
         if (Suffix is Primitive) {
             Suffix := this.Cast(Parser.String(Suffix))
         }
-        GetMethod(Suffix)
+        GetMethod(Suffix,, 2)
         return this.Cast(Parser.Sequence(
                 (Value, *) => Value,
                 this,
@@ -708,7 +722,7 @@ class Parser extends Func {
      * @returns {Parser<R>}
      */
     Then(Other) {
-        GetMethod(Other)
+        GetMethod(Other,, 2)
         return this.FlatMap((*) => Other)
     }
 
@@ -727,7 +741,7 @@ class Parser extends Func {
             }
             Suffix := this.Cast(Parser.String(Suffix))
         }
-        GetMethod(Suffix)
+        GetMethod(Suffix,, 2)
         if (!IsSet(Name)) {
             Name := GetMethod(Suffix).Name
         }
@@ -763,11 +777,11 @@ class Parser extends Func {
         if (Suffix is Primitive) {
             Suffix := this.Cast(Parser.String(Suffix))
         }
-        GetMethod(Suffix)
+        GetMethod(Suffix,, 2)
         if (!IsSet(Combiner)) {
             return this.FollowedBy( Suffix.OrElse("") )
         }
-        GetMethod(Combiner)
+        GetMethod(Combiner,, 2)
         return this.Cast(OptionallyFollowedBy)
 
         OptionallyFollowedBy(&Input, Pos := 1) {
@@ -803,7 +817,7 @@ class Parser extends Func {
      * "3:abc".Parse(LengthPrefix)
      */
     FlatMap(Fn, Args*) {
-        GetMethod(Fn)
+        GetMethod(Fn,, 2 + Args.Length)
         return this.Cast(FlatMap)
 
         FlatMap(&Input, Pos := 1) {
@@ -824,7 +838,7 @@ class Parser extends Func {
      * @returns {Parser<R>}
      */
     Map(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         return this.Cast(Map)
 
         Map(&Input, Pos := 1) {
@@ -861,8 +875,13 @@ class Parser extends Func {
      * @param   {String?}                Name       name of pattern
      * @returns {Parser<T>}
      */
-    SuchThat(Condition, Name := GetMethod(Condition).Name) {
-        GetMethod(Condition)
+    SuchThat(
+        Condition,
+        Name := (Condition is Func)
+            ? Condition.Name
+            : GetMethod(Condition, "Call").Name)
+    {
+        GetMethod(Condition,, 1)
         return this.Cast(SuchThat)
 
         SuchThat(&Input, Pos := 1) {
@@ -889,7 +908,7 @@ class Parser extends Func {
      * @returns {Parser<T>}
      */
     Skipping(Skip) {
-        GetMethod(Skip)
+        GetMethod(Skip,, 2)
         return this.Cast(Skipping)
 
         Skipping(&Input, Pos := 1) {
@@ -940,7 +959,7 @@ class Parser extends Func {
      * @returns {Parser}
      */
     OrElseGet(Supplier) {
-        GetMethod(Supplier)
+        GetMethod(Supplier,, 0)
         return this.Cast(OrElseGet)
 
         OrElseGet(&Input, Pos := 1) {

@@ -93,7 +93,7 @@ class Comparator extends Func {
         if (Mapper is Primitive) {
             Mapper := ((Prop) => (Obj) => Obj.%Prop%)(Mapper)
         }
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         return this.Cast(Comp)
 
         Comp(A?, B?) => Mapper(A?, Args*).Compare(Mapper(B?, Args*))
@@ -119,7 +119,7 @@ class Comparator extends Func {
         if (Mapper is Primitive) {
             Mapper := ((Prop) => (Obj) => Obj.%Prop%)(Mapper)
         }
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         return this.Cast(Comp)
 
         Comp(A?, B?) => this(Mapper(A?, Args*), Mapper(B?, Args*))
@@ -135,7 +135,7 @@ class Comparator extends Func {
      * Comp := Comparator.Num(StrLen).Then(Comparator.Alpha)
      */
     Then(Other) {
-        GetMethod(Other)
+        GetMethod(Other,, 2)
         return this.Cast(Comp)
 
         Comp(A?, B?) => this(A?, B?) || Other(A?, B?)
@@ -158,7 +158,7 @@ class Comparator extends Func {
         if (Mapper is Primitive) {
             Mapper := ((Prop) => (Obj) => Obj.%Prop%)(Mapper)
         }
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         return this.Cast(Comp)
 
         Comp(A?, B?) => this(A?, B?)

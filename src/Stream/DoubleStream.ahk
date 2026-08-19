@@ -56,7 +56,7 @@ class DoubleStream extends BaseStream
      * DoubleStream.Generate(Random, 0, 9).Limit(6)
      */
     static Generate(Supplier, Args*) {
-        GetMethod(Supplier)
+        GetMethod(Supplier,, Args.Length)
         Counter := 0
         return this.Cast(Generate)
 
@@ -124,7 +124,7 @@ class DoubleStream extends BaseStream
      *         .RetainIf((Idx, Val) => (Idx != 1)) ; <(2, "bar"), (3, "baz")>
      */
     RetainIf(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 2 + Args.Length)
         return this.Cast(RetainIf)
 
         RetainIf(&A, &B) {
@@ -153,7 +153,7 @@ class DoubleStream extends BaseStream
      *         })
      */
     RemoveIf(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 2 + Args.Length)
         return this.Cast(RemoveIf)
 
         RemoveIf(&A, &B?) {
@@ -184,7 +184,7 @@ class DoubleStream extends BaseStream
      * })
      */
     Map(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 2 + Args.Length)
         return Stream.Cast(Map)
 
         Map(&Out) {
@@ -209,7 +209,7 @@ class DoubleStream extends BaseStream
      * @returns {Stream}
      */
     FlatMap(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 2 + Args.Length)
         Enumer := (*) => false
         return Stream.Cast(FlatMap)
 
@@ -243,7 +243,7 @@ class DoubleStream extends BaseStream
      * @returns {DoubleStream}
      */
     DoubleFlatMap(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 2 + Args.Length)
         Enumer := (*) => false
         return this.Cast(DoubleFlatMap)
 
@@ -281,7 +281,7 @@ class DoubleStream extends BaseStream
      * Array("foo", "bar").DoubleStream().MapByRef(MutateValues)
      */
     MapByRef(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 2 + Args.Length)
         return this.Cast(MapByRef)
 
         MapByRef(&A, &B) {
@@ -357,7 +357,7 @@ class DoubleStream extends BaseStream
      *         (i, x) => (x < 6)) ; <(1, 1), (2, -2), (3, 4)>
      */
     TakeWhile(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 2 + Args.Length)
         return this.Cast(TakeWhile)
 
         TakeWhile(&A, &B) => this(&A, &B) && !!Condition(A?, B?, Args*)
@@ -372,7 +372,7 @@ class DoubleStream extends BaseStream
      * @returns {DoubleStream}
      */
     TakeUntil(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 2 + Args.Length)
         return this.Cast(TakeUntil)
 
         TakeUntil(&A, &B) => this(&A, &B) && !Condition(A?, B?, Args*)
@@ -390,7 +390,7 @@ class DoubleStream extends BaseStream
      * Array(1, 2, 3, 4, 2, 1).DoubleStream().DropWhile((i, x) => (x < 4))
      */
     DropWhile(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 2 + Args.Length)
         NoDrop := false
         return this.Cast(DropWhile)
 
@@ -413,7 +413,7 @@ class DoubleStream extends BaseStream
      * @returns {DoubleStream}
      */
     DropUntil(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 2 + Args.Length)
         NoDrop := false
         return this.Cast(DropUntil)
 
@@ -454,7 +454,7 @@ class DoubleStream extends BaseStream
      *         .Distinct((i, obj) => obj.x)
      */
     Distinct(KeyExtractor, SetParam := Set()) {
-        GetMethod(KeyExtractor)
+        GetMethod(KeyExtractor,, 2)
         Cache := ISet.Create(SetParam)
         return this.Cast(DistinctBy)
 
@@ -486,7 +486,7 @@ class DoubleStream extends BaseStream
      * Array(1, 2, 3, 4).Stream().Peek(Foo).ForEach(Bar)
      */
     Peek(Action, Args*) {
-        GetMethod(Action)
+        GetMethod(Action,, 2 + Args.Length)
         return this.Cast(Peek)
 
         Peek(&A, &B) {

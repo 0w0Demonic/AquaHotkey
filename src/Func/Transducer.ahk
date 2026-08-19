@@ -35,11 +35,11 @@ class Transducer extends Func {
      * @returns {Transducer}
      */
     RetainIf(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         return this.Cast(Factory)
 
         Factory(Step) {
-            GetMethod(Step)
+            GetMethod(Step,, 2)
             return this(RetainIf)
 
             RetainIf(Acc, Item) {
@@ -64,11 +64,11 @@ class Transducer extends Func {
      * @returns {Transducer}
      */
     RemoveIf(Condition, Args*) {
-        GetMethod(Condition)
+        GetMethod(Condition,, 1 + Args.Length)
         return this.Cast(Factory)
 
         Factory(Step) {
-            GetMethod(Step)
+            GetMethod(Step,, 2)
             return this(RemoveIf)
 
             RemoveIf(Acc, Item) {
@@ -93,11 +93,11 @@ class Transducer extends Func {
      * @returns {Transducer}
      */
     Map(Mapper, Args*) {
-        GetMethod(Mapper)
+        GetMethod(Mapper,, 1 + Args.Length)
         return this.Cast(Factory)
 
         Factory(Step) {
-            GetMethod(Step)
+            GetMethod(Step,, 2)
             return this(Map)
 
             Map(Acc, Item) {
@@ -117,7 +117,7 @@ class Transducer extends Func {
      * Array(1, 2, 3, 4).Reduce(SumOfSquares, 0)
      */
     Finally(Step) {
-        GetMethod(Step)
+        GetMethod(Step,, 1)
         Result := this(Step)
         if (Step is Func) {
             Step.Cast(Result)

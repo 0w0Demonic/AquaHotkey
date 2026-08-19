@@ -56,7 +56,7 @@ class Predicate extends Func {
             throw UnsetError("No predicates specified")
         }
         for Fn in Fns {
-            GetMethod(Fn)
+            GetMethod(Fn,, 1)
         }
         return this.Cast(All)
 
@@ -82,7 +82,7 @@ class Predicate extends Func {
             throw UnsetError("No predicates specified")
         }
         for Fn in Fns {
-            GetMethod(Fn)
+            GetMethod(Fn,, 1)
         }
         return this.Cast(None)
 
@@ -108,7 +108,7 @@ class Predicate extends Func {
             throw UnsetError("No predicates specified")
         }
         for Fn in Fns {
-            GetMethod(Fn)
+            GetMethod(Fn,, 1)
         }
         return this.Cast(Any)
 
@@ -136,7 +136,7 @@ class Predicate extends Func {
      * NumericString := InstanceOf(String).And(IsNumber)
      */
     And(Other, Args*) {
-        GetMethod(Other)
+        GetMethod(Other,, 1 + Args.Length)
         return this.Cast((Val?) => (this(Val?) && Other(Val?, Args*)))
     }
 
@@ -149,7 +149,7 @@ class Predicate extends Func {
      * @returns {Predicate}
      */
     AndNot(Other, Args*) {
-        GetMethod(Other)
+        GetMethod(Other,, 1 + Args.Length)
         return this.Cast((Val?) => (this(Val?) && !Other(Val?, Args*)))
     }
 
@@ -161,7 +161,7 @@ class Predicate extends Func {
      * @returns {Predicate}
      */
     Or(Other, Args*) {
-        GetMethod(Other)
+        GetMethod(Other,, 1 + Args.Length)
         return this.Cast((Val?) => (this(Val?) || Other(Val?, Args*)))
     }
     
@@ -173,7 +173,7 @@ class Predicate extends Func {
      * @returns {Predicate}
      */
     OrNot(Other, Args*) {
-        GetMethod(Other)
+        GetMethod(Other,, 1 + Args.Length)
         return this.Cast((Val?) => (this(Val?) || !Other(Val?, Args*)))
     }
 
@@ -185,7 +185,7 @@ class Predicate extends Func {
      * @returns {Predicate}
      */
     Xor(Other, Args*) {
-        GetMethod(Other)
+        GetMethod(Other,, 1 + Args.Length)
         return this.Cast((Val?) => (!!this(Val?) ^ !!Other(Val?, Args*)))
     }
 
@@ -197,7 +197,7 @@ class Predicate extends Func {
      * @returns {Predicate}
      */
     Xnor(Other, Args*) {
-        GetMethod(Other)
+        GetMethod(Other,, 1 + Args.Length)
         return this.Cast((Val?) => (!!this(Val?) ^ !Other(Val?, Args*)))
     }
 
