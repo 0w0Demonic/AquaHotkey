@@ -1,5 +1,6 @@
 #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
+#Include "%A_LineFile%\..\..\Base\ToString.ahk"
 
 /**
  * @mixin
@@ -137,6 +138,33 @@ class Enumerable2 extends Any {
             }
         }
         return true
+    }
+
+    /**
+     * Returns a string representation of this enumerable.
+     * 
+     * @returns {String}
+     */
+    ToString() {
+        Result := Type(this) . " <"
+        Enumer := GetEnumerator(this, 2)
+        if (Enumer(&Key, &Value)) {
+            Result .= "("
+            Result .= String(Key)
+            Result .= ", "
+            Result .= String(Value)
+            Result .= ")"
+
+            for Key, Value in Enumer {
+                Result .= ", ("
+                Result .= String(Key)
+                Result .= ", "
+                Result .= String(Value)
+                Result .= ")"
+            }
+        }
+        Result .= ">"
+        return Result
     }
 
     ;@endregion

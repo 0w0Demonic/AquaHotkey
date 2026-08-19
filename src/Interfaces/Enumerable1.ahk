@@ -4,6 +4,7 @@
 #Include "%A_LineFile%\..\..\Func\Monoid.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
+#Include "%A_LineFile%\..\..\Base\ToString.ahk"
 
 ; TODO implement `GetEnumerator()` into methods here
 
@@ -640,6 +641,13 @@ class Enumerable1 extends Any {
      * @returns {String}
      */
     JoinLine(Prefix?, Suffix?) => this.Join("`n", Prefix?, Suffix?)
+
+    /**
+     * Returns a string representation of this enumerable.
+     * 
+     * @returns {String}
+     */
+    ToString() => this.Join(", ", Type(this) . " <", ">")
 
     ;@endregion
     ;---------------------------------------------------------------------------
