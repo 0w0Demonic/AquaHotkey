@@ -24,7 +24,7 @@
  */
 class Enumerable1 extends Any {
     static __New() {
-        (Enumerable2?) ; <-- force Enumerable2 to load first
+        IsSet(Enumerable2)
         this.Extend(IArray, IMap, Enumerator)
     }
 
