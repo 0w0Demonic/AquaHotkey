@@ -866,4 +866,33 @@ StrictPairwise(Obj) {
 }
 
 ;@endregion
+;-------------------------------------------------------------------------------
+;@region Setting Base Classes
 
+/**
+ * Inserts `BaseCls` as the direct superclass of `Cls`, preserving `Cls`'s
+ * previous superclass as the superclass of `BaseCls`.
+ *
+ * @param   {Class}  BaseCls  class to insert as the superclass
+ * @param   {Class}  Cls      class whose superclass is being changed
+ */
+InsertAsSuperclass(BaseCls, Cls) {
+    if (!(BaseCls is Class)) {
+        throw TypeError("Expected a Class",, Type(BaseCls))
+    }
+    if (!(Cls is Class)) {
+        throw TypeError("Expected a Class",, Type(Cls))
+    }
+    if (!ObjHasOwnProp(BaseCls, "Prototype")) {
+        throw PropertyError("Class does not have own 'Prototype'")
+    }
+    if (!ObjHasOwnProp(Cls, "Prototype")) {
+        throw PropertyError("Class does not have own 'Prototype'")
+    }
+    ObjSetBase(BaseCls,           ObjGetBase(Cls))
+    ObjSetBase(BaseCls.Prototype, ObjGetBase(Cls.Prototype))
+    ObjSetBase(Cls,               BaseCls)
+    ObjSetBase(Cls.Prototype,     BaseCls.Prototype)
+}
+
+;@endregion

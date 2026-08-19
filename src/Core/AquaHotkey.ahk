@@ -804,21 +804,21 @@ class AquaHotkey_Ignore
 
             LogVerbose(3, "nested class... {1}", Name)
 
-            ; does target have such a nested class?
+            ; does receiver already have its own nested class?
             if (ObjHasOwnProp(Receiver, Name)) {
-                NestedReceiver := GetValueOfOwnProp(Receiver, Name)
-                if (NestedReceiver is Class) {
+                if (TryGetNestedClass(Receiver, Name, &NestedReceiver)) {
                     ; yes -> recurse
                     LogVerbose(3, "recurse into existing: {1}",
-                               NestedReceiverName)
+                                NestedReceiverName)
                     Apply(NestedSupplier, NestedReceiver)
                     continue
                 } else {
-                    ; invalid -> overwrite
+                    ; no -> define new class
                     LogVerbose(3, "overwriting existing class: {1}",
-                               NestedReceiverName)
+                            NestedReceiverName)
                 }
             }
+
 
             Base := ObjGetBase(NestedSupplier)
             NestedReceiver := CreateClass(Base, NestedSupplierName)

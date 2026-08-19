@@ -1,5 +1,6 @@
 #Include "%A_LineFile%\..\..\Interfaces\IArray.ahk"
 #Include "%A_LineFile%\..\..\Interfaces\IMap.ahk"
+#Include "%A_LineFile%\..\..\Base\ToString.ahk"
 
 /**
  * @mixin
@@ -21,40 +22,30 @@
  */
 class Enumerable2 extends Any {
     static __New() {
-        static Clone   := {}.Clone
-
-        if (this != Enumerable2) {
-            return
-        }
+        static Clone := {}.Clone
 
         Prot := {}
         for PropName, PropDesc in OwnPropDescs(this.Prototype) {
-            DefineProp(Prot, PropName, PropDesc)
+            DefineProp(Prot, (SubStr(PropName, -1) == "2")
+                    ? SubStr(PropName, 1, -1)
+                    : PropName, PropDesc)
         }
         Cls := { base: ObjGetBase(this), Prototype: Prot }
         for PropName, PropDesc in OwnPropDescs(this) {
-            DefineProp(Cls, PropName, PropDesc)
+            DefineProp(Cls, (SubStr(PropName, -1) == "2")
+                    ? SubStr(PropName, 1, -1)
+                    : PropName, PropDesc)
         }
 
-        WithAlias(Cls)
-        WithAlias(Prot)
-
-        DefineConst(this, "Strict", Cls)
+        ; DO NOT use `NestedClassProp()`, Aqua will think it's a nested class
+        ; that should be added to implementing types.
+        DefineProp(this, "Strict", { Get: (_) => Cls })
+        DefineProp(this.Strict.Prototype, "__Class", {
+            Value: "Enumerable2.Strict"
+        })
 
         this.Extend(IArray, IMap)
-        Cls.Extend(DoubleStream)
-
-        static WithAlias(Target) {
-            Arr := Array()
-            for PropName in ObjOwnProps(Target) {
-                if (SubStr(PropName, -1) == "2") {
-                    Arr.Push(PropName)
-                }
-            }
-            for PropName in Arr {
-                RenameProp(Target, PropName, SubStr(PropName, 1, -1))
-            }
-        }
+        (this.Strict).Extend(DoubleStream)
     }
 
     ;@region Side Effects
@@ -153,6 +144,33 @@ class Enumerable2 extends Any {
             }
         }
         return true
+    }
+
+    /**
+     * Returns a string representation of this enumerable.
+     * 
+     * @returns {String}
+     */
+    ToString() {
+        Result := Type(this) . " <"
+        Enumer := GetEnumerator(this, 2)
+        if (Enumer(&Key, &Value)) {
+            Result .= "("
+            Result .= String(Key)
+            Result .= ", "
+            Result .= String(Value)
+            Result .= ")"
+
+            for Key, Value in Enumer {
+                Result .= ", ("
+                Result .= String(Key)
+                Result .= ", "
+                Result .= String(Value)
+                Result .= ")"
+            }
+        }
+        Result .= ">"
+        return Result
     }
 
     ;@endregion

@@ -34,10 +34,12 @@
  */
 class ISet {
     static __New() {
-        if (this == ISet) {
-            (AquaHotkey)
-            this.Backup(Enumerable1)
+        if (this != ISet) {
+            return
         }
+
+        (AquaHotkey)
+        this.Include(Enumerable1)
     }
 
     ;@region Construction
