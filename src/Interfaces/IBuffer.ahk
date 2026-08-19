@@ -47,12 +47,8 @@ class IBuffer {
         if (this != IBuffer) {
             return
         }
-        (AquaHotkey)
-        ObjSetBase(this,             ObjGetBase(Buffer))
-        ObjSetBase(this.Prototype,   ObjGetBase(Buffer.Prototype))
-        ObjSetBase(Buffer,           this)
-        ObjSetBase(Buffer.Prototype, this.Prototype)
 
+        InsertAsSuperclass(this, Buffer)
         Proto := this.Prototype
         for T in Array(
                 "Char", "UChar", "Short", "UShort",

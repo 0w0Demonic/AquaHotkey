@@ -17,13 +17,11 @@ class IMap {
         if (this != IMap) {
             return
         }
-        (AquaHotkey)
-        ObjSetBase(this,           ObjGetBase(Map))
-        ObjSetBase(this.Prototype, ObjGetBase(Map.Prototype))
-        ObjSetBase(Map,            this)
-        ObjSetBase(Map.Prototype,  this.Prototype)
 
-        this.Backup(Enumerable1, Enumerable2)
+        InsertAsSuperclass(this, Map)
+
+        (AquaHotkey)
+        this.Include(Enumerable1, Enumerable2)
     }
 
     ;@region Construction

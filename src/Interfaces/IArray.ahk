@@ -36,12 +36,11 @@ class IArray {
         if (this != IArray) {
             return
         }
-        (AquaHotkey)
-        ObjSetBase(this,            ObjGetBase(Array))
-        ObjSetBase(this.Prototype,  ObjGetBase(Array.Prototype))
-        ObjSetBase(Array,           this)
-        ObjSetBase(Array.Prototype, this.Prototype)
-        this.Backup(Enumerable1, Enumerable2)
+
+        InsertAsSuperclass(this, Array)
+
+        (AquaHotkey) ; <-- defines `.Include()`
+        this.Include(Enumerable1, Enumerable2)
     }
 
     /**
