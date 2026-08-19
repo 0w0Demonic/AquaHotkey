@@ -36,7 +36,13 @@ class Enumerable2 extends Any {
                     ? SubStr(PropName, 1, -1)
                     : PropName, PropDesc)
         }
-        DefineProp(this, "Strict", NestedClassProp(Cls))
+
+        ; DO NOT use `NestedClassProp()`, Aqua will think it's a nested class
+        ; that should be added to implementing types.
+        DefineProp(this, "Strict", { Get: (_) => Cls })
+        DefineProp(this.Strict.Prototype, "__Class", {
+            Value: "Enumerable2.Strict"
+        })
 
         this.Extend(IArray, IMap)
         (this.Strict).Extend(DoubleStream)
