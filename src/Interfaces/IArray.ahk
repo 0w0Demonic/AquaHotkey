@@ -434,18 +434,22 @@ class IArray {
     ;@region Misc
 
     /**
-     * Deletes the first item that equals the specified value. Throws, if
-     * unable to find such an item.
+     * Deletes all of the specified items in the array. Returns the number
+     * of elements deleted.
      * 
-     * @param   {Any}  Value  the specified value to be deleted
-     * @returns {Any}
+     * @param   {Any*}  Values  the specified values to be deleted
+     * @returns {Index}
      */
-    DeleteValue(Value) {
-        Index := this.IndexOf(Value)
-        if (!Index) {
-            throw UnsetItemError("Unable to find item")
+    Remove(Values*) {
+        Count := 0
+        for Value in Values {
+            Index := this.IndexOf(Value)
+            if (Index) {
+                ++Count
+                this.RemoveAt(Index)
+            }
         }
-        return this.Delete(A_Index)
+        return Count
     }
 
     ; TODO redefine as `.RemoveAt(...)`?
