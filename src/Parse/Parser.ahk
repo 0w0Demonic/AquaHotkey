@@ -817,7 +817,7 @@ class Parser extends Func {
      * "3:abc".Parse(LengthPrefix)
      */
     FlatMap(Fn, Args*) {
-        GetMethod(Fn,, 2 + Args.Length)
+        GetMethod(Fn,, 1 + Args.Length)
         return this.Cast(FlatMap)
 
         FlatMap(&Input, Pos := 1) {
