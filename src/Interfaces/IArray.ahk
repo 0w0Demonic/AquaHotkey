@@ -841,7 +841,6 @@ class IArray {
         return this
     }
 
-    ; TODO remove dep on Comparator?
     /**
      * Sorts elements in place according to the given comparator function.
      * 
@@ -864,7 +863,7 @@ class IArray {
 
         GetMethod(Comp,, 2)
         if (Reversed) {
-            Comp := Comparator(Comp).Rev()
+            Comp := ((Comp) => (A?, B?) => Comp(B?, A?))(Comp)
         }
 
         for Value in Quicksort(this*) {
