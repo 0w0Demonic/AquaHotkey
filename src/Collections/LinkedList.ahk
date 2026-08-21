@@ -561,6 +561,89 @@ class LinkedList extends IArray
 
     ;@endregion
     ;---------------------------------------------------------------------------
+    ;@region IArray Overrides
+
+    /**
+     * Fills the linked list with the specified value.
+     * 
+     * @param   {Any?}  Value  the value to set
+     * @returns {this}
+     * @see {IArray#Fill()}
+     */
+    Fill(Value?) {
+        Node := this.Head
+        while (Node) {
+            Node.Value := (Value?)
+            Node := Node.Next
+        }
+        return this
+    }
+
+    /**
+     * Fills the linked list using a function that produces values.
+     * 
+     * ```ahk
+     * Factory() => Any
+     * ```
+     * 
+     * Note: you can get the array index by using `A_Index` in the function.
+     * 
+     * @param   {Func}  Factory  function that produces new elements
+     * @param   {Any*}  Args     zero or more arguments for `Factory`
+     * @returns {this}
+     * @see {IArray#FillWith()}
+     * @example
+     * Arr := Array()
+     * Arr.Length := 10
+     * 
+     * ; fill the array with each array index respectively
+     * ; 
+     * ; --> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+     * Arr.FillWith(() => A_Index)
+     */
+    FillWith(Factory, Args*) {
+        GetMethod(Factory,, Args.Length)
+        
+        Node := this.Head
+        while (Node) {
+            Node.Value := Factory(Args*)
+            Node := Node.Next
+        }
+        return this
+    }
+
+    /**
+     * Transforms all values in the array in place by applying the given
+     * `Mapper`.
+     * 
+     * ```ahk
+     * Mapper(ArrElement: Any?, Args: Any*) => this
+     * ```
+     * 
+     * @param   {Func}  Mapper  function that returns a new element
+     * @param   {Any*}  Args    zero or more additional arguments
+     * @returns {this}
+     * @example
+     * L := LinkedList(1, 2, 3)
+     * L.ReplaceAll(x => (x * 2))
+     * L.Join(", ").MsgBox() ; "2, 4, 6"
+     */
+    ReplaceAll(Mapper, Args*) {
+        GetMethod(Mapper,, 1 + Args.Length)
+
+        Node := this.Head
+        while (Node) {
+            Node.Value := (ObjHasOwnProp(Node, "Value"))
+                ? Mapper(Node.Value, Args*)
+                : Mapper(unset, Args*)
+
+            Node := Node.Next
+        }
+        return this
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Iterator
 
     /**
@@ -825,3 +908,4 @@ class LinkedList extends IArray
 
     ;@endregion
 }
+

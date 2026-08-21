@@ -98,7 +98,7 @@ class IArray {
         }
         return (Index > 0) ? Index : (Index + Length + 1)
     }
-
+    
     ;@endregion
     ;---------------------------------------------------------------------------
     ;@region Construction
@@ -631,7 +631,6 @@ class IArray {
     ;---------------------------------------------------------------------------
     ;@region Filling
 
-    ; TODO make this faster on LinkedList?
     /**
      * Fills the array with the specified value.
      * 
@@ -645,7 +644,6 @@ class IArray {
         return this
     }
 
-    ; TODO make this faster on LinkedList?
     /**
      * Fills the array using a function that produces values.
      * 
@@ -676,7 +674,6 @@ class IArray {
         return this
     }
 
-    ; TODO make this faster on LinkedList?
     /**
      * Transforms all values in the array in place by applying the given
      * `Mapper`.
@@ -726,8 +723,6 @@ class IArray {
         return this
     }
 
-    ; TODO shuffle a new array?
-
     /**
      * Shuffles the array in place.
      * 
@@ -740,8 +735,6 @@ class IArray {
         }
         return this
     }
-
-    ; TODO remove param `Step`?
 
     /**
      * Returns an array slice from index `Begin` to `End` (inclusive),
@@ -798,8 +791,6 @@ class IArray {
         }
         return Result
     }
-
-    ; TODO just return a new array?
 
     /**
      * Reverses all elements in place.
@@ -1019,3 +1010,4 @@ class AquaHotkey_IArray_Serialization extends AquaHotkey {
 }
 
 ;@endregion
+
