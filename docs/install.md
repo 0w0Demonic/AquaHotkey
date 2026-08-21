@@ -13,6 +13,8 @@
 
 Any version of AutoHotkey v2 is fine. However, be aware that some advanced features may not work properly on versions below v2.1-alpha.3.
 
+See: [Known Issues](./core.md#known-issues)
+
 ## Download
 
 ### GitHub
@@ -61,7 +63,7 @@ Example:
 
 ```ahk
 #Requires AutoHotkey v2
-#Include <AquaHotkey>
+#Include <AquaHotkey\AquaHotkey>
 #Include <AquaHotkey\src\Stream\Stream>
 #Include <AquaHotkey\src\Collections\HashMap>
 
@@ -71,6 +73,8 @@ Example:
 ; config: disable type assertions (`.AssertType()`).
 #Include <AquaHotkey\cfg\DisableTypeAssertions>
 ```
+
+Beware that `wip/` is where I test out new features or make random experiments. Files in this directory are not expected to be permanent.
 
 ## Advanced Setup
 
@@ -99,4 +103,4 @@ lib/
    `- AquaHotkeyX.ahk (source)
 ```
 
-You can now include this library using only `#Include <AquaHotkey>` or `#Include <AquaHotkeyX>`.
+You can now include this library using only `#Include <AquaHotkey>` or `#Include <AquaHotkeyX>` instead of `<AquaHotkey/AquaHotkey>`/`<AquaHotkey/AquaHotkeyX>`.

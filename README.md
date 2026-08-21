@@ -69,7 +69,7 @@ Finally, include the library in your script:
 
 Core extension framework:
 
-- [Installation](/docs/installation.md)
+- [Installation](/docs/install.md)
 - [core.md](./docs/core.md)
 
 AquaHotkeyX (broad range of extension classes):
