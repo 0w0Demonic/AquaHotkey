@@ -299,6 +299,38 @@ class IArray {
 
     ;@endregion
     ;---------------------------------------------------------------------------
+    ;@region Value Presence
+
+    /**
+     * Determines whether the array contains the given elements.
+     * 
+     * Returns `true`, if all of the given values are present in the array.
+     * 
+     * Consider using `Set`s for faster lookup speed.
+     * 
+     * @param   {Any*}  Values  zero or more values to be checked
+     * @returns {Boolean}
+     */
+    ContainsAll(Values*) => Values.All(V => this.IndexOf(V))
+
+    /**
+     * Determines whether any of the given values are present in the array.
+     * 
+     * @param   {Any*}  Values  zero or more values to be checked
+     * @returns {Boolean}
+     */
+    ContainsAny(Values*) => Values.Any(V => this.IndexOf(V))
+
+    /**
+     * Determines whether none of the given values are present in the array.
+     * 
+     * @param   {Any*}  Values  zero or more values to be checked
+     * @returns {Boolean}
+     */
+    ContainsNone(Values*) => Values.None(V => this.IndexOf(V))
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Matching/Finding
 
     /**

@@ -272,9 +272,9 @@ class Enumerable1 extends Any {
      * Determines whether any element equals ({@link AquaHotkey_Eq `.Eq()`})
      * the given value.
      * 
-     * Note that some enumerables can only iterated once. For repeated
-     * `.Contains()` tests, and for forward performance, consider collecting
-     * elements into an {@link ISet} with {@link Enumerable1#ToSet `.ToSet()`}.
+     * Note that some enumerables can only be used once. For repeated
+     * `.Contains()` calls, consider collecting elements into an {@link ISet}
+     * first.
      * 
      * This also enables the use of methods such as
      * {@link ISet#ContainsAll `.ContainsAll()`} and

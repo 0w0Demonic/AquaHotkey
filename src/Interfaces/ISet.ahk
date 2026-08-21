@@ -242,14 +242,7 @@ class ISet {
      * @example
      * Set(1, 2, 3).ContainsAny(2, 5) ; true
      */
-    ContainsAny(Values*) {
-        for Value in Values {
-            if (this.Contains(Value)) {
-                return true
-            }
-        }
-        return false
-    }
+    ContainsAny(Values*) => Values.Any(V => this.Contains(V))
 
     /**
      * Determines whether all of the given values are present in the set.
@@ -259,14 +252,7 @@ class ISet {
      * @example
      * Set(1, 2, 3).ContainsAll(1, 2, 3) ; true
      */
-    ContainsAll(Values*) {
-        for Value in Values {
-            if (!this.Contains(Value)) {
-                return false
-            }
-        }
-        return true
-    }
+    ContainsAll(Values*) => Values.All(V => this.Contains(V))
 
     /**
      * Determines whether none of the given values are present in the set.
@@ -276,14 +262,7 @@ class ISet {
      * @example
      * Set(1, 2, 3).ContainsNone(4, 5, 6) ; true
      */
-    ContainsNone(Values*) {
-        for Value in Values {
-            if (this.Contains(Value)) {
-                return false
-            }
-        }
-        return true
-    }
+    ContainsNone(Values*) => Values.None(V => this.Contains(V))
 
     /**
      * Determines whether the given value is present in the set.
