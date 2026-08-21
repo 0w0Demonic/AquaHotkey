@@ -452,15 +452,13 @@ class IArray {
         return Count
     }
 
-    ; TODO redefine as `.RemoveAt(...)`?
     /**
      * Clears the array.
      */
     Clear() {
-        this.Length := 0
+        this.RemoveAt(1, this.Length)
     }
 
-    ; TODO do this with powers of 2?
     /**
      * Repeats this array `X` times.
      * 
