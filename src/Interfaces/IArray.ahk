@@ -610,8 +610,6 @@ class IArray {
         return Result
     }
 
-    ; TODO use `IArray?`
-
     /**
      * Returns a new array containing all elements in the array
      * transformed by applying the given `Mapper`, resulting arrays
@@ -639,7 +637,7 @@ class IArray {
             GetMethod(Mapper,, 1 + Args.Length)
             for Value in this {
                 Element := Mapper(Value?, Args*)
-                if (Element is Array) {
+                if (IArray.IsInstance(Element)) {
                     Result.Push(Element*)
                 } else {
                     Result.Push(Element )
@@ -649,7 +647,7 @@ class IArray {
         }
         for Value in this {
             if (IsSet(Value)) {
-                if (Value is Array) {
+                if (IArray.IsInstance(Value)) {
                     Result.Push(Value*)
                 } else {
                     Result.Push(Value )
