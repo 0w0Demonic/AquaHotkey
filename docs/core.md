@@ -10,12 +10,13 @@
   - [What is Class Prototyping?](#what-is-class-prototyping)
     - [How to Use it to Your Advantage](#how-to-use-it-to-your-advantage)
   - [Class Hierarchy](#class-hierarchy)
+  - [Naming Conventions](#naming-conventions)
   - [The Extension Class](#the-extension-class)
     - [What is an Extension Class?](#what-is-an-extension-class)
     - [How to Create an Extension Class](#how-to-create-an-extension-class)
     - [Static and Instance Properties](#static-and-instance-properties)
     - [Nested classes](#nested-classes)
-      - [Apply an Extension to Already Existing Nested Class](#apply-an-extension-to-already-existing-nested-class)
+      - [Apply an Extension to an Already Existing Nested Class](#apply-an-extension-to-an-already-existing-nested-class)
       - [Create a New Nested Class For Target](#create-a-new-nested-class-for-target)
     - [Functions](#functions)
       - [Extend a Function](#extend-a-function)
@@ -50,6 +51,7 @@
     - [Multiple overrides](#multiple-overrides)
     - [Recommended use](#recommended-use)
     - [Limitations & Workarounds](#limitations--workarounds)
+    - [Future Plans](#future-plans)
   - [Mixins](#mixins)
     - [How to Use Mixins](#how-to-use-mixins)
     - [How to Document Mixins](#how-to-document-mixins)
@@ -139,11 +141,56 @@ Any
 - AquaHotkey_Backup: [Backup Classes](#backup-classes) (create a snapshot of a class's current state)
 - AquaHotkey_MultiApply: [Mixins](#mixins) (apply the same extension to multiple classes)
 
+## Naming Conventions
+
+The prefixes `Aqua` and `AquaHotkey` are reserved namespaces. You **must not** name your variables or classes after it.
+
+```ahk
+; valid, ONLY IF this class is part of the AquaHotkey library itself.
+AquaHotkey_StringUtils extends AquaHotkey { ... }
+
+; `Aqua` is currently an unused namespace, but it is also reserved.
+Aqua_StringUtils extends AquaHotkey { ... }
+```
+
+If your code is related to a specific project, you **should** use the name of this project as a name prefix.
+
+```ahk
+; this class is part of Tanuki, one of my other projects
+class Tanuki_Button extends AquaHotkey_MultiApply { ... }
+```
+
+Names **should** follow this naming scheme:
+
+```
+      <project name> "_" <feature name>
+OR    <project name> "_" <targeted type(s)> "_" <feature name>
+```
+
+You **should** use nouns when naming features.
+
+```ahk
+; Project:          AquaHotkey
+; Targeted type:    `Nullable`
+; Feature:          Serialization
+AquaHotkey_Nullable_Serialization extends AquaHotkey { ... }
+```
+
 ## The Extension Class
 
 ### What is an Extension Class?
 
-The most fundamental feature of AquaHotkey is the *extension class*. It assigns new properties across one or more target classes/functions to provide own custom behaviour.
+An extension class assigns new features across one or more classes/functions.  It is the most fundamental part of AquaHotkey.
+
+Example - adding a `.Length` property to strings:
+
+```ahk
+class String_Length_Ext extends AquaHotkey {
+    class String {
+        Length => StrLen(this)
+    }
+}
+```
 
 ### How to Create an Extension Class
 
@@ -156,7 +203,9 @@ class Array_ForEach extends AquaHotkey {
 
 Give it a clear, descriptive name. Don't be afraid to make it overly verbose.
 
-Now, create *extensions*, which are the nested classes that an extension class encloses. The name of the extension should be the same as the targeted class. For example, if you want to extend `Array`, the name of the extension should be `Array`.
+Now, create *extensions*, which are the nested classes that an extension class encloses.
+
+The name of the extension should be the same as the targeted class. For example, if you want to extend `Array`, the name of the extension should be `Array`.
 
 ```ahk
 class Array_ForEach extends AquaHotkey {
@@ -164,6 +213,8 @@ class Array_ForEach extends AquaHotkey {
     }
 }
 ```
+
+The class `Array_ForEach.Array` is an *extension* which targets built-in `Array`.
 
 Finally, declare properties and methods in the extension to extend the targeted class.
 
@@ -180,13 +231,7 @@ class Array_ForEach extends AquaHotkey {
 }
 ```
 
-In the `Array_ForEach.Array` class, the `this` keyword refers to any instance of `Array`. This always depends on which class you are targeting with the extension.
-
----
-
-Done.
-
-You can assign more properties to arrays by writing more properties, or declare another nested class to target a different class.
+The `this` keyword refers to any instance of `Array`. This depends on which class the extension is targeting.
 
 Finally, you can make use of these new features in your script:
 
@@ -197,7 +242,9 @@ Finally, you can make use of these new features in your script:
 
 ### Static and Instance Properties
 
-Note that `.ForEach()` was declared as non-static, which means it's added to the array prototype. To add things to the `Array` class, use a static property:
+Note that `.ForEach()` was declared as non-static, which means it's added to the array prototype. To add things to the `Array` class, use a static property.
+
+Example - adding a static method to `Map`:
 
 ```ahk
 class MapConstructors extends AquaHotkey {
@@ -227,15 +274,13 @@ CustomMap.WithCaseSense("Off") ; <-- `this` refers to `CustomMap`
 
 ### Nested classes
 
-To apply extensions to a nested class of a target, simply reflect that structure in the extension class.
+To target a nested class such as `Gui.Control`, simply reflect the same structure in your extension.
 
-If an extension contains a nested class, AquaHotkey checks if the target already contains a class with the same name.
-
-#### Apply an Extension to Already Existing Nested Class
+#### Apply an Extension to an Already Existing Nested Class
 
 If the target contains the nested class, AquaHotkey recursively applies the nested class in the extension to the nested class in the target.
 
-The following examples shows you how to extend `Gui.Button`:
+The following example shows you how to extend `Gui.Button`:
 
 ```ahk
 class GuiButton extends AquaHotkey {
@@ -252,7 +297,7 @@ class GuiButton extends AquaHotkey {
 
 #### Create a New Nested Class For Target
 
-If the target does not contain the nested class, AquaHotkey creates a new nested class on the target.
+If the target does not yet own the nested class, AquaHotkey will create a new nested class on the target.
 
 For example:
 
@@ -270,8 +315,7 @@ class AquaHotkey_Gui_IPv4 extends AquaHotkey {
 }
 ```
 
-If `Gui.IPv4` does not exist, AquaHotkey creates a completely new `IPv4` class
-at runtime.
+If `Gui.IPv4` does not exist, AquaHotkey creates a completely new `IPv4` class at runtime.
 
 See [GuiIPv4.ahk](../examples/GuiIPv4.ahk) for the complete example script.
 
@@ -283,7 +327,7 @@ Also see:
 
 #### Extend a Function
 
-The same logic of extension classes applies to global functions:
+Use the same logic to target global functions:
 
 ```ahk
 class MsgBoxUtil extends AquaHotkey {
@@ -296,7 +340,7 @@ class MsgBoxUtil extends AquaHotkey {
 MsgBox.Info("info: [...]", "(Title text)")
 ```
 
-If an extension class targets a function, you should use only `static` properties.
+When extending functions, you *should* (but don't have to) use only `static` properties.
 
 #### Override a Function
 
@@ -315,8 +359,7 @@ class FileOpen_DefaultRead extends AquaHotkey {
 }
 ```
 
-**Use with caution.** When possible, define a static helper method instead (see
-`MsgBoxUtil` example above).
+**Use with caution.** When possible, always define a static helper method instead (see `MsgBoxUtil` example above).
 
 ### How to Write Extensions Effectively
 
@@ -353,9 +396,9 @@ TODO maybe add chess.com icons to mark sections as difficult
 
 #### One Feature, One Class
 
-At first, this structure might seem a little unnecessary. After all, why do we need the nested class structure?
+At first, the structure of extension classes might seem a unnecessarily verbose.
 
-The reason is that an extension class represents *one feature*, where changes can span across multiple classes. An extension class should add only one functionality to reduce clutter.
+The reason is that *one extension class represents one feature*, where changes can span across multiple classes, i.e. multiple extensions.
 
 ```ahk
 class Ext_ToString extends AquaHotkey {
@@ -366,11 +409,13 @@ class Ext_ToString extends AquaHotkey {
 }
 ```
 
-Extension classes like [Base/DuckTypes](./base/DuckTypes.md) span across many hundreds of lines of code and across almost all built-in types. With this structure, AquaHotkey reliably knows where to put the same property into multiple different targets.
+With this structure, AquaHotkey reliably knows where to put the same property into multiple different targets.
+
+As an example: [Base/DuckTypes](./base/DuckTypes.md) spans across many hundreds of lines of code and across almost all built-in types.
 
 #### One Feature, One File
 
-You can save an extension class into a separate file. This lets you reuse them across multiple scripts.
+You can save an extension class into a separate file. This lets you reuse it across multiple scripts.
 
 ```ahk
 #Include <ToString>
@@ -388,6 +433,8 @@ Generally speaking: *one feature, one file*.
 
 Try to be very descriptive of what an extension does, and don't be afraid to make it verbose. This assures that you don't run into issues with duplicate names.
 
+Also see: [Naming Conventions](#naming-conventions)
+
 #### Check Whether an Extension Exists in the Script
 
 Want to know whether an extension class is included in your script? Just use `IsSet()`:
@@ -402,11 +449,11 @@ if (IsSet(Ext_ToString)) {
 }
 ```
 
-This becomes very useful later on when you specify [extra setup logic](#extension-setup) for your extension classes.
+This becomes very useful later on when adding [extra setup logic](#extension-setup).
 
 ## Ignored Classes
 
-Extend your class with `AquaHotkey_Ignore` to mark helper or internal-use classes that should be ignored by AquaHotkey. This is useful for large projects. AquaHotkey ignores any class that derives from `AquaHotkey`, or any class with `AquaHotkey_` prefix.
+Extend your class with `AquaHotkey_Ignore` to mark helper or internal-use classes that should be ignored by AquaHotkey. This is useful for large projects.
 
 ```ahk
 class LargeProject extends AquaHotkey {
@@ -417,6 +464,8 @@ class LargeProject extends AquaHotkey {
     ...
 }
 ```
+
+AquaHotkey ignores any class that derives from `AquaHotkey`, or any class with `AquaHotkey_` prefix.
 
 ## Debug Messages
 
@@ -614,20 +663,21 @@ AquaHotkey ignores the variable declaration of any extension that targets a clas
 
 As of AHK v2.0, the following classes cannot declare variable declarations:
 
-- Primitive
-  - Number
-    - Float
-    - Integer
-  - String
-- VarRef
-- ComValue
-  - ComObjArray
-  - ComObject
-  - ComValueRef
+- Any
+  - Primitive
+    - Number
+      - Float
+      - Integer
+    - String
+  - VarRef
+  - ComValue
+    - ComObjArray
+    - ComObject
+    - ComValueRef
 
 This also includes any class which derives from the list above, or any class that directly `extends Any`.
 
-You can use the following code snippet to determine whether a target can have custom variable declarations:
+You can use the following code function to determine whether a target can have custom variable declarations:
 
 ```ahk
 CanOverride__Init(Cls) => (Cls == Object) || HasBase(Cls, Object)
@@ -858,6 +908,10 @@ class Cls_Ext extends AquaHotkey {
 }
 ```
 
+### Future Plans
+
+In future versions of AquaHotkey, `__super__` might become not the previous implementation is `Func`, but rather a [Backup Class](#backup-classes). This would tremendously help against the current limitations of override classes.
+
 ## Mixins
 
 Mixin classes apply the same extension to multiple targets. This is useful for defining behavior for multiple classes based on their overall behavior instead of their inheritance.
@@ -1076,7 +1130,7 @@ Only apply an extension class, if AquaHotkey is imported in the script.
 class Ext {
     ; if AquaHotkey is present in the script, apply as extension
     static __New() {
-        if ((AquaHotkey ?? "") is Class) {
+        if (IsSet(AquaHotkey) && (AquaHotkey is Class)) {
             ObjSetBase(this, AquaHotkey)
             (AquaHotkey.__New)(this)
         }
@@ -1114,7 +1168,7 @@ static __New() {
 
 The `Length` property for `String` is now `StrLen()` itself, not a function that forwards to `StrLen()`. This saves one additional function call.
 
-**Use with caution**. You should only do this if you feel already comfortable with class prototyping.
+**Use with caution**. You should only do this if you already feel comfortable with class prototyping.
 
 When inlining properties, you are doing class prototyping manually. Be sure to check your implementation thoroughly. This procedure is only recommended if:
 
