@@ -5,18 +5,33 @@
 
 ## Overview
 
-A [duck type](../DuckTypes.md) that represents any callable object.
-
-`Callable` is considered a subtype of `Object`, and a supertype of `Func`.
+A [duck type](../DuckTypes.md) that represents anything that is callable.
 
 ```ahk
-MsgBox.Is(Callable) ; true
-
-Obj := { Call: (_) => MsgBox("calling method...") }
-Obj.Is(Callable) ; true
-
-; every `Func` is callable by definition
-Callable.CanCastFrom(Func) ; --> true
+MsgBox.Is(Callable) ; ==> true
+{ Call: ... }.Is(Callable) ; ==> true
 ```
 
-Only objects (as seen by `IsObject()`) can be instance of `Callable`. Primitive values such as `"str"` can never be callable, even if e.g. `String.Prototype.Call` was assigned.
+Not every instance of `Callable` might be an `Object`:
+
+```ahk
+DefineProp(String.Prototype, "Call", { Call: ... })
+"str".Is(Callable) ; ==> true
+
+Object.CanCastFrom(Callable) ; ==> false
+```
+
+Every class whose prototype defines `Call` is a subtype of `Callable`.
+
+This includes `Func` and its subclasses:
+
+```ahk
+Callable.CanCastFrom(Func) ; ==> true
+
+class Iterator {
+    Call() {
+
+    }
+}
+Callable.CanCastFrom(Iterator) ; ==> true
+```
