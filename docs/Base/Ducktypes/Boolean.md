@@ -2,16 +2,15 @@
 
 - [\<Base/DuckTypes/Boolean\>](#baseducktypesboolean)
   - [Overview](#overview)
-  - [Value Conversion](#value-conversion)
+  - [Convert to Boolean](#convert-to-boolean)
   - [Natural Ordering](#natural-ordering)
+  - [JSON Serialization](#json-serialization)
 
 ## Overview
 
-A [duck type](../DuckTypes.md) that represents the boolean values `true`/`1` and `false`/`0`.
+A Boolean is a [duck type](../DuckTypes.md) that represents the values `true` and `false` (`1` and `0`). The class `Boolean` is a subtype of `Integer`.
 
-Only integer values `1` and `0` are treated as booleans, not floats or numeric strings.
-
-`Boolean` is considered a subtype of `Integer`.
+<!-- TODO link "subtype" to some file that explains definitions -->
 
 ```ahk
 (true).Is(Boolean) ; ==> true
@@ -23,7 +22,7 @@ Only integer values `1` and `0` are treated as booleans, not floats or numeric s
 Integer[].CanCastFrom(Boolean[]) ; ==> true (`Integer.CanCastFrom(Boolean)`)
 ```
 
-## Value Conversion
+## Convert to Boolean
 
 Call `Boolean(Value)` to convert any value into a boolean. This is equivalent to `!!Value`. `unset` is converted to `false`.
 
@@ -46,4 +45,15 @@ You can perform natural ordering on booleans by using `Boolean.Compare(A, B)`. `
 
 ([42, true]).Sort(Boolean.Compare)
 ; ==> TypeError! Expected a Boolean, but got an Integer.
+```
+
+## JSON Serialization
+
+<!-- (see [JSON Serialization](...)) -->
+
+Use `Boolean` as an argument in `.ParseJson(T)` to convert an instance of `Json.Boolean` into an AHK boolean.
+
+```ahk
+"true".ParseJson() ; ==> Json.True
+"true".ParseJson(Boolean) => true (1)
 ```
