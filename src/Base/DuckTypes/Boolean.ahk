@@ -13,39 +13,51 @@
  */
 class Boolean extends Integer {
     /**
-     * Determines whether the input value is considered a boolean.
+     * Determines whether the input value is considered a boolean. A boolean
+     * is defined as `true` or `false`, equivalent `1` and `0`. The input value
+     * must be an integer. Floats or numeric strings are not considered
+     * boolean values.
      * 
      * @param   {Any?}  Val  any value
      * @returns {Boolean}
      * @example
-     * (true).Is(Boolean) ; true
-     * (false).Is(Boolean) ; true
+     * (true).Is(Boolean)  ; ==> true
+     * (false).Is(Boolean) ; ==> true
      * 
-     * (0).Is(Boolean) ; true
-     * (1).Is(Boolean) ; true
+     * (0).Is(Boolean) ; ==> true
+     * (1).Is(Boolean) ; ==> true
      */
     static IsInstance(Val?) => IsSet(Val)
             && (Val is Integer)
             && !(Val & 0xFFFFFFFFFFFFFFFE) ; yes, this is overkill
 
     /**
-     * Creates a boolean value from an arbitrary value.
+     * Determines whether the input value is "truthy" or "falsy", as specified
+     * by AHK conventions.
+     * 
+     * This function considers `unset` as falsy, therefore
+     * `Boolean(unset) == false`.
      * 
      * @param   {Any}  Val  any value
      * @returns {Boolean?}
      * @example
-     * Boolean("foo") ; true
-     * Boolean(0)     ; false
+     * Boolean("foo") ; ==> true
+     * Boolean(0)     ; ==> false
+     * Boolean(unset) ; ==> false
      */
     static Call(Val?) => IsSet(Val) && !!Val
 
     /**
-     * Compares two boolean values. `true` is considered greater than `false`
-     * (similar to their actual values `1` and `0`).
+     * Compares two boolean values. `true` is considered greater than `false`.
+     * This is because `true == 1`, `false == 0`, and `1 > 0`.
+     * 
+     * Both input values must be an {@link AquaHotkey_DuckTypes instance of}
+     * boolean.
      * 
      * @param   {Boolean}  A  first boolean
      * @param   {Boolean}  B  second boolean
      * @returns {Integer}
+     * @throws  {TypeError} if given an input that is not a boolean
      */
     static Compare(A, B) {
         if (this.IsInstance(A) && this.IsInstance(B)) {
@@ -67,6 +79,7 @@ class AquaHotkey_Boolean extends AquaHotkey {
          * Casts a {@link Json.Boolean} into a regular AHK boolean.
          * 
          * @param   {VarRef<Any>}  Val  any value
+         * @see {@link AquaHotkey_Json}
          */
         static CastFromJson(&Val) {
             IsSet(Json)

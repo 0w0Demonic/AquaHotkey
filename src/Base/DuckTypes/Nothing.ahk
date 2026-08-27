@@ -4,7 +4,8 @@
 /**
  * @duck
  * 
- * A {@link AquaHotkey_DuckType duck type} that represents `unset`.
+ * A {@link AquaHotkey_DuckType duck type} that represents the absence of a
+ * value (the value `unset`, or the absence of an array item or property).
  * 
  * @module  <Base/DuckTypes/Nothing>
  * @author  0w0Demonic
@@ -32,21 +33,18 @@ class Nothing extends Any {
     static IsInstance(Val?) => !IsSet(Val)
 
     /**
-     * Determines whether the given type is equivalent to, or a subtype of
-     * `Nothing`. This method returns `true` if `T == Nothing`, otherwise
-     * `false`.
+     * Determines whether the input type is equivalent to, or a subtype of
+     * `Nothing`. This is the case, only if `!IsSet(T)` or `T == Nothing`.
+     * 
+     * Because `Nothing` must not be subclassed, subclasses are not considered
+     * subtypes of `Nothing`.
      * 
      * @param   {Any?}  T  any value
      * @returns {Boolean}
      * @example
-     * ; `.CanCastFrom()` type relations
-     * Nothing.CanCastFrom(Any) ; false
-     * Any.CanCastFrom(Nothing) ; false
-     * Nothing.IsInstance(Any)  ; false
-     * Any.IsInstance(Nothing)  ; false
-     * 
-     * ; edge case: can cast to itself
-     * Nothing.CanCastFrom(Nothing) ; true
+     * Nothing.CanCastFrom(Nothing) ; ==> true
+     * Nothing.CanCastFrom(unset)   ; ==> true
+     * Nothing.CanCastFrom(Any)     ; ==> false
      */
     static CanCastFrom(T?) => (!IsSet(T)) || (T == Nothing)
 }
@@ -62,6 +60,7 @@ class AquaHotkey_Nothing_Json extends AquaHotkey {
          * Converts {@link Json.Null} into `unset`.
          * 
          * @param   {VarRef<Any>}  Val  any value
+         * @see {@link AquaHotkey_Json}
          */
         static CastFromJson(&Val) {
             IsSet(Json)

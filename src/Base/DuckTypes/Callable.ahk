@@ -4,7 +4,8 @@
  * @duck
  * 
  * A {@link AquaHotkey_DuckTypes duck type} that represents any callable
- * object `HasMethod()`. This potentially includes values that are no objects.
+ * value for which `HasMethod()` returns `true`. This potentially includes
+ * values that are no objects (`!IsObject()`).
  * 
  * @module  <Base/DuckTypes/Callable>
  * @author  0w0Demonic
@@ -24,14 +25,19 @@ class Callable extends Any {
     static IsInstance(Val?) => IsSet(Val) && HasMethod(Val)
 
     /**
-     * Determines whether the given value is equal to this class,
-     * or its subclass.
+     * Determines whether the input value is equivalent to, or a subtype of
+     * callable. This is the case, if the input value is a class whose
+     * prototype is callable (for example, `Func` which defines
+     * `Func.Prototype.Call`).
      * 
      * @param   {Any}  Value  any value
      * @returns {Boolean}
      * @example
-     * ; --> true
-     * Callable.CanCastFrom(Func)
+     * Callable.CanCastFrom(Func) ; ==> true
+     * class Iterator {
+     *     Call() { ... } ; <-- defines `Prototype.Call`
+     * }
+     * Callable.CanCastFrom(Iterator) ; ==> true
      */
     static CanCastFrom(T?) => IsSet(T) && (T is Class) && HasMethod(T.Prototype)
 }
