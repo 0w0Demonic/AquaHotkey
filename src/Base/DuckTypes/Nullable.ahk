@@ -9,9 +9,10 @@
 /**
  * @duck
  * 
- * A duck type wrapper which allows matching both `unset` and values of
- * an inner type. While {@link Optional} is used for wrapping values, the
- * nullable class is meant to be used for creating *type predicates*.
+ * A {@link AquaHotkey_DuckTypes duck type} that wraps an existing type
+ * -- the *inner type* -- and allows it to be `unset`.
+ * 
+ * This class must not be subclassed.
  * 
  * @module  <Base/DuckTypes/Nullable>
  * @author  0w0Demonic
@@ -20,9 +21,9 @@
  * @example
  * MaybeStr := Nullable(String)
  * 
- * MaybeStr.IsInstance(unset) ; true
- * MaybeStr.IsInstance("Str") ; true
- * MaybeStr.IsInstance(342.1) ; false
+ * MaybeStr.IsInstance(unset) ; ==> true
+ * MaybeStr.IsInstance("Str") ; ==> true
+ * MaybeStr.IsInstance(342.1) ; ==> false
  */
 class Nullable extends Class
 {
@@ -52,13 +53,12 @@ class Nullable extends Class
      * Creates a new nullable type with the given inner type.
      * 
      * @constructor
-     * @param   {Any}  T  inner type of the nullable
+     * @param   {T}  T  inner type of the nullable
      * @returns {Nullable<T>}
      */
     static Call(T) {
         return (T is this) ? T ; Nullable<Nullable<T>> is just Nullable<T>
-            : DefineProp({ base: this.Prototype }, "T",
-                { Get: (_) => T })
+            : DefineProp({ base: this.Prototype }, "T", { Get: (_) => T })
     }
 
     ;@endregion
@@ -67,6 +67,8 @@ class Nullable extends Class
 
     /**
      * Determines whether this nullable is equal to the other nullable.
+     * Returns true, if `Val` is a nullable and the inner types of both `this`
+     * and `Val` are equal.
      * 
      * @param   {Any?}  Val  any value
      * @returns {Boolean}
@@ -84,12 +86,11 @@ class Nullable extends Class
     /**
      * Determines whether two given values are equal.
      * 
-     * Both inputs are asserted to be *instances* of the calling class.
-     * For example, `Array.Equals(A, B)` will assert that `A is Array` and
-     * `B is Array`.
+     * Both input values must be {@link AquaHotkey_DuckTypes instance of} the
+     * calling class. For example, `Nullable(Array).Equals(A, B)` accepts
+     * only instances of `Nullable(Array)`.
      * 
-     * This method supports `unset` values. `unset == unset` is evaluated to
-     * `true`.
+     * This method returns `true`, if both input values are unset.
      * 
      * @param   {Any?}  A  value 1
      * @param   {Any?}  B  value 2
@@ -138,23 +139,35 @@ class Nullable extends Class
     ;@region Duck Types
 
     /**
-     * Determines whether the value is considered instance of this nullable
-     * type.
+     * Determines whether the given input value is an instance of this nullable
+     * type. The input value must be either instance of the inner type, or
+     * `unset`.
      * 
      * @param   {Any}  Val  any value
      * @returns {Boolean}
      * @example
-     * Nullable(String).IsInstance(unset) ; true
-     * Nullable(Number).IsInstance("foo") ; false
+     * Nullable(String).IsInstance(unset) ; ==> true
+     * Nullable(String).IsInstance("foo") ; ==> true
+     * Nullable(String).IsInstance(42)    ; ==> false
      */
     IsInstance(Val?) => (!IsSet(Val)) || this.T.IsInstance(Val)
 
     /**
      * Determines whether the value is considered equivalent to, or a subtype
-     * of this class.
+     * of `Nullable`. This can be one of the following:
+     * 
+     * - `unset`
+     * - `Nothing`
+     * - `class Nullable`
+     * - any instance of `Nullable`, e.g. `Nullable(String)`
      * 
      * @param   {Any?}  Val  any value
      * @returns {Boolean}
+     * @example
+     * Nullable.CanCastFrom(Nullable) ; ==> true
+     * Nullable.CanCastFrom(Nothing) ; ==> true
+     * Nullable.CanCastFrom(unset) ; ==> true
+     * Nullable.CanCastFrom(Nullable(String)) ; ==> true
      */
     static CanCastFrom(Val?) {
         return (!IsSet(Val)) ; unset
@@ -164,10 +177,19 @@ class Nullable extends Class
     }
 
     /**
-     * Determines whether the value is compatible with this nullable type.
+     * Determines whether the value is equivalent to, or a subtype of this
+     * nullable. A non-nullable type is a subtype of its nullable equivalent,
+     * i.e. `Nullable(A).CanCastFrom(A)` for every `A`.
      * 
      * @param   {Any?}  Val  any value
      * @returns {Boolean}
+     * @example
+     * Nullable(Number).CanCastFrom(Nullable(Integer)) ; ==> true
+     * 
+     * Nullable(Number).CanCastFrom(Number) ; ==> true
+     * Number.CanCastFrom(Nullable(Number)) ; ==> false
+     * 
+     * Nullable(Number).CanCastFrom(Integer) ; ==> true
      */
     CanCastFrom(Val?) {
         if (!IsSet(Val) || (Val == Nothing)) {

@@ -7,6 +7,8 @@
  * A {@link AquaHotkey_DuckType duck type} that represents the absence of a
  * value (the value `unset`, or the absence of an array item or property).
  * 
+ * This class should not be extended.
+ * 
  * @module  <Base/DuckTypes/Nothing>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey

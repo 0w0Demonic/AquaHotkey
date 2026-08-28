@@ -27,8 +27,9 @@ class Callable extends Any {
     /**
      * Determines whether the input value is equivalent to, or a subtype of
      * callable. This is the case, if the input value is a class whose
-     * prototype is callable (for example, `Func` which defines
-     * `Func.Prototype.Call`).
+     * prototype is callable. For example, the class `Func` defines
+     * `Func.Prototype.Call`, which makes every instance of `Func` callable,
+     * therefore `Callable.CanCastFrom(Func)`.
      * 
      * @param   {Any}  Value  any value
      * @returns {Boolean}
