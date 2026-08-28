@@ -56,9 +56,26 @@ class Nullable extends Class
      * @param   {T}  T  inner type of the nullable
      * @returns {Nullable<T>}
      */
-    static Call(T) {
-        return (T is this) ? T ; Nullable<Nullable<T>> is just Nullable<T>
-            : DefineProp({ base: this.Prototype }, "T", { Get: (_) => T })
+    static Call(T) => (T is this)
+        ? T ; Nullable<Nullable<T>> is just Nullable<T>
+        : DefineProp({ base: this.Prototype }, "InnerType", { Get: (_) => T })
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
+    ;@region Fields
+
+    /**
+     * The inner type of the nullable.
+     * 
+     * @public
+     * @abstract
+     * @readonly
+     * @type {Any}
+     */
+    InnerType {
+        get {
+            throw PropertyError("Inner type not defined")
+        }
     }
 
     ;@endregion
@@ -80,7 +97,7 @@ class Nullable extends Class
         if (this == Val) {
             return true
         }
-        return (Val is Nullable) && (this.T).Eq(Val.T)
+        return (Val is Nullable) && (this.InnerType).Eq(Val.InnerType)
     }
 
     /**
@@ -111,10 +128,10 @@ class Nullable extends Class
         if (!IsSet(B)) {
             return false
         }
-        if (!(this.T).IsInstance(A)) {
+        if (!(this.InnerType).IsInstance(A)) {
             throw TypeError("Unexpected argument type: param #1")
         }
-        if (!(this.T).IsInstance(B)) {
+        if (!(this.InnerType).IsInstance(B)) {
             throw TypeError("Unexpected argument type: param #2")
         }
         return (A == B) || A.Eq(B)
@@ -125,14 +142,14 @@ class Nullable extends Class
      * 
      * @returns {Integer}
      */
-    HashCode() => Any.Hash(this.T)
+    HashCode() => Any.Hash(this.InnerType)
 
     /**
      * Returns a string representation of this nullable type.
      * 
      * @returns {String}
      */
-    ToString() => "Nullable<" . String(this.T) . ">"
+    ToString() => "Nullable<" . String(this.InnerType) . ">"
 
     ;@endregion
     ;---------------------------------------------------------------------------
@@ -150,7 +167,7 @@ class Nullable extends Class
      * Nullable(String).IsInstance("foo") ; ==> true
      * Nullable(String).IsInstance(42)    ; ==> false
      */
-    IsInstance(Val?) => (!IsSet(Val)) || this.T.IsInstance(Val)
+    IsInstance(Val?) => (!IsSet(Val)) || (this.InnerType).IsInstance(Val)
 
     /**
      * Determines whether the value is considered equivalent to, or a subtype
@@ -169,12 +186,8 @@ class Nullable extends Class
      * Nullable.CanCastFrom(unset) ; ==> true
      * Nullable.CanCastFrom(Nullable(String)) ; ==> true
      */
-    static CanCastFrom(Val?) {
-        return (!IsSet(Val)) ; unset
-            || (Val == Nothing) ; Nothing
-            || (Val == this) ; Nullable
-            || (Val is this) ; Nullable(...)
-    }
+    static CanCastFrom(Val?)
+        => (!IsSet(Val)) || (Val == Nothing) || (Val == this) || (Val is this)
 
     /**
      * Determines whether the value is equivalent to, or a subtype of this
@@ -195,10 +208,9 @@ class Nullable extends Class
         if (!IsSet(Val) || (Val == Nothing)) {
             return true
         }
-        if (Val is Nullable) {
-            return (this.T).CanCastFrom(Val.T)
-        }
-        return (this.T).CanCastFrom(Val)
+        return (this.InnerType).CanCastFrom((Val is Nullable)
+            ? Val.InnerType
+            : Val)
     }
 
     ;@endregion
@@ -218,6 +230,9 @@ class AquaHotkey_Nullable_Json extends AquaHotkey {
         /**
          * Casts the JSON value into this nullable type.
          * 
+         * If the input value is `Json.Null`, this method converts to `unset`,
+         * otherwise it casts using the inner type.
+         * 
          * @param   {VarRef<Any>}  Val  any value
          */
         CastFromJson(&Val) {
@@ -225,7 +240,7 @@ class AquaHotkey_Nullable_Json extends AquaHotkey {
             if (Val == Json.Null) {
                 Val := unset
             } else {
-                (this.T).CastFromJson(&Val)
+                (this.InnerType).CastFromJson(&Val)
             }
         }
     }
@@ -247,7 +262,7 @@ class AquaHotkey_Nullable_Serialization extends AquaHotkey {
          */
         Serialize(Output, Refs) {
             (Object.Prototype.Serialize)(this, Output, Refs)
-            Output.WriteObject(this.T, Refs)
+            Output.WriteObject(this.InnerType, Refs)
         }
 
         /**
@@ -258,8 +273,8 @@ class AquaHotkey_Nullable_Serialization extends AquaHotkey {
          * @see {@link AquaHotkey_Serializer}
          */
         Deserialize(Input, Refs) {
-            Input.ReadObject(&T, Refs)
-            DefineProp(this, "T", { Get: (_) => T })
+            Input.ReadObject(&InnerType, Refs)
+            DefineProp(this, "InnerType", { Get: (_) => InnerType })
         }
     }
 }
