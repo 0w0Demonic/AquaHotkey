@@ -8,15 +8,15 @@
 /**
  * @duck
  * 
- * A `Record<K, V>` is a {@link AquaHotkey_DuckTypes duck type} that describes
- * plain objects with properties of type `K` and values `V`.
- * 
- * This type does *not* assert that each possible key is present, but *only*
- * where all keys and values adhere to the given contraints. It is therefore
- * comparable to `Partial<Record<K, V>>` in TypeScript.
- * 
- * To constrain an object to a set of properties that it explicitly *must*
- * have, use a regular object as type pattern.
+ * A `Record<K, V>` describes plain objects with certain contraints to their
+ * properties. For an object to be considered instance of the record, each
+ * value property must follow the contraint of the record. More specifically:
+ * the property name must be instance of the key type, and the property value
+ * must be instance of the value type of the record.
+ *
+ * This behavior is comparable to `Partial<Record<K, V>>` in TypeScript.
+ * A `Record` does not assert that certain properties are present in the
+ * object. For this, use a regular object as type pattern.
  * 
  * @module  <Base/DuckTypes/Record>
  * @author  0w0Demonic
@@ -79,6 +79,38 @@ class Record extends Class
 
     ;@endregion
     ;---------------------------------------------------------------------------
+    ;@region Fields
+
+    /**
+     * The key type of the record.
+     *
+     * @public
+     * @abstract
+     * @readonly
+     * @type {Any}
+     */
+    KeyType {
+        get {
+            throw PropertyError("KeyType not defined")
+        }
+    }
+
+    /**
+     * The value type of the record.
+     *
+     * @public
+     * @abstract
+     * @readonly
+     * @type {Any}
+     */
+    ValueType {
+        get {
+            throw PropertyError("ValueType not defined")
+        }
+    }
+
+    ;@endregion
+    ;---------------------------------------------------------------------------
     ;@region Commons
 
     /**
@@ -123,7 +155,6 @@ class Record extends Class
             return false
         }
 
-        ; only supposed to work on plain objects, for now.
         if (!IsPlainObject(Val)) {
             return false
         }
@@ -137,7 +168,6 @@ class Record extends Class
             }
             PropDesc := GetOwnPropDesc(Val, PropName)
             if (!ObjHasOwnProp(PropDesc, "Value")) {
-                ; forbid any type of black magic with prop descs... for now.
                 return false
             }
             if (!V.IsInstance(PropDesc.Value)) {

@@ -6,6 +6,8 @@
  * 
  * A number or numeric string (as determined by `IsNumber()`).
  * 
+ * You can (but shouldn't) create subclasses of `Numeric`.
+ * 
  * @module  <Base/DuckTypes/Numeric>
  * @author  0w0Demonic
  * @see     https://www.github.com/0w0Demonic/AquaHotkey
@@ -45,7 +47,8 @@ class Numeric extends Primitive {
     }
 
     /**
-     * Compares two numeric values by order.
+     * Compares two numeric values by order. Both input values must be
+     * numeric, otherwise this function throws a {@link TypeError}.
      * 
      * @param   {Numeric}  A  value 1
      * @param   {Numeric}  B  value 2
