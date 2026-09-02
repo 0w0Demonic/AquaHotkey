@@ -144,19 +144,54 @@ class IMap {
     }
 
     /**
-     * Unsupported `.Get()` method.
-     * @see {@link Map#Get()}
+     * Default `.Get()` method.
+     * 
+     * @param   {Any}  Key  map key
+     * @returns {Boolean}
      */
     Get(Key, Default?) {
-        throw MethodError("not implemented")
+        for K, V in this {
+            if (Key.Eq(K)) {
+                return V
+            }
+        }
+        if (IsSet(Default)) {
+            return Default
+        }
+        if (HasProp(this, "Default")) {
+            return this.Default
+        }
+        throw UnsetItemError("key not found")
     }
     
     /**
-     * Unsupported `.Has()` method.
-     * @see {@link Map#Has()}
+     * Default `.Has()` method.
+     * 
+     * @param   {Any}  Key  map key
+     * @returns {Boolean}
      */
     Has(Key) {
-        throw MethodError("not implemented")
+        for K, V in this {
+            if (Key.Eq(K)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Default `.HasValue()` method.
+     * 
+     * @param   {Any}  Value  map value
+     * @returns {Boolean}
+     */
+    HasValue(Value) {
+        for K, V in this {
+            if (Value.Eq(V)) {
+                return true
+            }
+        }
+        return false
     }
 
     /**
@@ -181,7 +216,11 @@ class IMap {
      */
     Count {
         get {
-            throw PropertyError("not implemented")
+            Count := 0
+            for K, V in this {
+                Count++
+            }
+            return Count
         }
     }
 
@@ -190,9 +229,7 @@ class IMap {
      * @see {@link Map#Capacity}
      */
     Capacity {
-        get {
-            throw MethodError("not implemented")
-        }
+        get => this.Count
         set {
             throw MethodError("not implemented")
         }
