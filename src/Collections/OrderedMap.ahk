@@ -304,18 +304,6 @@ class OrderedMap extends IMap {
             ((this.M).CaseSense := value)
         }
     }
-
-    /**
-     * Default value returned, if an item is not present.
-     * 
-     * @type {Any?}
-     */
-    Default {
-        get => (this.M).Default
-        set {
-            (this.M).Default := (value?)
-        }
-    }
 }
 
 /**
