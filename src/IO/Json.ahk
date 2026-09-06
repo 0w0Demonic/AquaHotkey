@@ -871,7 +871,7 @@ class AquaHotkey_Json extends AquaHotkey {
          */
         ToJson() {
             Result := "{"
-            for Key, Value in this {
+            if (FirstItemPair(this, &Key, &Value, &More)) {
                 if (!(Key is String)) {
                     throw TypeError("Expected a String",, Type(Key))
                 }
@@ -880,6 +880,17 @@ class AquaHotkey_Json extends AquaHotkey {
                 Result .= Key
                 Result .= ":"
                 Result .= Value
+                while (More(&Key, &Value)) {
+                    if (!(Key is String)) {
+                        throw TypeError("Expected a String",, Type(Key))
+                    }
+                    AquaHotkey_Json(&Key)
+                    AquaHotkey_Json(&Value)
+                    Result .= ","
+                    Result .= Key
+                    Result .= ":"
+                    Result .= Value
+                }
             }
             Result .= "}"
             return Result
@@ -1086,15 +1097,22 @@ class AquaHotkey_Json extends AquaHotkey {
             }
 
             Result := "{"
-            for PropName, PropDesc in OwnValueProps(this) {
-                if (A_Index != 1) {
-                    Result .= ","
-                }
+            Enumer := OwnValueProps(this)
+            if (Enumer(&PropName, &Value)) {
                 AquaHotkey_Json(&PropName)
                 AquaHotkey_Json(&Value)
                 Result .= PropName
                 Result .= ":"
                 Result .= Value
+                
+                while (Enumer(&PropName, &Value)) {
+                    AquaHotkey_Json(&PropName)
+                    AquaHotkey_Json(&Value)
+                    Result .= ","
+                    Result .= PropName
+                    Result .= ":"
+                    Result .= Value
+                }
             }
             Result .= "}"
             return Result
