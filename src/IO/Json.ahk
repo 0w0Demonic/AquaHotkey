@@ -423,9 +423,6 @@ class Json extends Class
     ; (sets up the JSON parser as `Json.Parser { get; }`)
     static __New() {
         ;@region Helpers
-
-        static Constantly(Value) => ((_) => (Value))
-
         if (this != Json) {
             throw ValueError("this class must not be subclassed")
         }
@@ -478,15 +475,16 @@ class Json extends Class
             "f", "`f",
             "n", "`n",
             "r", "`r",
-            "t", "`t"
+            "t", "`t",
+            "/", "/"
         )
 
         Escape := Parser.String("\").Then(Parser.AnyOf(
             ; named escape -> access from map
-            Parser.Regex('["\\bfnrt]').Map(ObjBindMethod(Escapes, "Get")),
+            Parser.Regex('["\\bfnrt/]').Map(ObjBindMethod(Escapes, "Get")),
 
             ; unicode escape -> hex codepoint to charchar
-            Parser.Regex('[0-9a-fA-F]{4}').Map(Hex => Chr(Integer("0x" . Hex)))
+            Parser.Regex('u\K[0-9a-fA-F]{4}').Map(Hex => Chr(Integer("0x" . Hex)))
         ))
 
         Char := Parser.Regex('(?!")[\x{20}-\x{21}\x{23}-\x{5B}\x{5D}-\x{10FFFF}]')
@@ -512,7 +510,7 @@ class Json extends Class
             (Num, Exponent) => Number(Num) * (10 ** Exponent),
 
             ; <sign>? <integer> <fraction>?
-            Parser.Regex("-?(?:0|[1-9][0-9]*)(?:\.[0-9])?"),
+            Parser.Regex("-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?"),
 
             ; <exponent>?
             Parser.Regex("(?:e|E)\K(?:\+|-)?(?:0|[0-9][1-9]*)").OrElse(0)
@@ -548,15 +546,14 @@ class Json extends Class
             PropertyCaseSense := Value
         }
 
-        static CommaDelim := Parser.String(",").Between(Ws)
-
         JsonObj := Parser.Sequence(
                 (Key, Value) => { Key: Key, Value: Value },
                 JsonStr.FollowedBy(Parser.String(":").Between(Ws)),
                 JsonValue
             )
             .Between(Ws)
-            .ZeroOrMoreDelimitedBy(CommaDelim)
+            .AtLeastOnceDelimitedBy(",")
+            .Or(Ws)
             .Between("{", "}")
             .Map(PropsToMap)
 
@@ -574,7 +571,8 @@ class Json extends Class
         ;@region Arrays
 
         JsonArr := JsonValue
-            .ZeroOrMoreDelimitedBy(CommaDelim)
+            .AtLeastOnceDelimitedBy(",")
+            .Or(Ws)
             .Between("[", "]")
         
         ;@endregion
