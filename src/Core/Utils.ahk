@@ -712,8 +712,43 @@ AcceptsParamCount(Obj, ParamSize) {
  * @returns {Enumerator}
  */
 GetEnumerator(Obj, ArgSize := 1) {
+    if (!TryGetEnumerator(&Out, Obj, ArgSize)) {
+        throw Out
+    } else {
+        return Out
+    }
+}
+
+/**
+ * Determines whether the input value is enumerable.
+ *
+ * Use {@link TryGetEnumerator()} to get more detailed error messages,
+ * or the enumerator itself.
+ *
+ * @param   {Object}    Obj      any object
+ * @param   {Integer?}  ArgSize  argument size
+ * @returns {Boolean}
+ * @example
+ * IsEnumerable([1, 2, 3], 2)
+ * ; ==> true (`for Key, Value in [1, 2, 3]` is valid)
+ */
+IsEnumerable(Obj, ArgSize := 1) => TryGetEnumerator(&Ignore, Obj, ArgSize)
+
+/**
+ * Attempts to retrieve an enumerator for an object.
+ *
+ * On success, this function returns `true` and `&Out` receives the enumerator.
+ * On failure, this function returns `false` and `&Out` receives an error.
+ *
+ * @param   {VarRef<Enumerator|Error>}  Out      (out) enumerator or error
+ * @param   {Object}                    Obj      any object
+ * @param   {Integer?}                  ArgSize  argument size
+ * @returns {Boolean}
+ */
+TryGetEnumerator(&Out, Obj, ArgSize := 1) {
     if (!IsInteger(ArgSize)) {
-        throw TypeError("Expected an Integer",, Type(ArgSize))
+        Out := TypeError("Expected an Integer",, Type(ArgSize))
+        return false
     }
     
     ; `.__Enum()` always takes priority before `.Call()`.
@@ -725,10 +760,12 @@ GetEnumerator(Obj, ArgSize := 1) {
     ; at this point, `Obj` MUST be an object AND callable
     ; TODO use `is Object` instead?
     if (!IsObject(Obj)) {
-        throw TypeError("Expected an object",, Type(Obj))
+        Out := TypeError("Expected an object",, Type(Obj))
+        return false
     }
     if (!HasMethod(Obj)) {
-        throw MethodError("not enumerable",, Type(Obj))
+        Out := MethodError("not enumerable",, Type(Obj))
+        return false
     }
 
     ; do some assertions on the parameter length of the stream source.
@@ -765,11 +802,13 @@ GetEnumerator(Obj, ArgSize := 1) {
         ; assume this resulted from `ObjOwnProps()`
         ; (do nothing here...)
     } else if ((Lo - ThisParam) > ArgSize) {
-        throw ValueError("too many parameters for size " . ArgSize,,
+        Out := ValueError("too many parameters for size " . ArgSize,,
                 Lo - ThisParam)
+        return false
     } else if (!Va && (Hi - ThisParam) < ArgSize) {
-        throw ValueError("not enough parameters for size " . ArgSize,,
+        Out := ValueError("not enough parameters for size " . ArgSize,,
                 Hi - ThisParam)
+        return false
     }
 ;.  ; optional. We can ensure that all parameters are byref, but the
 ;.  ; function will fail soon enough with a reasonable error message, if
@@ -784,7 +823,8 @@ GetEnumerator(Obj, ArgSize := 1) {
 ;.  }
 
     ObjSetBase(Obj, Enumerator.Prototype)
-    return Obj
+    Out := Obj
+    return true
 }
 
 /**
