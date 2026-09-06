@@ -814,7 +814,9 @@ class AquaHotkey_Json extends AquaHotkey {
          * @param   {VarRef<Any>}  Val  any value
          */
         CastFromJson(&Val) {
-            throw MethodError("not applicable")
+            if (!this.IsInstance(Val)) {
+                throw TypeError("Unable to cast JSON value",, Type(Val))
+            }
         }
     }
 
