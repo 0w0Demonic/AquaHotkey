@@ -43,6 +43,7 @@
 class Uri {
     ;@region Uri Handlers
 
+    ; TODO consider adding a varargs param here to represent supported schemes
     static __New() {
         ; evil hack:
         ; - we need `Uri` instances to be objects, which means they need to
@@ -131,14 +132,19 @@ class Uri {
      * components. This method performs input validation and normalization of
      * percent escapes (such as `%fa` into `%FA`), but no URL encoding/decoding
      * is done.
+     *
+     * Does nothing, if the input is already a URI.
      * 
      * @constructor
-     * @param   {String}   Str  string that represents a URI
-     * @param   {Object?}  r    plain object that should be constructed
+     * @param   {String|Uri}  Str  URI, or string that represents a URI
+     * @param   {Object?}     r    plain object that should be constructed
      * @returns {Uri}
      * @see {@link https://en.wikipedia.org/wiki/Uniform_Resource_Identifier Wikipedia}
      */
     static Call(Str) {
+        if (Str is this) {
+            return Str
+        }
         if (this.TryParse(Str, &Out)) {
             return Out
         }
