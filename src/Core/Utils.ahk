@@ -705,7 +705,7 @@ AcceptsParamCount(Obj, ParamSize) {
 }
 
 /**
- * Retrieves an enumerator for an object.
+ * Retrieves an enumerator for an object. Throws, if unsuccessful.
  * 
  * @param   {Object}    Obj      any object
  * @param   {Integer?}  ArgSize  argument size
@@ -840,6 +840,23 @@ TryGetEnumerator(&Out, Obj, ArgSize := 1) {
 FirstItem(Obj, &Value?, &More?) {
     More := GetEnumerator(Obj)
     return More(&Value)
+}
+
+/**
+ * Accepts an object and outputs its enumerator and the first item pair, if
+ * present.
+ * Returns `true` if the first item exists, otherwise `false`. Throws, if
+ * unable to enumerate the object.
+ *
+ * @param   {Object}               Obj     any object
+ * @param   {VarRef<Any>?}         Value1  (out) first item
+ * @param   {VarRef<Any>?}         Value2  (out) first item
+ * @param   {VarRef<Enumerator>?}  More    (out) enumerator object
+ * @returns {Boolean}
+ */
+FirstItemPair(Obj, &Value1, &Value2, &More?) {
+    More := GetEnumerator(Obj, 2)
+    return More(&Value1, &Value2)
 }
 
 /**
