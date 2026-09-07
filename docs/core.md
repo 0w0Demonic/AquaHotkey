@@ -288,7 +288,7 @@ class GuiButton extends AquaHotkey {
         class Button {
             Click() {
                 static BM_CLICK := 0x00F5
-                SendMessage(BM_CLICK, 0, 0, this) ; BM_CLICK
+                SendMessage(BM_CLICK, 0, 0, this)
             }
         }
     }
@@ -551,7 +551,7 @@ Arr := Array(1, 2, 3)
 MsgBox(Arr.Default) ; ==> "(null)"
 ```
 
-**Use with caution.**. If possible, you should always override `.__New()` or `static Call()` instead of `.__Init()`.
+**Use with caution.** If possible, you should always override `.__New()` or `static Call()` instead of making changes to `.__Init()`.
 
 ### Array and Object Literals
 
@@ -738,7 +738,7 @@ As workaround, you can *move* the class instead of creating a copy of it:
 
 ```ahk
 DefineProp(A, "B", NestedClassProp(Ext.A.B)) ; o.k.
-DeleteProp(A, "B") ; delete from extension class, if appropriate
+DeleteProp(Ext.A, "B") ; delete from extension class, if appropriate
 ```
 
 #### Using `AquaHotkey_Backup.Of(Cls)`
@@ -1219,7 +1219,9 @@ If you use the Visual Studio Code LSP for AHK v2, you **should** always document
 A complete example:
 
 ```ahk
-/* Additional utilities for String. Blah blah blah. */
+/*
+    Additional utilities for String. Blah blah blah.
+*/
 class StringLength extends AquaHotkey {
     class String {
         static __New() => DefineGetter(this.Prototype, "Length", StrLen)
