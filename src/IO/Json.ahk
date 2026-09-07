@@ -487,7 +487,8 @@ class Json extends Class
             Parser.Regex('u\K[0-9a-fA-F]{4}').Map(Hex => Chr(Integer("0x" . Hex)))
         ))
 
-        Char := Parser.Regex('(?!")[\x{20}-\x{21}\x{23}-\x{5B}\x{5D}-\x{10FFFF}]')
+        ; \x{22} is a quote ", \x{5C} is a backslash \
+        Char := Parser.Regex('[\x{20}-\x{21}\x{23}-\x{5B}\x{5D}-\x{10FFFF}]+')
 
         ; TODO might have lots of potential for optimization, maybe write
         ;      own string parser
