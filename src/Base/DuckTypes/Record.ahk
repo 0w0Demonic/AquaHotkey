@@ -163,11 +163,11 @@ class Record extends Class
         V := this.ValueType
 
         for PropName in ObjOwnProps(Val) {
-            if (!K.IsInstance(PropName)) {
-                return false
-            }
             PropDesc := GetOwnPropDesc(Val, PropName)
             if (!ObjHasOwnProp(PropDesc, "Value")) {
+                continue
+            }
+            if (!K.IsInstance(PropName)) {
                 return false
             }
             if (!V.IsInstance(PropDesc.Value)) {
