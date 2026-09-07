@@ -7,6 +7,11 @@
 ;@region Base\
      ;@region DuckTypes\
           #Include "%A_LineFile%\..\Base\DuckTypes\Boolean.ahk"
+          #Include "%A_LineFile%\..\Base\DuckTypes\Callable.ahk"
+          #Include "%A_LineFile%\..\Base\DuckTypes\Nothing.ahk"
+          #Include "%A_LineFile%\..\Base\DuckTypes\Nullable.ahk"
+          #Include "%A_LineFile%\..\Base\DuckTypes\Numeric.ahk"
+          #Include "%A_LineFile%\..\Base\DuckTypes\Record.ahk"
      ;@endregion
 
      #Include "%A_LineFile%\..\Base\Buffer.ahk"
