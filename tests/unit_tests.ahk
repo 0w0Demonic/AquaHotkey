@@ -5,6 +5,10 @@
 #Include "%A_LineFile%\..\TestSuite.ahk"
 
 ;@region Base\
+     ;@region DuckTypes\
+          #Include "%A_LineFile%\..\Base\DuckTypes\Boolean.ahk"
+     ;@endregion
+
      #Include "%A_LineFile%\..\Base\Buffer.ahk"
      #Include "%A_LineFile%\..\Base\ComValue.ahk"
      #Include "%A_LineFile%\..\Base\Eq.ahk"
