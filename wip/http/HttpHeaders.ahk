@@ -1,6 +1,6 @@
 #Include <AquaHotkey\src\Collections\Generic\Array>
 #Include <AquaHotkey\src\Interfaces\Enumerable1>
-#Include <AquaHotkey\wip\HttpHeader>
+#Include <AquaHotkey\wip\http\HttpHeader>
 
 ; TODO generalize this and `UrlParams`
 
@@ -31,7 +31,13 @@ class AquaHotkey_HttpHeaders extends AquaHotkey {
             Headers := HttpHeaders()
             Arr := Headers.A
             loop parse this, "`n", "`r" {
-                Arr.Push(A_LoopField.ToHttpHeader())
+                Index := InStr(A_LoopField, ":")
+                if (!Index) {
+                    throw ValueError("Missing ':'",, this)
+                }
+                Arr.Push(HttpHeader(
+                    SubStr(A_LoopField, 1, Index - 1),
+                    SubStr(A_LoopField, Index + 1)))
             }
             return Headers
         }
@@ -67,7 +73,7 @@ class AquaHotkey_HttpHeaders extends AquaHotkey {
             Headers := HttpHeaders()
             Arr := Headers.A
             for Value in this {
-                Arr.Push(Value.ToHttpHeader())
+                Arr.Push(Value.ToHttpHeaders()*)
             }
             return Headers
         }

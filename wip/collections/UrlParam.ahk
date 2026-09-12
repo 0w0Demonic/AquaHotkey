@@ -26,5 +26,12 @@ class UrlParam extends Entry {
      * 
      * @returns {String}
      */
-    ToString() => UrlEncode(this.Key) . "=" . UrlEncode(this.Value)
+    ToString() {
+        if (ObjHasOwnProp(this, "__Class")) {
+            throw PropertyError("Cannot be called by prototype object")
+        }
+        Str := UrlEncode(this.Key) . "=" . UrlEncode(this.Value)
+        DefineProp(this, "ToString", { Call: (_) => Str })
+        return Str
+    }
 }

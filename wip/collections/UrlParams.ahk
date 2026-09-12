@@ -2,7 +2,7 @@
 #Include <AquaHotkey\src\Net\UrlEncoding>
 #Include <AquaHotkey\src\Net\Uri>
 
-#Include <AquaHotkey\wip\UrlParam>
+#Include <AquaHotkey\wip\collections\UrlParam>
 
 /**
  * An array of URL query parameters.
@@ -44,6 +44,14 @@ class UrlParams extends GenericArray {
     }
 
     /**
+     * Creates a UrlParams collection from an object.
+     *
+     * @param   {Object}  Val  object containing url query parameters
+     * @returns {UrlParams}
+     */
+    static From(Val) => Val.ToUrlParams()
+
+    /**
      * Returns the string representation of this URL params array.
      * 
      * @returns {String}
@@ -54,9 +62,7 @@ class UrlParams extends GenericArray {
         if (!Enumer(&Param)) {
             return Result
         }
-        Result .= "?"
         Result .= Param.ToString()
-
         for Param in Enumer {
             Result .= "&"
             Result .= Param.ToString()
@@ -93,9 +99,7 @@ class AquaHotkey_UrlParams extends AquaHotkey {
         QueryParams {
             get {
                 Params := UrlParams.Parse(this.Query)
-                ({}.DefineProp)(this, "QueryParams", {
-                    Get: (_) => Params.Clone()
-                })
+                DefineProp(this, "QueryParams", { Get: (_) => Params.Clone() })
                 return Params
             }
         }
@@ -119,10 +123,7 @@ class AquaHotkey_UrlParams extends AquaHotkey {
             if (Args.Length) {
                 Params := UrlParams.FromPairs(Params, Args*)
             }
-            if (!(Params is UrlParams)) {
-                throw TypeError("Expected a UrlParams",, Type(Params))
-            }
-            return this.Resolve("./" . Params.ToString())
+            return Uri(this.ToString() . "?" . Params.ToUrlParams().ToString())
         }
 
         /**
@@ -144,11 +145,53 @@ class AquaHotkey_UrlParams extends AquaHotkey {
             if (Args.Length) {
                 return this.WithQueryParams(QueryParams.Add(Params, Args*))
             }
-            if (!(Params is UrlParams)) {
-                throw TypeError("Expected an UrlParams",, Type(Params))
-            }
+            Params := Params.ToUrlParams()
             QueryParams.Push(Params*)
             return this.WithQueryParams(QueryParams)
         }
+    }
+
+    class Any {
+        ToUrlParams() {
+            throw MethodError("not applicable",, Type(this))
+        }
+    }
+
+    class String {
+        static __New() => DefineProp(this.Prototype, "ToUrlParams", {
+            Call: ObjBindMethod(UrlParams, "Parse")})
+
+        ToUrlParams() => UrlParams.Parse(this)
+    }
+
+    class Object {
+        ToUrlParams() {
+            if (!IsPlainObject(this)) {
+                throw TypeError("Expected a plain object",, Type(this))
+            }
+            Params := UrlParams()
+            for Key, Value in OwnValueProps(this) {
+                Params.Push(UrlParam(Key, Value))
+            }
+            return Params
+        }
+    }
+
+    class IMap {
+        ToUrlParams() {
+            Params := UrlParams()
+            for Key, Value in this {
+                Params.Push(UrlParam(Key, Value))
+            }
+            return Params
+        }
+    }
+
+    class UrlParams {
+        ToUrlParams() => this
+    }
+
+    ; TODO
+    class IArray {
     }
 }

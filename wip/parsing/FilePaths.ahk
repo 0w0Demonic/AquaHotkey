@@ -61,6 +61,219 @@ class Path2 {
         }
         return Out
     }
+
+    ; TODO File[Get|Set]... methods here
+
+    /**
+     * Returns the path for a new temporary file.
+     *
+     * @returns {Path}
+     */
+    static CreateTempFile() {
+        throw Error("not yet implemented")
+    }
+
+    /**
+     * Returns the path for a new temporary directory.
+     *
+     * @returns {Path}
+     */
+    static CreateTempDir() {
+        throw Error("not yet implemented")
+    }
+
+    static CreateDir(Str) {
+
+    }
+
+    static CreateFile(Str) {
+
+    }
+
+    static CreateSymLink() {
+
+    }
+
+    /**
+     * Determines whether this path exists on the filesystem.
+     *
+     * @readonly
+     * @type {Boolean}
+     */
+    Exists {
+        get {
+            throw Error("not yet implemented")
+        }
+    }
+
+    /**
+     * Returns an {@link Enumerator} 
+     */
+    static Find(Spec) {
+        ; check whether Spec is valid with `PathIsFileSpec`, then use
+        ; that to iterate lazily
+        ;
+        ; NOTE: might need to create a special
+        ; `class FileEnumerator extends Enumerator` with `.__Delete()` method
+        ;
+        throw Error("not yet implemented")
+    }
+
+    /**
+     * Creates a new {@link Path} from a {@link Uri}.
+     *
+     * The input valid must be a `Uri` that has either no scheme, or a scheme
+     * equal to `file://`.
+     *
+     * @param   {Uri}  UriObj  URI file path
+     * @returns {Path}
+     */
+    static FromUri(UriObj) {
+        throw Error("not yet implemented")
+    }
+
+    ToUri() {
+        throw Error("not yet implemented")
+    }
+
+    IsAbsolute {
+        get {
+            throw Error("not yet implemented")
+        }
+    }
+
+    IsRelative {
+        get {
+            throw Error("not yet implemented")
+        }
+    }
+
+    Open(Flags := "r", Encoding?) {
+        ; return FileOpen(this.Value, Flags, Encoding?)
+    }
+
+    IsFile {
+        get {
+
+        }
+    }
+
+    IsDirectory {
+        get {
+
+        }
+    }
+
+    ToString() {
+        throw Error("not yet implemented")
+    }
+
+    Compare(Other) {
+        throw Error("not yet implemented")
+    }
+
+    Eq(Other?) {
+        if (!IsSet(Other)) {
+            return false
+        }
+        if (this == Other) {
+            return true
+        }
+        if (!(Other is Path2)) {
+            return false
+        }
+        throw Error("not yet implemented")
+    }
+
+    HashCode() {
+        throw Error("not yet implemented")
+    }
+
+    Parent {
+        get {
+            throw Error("not yet implemented")
+        }
+    }
+
+    WithParent(Parent) {
+        throw Error("not yet implemented")
+    }
+
+    Normalize() {
+        throw Error("not yet implemented")
+    }
+
+    Relativize(Other) {
+        throw Error("not yet implemented")
+    }
+
+    Resolve(Other) {
+        throw Error("not yet implemented")
+    }
+
+    ResolveSymLink() {
+        throw Error("not yet implemented")
+    }
+
+    Children {
+        get {
+            ObjSetBase(Enumer, Enumerator.Prototype)
+            return Enumer
+
+            Enumer(&OutValue) {
+                throw Error("not yet implemented")
+            }
+        }
+    }
+
+    Walk(Spec?) {
+
+    }
+
+    ;@region Misc
+
+    Encrypt() {
+
+    }
+
+    Decrypt() {
+
+    }
+
+    ;@endregion
+}
+
+class AquaHotkey_Path extends AquaHotkey {
+    class File {
+        Path {
+            get {
+
+            }
+        }
+    }
+
+    class Uri {
+        ToPath() {
+
+        }
+
+        static FromPath(PathObj) {
+
+        }
+    }
+}
+
+class AquaHotkey_FileTransactions extends AquaHotkey {
+    class File {
+        /**
+         * 
+         */
+        static CreateTransaction(Action) {
+            GetMethod(Action,, 1)
+            throw Error("not yet implemented")
+        }
+    }
 }
 
 Path2("C:\Windows\System32\Foo").ToString().MsgBox()
+

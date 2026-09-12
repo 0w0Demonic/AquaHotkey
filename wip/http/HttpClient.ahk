@@ -4,10 +4,10 @@
 #Include <AquaHotkey\src\Net\Uri>
 #Include <AquaHotkey\src\Monads\TryOp>
 
-#Include <AquaHotkey\wip\HttpHeaders>
-#Include <AquaHotkey\wip\HttpMethod>
-#Include <AquaHotkey\wip\UrlParam>
-#Include <AquaHotkey\wip\UrlParams>
+#Include <AquaHotkey\wip\http\HttpHeaders>
+#Include <AquaHotkey\wip\http\HttpMethod>
+#Include <AquaHotkey\wip\collections\UrlParam>
+#Include <AquaHotkey\wip\collections\UrlParams>
 
 class HttpUri extends Uri {
     static Schemes => ["http", "https"]
@@ -15,7 +15,7 @@ class HttpUri extends Uri {
 
 class HttpClient {
     __New() {
-        DefineConst(this, "Client", ComObject("MSXML2.XMLHTTP.6.0"))
+        DefineConst(this, "Client", ComObject("WinHttp.WinHttpRequest.5.1"))
     }
 
     static __New() {
@@ -32,8 +32,9 @@ class HttpClient {
         {
             Url := Url.AssertType(HttpUri).ToString()
             Headers := Headers.ToHttpHeaders().AssertType(HttpHeaders)
+
             if (IsSet(Body) && (IsObject(Body) || !(Body is String))) {
-                throw TypeError("Expected a String",, Type(Body))
+                Body := String(Body)
             }
             
             C := (this.Client)
@@ -43,18 +44,34 @@ class HttpClient {
             }
             C.Send(Body?)
 
-            return HttpResponse(C.ResponseText, C.ResponseXML, C.Status, C.StatusText)
+            return HttpResponse(C.ResponseText, this.ResponseBody, C.Status, C.StatusText)
+        }
+    }
+
+    ResponseBody {
+        get {
+            pSafeArray := ComObjValue(t := this.Client.ResponseBody)
+            pvData := NumGet(pSafeArray + 8 + A_PtrSize, 'ptr')
+            cbElements := NumGet(pSafeArray + 8 + A_PtrSize * 2, 'uint')
+            MsgBox("returning")
+            return ClipboardAll(pvData, cbElements)
         }
     }
 }
 
 class HttpResponse {
-    __New(ResponseText, ResponseXML, Status, StatusText) {
+    __New(ResponseText, ResponseBody, Status, StatusText) {
         DefineConst(this, "ResponseText", ResponseText)
-        DefineConst(this, "ResponseXML", ResponseXML)
+        DefineConst(this, "ResponseBody", ResponseBody)
         DefineConst(this, "Status", Status)
         DefineConst(this, "StatusText", StatusText)
     }
+
+    ToString() => Format("
+    (
+    {}: {}
+    {}
+    )", this.Status, this.StatusText, this.ResponseText)
 }
 
 class AquaHotkey_HttpClient extends AquaHotkey {
@@ -77,3 +94,4 @@ class AquaHotkey_HttpClient extends AquaHotkey {
         }
     }
 }
+

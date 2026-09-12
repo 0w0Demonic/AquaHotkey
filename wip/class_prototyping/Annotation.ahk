@@ -9,7 +9,6 @@ LazyInit(Target, PropName, PropDesc) {
     if (!ObjHasOwnProp(PropDesc, "Get")) {
         throw Error()
     }
-    
     DefineProp(Target, PropName, { Get: Getter })
     Getter(this) {
         if (ObjHasOwnProp(this, "__Class")) {
@@ -129,9 +128,6 @@ class Person {
 
         FirstName: [Checked()]
     })
-}
-
-class Person {
 }
 
 class Person_Annotations extends Annotation {
