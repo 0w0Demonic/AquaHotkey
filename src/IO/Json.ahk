@@ -483,7 +483,7 @@ class Json extends Class
             ; named escape -> access from map
             Parser.Regex('["\\bfnrt/]').Map(ObjBindMethod(Escapes, "Get")),
 
-            ; unicode escape -> hex codepoint to charchar
+            ; unicode escape -> hex codepoint to char
             Parser.Regex('u\K[0-9a-fA-F]{4}').Map(Hex => Chr(Integer("0x" . Hex)))
         ))
 
