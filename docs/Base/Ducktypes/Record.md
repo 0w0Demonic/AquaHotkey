@@ -2,25 +2,40 @@
 
 - [\<Base/DuckTypes/Record\>](#baseducktypesrecord)
   - [Overview](#overview)
+  - [Compared to Regular Objects](#compared-to-regular-objects)
   - [Pattern Matching](#pattern-matching)
   - [Subtypes](#subtypes)
+  - [Future Plans](#future-plans)
 
 ## Overview
 
-A [duck type](../DuckTypes.md) that represents objects with specified key and value type. Only plain objects are matched - ones that inherit directly from `Object.Prototype` and no other class.
+A record represents a plain object with constraints to its properties.
+
+For each property of the object, ...
+
+1. the property name must be instance of the record's key type;
+2. the property value must be instance of the record's value type.
+
+Only plain objects can be instance of a record.
 
 ```ahk
 Obj := {
     Admin: "do what you want lol",
     User: "okay, you're allowed in",
-  ; Guest: "fine... but don't touch anything"
 }
 
 Rec := Record(Type.Enum("Admin", "User", "Guest"), String)
 Obj.Is(Rec) ; true
 ```
 
-Not all specified properties have to be present in the object -- for this purpose, use a plain object like `{ Admin: String, ... }`. Only that the properties match the contraints given by the record. It's therefore comparable to a `Partial<Record<K, V>>` in TypeScript.
+## Compared to Regular Objects
+
+A record does not check whether an object has a set of properties. Instead, all of the properties of an object must match the constraints specified by the record. This is comparable to a `Partial<Record<K, V>>` in JavaScript. To determine whether an object owns a set of properties, use plain objects as type patterns instead.
+
+```autohotkey
+{ A: "foo", B: "bar" }.Is({ A: String, B: String, C: String })
+; ==> false (does not have property `C`)
+```
 
 ## Pattern Matching
 
@@ -43,3 +58,10 @@ Whether a record is considered a subclass of another record depends on its key a
 
 ; --> true (because `String.CanCastFrom(String) && Any.CanCastFrom(Integer)`)
 ```
+
+## Future Plans
+
+- There should be a way to create a record class by using a fixed set of keys rather than a type.
+- Due to its behavior, `Record` should probably be renamed to `PartialRecord`.
+- Implement `.CanCastFrom()` logic to determine the relation of two record types
+

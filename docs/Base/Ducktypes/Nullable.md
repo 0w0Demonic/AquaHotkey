@@ -7,7 +7,7 @@
 
 ## Overview
 
-A [type wrapper](../DuckTypes.md#nullable) that allows matching both `unset` and values of an inner type.
+The nullable type defines a variation of an existing type which can be `unset`.
 
 ```ahk
 MaybeStr := Nullable(String)
