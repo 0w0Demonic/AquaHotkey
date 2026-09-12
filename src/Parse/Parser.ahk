@@ -80,7 +80,7 @@ class Parser extends Func {
      */
     static Whitespace(Len?) {
         if (!IsSet(Len)) {
-            return this.ZeroOrMore(IsSpace, "whitespace")
+            return this.OneOrMore(IsSpace, "whitespace")
         }
         return this.Chars(Len).SuchThat(IsSpace)
     }
