@@ -751,6 +751,10 @@ TryGetEnumerator(&Out, Obj, ArgSize := 1) {
         Out := TypeError("Expected an Integer",, Type(ArgSize))
         return false
     }
+    if (ArgSize <= 0) {
+        Out := ValueError("argument size must be > 0",, ArgSize)
+        return false
+    }
     
     ; `.__Enum()` always takes priority before `.Call()`.
     ; Also allowed to be something like `String.Prototype.__Enum()`.
