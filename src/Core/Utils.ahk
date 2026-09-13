@@ -597,7 +597,7 @@ TryDeref(Ref, &OutValue) {
 
 /**
  * Returns the object that owns a property of the given name in the
- * inheritance chain of `Obj`, of `false` if the property doesn't exist.
+ * inheritance chain of `Obj`, or `false` if the property doesn't exist.
  * 
  * @param   {Object}  Obj       any object
  * @param   {String}  PropName  name of the property
