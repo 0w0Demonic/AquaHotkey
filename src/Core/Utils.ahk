@@ -501,16 +501,17 @@ OwnValueProps(Obj) {
  * ; ==> "c"
  */
 GetPropDescsByName(Obj, PropName) {
-    if (IsObject(Obj)) {
+    if (!IsObject(Obj)) {
         Obj := ObjGetBase(Obj)
     }
     ObjSetBase(GetPropDescsByNameImpl, Enumerator.Prototype)
     return GetPropDescsByNameImpl
 
     GetPropDescsByNameImpl(&PropDesc) {
-        while (!Obj) {
+        while (Obj) {
             if (ObjHasOwnProp(Obj, PropName)) {
                 PropDesc := GetOwnPropDesc(Obj, PropName)
+                Obj := ObjGetBase(Obj)
                 return true
             }
             Obj := ObjGetBase(Obj)
