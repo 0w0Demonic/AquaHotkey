@@ -891,6 +891,37 @@ Pairwise(Obj) {
 }
 
 /**
+ * Returns a 1-argument enumerator that "flattens" pairs from a 2-argument
+ * enumerator into alternating first and second value.
+ *
+ * @param   {Object}  Obj  any object
+ * @returns {Enumerator}
+ * @example
+ * for Key, Value in Map(1, 2, 3, 4) { ... }
+ * ; ==> <(1, 2), (3, 4)>
+ *
+ * for Item in Unpair(Map(1, 2, 3, 4)) { ... }
+ * ; ==> <1, 2, 3, 4>
+ */
+Unpair(Obj) {
+    Enumer := GetEnumerator(Obj, 2)
+    ObjSetBase(Unpaired, Enumerator.Prototype)
+    Current := (*) => false
+    return Unpaired
+
+    Unpaired(&Out) {
+        if (Current(&Out)) {
+            return true
+        }
+        if (!Enumer(&Out, &Value)) {
+            return false
+        }
+        Current := Array(Value).__Enum(1)
+        return true
+    }
+}
+
+/**
  * Returns a 2-argument enumerator that enumerates the given object in pairs
  * of two. The enumerator throws an error if it encounters an incomplete pair.
  * You should prefer using {@link Pairwise} if the length of the enumerated
