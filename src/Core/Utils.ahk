@@ -501,7 +501,7 @@ OwnValueProps(Obj) {
  * ; ==> "c"
  */
 GetPropDescsByName(Obj, PropName) {
-    if (!IsObject(Obj)) {
+    if (!IsObject(Obj) || (Obj is VarRef)) {
         Obj := ObjGetBase(Obj)
     }
     ObjSetBase(GetPropDescsByNameImpl, Enumerator.Prototype)
@@ -597,9 +597,9 @@ TryDeref(Ref, &OutValue) {
 
 /**
  * Returns the object that owns a property of the given name in the
- * inheritance chain of `Obj`, or `false` if the property doesn't exist.
+ * inheritance chain of `Value`, or `false` if the property doesn't exist.
  * 
- * @param   {Object}  Obj       any object
+ * @param   {Any}     Value     any object
  * @param   {String}  PropName  name of the property
  * @returns {Object}
  * @example
@@ -607,14 +607,17 @@ TryDeref(Ref, &OutValue) {
  * OwnerOfProp(Arr, "Length") ; ==> Array.Prototype
  * OwnerOfProp(Arr, "DefineProp") ; ==> Object.Prototype
  */
-OwnerOfProp(Obj, PropName) {
-    if (!HasProp(Obj, PropName)) {
+OwnerOfProp(Value, PropName) {
+    if (!HasProp(Value, PropName)) {
         return false
     }
-    while (!ObjHasOwnProp(Obj, PropName)) {
-        Obj := ObjGetBase(Obj)
+    if (!IsObject(Value) || (Value is VarRef)) {
+        Value := ObjGetBase(Value)
     }
-    return Obj
+    while (!ObjHasOwnProp(Value, PropName)) {
+        Value := ObjGetBase(Value)
+    }
+    return Value
 }
 
 /**
