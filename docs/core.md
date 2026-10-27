@@ -396,7 +396,7 @@ TODO maybe add chess.com icons to mark sections as difficult
 
 #### One Feature, One Class
 
-At first, the structure of extension classes might seem a unnecessarily verbose.
+At first, the structure of extension classes might seem unnecessarily verbose.
 
 The reason is that *one extension class represents one feature*, where changes can span across multiple classes, i.e. multiple extensions.
 
@@ -409,7 +409,7 @@ class Ext_ToString extends AquaHotkey {
 }
 ```
 
-With this structure, AquaHotkey reliably knows where to put the same property into multiple different targets.
+With this structure, AquaHotkey reliably knows where to put the same property into multiple different targets. For this kind of requirement, this nested class structure is considerably the most convenient solution.
 
 As an example: [Base/DuckTypes](./base/DuckTypes.md) spans across many hundreds of lines of code and across almost all built-in types.
 
@@ -431,7 +431,7 @@ Generally speaking: *one feature, one file*.
 #Include <Map_StaticConstructors>
 ```
 
-Try to be very descriptive of what an extension does, and don't be afraid to make it verbose. This assures that you don't run into issues with duplicate names.
+Because extension classes are very reusable, you should try to be very descriptive of what an extension does, so don't be afraid to make it verbose. This assures that you don't ever run into issues with duplicate names.
 
 Also see: [Naming Conventions](#naming-conventions)
 
